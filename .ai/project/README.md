@@ -1,9 +1,10 @@
-# NOOR Project Operating System — Post-Persistence Reconciliation Checkpoint V2
+# NOOR Project Operating System — Foundational successor transition candidate
 
-Status: **CANDIDATE READY FOR READ-ONLY REVIEW; NOT YET AUTHORIZED FOR CONTROL-REF MUTATION**.
+Status: **DERIVED PRE-TRANSITION POSTIMAGE CANDIDATE; PENDING FRESH INDEPENDENT TRANSITION REVIEW**.
 
-The initial 21-file genesis Record Set remains frozen in control commit `399d94a1bde2fc16d7c62c02a5276b4b56bff9de`. Independent post-persistence verification passed. This bounded delta updates current durable control state so a newly bootstrapped team does not reconstruct the obsolete pre-review construction phase.
+Control preimage: `f0abf45a3ce237f04b92d38a8e7e9b8e731eb52e` / `6e630d9ff52b559945b9289f9bf9a61203619943`.
+Owner R6 authority record: `noor-v12-owner-r6-attestation-5baf56f7e5ed23fc71fe6cc8ad1e55ebaf83c1973402e2324aa554826c6215a8`.
 
-This checkpoint uses stable conditional semantics: it does not claim a future containing commit ID and does not persist a `NOT_YET_PERSISTED` fact that would become false merely because the checkpoint was written. At read time, the consumer derives the live `refs/heads/noor/project-ops` identity, verifies the current control state, and may dispatch PROJECT_MANAGER bootstrap only after that verification passes.
+No Owner Transition Authorization exists for this candidate. No authorization has been consumed, no canonical write marker exists, no CAS has been attempted, and no persisted verification is claimed.
 
-This delta does not alter Product HEAD/TREE/index/worktree, does not change protected Step044 bytes, carries no Product execution authority, and carries no repository mutation authority. Any control-ref update requires a new exact Owner Authorization and CAS from the verified parent.
+The exact target tree and deterministic target commit are derived externally from these bytes for Fresh Independent Transition Review. Product execution remains paused.
