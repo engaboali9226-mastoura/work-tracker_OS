@@ -13,3 +13,11 @@ export type {
 export type {
     ComponentManifest,
 } from "./component-manifest.js";
+
+export type {
+    ComponentTemplate,
+} from "./component-template.js";
+
+export type {
+    ComponentFactory,
+} from "./component-factory.js";
