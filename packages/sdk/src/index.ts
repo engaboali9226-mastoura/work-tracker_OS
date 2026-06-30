@@ -21,3 +21,7 @@ export type {
 export type {
     ComponentFactory,
 } from "./component-factory.js";
+
+export type {
+    ComponentBootstrap,
+} from "./component-bootstrap.js";
