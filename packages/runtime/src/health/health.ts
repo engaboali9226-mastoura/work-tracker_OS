@@ -1,5 +1,12 @@
-export interface HealthStatus {
+/**
+ * Runtime Health
+ *
+ * Represents the health monitoring contract of the Runtime.
+ */
+export interface RuntimeHealth {
 
-    readonly healthy: boolean;
+    isHealthy(): boolean;
+
+    check(): Promise<void>;
 
 }
