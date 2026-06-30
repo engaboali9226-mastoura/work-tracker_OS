@@ -1,0 +1,34 @@
+name: Work Tracker OS
+
+version: 1.0.0
+
+status: foundation
+
+packages:
+
+  - runtime
+  - domain
+  - application
+  - infrastructure
+  - core
+  - contracts
+  - events
+  - shared
+  - testing
+
+applications:
+
+  - forge
+  - web
+
+components:
+
+  - workday
+  - attendance
+  - tasks
+  - notifications
+  - reports
+  - dashboard
+  - analytics
+  - integrations
+

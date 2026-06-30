@@ -1,0 +1,117 @@
+version: 1.0.0
+
+components:
+
+  workday:
+    status: active
+    owner: business
+    package: component
+    dependencies: []
+    inputPorts:
+      - start-workday
+      - end-workday
+    outputPorts:
+      - workday-started
+      - workday-ended
+
+  attendance:
+    status: active
+    owner: business
+    package: component
+    dependencies:
+      - workday
+    inputPorts:
+      - check-in
+      - check-out
+    outputPorts:
+      - checked-in
+      - checked-out
+
+  tasks:
+    status: active
+    owner: business
+    package: component
+    dependencies:
+      - workday
+    inputPorts:
+      - create-task
+      - start-task
+      - pause-task
+      - resume-task
+      - complete-task
+      - cancel-task
+    outputPorts:
+      - task-created
+      - task-started
+      - task-paused
+      - task-resumed
+      - task-completed
+      - task-cancelled
+
+  notifications:
+    status: active
+    owner: business
+    package: component
+    dependencies:
+      - workday
+      - tasks
+    inputPorts:
+      - create-notification
+    outputPorts:
+      - notification-sent
+
+  reports:
+    status: active
+    owner: business
+    package: component
+    dependencies:
+      - workday
+      - attendance
+      - tasks
+    inputPorts:
+      - generate-report
+    outputPorts:
+      - report-generated
+
+  dashboard:
+    status: active
+    owner: presentation
+    package: component
+    dependencies:
+      - workday
+      - attendance
+      - tasks
+      - notifications
+      - reports
+      - analytics
+    inputPorts:
+      - refresh-dashboard
+    outputPorts:
+      - dashboard-view
+
+  analytics:
+    status: active
+    owner: intelligence
+    package: component
+    dependencies:
+      - attendance
+      - tasks
+      - reports
+    inputPorts:
+      - analyze
+    outputPorts:
+      - recommendation-generated
+
+  integrations:
+    status: active
+    owner: infrastructure
+    package: component
+    dependencies:
+      - notifications
+      - analytics
+      - reports
+    inputPorts:
+      - synchronize
+    outputPorts:
+      - synchronization-completed
+

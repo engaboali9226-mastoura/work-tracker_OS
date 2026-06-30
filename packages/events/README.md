@@ -1,0 +1,3 @@
+# Events
+
+Shared platform events.

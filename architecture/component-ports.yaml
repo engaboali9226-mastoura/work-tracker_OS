@@ -1,0 +1,60 @@
+workday:
+  inputs:
+    - start-workday
+    - end-workday
+  outputs:
+    - workday-started
+    - workday-ended
+
+attendance:
+  inputs:
+    - check-in
+    - check-out
+  outputs:
+    - checked-in
+    - checked-out
+
+tasks:
+  inputs:
+    - create-task
+    - start-task
+    - pause-task
+    - resume-task
+    - complete-task
+  outputs:
+    - task-created
+    - task-started
+    - task-paused
+    - task-resumed
+    - task-completed
+
+notifications:
+  inputs:
+    - create-notification
+  outputs:
+    - notification-sent
+
+reports:
+  inputs:
+    - generate-report
+  outputs:
+    - report-generated
+
+dashboard:
+  inputs:
+    - refresh-dashboard
+  outputs:
+    - dashboard-view
+
+analytics:
+  inputs:
+    - analyze
+  outputs:
+    - recommendation-generated
+
+integrations:
+  inputs:
+    - synchronize
+  outputs:
+    - synchronization-completed
+

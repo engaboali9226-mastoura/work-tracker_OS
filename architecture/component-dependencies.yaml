@@ -1,0 +1,43 @@
+workday:
+  dependsOn: []
+
+attendance:
+  dependsOn:
+    - workday
+
+tasks:
+  dependsOn:
+    - workday
+
+notifications:
+  dependsOn:
+    - workday
+    - tasks
+
+reports:
+  dependsOn:
+    - attendance
+    - tasks
+    - workday
+
+dashboard:
+  dependsOn:
+    - workday
+    - attendance
+    - tasks
+    - notifications
+    - reports
+    - analytics
+
+analytics:
+  dependsOn:
+    - attendance
+    - tasks
+    - reports
+
+integrations:
+  dependsOn:
+    - notifications
+    - analytics
+    - reports
+
