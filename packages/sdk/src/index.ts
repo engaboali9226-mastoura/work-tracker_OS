@@ -33,3 +33,7 @@ export type {
 export type {
     PlatformAPI,
 } from "./platform-api.js";
+
+export type {
+    ComponentRegistry,
+} from "./component-registry.js";
