@@ -1,60 +1,42 @@
-workday:
-  inputs:
-    - start-workday
-    - end-workday
-  outputs:
-    - workday-started
-    - workday-ended
+apiVersion: worktracker.io/v1
 
-attendance:
-  inputs:
-    - check-in
-    - check-out
-  outputs:
-    - checked-in
-    - checked-out
+kind: PortDocumentation
 
-tasks:
-  inputs:
-    - create-task
-    - start-task
-    - pause-task
-    - resume-task
-    - complete-task
-  outputs:
-    - task-created
-    - task-started
-    - task-paused
-    - task-resumed
-    - task-completed
+title: Component Ports
 
-notifications:
-  inputs:
-    - create-notification
-  outputs:
-    - notification-sent
+status: Active
 
-reports:
-  inputs:
-    - generate-report
-  outputs:
-    - report-generated
+description: |
 
-dashboard:
-  inputs:
-    - refresh-dashboard
-  outputs:
-    - dashboard-view
+  This file is documentation only.
 
-analytics:
-  inputs:
-    - analyze
-  outputs:
-    - recommendation-generated
+  Every component declares its own input and output
+  ports inside its manifest.
 
-integrations:
-  inputs:
-    - synchronize
-  outputs:
-    - synchronization-completed
+sourceOfTruth:
+
+  - components/*/component.yaml
+
+manifestField:
+
+  spec:
+
+    ports:
+
+      inputs: []
+
+      outputs: []
+
+generatedArtifacts:
+
+  - runtime/component-registry.json
+
+notes:
+
+  - Never declare ports here.
+
+  - Never duplicate port definitions.
+
+  - Runtime discovers ports from every component
+    manifest.
 

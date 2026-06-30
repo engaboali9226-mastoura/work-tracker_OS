@@ -36,8 +36,7 @@ const FILES = [
     ["LOGGING.md","docs/LOGGING.md"],
     ["METRICS.md","docs/METRICS.md"],
     ["TESTS.md","tests/TESTS.md"],
-    ["EXECUTION.md","execution/EXECUTION.md"],
-    ["component.yaml","component.yaml"]
+    ["EXECUTION.md","execution/EXECUTION.md"]
 ] as const;
 
 export function generateComponent(name:string):void{

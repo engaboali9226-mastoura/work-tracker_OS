@@ -1,0 +1,2639 @@
+============================================================
+ WORK TRACKER OS - ARCHITECTURE REVIEW
+============================================================
+
+================ ROOT TREE ================
+.
+├── .ai
+│   ├── architecture
+│   │   └── COMPONENT_TEMPLATE.md
+│   ├── components
+│   ├── context
+│   │   └── PROJECT_RULES.md
+│   ├── contracts
+│   ├── decisions
+│   │   └── ADR-000.md
+│   ├── execution
+│   └── state
+│       └── PROJECT_STATE.md
+├── .editorconfig
+├── .gitattributes
+├── .gitignore
+├── .npmrc
+├── LICENSE
+├── README.md
+├── apps
+│   ├── forge
+│   │   ├── README.md
+│   │   ├── components
+│   │   │   ├── runtime
+│   │   │   │   ├── contracts
+│   │   │   │   ├── docs
+│   │   │   │   ├── execution
+│   │   │   │   ├── implementation
+│   │   │   │   ├── specification
+│   │   │   │   └── tests
+│   │   │   ├── sample
+│   │   │   │   ├── contracts
+│   │   │   │   ├── docs
+│   │   │   │   ├── execution
+│   │   │   │   ├── implementation
+│   │   │   │   ├── specification
+│   │   │   │   └── tests
+│   │   │   └── workday
+│   │   │       ├── contracts
+│   │   │       ├── docs
+│   │   │       ├── execution
+│   │   │       ├── implementation
+│   │   │       ├── specification
+│   │   │       └── tests
+│   │   ├── package.json
+│   │   ├── src
+│   │   │   ├── commands
+│   │   │   │   ├── .gitkeep
+│   │   │   │   ├── create-component.command.ts
+│   │   │   │   └── doctor.command.ts
+│   │   │   ├── configuration
+│   │   │   │   └── .gitkeep
+│   │   │   ├── contracts
+│   │   │   │   └── .gitkeep
+│   │   │   ├── core
+│   │   │   │   ├── .gitkeep
+│   │   │   │   ├── constants
+│   │   │   │   │   └── reserved-component-names.ts
+│   │   │   │   ├── filesystem
+│   │   │   │   │   └── ensure-directory.ts
+│   │   │   │   ├── reports
+│   │   │   │   │   └── forge-report.ts
+│   │   │   │   ├── validation
+│   │   │   │   │   └── component-name.validator.ts
+│   │   │   │   └── workspace
+│   │   │   │       └── workspace-root.ts
+│   │   │   ├── doctor
+│   │   │   │   └── .gitkeep
+│   │   │   ├── filesystem
+│   │   │   │   └── .gitkeep
+│   │   │   ├── generators
+│   │   │   │   ├── .gitkeep
+│   │   │   │   ├── component.generator.ts
+│   │   │   │   └── component.generator.ts.bak
+│   │   │   ├── logger
+│   │   │   │   └── .gitkeep
+│   │   │   ├── main.ts
+│   │   │   ├── templates
+│   │   │   │   └── .gitkeep
+│   │   │   ├── testing
+│   │   │   │   └── .gitkeep
+│   │   │   ├── utils
+│   │   │   ├── version.ts
+│   │   │   └── workspace
+│   │   │       └── workspace.ts
+│   │   ├── tests
+│   │   └── tsconfig.json
+│   ├── web
+│   │   ├── README.md
+│   │   ├── index.html
+│   │   ├── package.json
+│   │   ├── public
+│   │   ├── src
+│   │   │   ├── app
+│   │   │   ├── assets
+│   │   │   ├── components
+│   │   │   ├── features
+│   │   │   ├── hooks
+│   │   │   ├── layouts
+│   │   │   ├── main.tsx
+│   │   │   ├── pages
+│   │   │   ├── router
+│   │   │   ├── services
+│   │   │   ├── shared
+│   │   │   ├── styles
+│   │   │   └── theme
+│   │   ├── tsconfig.json
+│   │   └── vite.config.ts
+│   └── workos-cli
+│       ├── README.md
+│       ├── src
+│       │   ├── commands
+│       │   │   └── .gitkeep
+│       │   ├── core
+│       │   │   └── .gitkeep
+│       │   ├── main.ts
+│       │   ├── templates
+│       │   │   └── .gitkeep
+│       │   └── utils
+│       │       └── .gitkeep
+│       └── tests
+├── architecture
+│   ├── component-dependencies.yaml
+│   ├── component-ports.yaml
+│   ├── component-registry.yaml
+│   └── system.manifest.yaml
+├── architecture-review.txt
+├── components
+│   ├── COMPONENTS.md
+│   ├── ai-assistant
+│   │   ├── component.yaml
+│   │   ├── contracts
+│   │   │   └── CONTRACT.md
+│   │   ├── docs
+│   │   │   ├── DECISIONS.md
+│   │   │   ├── HEALTH.md
+│   │   │   ├── LOGGING.md
+│   │   │   ├── METRICS.md
+│   │   │   └── README.md
+│   │   ├── execution
+│   │   │   └── EXECUTION.md
+│   │   ├── implementation
+│   │   │   └── .gitkeep
+│   │   ├── specification
+│   │   │   └── SPECIFICATION.md
+│   │   └── tests
+│   │       └── TESTS.md
+│   ├── analytics
+│   │   ├── component.yaml
+│   │   ├── contracts
+│   │   │   └── CONTRACT.md
+│   │   ├── docs
+│   │   │   ├── DECISIONS.md
+│   │   │   ├── HEALTH.md
+│   │   │   ├── LOGGING.md
+│   │   │   ├── METRICS.md
+│   │   │   └── README.md
+│   │   ├── execution
+│   │   │   └── EXECUTION.md
+│   │   ├── implementation
+│   │   │   └── .gitkeep
+│   │   ├── specification
+│   │   │   └── SPECIFICATION.md
+│   │   └── tests
+│   │       └── TESTS.md
+│   ├── attendance
+│   │   ├── component.yaml
+│   │   ├── contracts
+│   │   │   └── CONTRACT.md
+│   │   ├── docs
+│   │   │   ├── DECISIONS.md
+│   │   │   ├── HEALTH.md
+│   │   │   ├── LOGGING.md
+│   │   │   ├── METRICS.md
+│   │   │   └── README.md
+│   │   ├── execution
+│   │   │   └── EXECUTION.md
+│   │   ├── implementation
+│   │   │   └── .gitkeep
+│   │   ├── specification
+│   │   │   └── SPECIFICATION.md
+│   │   └── tests
+│   │       └── TESTS.md
+│   ├── dashboard
+│   │   ├── component.yaml
+│   │   ├── contracts
+│   │   │   └── CONTRACT.md
+│   │   ├── docs
+│   │   │   ├── DECISIONS.md
+│   │   │   ├── HEALTH.md
+│   │   │   ├── LOGGING.md
+│   │   │   ├── METRICS.md
+│   │   │   └── README.md
+│   │   ├── execution
+│   │   │   └── EXECUTION.md
+│   │   ├── implementation
+│   │   │   └── .gitkeep
+│   │   ├── specification
+│   │   │   └── SPECIFICATION.md
+│   │   └── tests
+│   │       └── TESTS.md
+│   ├── integrations
+│   │   ├── component.yaml
+│   │   ├── contracts
+│   │   │   └── CONTRACT.md
+│   │   ├── docs
+│   │   │   ├── DECISIONS.md
+│   │   │   ├── HEALTH.md
+│   │   │   ├── LOGGING.md
+│   │   │   ├── METRICS.md
+│   │   │   └── README.md
+│   │   ├── execution
+│   │   │   └── EXECUTION.md
+│   │   ├── implementation
+│   │   │   └── .gitkeep
+│   │   ├── specification
+│   │   │   └── SPECIFICATION.md
+│   │   └── tests
+│   │       └── TESTS.md
+│   ├── kernel
+│   │   ├── component.yaml
+│   │   └── specification
+│   │       └── SPECIFICATION.md
+│   ├── notifications
+│   │   ├── component.yaml
+│   │   ├── contracts
+│   │   │   └── CONTRACT.md
+│   │   ├── docs
+│   │   │   ├── DECISIONS.md
+│   │   │   ├── HEALTH.md
+│   │   │   ├── LOGGING.md
+│   │   │   ├── METRICS.md
+│   │   │   └── README.md
+│   │   ├── execution
+│   │   │   └── EXECUTION.md
+│   │   ├── implementation
+│   │   │   └── .gitkeep
+│   │   ├── specification
+│   │   │   └── SPECIFICATION.md
+│   │   └── tests
+│   │       └── TESTS.md
+│   ├── reports
+│   │   ├── component.yaml
+│   │   ├── contracts
+│   │   │   └── CONTRACT.md
+│   │   ├── docs
+│   │   │   ├── DECISIONS.md
+│   │   │   ├── HEALTH.md
+│   │   │   ├── LOGGING.md
+│   │   │   ├── METRICS.md
+│   │   │   └── README.md
+│   │   ├── execution
+│   │   │   └── EXECUTION.md
+│   │   ├── implementation
+│   │   │   └── .gitkeep
+│   │   ├── specification
+│   │   │   └── SPECIFICATION.md
+│   │   └── tests
+│   │       └── TESTS.md
+│   ├── scheduler
+│   │   ├── component.yaml
+│   │   ├── contracts
+│   │   │   └── CONTRACT.md
+│   │   ├── docs
+│   │   │   ├── DECISIONS.md
+│   │   │   ├── HEALTH.md
+│   │   │   ├── LOGGING.md
+│   │   │   ├── METRICS.md
+│   │   │   └── README.md
+│   │   ├── execution
+│   │   │   └── EXECUTION.md
+│   │   ├── implementation
+│   │   │   └── .gitkeep
+│   │   ├── specification
+│   │   │   └── SPECIFICATION.md
+│   │   └── tests
+│   │       └── TESTS.md
+│   ├── tasks
+│   │   ├── component.yaml
+│   │   ├── contracts
+│   │   │   └── CONTRACT.md
+│   │   ├── docs
+│   │   │   ├── DECISIONS.md
+│   │   │   ├── HEALTH.md
+│   │   │   ├── LOGGING.md
+│   │   │   ├── METRICS.md
+│   │   │   └── README.md
+│   │   ├── execution
+│   │   │   └── EXECUTION.md
+│   │   ├── implementation
+│   │   │   └── .gitkeep
+│   │   ├── specification
+│   │   │   └── SPECIFICATION.md
+│   │   └── tests
+│   │       └── TESTS.md
+│   └── workday
+│       ├── component.yaml
+│       ├── contracts
+│       │   └── CONTRACT.md
+│       ├── docs
+│       │   ├── DECISIONS.md
+│       │   ├── HEALTH.md
+│       │   ├── LOGGING.md
+│       │   ├── METRICS.md
+│       │   └── README.md
+│       ├── execution
+│       │   └── EXECUTION.md
+│       ├── implementation
+│       │   └── .gitkeep
+│       ├── specification
+│       │   └── SPECIFICATION.md
+│       └── tests
+│           └── TESTS.md
+├── docs
+│   ├── 01-vision
+│   │   └── VISION.md
+│   ├── 02-principles
+│   │   └── ARCHITECTURE_PRINCIPLES.md
+│   ├── 03-architecture
+│   │   ├── COMMUNICATION_MODEL.md
+│   │   ├── COMPONENT_MODEL.md
+│   │   ├── PACKAGES.md
+│   │   ├── PORT_MODEL.md
+│   │   └── REPOSITORY_STRUCTURE.md
+│   ├── 04-components
+│   ├── 05-contracts
+│   ├── 06-events
+│   ├── 07-workflows
+│   ├── 08-decisions
+│   ├── 09-roadmap
+│   ├── api
+│   ├── architecture
+│   │   └── ARCHITECTURE_PRINCIPLES.md
+│   ├── components
+│   ├── decisions
+│   ├── vision
+│   └── workflows
+├── execution
+├── infrastructure
+├── package-lock.json
+├── package.json
+├── packages
+│   ├── application
+│   │   ├── README.md
+│   │   ├── package.json
+│   │   ├── src
+│   │   │   ├── command
+│   │   │   │   └── command.ts
+│   │   │   ├── dto
+│   │   │   │   └── dto.ts
+│   │   │   ├── handler
+│   │   │   │   ├── command-handler.ts
+│   │   │   │   └── query-handler.ts
+│   │   │   ├── index.ts
+│   │   │   ├── mapper
+│   │   │   │   └── mapper.ts
+│   │   │   ├── pipeline
+│   │   │   │   └── pipeline.ts
+│   │   │   ├── query
+│   │   │   │   └── query.ts
+│   │   │   └── use-case
+│   │   │       └── use-case.ts
+│   │   ├── tests
+│   │   └── tsconfig.json
+│   ├── contracts
+│   │   ├── README.md
+│   │   ├── package.json
+│   │   ├── src
+│   │   │   └── .gitkeep
+│   │   ├── tests
+│   │   └── tsconfig.json
+│   ├── core
+│   │   ├── README.md
+│   │   ├── package.json
+│   │   ├── src
+│   │   │   └── .gitkeep
+│   │   ├── tests
+│   │   └── tsconfig.json
+│   ├── domain
+│   │   ├── README.md
+│   │   ├── package.json
+│   │   ├── src
+│   │   │   ├── aggregate
+│   │   │   │   └── aggregate-root.ts
+│   │   │   ├── entity
+│   │   │   │   └── entity.ts
+│   │   │   ├── error
+│   │   │   │   └── domain-error.ts
+│   │   │   ├── event
+│   │   │   │   └── domain-event.ts
+│   │   │   ├── index.ts
+│   │   │   ├── repository
+│   │   │   │   └── repository.ts
+│   │   │   ├── result
+│   │   │   │   └── result.ts
+│   │   │   ├── service
+│   │   │   │   └── domain-service.ts
+│   │   │   └── value-object
+│   │   │       └── value-object.ts
+│   │   ├── tests
+│   │   └── tsconfig.json
+│   ├── events
+│   │   ├── README.md
+│   │   ├── package.json
+│   │   ├── src
+│   │   │   └── .gitkeep
+│   │   ├── tests
+│   │   └── tsconfig.json
+│   ├── infrastructure
+│   │   ├── README.md
+│   │   ├── package.json
+│   │   ├── src
+│   │   │   ├── cache
+│   │   │   │   └── cache-provider.ts
+│   │   │   ├── clock
+│   │   │   │   └── clock.ts
+│   │   │   ├── configuration
+│   │   │   │   └── configuration-provider.ts
+│   │   │   ├── database
+│   │   │   │   └── database-provider.ts
+│   │   │   ├── filesystem
+│   │   │   │   └── file-system.ts
+│   │   │   ├── http
+│   │   │   │   └── http-client.ts
+│   │   │   ├── id
+│   │   │   │   └── id-generator.ts
+│   │   │   ├── index.ts
+│   │   │   └── storage
+│   │   │       └── storage-provider.ts
+│   │   ├── tests
+│   │   └── tsconfig.json
+│   ├── runtime
+│   │   ├── README.md
+│   │   ├── package.json
+│   │   ├── src
+│   │   │   ├── component
+│   │   │   │   └── component.ts
+│   │   │   ├── contracts
+│   │   │   │   └── contract.ts
+│   │   │   ├── events
+│   │   │   │   └── event.ts
+│   │   │   ├── health
+│   │   │   │   └── health.ts
+│   │   │   ├── index.ts
+│   │   │   ├── logger
+│   │   │   │   └── logger.ts
+│   │   │   ├── ports
+│   │   │   │   ├── input-port.ts
+│   │   │   │   └── output-port.ts
+│   │   │   └── tracing
+│   │   │       └── trace.ts
+│   │   ├── tests
+│   │   └── tsconfig.json
+│   ├── shared
+│   │   ├── README.md
+│   │   ├── package.json
+│   │   ├── src
+│   │   │   └── .gitkeep
+│   │   ├── tests
+│   │   └── tsconfig.json
+│   └── testing
+│       ├── README.md
+│       ├── package.json
+│       ├── src
+│       │   └── .gitkeep
+│       ├── tests
+│       └── tsconfig.json
+├── project-tree.txt
+├── runtime
+│   └── component-registry.json
+├── scripts-build.sh
+├── templates
+│   └── component
+│       ├── CONTRACT.md
+│       ├── DECISIONS.md
+│       ├── EXECUTION.md
+│       ├── HEALTH.md
+│       ├── LOGGING.md
+│       ├── METRICS.md
+│       ├── README.md
+│       ├── SPECIFICATION.md
+│       ├── TESTS.md
+│       └── component.yaml
+├── tests
+├── tools
+│   └── validate-architecture.sh
+└── tsconfig.base.json
+
+229 directories, 258 files
+
+================ PACKAGE.JSON ================
+{
+  "name": "work-tracker-os",
+  "private": true,
+  "version": "0.0.1",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "./scripts-build.sh",
+    "test": "npm run test --workspaces",
+    "forge": "npm --workspace apps/forge run dev --",
+    "web": "npm --workspace apps/web run dev",
+    "web:build": "npm --workspace apps/web run build",
+    "validate:architecture": "./tools/validate-architecture.sh"
+  }
+}
+================ APPS TREE ================
+apps
+├── forge
+│   ├── README.md
+│   ├── components
+│   │   ├── runtime
+│   │   │   ├── contracts
+│   │   │   ├── docs
+│   │   │   ├── execution
+│   │   │   ├── implementation
+│   │   │   ├── specification
+│   │   │   └── tests
+│   │   ├── sample
+│   │   │   ├── contracts
+│   │   │   ├── docs
+│   │   │   ├── execution
+│   │   │   ├── implementation
+│   │   │   ├── specification
+│   │   │   └── tests
+│   │   └── workday
+│   │       ├── contracts
+│   │       ├── docs
+│   │       ├── execution
+│   │       ├── implementation
+│   │       ├── specification
+│   │       └── tests
+│   ├── dist
+│   │   ├── commands
+│   │   │   ├── create-component.command.d.ts
+│   │   │   └── create-component.command.js
+│   │   ├── generators
+│   │   │   ├── component.generator.d.ts
+│   │   │   └── component.generator.js
+│   │   ├── main.d.ts
+│   │   ├── main.js
+│   │   ├── version.d.ts
+│   │   ├── version.js
+│   │   └── workspace
+│   │       ├── workspace.d.ts
+│   │       └── workspace.js
+│   ├── package.json
+│   ├── src
+│   │   ├── commands
+│   │   │   ├── create-component.command.ts
+│   │   │   └── doctor.command.ts
+│   │   ├── configuration
+│   │   ├── contracts
+│   │   ├── core
+│   │   │   ├── constants
+│   │   │   │   └── reserved-component-names.ts
+│   │   │   ├── filesystem
+│   │   │   │   └── ensure-directory.ts
+│   │   │   ├── reports
+│   │   │   │   └── forge-report.ts
+│   │   │   ├── validation
+│   │   │   │   └── component-name.validator.ts
+│   │   │   └── workspace
+│   │   │       └── workspace-root.ts
+│   │   ├── doctor
+│   │   ├── filesystem
+│   │   ├── generators
+│   │   │   ├── component.generator.ts
+│   │   │   └── component.generator.ts.bak
+│   │   ├── logger
+│   │   ├── main.ts
+│   │   ├── templates
+│   │   ├── testing
+│   │   ├── utils
+│   │   ├── version.ts
+│   │   └── workspace
+│   │       └── workspace.ts
+│   ├── tests
+│   └── tsconfig.json
+├── web
+│   ├── README.md
+│   ├── dist
+│   │   ├── assets
+│   │   │   └── index-Y52VnNAx.js
+│   │   └── index.html
+│   ├── index.html
+│   ├── package.json
+│   ├── public
+│   ├── src
+│   │   ├── app
+│   │   ├── assets
+│   │   ├── components
+│   │   ├── features
+│   │   ├── hooks
+│   │   ├── layouts
+│   │   ├── main.tsx
+│   │   ├── pages
+│   │   ├── router
+│   │   ├── services
+│   │   ├── shared
+│   │   ├── styles
+│   │   └── theme
+│   ├── tsconfig.json
+│   └── vite.config.ts
+└── workos-cli
+    ├── README.md
+    ├── src
+    │   ├── commands
+    │   ├── core
+    │   ├── main.ts
+    │   ├── templates
+    │   └── utils
+    └── tests
+
+71 directories, 35 files
+
+================ PACKAGES TREE ================
+packages
+├── application
+│   ├── README.md
+│   ├── dist
+│   │   ├── command
+│   │   │   ├── command.d.ts
+│   │   │   ├── command.d.ts.map
+│   │   │   ├── command.js
+│   │   │   └── command.js.map
+│   │   ├── dto
+│   │   │   ├── dto.d.ts
+│   │   │   ├── dto.d.ts.map
+│   │   │   ├── dto.js
+│   │   │   └── dto.js.map
+│   │   ├── handler
+│   │   │   ├── command-handler.d.ts
+│   │   │   ├── command-handler.d.ts.map
+│   │   │   ├── command-handler.js
+│   │   │   ├── command-handler.js.map
+│   │   │   ├── query-handler.d.ts
+│   │   │   ├── query-handler.d.ts.map
+│   │   │   ├── query-handler.js
+│   │   │   └── query-handler.js.map
+│   │   ├── index.d.ts
+│   │   ├── index.d.ts.map
+│   │   ├── index.js
+│   │   ├── index.js.map
+│   │   ├── mapper
+│   │   │   ├── mapper.d.ts
+│   │   │   ├── mapper.d.ts.map
+│   │   │   ├── mapper.js
+│   │   │   └── mapper.js.map
+│   │   ├── pipeline
+│   │   │   ├── pipeline.d.ts
+│   │   │   ├── pipeline.d.ts.map
+│   │   │   ├── pipeline.js
+│   │   │   └── pipeline.js.map
+│   │   ├── query
+│   │   │   ├── query.d.ts
+│   │   │   ├── query.d.ts.map
+│   │   │   ├── query.js
+│   │   │   └── query.js.map
+│   │   └── use-case
+│   │       ├── use-case.d.ts
+│   │       ├── use-case.d.ts.map
+│   │       ├── use-case.js
+│   │       └── use-case.js.map
+│   ├── package.json
+│   ├── src
+│   │   ├── command
+│   │   │   └── command.ts
+│   │   ├── dto
+│   │   │   └── dto.ts
+│   │   ├── handler
+│   │   │   ├── command-handler.ts
+│   │   │   └── query-handler.ts
+│   │   ├── index.ts
+│   │   ├── mapper
+│   │   │   └── mapper.ts
+│   │   ├── pipeline
+│   │   │   └── pipeline.ts
+│   │   ├── query
+│   │   │   └── query.ts
+│   │   └── use-case
+│   │       └── use-case.ts
+│   ├── tests
+│   └── tsconfig.json
+├── contracts
+│   ├── README.md
+│   ├── package.json
+│   ├── src
+│   ├── tests
+│   └── tsconfig.json
+├── core
+│   ├── README.md
+│   ├── package.json
+│   ├── src
+│   ├── tests
+│   └── tsconfig.json
+├── domain
+│   ├── README.md
+│   ├── dist
+│   │   ├── aggregate
+│   │   │   ├── aggregate-root.d.ts
+│   │   │   └── aggregate-root.js
+│   │   ├── entity
+│   │   │   ├── entity.d.ts
+│   │   │   └── entity.js
+│   │   ├── error
+│   │   │   ├── domain-error.d.ts
+│   │   │   └── domain-error.js
+│   │   ├── event
+│   │   │   ├── domain-event.d.ts
+│   │   │   └── domain-event.js
+│   │   ├── index.d.ts
+│   │   ├── index.js
+│   │   ├── repository
+│   │   │   ├── repository.d.ts
+│   │   │   └── repository.js
+│   │   ├── result
+│   │   │   ├── result.d.ts
+│   │   │   └── result.js
+│   │   ├── service
+│   │   │   ├── domain-service.d.ts
+│   │   │   └── domain-service.js
+│   │   └── value-object
+│   │       ├── value-object.d.ts
+│   │       └── value-object.js
+│   ├── package.json
+│   ├── src
+│   │   ├── aggregate
+│   │   │   └── aggregate-root.ts
+│   │   ├── entity
+│   │   │   └── entity.ts
+│   │   ├── error
+│   │   │   └── domain-error.ts
+│   │   ├── event
+│   │   │   └── domain-event.ts
+│   │   ├── index.ts
+│   │   ├── repository
+│   │   │   └── repository.ts
+│   │   ├── result
+│   │   │   └── result.ts
+│   │   ├── service
+│   │   │   └── domain-service.ts
+│   │   └── value-object
+│   │       └── value-object.ts
+│   ├── tests
+│   └── tsconfig.json
+├── events
+│   ├── README.md
+│   ├── package.json
+│   ├── src
+│   ├── tests
+│   └── tsconfig.json
+├── infrastructure
+│   ├── README.md
+│   ├── dist
+│   │   ├── cache
+│   │   │   ├── cache-provider.d.ts
+│   │   │   └── cache-provider.js
+│   │   ├── clock
+│   │   │   ├── clock.d.ts
+│   │   │   └── clock.js
+│   │   ├── configuration
+│   │   │   ├── configuration-provider.d.ts
+│   │   │   └── configuration-provider.js
+│   │   ├── database
+│   │   │   ├── database-provider.d.ts
+│   │   │   └── database-provider.js
+│   │   ├── filesystem
+│   │   │   ├── file-system.d.ts
+│   │   │   └── file-system.js
+│   │   ├── http
+│   │   │   ├── http-client.d.ts
+│   │   │   └── http-client.js
+│   │   ├── id
+│   │   │   ├── id-generator.d.ts
+│   │   │   └── id-generator.js
+│   │   ├── index.d.ts
+│   │   ├── index.js
+│   │   └── storage
+│   │       ├── storage-provider.d.ts
+│   │       └── storage-provider.js
+│   ├── package.json
+│   ├── src
+│   │   ├── cache
+│   │   │   └── cache-provider.ts
+│   │   ├── clock
+│   │   │   └── clock.ts
+│   │   ├── configuration
+│   │   │   └── configuration-provider.ts
+│   │   ├── database
+│   │   │   └── database-provider.ts
+│   │   ├── filesystem
+│   │   │   └── file-system.ts
+│   │   ├── http
+│   │   │   └── http-client.ts
+│   │   ├── id
+│   │   │   └── id-generator.ts
+│   │   ├── index.ts
+│   │   └── storage
+│   │       └── storage-provider.ts
+│   ├── tests
+│   └── tsconfig.json
+├── runtime
+│   ├── README.md
+│   ├── dist
+│   │   ├── component
+│   │   │   ├── component.d.ts
+│   │   │   └── component.js
+│   │   ├── contracts
+│   │   │   ├── contract.d.ts
+│   │   │   └── contract.js
+│   │   ├── events
+│   │   │   ├── event.d.ts
+│   │   │   └── event.js
+│   │   ├── health
+│   │   │   ├── health.d.ts
+│   │   │   └── health.js
+│   │   ├── index.d.ts
+│   │   ├── index.js
+│   │   ├── logger
+│   │   │   ├── logger.d.ts
+│   │   │   └── logger.js
+│   │   ├── ports
+│   │   │   ├── input-port.d.ts
+│   │   │   ├── input-port.js
+│   │   │   ├── output-port.d.ts
+│   │   │   └── output-port.js
+│   │   └── tracing
+│   │       ├── trace.d.ts
+│   │       └── trace.js
+│   ├── package.json
+│   ├── src
+│   │   ├── component
+│   │   │   └── component.ts
+│   │   ├── contracts
+│   │   │   └── contract.ts
+│   │   ├── events
+│   │   │   └── event.ts
+│   │   ├── health
+│   │   │   └── health.ts
+│   │   ├── index.ts
+│   │   ├── logger
+│   │   │   └── logger.ts
+│   │   ├── ports
+│   │   │   ├── input-port.ts
+│   │   │   └── output-port.ts
+│   │   └── tracing
+│   │       └── trace.ts
+│   ├── tests
+│   └── tsconfig.json
+├── shared
+│   ├── README.md
+│   ├── package.json
+│   ├── src
+│   ├── tests
+│   └── tsconfig.json
+└── testing
+    ├── README.md
+    ├── package.json
+    ├── src
+    ├── tests
+    └── tsconfig.json
+
+92 directories, 153 files
+
+================ COMPONENTS TREE ================
+components
+├── COMPONENTS.md
+├── ai-assistant
+│   ├── component.yaml
+│   ├── contracts
+│   │   └── CONTRACT.md
+│   ├── docs
+│   │   ├── DECISIONS.md
+│   │   ├── HEALTH.md
+│   │   ├── LOGGING.md
+│   │   ├── METRICS.md
+│   │   └── README.md
+│   ├── execution
+│   │   └── EXECUTION.md
+│   ├── implementation
+│   ├── specification
+│   │   └── SPECIFICATION.md
+│   └── tests
+│       └── TESTS.md
+├── analytics
+│   ├── component.yaml
+│   ├── contracts
+│   │   └── CONTRACT.md
+│   ├── docs
+│   │   ├── DECISIONS.md
+│   │   ├── HEALTH.md
+│   │   ├── LOGGING.md
+│   │   ├── METRICS.md
+│   │   └── README.md
+│   ├── execution
+│   │   └── EXECUTION.md
+│   ├── implementation
+│   ├── specification
+│   │   └── SPECIFICATION.md
+│   └── tests
+│       └── TESTS.md
+├── attendance
+│   ├── component.yaml
+│   ├── contracts
+│   │   └── CONTRACT.md
+│   ├── docs
+│   │   ├── DECISIONS.md
+│   │   ├── HEALTH.md
+│   │   ├── LOGGING.md
+│   │   ├── METRICS.md
+│   │   └── README.md
+│   ├── execution
+│   │   └── EXECUTION.md
+│   ├── implementation
+│   ├── specification
+│   │   └── SPECIFICATION.md
+│   └── tests
+│       └── TESTS.md
+├── dashboard
+│   ├── component.yaml
+│   ├── contracts
+│   │   └── CONTRACT.md
+│   ├── docs
+│   │   ├── DECISIONS.md
+│   │   ├── HEALTH.md
+│   │   ├── LOGGING.md
+│   │   ├── METRICS.md
+│   │   └── README.md
+│   ├── execution
+│   │   └── EXECUTION.md
+│   ├── implementation
+│   ├── specification
+│   │   └── SPECIFICATION.md
+│   └── tests
+│       └── TESTS.md
+├── integrations
+│   ├── component.yaml
+│   ├── contracts
+│   │   └── CONTRACT.md
+│   ├── docs
+│   │   ├── DECISIONS.md
+│   │   ├── HEALTH.md
+│   │   ├── LOGGING.md
+│   │   ├── METRICS.md
+│   │   └── README.md
+│   ├── execution
+│   │   └── EXECUTION.md
+│   ├── implementation
+│   ├── specification
+│   │   └── SPECIFICATION.md
+│   └── tests
+│       └── TESTS.md
+├── kernel
+│   ├── component.yaml
+│   └── specification
+│       └── SPECIFICATION.md
+├── notifications
+│   ├── component.yaml
+│   ├── contracts
+│   │   └── CONTRACT.md
+│   ├── docs
+│   │   ├── DECISIONS.md
+│   │   ├── HEALTH.md
+│   │   ├── LOGGING.md
+│   │   ├── METRICS.md
+│   │   └── README.md
+│   ├── execution
+│   │   └── EXECUTION.md
+│   ├── implementation
+│   ├── specification
+│   │   └── SPECIFICATION.md
+│   └── tests
+│       └── TESTS.md
+├── reports
+│   ├── component.yaml
+│   ├── contracts
+│   │   └── CONTRACT.md
+│   ├── docs
+│   │   ├── DECISIONS.md
+│   │   ├── HEALTH.md
+│   │   ├── LOGGING.md
+│   │   ├── METRICS.md
+│   │   └── README.md
+│   ├── execution
+│   │   └── EXECUTION.md
+│   ├── implementation
+│   ├── specification
+│   │   └── SPECIFICATION.md
+│   └── tests
+│       └── TESTS.md
+├── scheduler
+│   ├── component.yaml
+│   ├── contracts
+│   │   └── CONTRACT.md
+│   ├── docs
+│   │   ├── DECISIONS.md
+│   │   ├── HEALTH.md
+│   │   ├── LOGGING.md
+│   │   ├── METRICS.md
+│   │   └── README.md
+│   ├── execution
+│   │   └── EXECUTION.md
+│   ├── implementation
+│   ├── specification
+│   │   └── SPECIFICATION.md
+│   └── tests
+│       └── TESTS.md
+├── tasks
+│   ├── component.yaml
+│   ├── contracts
+│   │   └── CONTRACT.md
+│   ├── docs
+│   │   ├── DECISIONS.md
+│   │   ├── HEALTH.md
+│   │   ├── LOGGING.md
+│   │   ├── METRICS.md
+│   │   └── README.md
+│   ├── execution
+│   │   └── EXECUTION.md
+│   ├── implementation
+│   ├── specification
+│   │   └── SPECIFICATION.md
+│   └── tests
+│       └── TESTS.md
+└── workday
+    ├── component.yaml
+    ├── contracts
+    │   └── CONTRACT.md
+    ├── docs
+    │   ├── DECISIONS.md
+    │   ├── HEALTH.md
+    │   ├── LOGGING.md
+    │   ├── METRICS.md
+    │   └── README.md
+    ├── execution
+    │   └── EXECUTION.md
+    ├── implementation
+    ├── specification
+    │   └── SPECIFICATION.md
+    └── tests
+        └── TESTS.md
+
+73 directories, 103 files
+
+================ ARCHITECTURE TREE ================
+architecture
+├── component-dependencies.yaml
+├── component-ports.yaml
+├── component-registry.yaml
+└── system.manifest.yaml
+
+1 directory, 4 files
+
+================ TEMPLATES TREE ================
+templates
+└── component
+    ├── CONTRACT.md
+    ├── DECISIONS.md
+    ├── EXECUTION.md
+    ├── HEALTH.md
+    ├── LOGGING.md
+    ├── METRICS.md
+    ├── README.md
+    ├── SPECIFICATION.md
+    ├── TESTS.md
+    └── component.yaml
+
+2 directories, 10 files
+
+================ TOOLS TREE ================
+tools
+└── validate-architecture.sh
+
+1 directory, 1 file
+
+================ RUNTIME TREE ================
+runtime
+└── component-registry.json
+
+1 directory, 1 file
+
+================ FORGE TREE ================
+apps/forge
+├── README.md
+├── components
+│   ├── runtime
+│   │   ├── contracts
+│   │   ├── docs
+│   │   ├── execution
+│   │   ├── implementation
+│   │   ├── specification
+│   │   └── tests
+│   ├── sample
+│   │   ├── contracts
+│   │   ├── docs
+│   │   ├── execution
+│   │   ├── implementation
+│   │   ├── specification
+│   │   └── tests
+│   └── workday
+│       ├── contracts
+│       ├── docs
+│       ├── execution
+│       ├── implementation
+│       ├── specification
+│       └── tests
+├── dist
+│   ├── commands
+│   │   ├── create-component.command.d.ts
+│   │   └── create-component.command.js
+│   ├── generators
+│   │   ├── component.generator.d.ts
+│   │   └── component.generator.js
+│   ├── main.d.ts
+│   ├── main.js
+│   ├── version.d.ts
+│   ├── version.js
+│   └── workspace
+│       ├── workspace.d.ts
+│       └── workspace.js
+├── package.json
+├── src
+│   ├── commands
+│   │   ├── create-component.command.ts
+│   │   └── doctor.command.ts
+│   ├── configuration
+│   ├── contracts
+│   ├── core
+│   │   ├── constants
+│   │   │   └── reserved-component-names.ts
+│   │   ├── filesystem
+│   │   │   └── ensure-directory.ts
+│   │   ├── reports
+│   │   │   └── forge-report.ts
+│   │   ├── validation
+│   │   │   └── component-name.validator.ts
+│   │   └── workspace
+│   │       └── workspace-root.ts
+│   ├── doctor
+│   ├── filesystem
+│   ├── generators
+│   │   ├── component.generator.ts
+│   │   └── component.generator.ts.bak
+│   ├── logger
+│   ├── main.ts
+│   ├── templates
+│   ├── testing
+│   ├── utils
+│   ├── version.ts
+│   └── workspace
+│       └── workspace.ts
+├── tests
+└── tsconfig.json
+
+46 directories, 25 files
+
+================ COMPONENT MANIFEST TEMPLATE ================
+apiVersion: worktracker.io/v1
+
+kind: Component
+
+metadata:
+
+  name: component-name
+
+  displayName: Component Name
+
+  version: 1.0.0
+
+  description: ""
+
+spec:
+
+  owner: business
+
+  category: business
+
+  lifecycle:
+
+    startup: automatic
+
+    restartPolicy: always
+
+    shutdownTimeout: 30s
+
+  dependencies: []
+
+  ports:
+
+    inputs: []
+
+    outputs: []
+
+  services: []
+
+  configuration: {}
+
+  capabilities: []
+
+runtime:
+
+  health:
+
+    enabled: true
+
+  metrics:
+
+    enabled: true
+
+  logging:
+
+    enabled: true
+
+  tracing:
+
+    enabled: true
+
+status:
+
+  phase: Draft
+
+
+================ COMPONENT GENERATOR ================
+import { WORKSPACE_ROOT }
+from "../core/workspace/workspace-root.js";
+import fs from "node:fs";
+import path from "node:path";
+
+import { ensureDirectory }
+from "../core/filesystem/ensure-directory.js";
+
+import { validateComponentName }
+from "../core/validation/component-name.validator.js";
+
+import { ForgeReport }
+from "../core/reports/forge-report.js";
+
+const TEMPLATE_ROOT = path.join(
+    WORKSPACE_ROOT,
+    "templates",
+    "component"
+);
+
+const FOLDERS = [
+    "contracts",
+    "docs",
+    "execution",
+    "implementation",
+    "specification",
+    "tests"
+];
+
+const FILES = [
+    ["SPECIFICATION.md","specification/SPECIFICATION.md"],
+    ["CONTRACT.md","contracts/CONTRACT.md"],
+    ["README.md","docs/README.md"],
+    ["DECISIONS.md","docs/DECISIONS.md"],
+    ["HEALTH.md","docs/HEALTH.md"],
+    ["LOGGING.md","docs/LOGGING.md"],
+    ["METRICS.md","docs/METRICS.md"],
+    ["TESTS.md","tests/TESTS.md"],
+    ["EXECUTION.md","execution/EXECUTION.md"],
+    ["component.yaml","component.yaml"]
+] as const;
+
+export function generateComponent(name:string):void{
+
+    validateComponentName(name);
+
+    const report=new ForgeReport();
+
+    const root=path.join(
+        WORKSPACE_ROOT,
+        "components",
+        name
+    );
+
+    ensureDirectory(root);
+
+    for(const folder of FOLDERS){
+
+        const dir=path.join(root,folder);
+
+        if(fs.existsSync(dir)){
+
+            report.existing.push(folder);
+
+        }else{
+
+            ensureDirectory(dir);
+
+            report.created.push(folder);
+
+        }
+
+    }
+
+    for(const [source,target] of FILES){
+
+        const destination=path.join(root,target);
+
+        if(fs.existsSync(destination)){
+
+            report.skipped.push(target);
+
+            continue;
+
+        }
+
+        fs.copyFileSync(
+            path.join(TEMPLATE_ROOT,source),
+            destination
+        );
+
+        report.created.push(target);
+
+    }
+
+    fs.writeFileSync(
+        path.join(
+            root,
+            "implementation",
+            ".gitkeep"
+        ),
+        "",
+        {
+            flag:"a"
+        }
+    );
+
+    console.log("");
+    console.log("================================");
+    console.log("Forge Report");
+    console.log("================================");
+    console.log("");
+
+    console.log("Component :",name);
+    console.log("");
+
+    console.log("Created");
+
+    report.created.forEach(item=>
+        console.log(" +",item)
+    );
+
+    console.log("");
+
+    console.log("Existing");
+
+    report.existing.forEach(item=>
+        console.log(" =",item)
+    );
+
+    console.log("");
+
+    console.log("Skipped");
+
+    report.skipped.forEach(item=>
+        console.log(" -",item)
+    );
+
+    console.log("");
+    console.log("Done");
+    console.log("");
+
+}
+
+================ SYSTEM MANIFEST ================
+name: Work Tracker OS
+
+version: 1.0.0
+
+status: foundation
+
+packages:
+
+  - runtime
+  - domain
+  - application
+  - infrastructure
+  - core
+  - contracts
+  - events
+  - shared
+  - testing
+
+applications:
+
+  - forge
+  - web
+
+components:
+
+  - workday
+  - attendance
+  - tasks
+  - notifications
+  - reports
+  - dashboard
+  - analytics
+  - integrations
+
+
+================ COMPONENT REGISTRY ================
+version: 1.0.0
+
+components:
+
+  workday:
+    status: active
+    owner: business
+    package: component
+    dependencies: []
+    inputPorts:
+      - start-workday
+      - end-workday
+    outputPorts:
+      - workday-started
+      - workday-ended
+
+  attendance:
+    status: active
+    owner: business
+    package: component
+    dependencies:
+      - workday
+    inputPorts:
+      - check-in
+      - check-out
+    outputPorts:
+      - checked-in
+      - checked-out
+
+  tasks:
+    status: active
+    owner: business
+    package: component
+    dependencies:
+      - workday
+    inputPorts:
+      - create-task
+      - start-task
+      - pause-task
+      - resume-task
+      - complete-task
+      - cancel-task
+    outputPorts:
+      - task-created
+      - task-started
+      - task-paused
+      - task-resumed
+      - task-completed
+      - task-cancelled
+
+  notifications:
+    status: active
+    owner: business
+    package: component
+    dependencies:
+      - workday
+      - tasks
+    inputPorts:
+      - create-notification
+    outputPorts:
+      - notification-sent
+
+  reports:
+    status: active
+    owner: business
+    package: component
+    dependencies:
+      - workday
+      - attendance
+      - tasks
+    inputPorts:
+      - generate-report
+    outputPorts:
+      - report-generated
+
+  dashboard:
+    status: active
+    owner: presentation
+    package: component
+    dependencies:
+      - workday
+      - attendance
+      - tasks
+      - notifications
+      - reports
+      - analytics
+    inputPorts:
+      - refresh-dashboard
+    outputPorts:
+      - dashboard-view
+
+  analytics:
+    status: active
+    owner: intelligence
+    package: component
+    dependencies:
+      - attendance
+      - tasks
+      - reports
+    inputPorts:
+      - analyze
+    outputPorts:
+      - recommendation-generated
+
+  integrations:
+    status: active
+    owner: infrastructure
+    package: component
+    dependencies:
+      - notifications
+      - analytics
+      - reports
+    inputPorts:
+      - synchronize
+    outputPorts:
+      - synchronization-completed
+
+
+================ COMPONENT DEPENDENCIES ================
+workday:
+  dependsOn: []
+
+attendance:
+  dependsOn:
+    - workday
+
+tasks:
+  dependsOn:
+    - workday
+
+notifications:
+  dependsOn:
+    - workday
+    - tasks
+
+reports:
+  dependsOn:
+    - attendance
+    - tasks
+    - workday
+
+dashboard:
+  dependsOn:
+    - workday
+    - attendance
+    - tasks
+    - notifications
+    - reports
+    - analytics
+
+analytics:
+  dependsOn:
+    - attendance
+    - tasks
+    - reports
+
+integrations:
+  dependsOn:
+    - notifications
+    - analytics
+    - reports
+
+
+================ COMPONENT PORTS ================
+workday:
+  inputs:
+    - start-workday
+    - end-workday
+  outputs:
+    - workday-started
+    - workday-ended
+
+attendance:
+  inputs:
+    - check-in
+    - check-out
+  outputs:
+    - checked-in
+    - checked-out
+
+tasks:
+  inputs:
+    - create-task
+    - start-task
+    - pause-task
+    - resume-task
+    - complete-task
+  outputs:
+    - task-created
+    - task-started
+    - task-paused
+    - task-resumed
+    - task-completed
+
+notifications:
+  inputs:
+    - create-notification
+  outputs:
+    - notification-sent
+
+reports:
+  inputs:
+    - generate-report
+  outputs:
+    - report-generated
+
+dashboard:
+  inputs:
+    - refresh-dashboard
+  outputs:
+    - dashboard-view
+
+analytics:
+  inputs:
+    - analyze
+  outputs:
+    - recommendation-generated
+
+integrations:
+  inputs:
+    - synchronize
+  outputs:
+    - synchronization-completed
+
+
+================ GENERATED RUNTIME REGISTRY ================
+{
+  "generatedAt":"2026-06-30T07:48:36Z",
+  "components":[
+    {
+      "name":"ai-assistant",
+      "manifest":"components/ai-assistant/component.yaml",
+      "contracts":"components/ai-assistant/contracts",
+      "implementation":"components/ai-assistant/implementation",
+      "tests":"components/ai-assistant/tests"
+    }
+,
+    {
+      "name":"analytics",
+      "manifest":"components/analytics/component.yaml",
+      "contracts":"components/analytics/contracts",
+      "implementation":"components/analytics/implementation",
+      "tests":"components/analytics/tests"
+    }
+,
+    {
+      "name":"attendance",
+      "manifest":"components/attendance/component.yaml",
+      "contracts":"components/attendance/contracts",
+      "implementation":"components/attendance/implementation",
+      "tests":"components/attendance/tests"
+    }
+,
+    {
+      "name":"dashboard",
+      "manifest":"components/dashboard/component.yaml",
+      "contracts":"components/dashboard/contracts",
+      "implementation":"components/dashboard/implementation",
+      "tests":"components/dashboard/tests"
+    }
+,
+    {
+      "name":"integrations",
+      "manifest":"components/integrations/component.yaml",
+      "contracts":"components/integrations/contracts",
+      "implementation":"components/integrations/implementation",
+      "tests":"components/integrations/tests"
+    }
+,
+    {
+      "name":"kernel",
+      "manifest":"components/kernel/component.yaml",
+      "contracts":"components/kernel/contracts",
+      "implementation":"components/kernel/implementation",
+      "tests":"components/kernel/tests"
+    }
+,
+    {
+      "name":"notifications",
+      "manifest":"components/notifications/component.yaml",
+      "contracts":"components/notifications/contracts",
+      "implementation":"components/notifications/implementation",
+      "tests":"components/notifications/tests"
+    }
+,
+    {
+      "name":"reports",
+      "manifest":"components/reports/component.yaml",
+      "contracts":"components/reports/contracts",
+      "implementation":"components/reports/implementation",
+      "tests":"components/reports/tests"
+    }
+,
+    {
+      "name":"scheduler",
+      "manifest":"components/scheduler/component.yaml",
+      "contracts":"components/scheduler/contracts",
+      "implementation":"components/scheduler/implementation",
+      "tests":"components/scheduler/tests"
+    }
+,
+    {
+      "name":"tasks",
+      "manifest":"components/tasks/component.yaml",
+      "contracts":"components/tasks/contracts",
+      "implementation":"components/tasks/implementation",
+      "tests":"components/tasks/tests"
+    }
+,
+    {
+      "name":"workday",
+      "manifest":"components/workday/component.yaml",
+      "contracts":"components/workday/contracts",
+      "implementation":"components/workday/implementation",
+      "tests":"components/workday/tests"
+    }
+  ]
+}
+
+================ VALIDATOR ================
+#!/usr/bin/env bash
+
+set -e
+
+FAILED=0
+
+echo ""
+echo "========================================="
+echo "Architecture Validation"
+echo "========================================="
+echo ""
+
+###############################################################################
+# Manifest
+###############################################################################
+
+FILES=(
+architecture/system.manifest.yaml
+architecture/component-dependencies.yaml
+architecture/component-ports.yaml
+)
+
+for file in "${FILES[@]}"
+do
+
+    if [ -f "$file" ]; then
+
+        echo "✔ $file"
+
+    else
+
+        echo "✘ $file"
+
+        FAILED=1
+
+    fi
+
+done
+
+echo ""
+
+###############################################################################
+# Components
+###############################################################################
+
+COMPONENTS=(
+workday
+attendance
+tasks
+notifications
+reports
+dashboard
+analytics
+integrations
+)
+
+for component in "${COMPONENTS[@]}"
+do
+
+    echo "Checking $component"
+
+    test -d components/$component || FAILED=1
+    test -f components/$component/specification/SPECIFICATION.md || FAILED=1
+    test -f components/$component/contracts/CONTRACT.md || FAILED=1
+    test -f components/$component/docs/README.md || FAILED=1
+
+done
+
+echo ""
+
+###############################################################################
+# Packages
+###############################################################################
+
+PACKAGES=(
+runtime
+domain
+application
+infrastructure
+core
+contracts
+events
+shared
+testing
+)
+
+for package in "${PACKAGES[@]}"
+do
+
+    test -d packages/$package || FAILED=1
+done
+
+echo ""
+
+###############################################################################
+# Applications
+###############################################################################
+
+test -d apps/forge || FAILED=1
+test -d apps/web || FAILED=1
+
+echo ""
+
+###############################################################################
+# Result
+###############################################################################
+
+if [ "$FAILED" -eq 0 ]; then
+
+    echo "========================================="
+    echo "Architecture Validation Passed"
+    echo "========================================="
+
+else
+
+    echo "========================================="
+    echo "Architecture Validation Failed"
+    echo "========================================="
+
+    exit 1
+
+fi
+
+
+================ COMPONENT MANIFESTS ================
+
+------------------------------------------------------------
+components/scheduler/component.yaml
+------------------------------------------------------------
+apiVersion: worktracker.io/v1
+
+kind: Component
+
+metadata:
+
+  name: component-name
+
+  displayName: Component Name
+
+  version: 1.0.0
+
+  description: ""
+
+spec:
+
+  owner: business
+
+  category: business
+
+  lifecycle:
+
+    startup: automatic
+
+    restartPolicy: always
+
+    shutdownTimeout: 30s
+
+  dependencies: []
+
+  ports:
+
+    inputs: []
+
+    outputs: []
+
+  services: []
+
+  configuration: {}
+
+  capabilities: []
+
+runtime:
+
+  health:
+
+    enabled: true
+
+  metrics:
+
+    enabled: true
+
+  logging:
+
+    enabled: true
+
+  tracing:
+
+    enabled: true
+
+status:
+
+  phase: Draft
+
+
+------------------------------------------------------------
+components/tasks/component.yaml
+------------------------------------------------------------
+apiVersion: worktracker.io/v1
+
+kind: Component
+
+metadata:
+
+  name: component-name
+
+  displayName: Component Name
+
+  version: 1.0.0
+
+  description: ""
+
+spec:
+
+  owner: business
+
+  category: business
+
+  lifecycle:
+
+    startup: automatic
+
+    restartPolicy: always
+
+    shutdownTimeout: 30s
+
+  dependencies: []
+
+  ports:
+
+    inputs: []
+
+    outputs: []
+
+  services: []
+
+  configuration: {}
+
+  capabilities: []
+
+runtime:
+
+  health:
+
+    enabled: true
+
+  metrics:
+
+    enabled: true
+
+  logging:
+
+    enabled: true
+
+  tracing:
+
+    enabled: true
+
+status:
+
+  phase: Draft
+
+
+------------------------------------------------------------
+components/integrations/component.yaml
+------------------------------------------------------------
+apiVersion: worktracker.io/v1
+
+kind: Component
+
+metadata:
+
+  name: component-name
+
+  displayName: Component Name
+
+  version: 1.0.0
+
+  description: ""
+
+spec:
+
+  owner: business
+
+  category: business
+
+  lifecycle:
+
+    startup: automatic
+
+    restartPolicy: always
+
+    shutdownTimeout: 30s
+
+  dependencies: []
+
+  ports:
+
+    inputs: []
+
+    outputs: []
+
+  services: []
+
+  configuration: {}
+
+  capabilities: []
+
+runtime:
+
+  health:
+
+    enabled: true
+
+  metrics:
+
+    enabled: true
+
+  logging:
+
+    enabled: true
+
+  tracing:
+
+    enabled: true
+
+status:
+
+  phase: Draft
+
+
+------------------------------------------------------------
+components/workday/component.yaml
+------------------------------------------------------------
+apiVersion: worktracker.io/v1
+
+kind: Component
+
+metadata:
+
+  name: component-name
+
+  displayName: Component Name
+
+  version: 1.0.0
+
+  description: ""
+
+spec:
+
+  owner: business
+
+  category: business
+
+  lifecycle:
+
+    startup: automatic
+
+    restartPolicy: always
+
+    shutdownTimeout: 30s
+
+  dependencies: []
+
+  ports:
+
+    inputs: []
+
+    outputs: []
+
+  services: []
+
+  configuration: {}
+
+  capabilities: []
+
+runtime:
+
+  health:
+
+    enabled: true
+
+  metrics:
+
+    enabled: true
+
+  logging:
+
+    enabled: true
+
+  tracing:
+
+    enabled: true
+
+status:
+
+  phase: Draft
+
+
+------------------------------------------------------------
+components/dashboard/component.yaml
+------------------------------------------------------------
+apiVersion: worktracker.io/v1
+
+kind: Component
+
+metadata:
+
+  name: component-name
+
+  displayName: Component Name
+
+  version: 1.0.0
+
+  description: ""
+
+spec:
+
+  owner: business
+
+  category: business
+
+  lifecycle:
+
+    startup: automatic
+
+    restartPolicy: always
+
+    shutdownTimeout: 30s
+
+  dependencies: []
+
+  ports:
+
+    inputs: []
+
+    outputs: []
+
+  services: []
+
+  configuration: {}
+
+  capabilities: []
+
+runtime:
+
+  health:
+
+    enabled: true
+
+  metrics:
+
+    enabled: true
+
+  logging:
+
+    enabled: true
+
+  tracing:
+
+    enabled: true
+
+status:
+
+  phase: Draft
+
+
+------------------------------------------------------------
+components/notifications/component.yaml
+------------------------------------------------------------
+apiVersion: worktracker.io/v1
+
+kind: Component
+
+metadata:
+
+  name: component-name
+
+  displayName: Component Name
+
+  version: 1.0.0
+
+  description: ""
+
+spec:
+
+  owner: business
+
+  category: business
+
+  lifecycle:
+
+    startup: automatic
+
+    restartPolicy: always
+
+    shutdownTimeout: 30s
+
+  dependencies: []
+
+  ports:
+
+    inputs: []
+
+    outputs: []
+
+  services: []
+
+  configuration: {}
+
+  capabilities: []
+
+runtime:
+
+  health:
+
+    enabled: true
+
+  metrics:
+
+    enabled: true
+
+  logging:
+
+    enabled: true
+
+  tracing:
+
+    enabled: true
+
+status:
+
+  phase: Draft
+
+
+------------------------------------------------------------
+components/analytics/component.yaml
+------------------------------------------------------------
+apiVersion: worktracker.io/v1
+
+kind: Component
+
+metadata:
+
+  name: component-name
+
+  displayName: Component Name
+
+  version: 1.0.0
+
+  description: ""
+
+spec:
+
+  owner: business
+
+  category: business
+
+  lifecycle:
+
+    startup: automatic
+
+    restartPolicy: always
+
+    shutdownTimeout: 30s
+
+  dependencies: []
+
+  ports:
+
+    inputs: []
+
+    outputs: []
+
+  services: []
+
+  configuration: {}
+
+  capabilities: []
+
+runtime:
+
+  health:
+
+    enabled: true
+
+  metrics:
+
+    enabled: true
+
+  logging:
+
+    enabled: true
+
+  tracing:
+
+    enabled: true
+
+status:
+
+  phase: Draft
+
+
+------------------------------------------------------------
+components/attendance/component.yaml
+------------------------------------------------------------
+apiVersion: worktracker.io/v1
+
+kind: Component
+
+metadata:
+
+  name: component-name
+
+  displayName: Component Name
+
+  version: 1.0.0
+
+  description: ""
+
+spec:
+
+  owner: business
+
+  category: business
+
+  lifecycle:
+
+    startup: automatic
+
+    restartPolicy: always
+
+    shutdownTimeout: 30s
+
+  dependencies: []
+
+  ports:
+
+    inputs: []
+
+    outputs: []
+
+  services: []
+
+  configuration: {}
+
+  capabilities: []
+
+runtime:
+
+  health:
+
+    enabled: true
+
+  metrics:
+
+    enabled: true
+
+  logging:
+
+    enabled: true
+
+  tracing:
+
+    enabled: true
+
+status:
+
+  phase: Draft
+
+
+------------------------------------------------------------
+components/ai-assistant/component.yaml
+------------------------------------------------------------
+apiVersion: worktracker.io/v1
+
+kind: Component
+
+metadata:
+
+  name: component-name
+
+  displayName: Component Name
+
+  version: 1.0.0
+
+  description: ""
+
+spec:
+
+  owner: business
+
+  category: business
+
+  lifecycle:
+
+    startup: automatic
+
+    restartPolicy: always
+
+    shutdownTimeout: 30s
+
+  dependencies: []
+
+  ports:
+
+    inputs: []
+
+    outputs: []
+
+  services: []
+
+  configuration: {}
+
+  capabilities: []
+
+runtime:
+
+  health:
+
+    enabled: true
+
+  metrics:
+
+    enabled: true
+
+  logging:
+
+    enabled: true
+
+  tracing:
+
+    enabled: true
+
+status:
+
+  phase: Draft
+
+
+------------------------------------------------------------
+components/reports/component.yaml
+------------------------------------------------------------
+apiVersion: worktracker.io/v1
+
+kind: Component
+
+metadata:
+
+  name: component-name
+
+  displayName: Component Name
+
+  version: 1.0.0
+
+  description: ""
+
+spec:
+
+  owner: business
+
+  category: business
+
+  lifecycle:
+
+    startup: automatic
+
+    restartPolicy: always
+
+    shutdownTimeout: 30s
+
+  dependencies: []
+
+  ports:
+
+    inputs: []
+
+    outputs: []
+
+  services: []
+
+  configuration: {}
+
+  capabilities: []
+
+runtime:
+
+  health:
+
+    enabled: true
+
+  metrics:
+
+    enabled: true
+
+  logging:
+
+    enabled: true
+
+  tracing:
+
+    enabled: true
+
+status:
+
+  phase: Draft
+
+
+------------------------------------------------------------
+components/kernel/component.yaml
+------------------------------------------------------------
+apiVersion: worktracker.io/v1
+
+kind: Component
+
+metadata:
+
+  name: component-name
+
+  displayName: Component Name
+
+  version: 1.0.0
+
+  description: ""
+
+spec:
+
+  owner: business
+
+  category: business
+
+  lifecycle:
+
+    startup: automatic
+
+    restartPolicy: always
+
+    shutdownTimeout: 30s
+
+  dependencies: []
+
+  ports:
+
+    inputs: []
+
+    outputs: []
+
+  services: []
+
+  configuration: {}
+
+  capabilities: []
+
+runtime:
+
+  health:
+
+    enabled: true
+
+  metrics:
+
+    enabled: true
+
+  logging:
+
+    enabled: true
+
+  tracing:
+
+    enabled: true
+
+status:
+
+  phase: Draft
+
+
+================ GIT STATUS ================
+On branch main
+Your branch is up to date with 'origin/main'.
+
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	modified:   apps/forge/src/generators/component.generator.ts
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	apps/forge/src/generators/component.generator.ts.bak
+	architecture-review.txt
+	components/ai-assistant/component.yaml
+	components/analytics/component.yaml
+	components/attendance/component.yaml
+	components/dashboard/component.yaml
+	components/integrations/component.yaml
+	components/kernel/component.yaml
+	components/notifications/component.yaml
+	components/reports/component.yaml
+	components/scheduler/component.yaml
+	components/tasks/component.yaml
+	components/workday/component.yaml
+	project-tree.txt
+	runtime/
+	templates/component/component.yaml
+
+no changes added to commit (use "git add" and/or "git commit -a")
+
+================ LAST 20 COMMITS ================
+275f14a feat(platform): establish Work Tracker OS platform foundation
+48a13f6 Initial commit

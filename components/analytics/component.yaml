@@ -1,0 +1,64 @@
+apiVersion: worktracker.io/v1
+
+kind: Component
+
+metadata:
+
+  name: component-name
+
+  displayName: Component Name
+
+  version: 1.0.0
+
+  description: ""
+
+spec:
+
+  owner: business
+
+  category: business
+
+  lifecycle:
+
+    startup: automatic
+
+    restartPolicy: always
+
+    shutdownTimeout: 30s
+
+  dependencies: []
+
+  ports:
+
+    inputs: []
+
+    outputs: []
+
+  services: []
+
+  configuration: {}
+
+  capabilities: []
+
+runtime:
+
+  health:
+
+    enabled: true
+
+  metrics:
+
+    enabled: true
+
+  logging:
+
+    enabled: true
+
+  tracing:
+
+    enabled: true
+
+status:
+
+  phase: Draft
+

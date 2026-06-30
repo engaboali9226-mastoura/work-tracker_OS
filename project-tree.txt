@@ -1,0 +1,473 @@
+.
+├── .ai
+│   ├── architecture
+│   │   └── COMPONENT_TEMPLATE.md
+│   ├── components
+│   ├── context
+│   │   └── PROJECT_RULES.md
+│   ├── contracts
+│   ├── decisions
+│   │   └── ADR-000.md
+│   ├── execution
+│   └── state
+│       └── PROJECT_STATE.md
+├── .editorconfig
+├── .gitattributes
+├── .gitignore
+├── .npmrc
+├── LICENSE
+├── README.md
+├── apps
+│   ├── forge
+│   │   ├── README.md
+│   │   ├── components
+│   │   │   ├── runtime
+│   │   │   │   ├── contracts
+│   │   │   │   ├── docs
+│   │   │   │   ├── execution
+│   │   │   │   ├── implementation
+│   │   │   │   ├── specification
+│   │   │   │   └── tests
+│   │   │   ├── sample
+│   │   │   │   ├── contracts
+│   │   │   │   ├── docs
+│   │   │   │   ├── execution
+│   │   │   │   ├── implementation
+│   │   │   │   ├── specification
+│   │   │   │   └── tests
+│   │   │   └── workday
+│   │   │       ├── contracts
+│   │   │       ├── docs
+│   │   │       ├── execution
+│   │   │       ├── implementation
+│   │   │       ├── specification
+│   │   │       └── tests
+│   │   ├── package.json
+│   │   ├── src
+│   │   │   ├── commands
+│   │   │   │   ├── .gitkeep
+│   │   │   │   ├── create-component.command.ts
+│   │   │   │   └── doctor.command.ts
+│   │   │   ├── configuration
+│   │   │   │   └── .gitkeep
+│   │   │   ├── contracts
+│   │   │   │   └── .gitkeep
+│   │   │   ├── core
+│   │   │   │   ├── .gitkeep
+│   │   │   │   ├── constants
+│   │   │   │   │   └── reserved-component-names.ts
+│   │   │   │   ├── filesystem
+│   │   │   │   │   └── ensure-directory.ts
+│   │   │   │   ├── reports
+│   │   │   │   │   └── forge-report.ts
+│   │   │   │   ├── validation
+│   │   │   │   │   └── component-name.validator.ts
+│   │   │   │   └── workspace
+│   │   │   │       └── workspace-root.ts
+│   │   │   ├── doctor
+│   │   │   │   └── .gitkeep
+│   │   │   ├── filesystem
+│   │   │   │   └── .gitkeep
+│   │   │   ├── generators
+│   │   │   │   ├── .gitkeep
+│   │   │   │   └── component.generator.ts
+│   │   │   ├── logger
+│   │   │   │   └── .gitkeep
+│   │   │   ├── main.ts
+│   │   │   ├── templates
+│   │   │   │   └── .gitkeep
+│   │   │   ├── testing
+│   │   │   │   └── .gitkeep
+│   │   │   ├── utils
+│   │   │   ├── version.ts
+│   │   │   └── workspace
+│   │   │       └── workspace.ts
+│   │   ├── tests
+│   │   └── tsconfig.json
+│   ├── web
+│   │   ├── README.md
+│   │   ├── index.html
+│   │   ├── package.json
+│   │   ├── public
+│   │   ├── src
+│   │   │   ├── app
+│   │   │   ├── assets
+│   │   │   ├── components
+│   │   │   ├── features
+│   │   │   ├── hooks
+│   │   │   ├── layouts
+│   │   │   ├── main.tsx
+│   │   │   ├── pages
+│   │   │   ├── router
+│   │   │   ├── services
+│   │   │   ├── shared
+│   │   │   ├── styles
+│   │   │   └── theme
+│   │   ├── tsconfig.json
+│   │   └── vite.config.ts
+│   └── workos-cli
+│       ├── README.md
+│       ├── src
+│       │   ├── commands
+│       │   │   └── .gitkeep
+│       │   ├── core
+│       │   │   └── .gitkeep
+│       │   ├── main.ts
+│       │   ├── templates
+│       │   │   └── .gitkeep
+│       │   └── utils
+│       │       └── .gitkeep
+│       └── tests
+├── architecture
+│   ├── component-dependencies.yaml
+│   ├── component-ports.yaml
+│   ├── component-registry.yaml
+│   └── system.manifest.yaml
+├── components
+│   ├── COMPONENTS.md
+│   ├── ai-assistant
+│   │   ├── contracts
+│   │   │   └── CONTRACT.md
+│   │   ├── docs
+│   │   │   ├── DECISIONS.md
+│   │   │   ├── HEALTH.md
+│   │   │   ├── LOGGING.md
+│   │   │   ├── METRICS.md
+│   │   │   └── README.md
+│   │   ├── execution
+│   │   │   └── EXECUTION.md
+│   │   ├── implementation
+│   │   │   └── .gitkeep
+│   │   ├── specification
+│   │   │   └── SPECIFICATION.md
+│   │   └── tests
+│   │       └── TESTS.md
+│   ├── analytics
+│   │   ├── contracts
+│   │   │   └── CONTRACT.md
+│   │   ├── docs
+│   │   │   ├── DECISIONS.md
+│   │   │   ├── HEALTH.md
+│   │   │   ├── LOGGING.md
+│   │   │   ├── METRICS.md
+│   │   │   └── README.md
+│   │   ├── execution
+│   │   │   └── EXECUTION.md
+│   │   ├── implementation
+│   │   │   └── .gitkeep
+│   │   ├── specification
+│   │   │   └── SPECIFICATION.md
+│   │   └── tests
+│   │       └── TESTS.md
+│   ├── attendance
+│   │   ├── contracts
+│   │   │   └── CONTRACT.md
+│   │   ├── docs
+│   │   │   ├── DECISIONS.md
+│   │   │   ├── HEALTH.md
+│   │   │   ├── LOGGING.md
+│   │   │   ├── METRICS.md
+│   │   │   └── README.md
+│   │   ├── execution
+│   │   │   └── EXECUTION.md
+│   │   ├── implementation
+│   │   │   └── .gitkeep
+│   │   ├── specification
+│   │   │   └── SPECIFICATION.md
+│   │   └── tests
+│   │       └── TESTS.md
+│   ├── dashboard
+│   │   ├── contracts
+│   │   │   └── CONTRACT.md
+│   │   ├── docs
+│   │   │   ├── DECISIONS.md
+│   │   │   ├── HEALTH.md
+│   │   │   ├── LOGGING.md
+│   │   │   ├── METRICS.md
+│   │   │   └── README.md
+│   │   ├── execution
+│   │   │   └── EXECUTION.md
+│   │   ├── implementation
+│   │   │   └── .gitkeep
+│   │   ├── specification
+│   │   │   └── SPECIFICATION.md
+│   │   └── tests
+│   │       └── TESTS.md
+│   ├── integrations
+│   │   ├── contracts
+│   │   │   └── CONTRACT.md
+│   │   ├── docs
+│   │   │   ├── DECISIONS.md
+│   │   │   ├── HEALTH.md
+│   │   │   ├── LOGGING.md
+│   │   │   ├── METRICS.md
+│   │   │   └── README.md
+│   │   ├── execution
+│   │   │   └── EXECUTION.md
+│   │   ├── implementation
+│   │   │   └── .gitkeep
+│   │   ├── specification
+│   │   │   └── SPECIFICATION.md
+│   │   └── tests
+│   │       └── TESTS.md
+│   ├── kernel
+│   │   └── specification
+│   │       └── SPECIFICATION.md
+│   ├── notifications
+│   │   ├── contracts
+│   │   │   └── CONTRACT.md
+│   │   ├── docs
+│   │   │   ├── DECISIONS.md
+│   │   │   ├── HEALTH.md
+│   │   │   ├── LOGGING.md
+│   │   │   ├── METRICS.md
+│   │   │   └── README.md
+│   │   ├── execution
+│   │   │   └── EXECUTION.md
+│   │   ├── implementation
+│   │   │   └── .gitkeep
+│   │   ├── specification
+│   │   │   └── SPECIFICATION.md
+│   │   └── tests
+│   │       └── TESTS.md
+│   ├── reports
+│   │   ├── contracts
+│   │   │   └── CONTRACT.md
+│   │   ├── docs
+│   │   │   ├── DECISIONS.md
+│   │   │   ├── HEALTH.md
+│   │   │   ├── LOGGING.md
+│   │   │   ├── METRICS.md
+│   │   │   └── README.md
+│   │   ├── execution
+│   │   │   └── EXECUTION.md
+│   │   ├── implementation
+│   │   │   └── .gitkeep
+│   │   ├── specification
+│   │   │   └── SPECIFICATION.md
+│   │   └── tests
+│   │       └── TESTS.md
+│   ├── scheduler
+│   │   ├── contracts
+│   │   │   └── CONTRACT.md
+│   │   ├── docs
+│   │   │   ├── DECISIONS.md
+│   │   │   ├── HEALTH.md
+│   │   │   ├── LOGGING.md
+│   │   │   ├── METRICS.md
+│   │   │   └── README.md
+│   │   ├── execution
+│   │   │   └── EXECUTION.md
+│   │   ├── implementation
+│   │   │   └── .gitkeep
+│   │   ├── specification
+│   │   │   └── SPECIFICATION.md
+│   │   └── tests
+│   │       └── TESTS.md
+│   ├── tasks
+│   │   ├── contracts
+│   │   │   └── CONTRACT.md
+│   │   ├── docs
+│   │   │   ├── DECISIONS.md
+│   │   │   ├── HEALTH.md
+│   │   │   ├── LOGGING.md
+│   │   │   ├── METRICS.md
+│   │   │   └── README.md
+│   │   ├── execution
+│   │   │   └── EXECUTION.md
+│   │   ├── implementation
+│   │   │   └── .gitkeep
+│   │   ├── specification
+│   │   │   └── SPECIFICATION.md
+│   │   └── tests
+│   │       └── TESTS.md
+│   └── workday
+│       ├── contracts
+│       │   └── CONTRACT.md
+│       ├── docs
+│       │   ├── DECISIONS.md
+│       │   ├── HEALTH.md
+│       │   ├── LOGGING.md
+│       │   ├── METRICS.md
+│       │   └── README.md
+│       ├── execution
+│       │   └── EXECUTION.md
+│       ├── implementation
+│       │   └── .gitkeep
+│       ├── specification
+│       │   └── SPECIFICATION.md
+│       └── tests
+│           └── TESTS.md
+├── docs
+│   ├── 01-vision
+│   │   └── VISION.md
+│   ├── 02-principles
+│   │   └── ARCHITECTURE_PRINCIPLES.md
+│   ├── 03-architecture
+│   │   ├── COMMUNICATION_MODEL.md
+│   │   ├── COMPONENT_MODEL.md
+│   │   ├── PACKAGES.md
+│   │   ├── PORT_MODEL.md
+│   │   └── REPOSITORY_STRUCTURE.md
+│   ├── 04-components
+│   ├── 05-contracts
+│   ├── 06-events
+│   ├── 07-workflows
+│   ├── 08-decisions
+│   ├── 09-roadmap
+│   ├── api
+│   ├── architecture
+│   │   └── ARCHITECTURE_PRINCIPLES.md
+│   ├── components
+│   ├── decisions
+│   ├── vision
+│   └── workflows
+├── execution
+├── infrastructure
+├── package-lock.json
+├── package.json
+├── packages
+│   ├── application
+│   │   ├── README.md
+│   │   ├── package.json
+│   │   ├── src
+│   │   │   ├── command
+│   │   │   │   └── command.ts
+│   │   │   ├── dto
+│   │   │   │   └── dto.ts
+│   │   │   ├── handler
+│   │   │   │   ├── command-handler.ts
+│   │   │   │   └── query-handler.ts
+│   │   │   ├── index.ts
+│   │   │   ├── mapper
+│   │   │   │   └── mapper.ts
+│   │   │   ├── pipeline
+│   │   │   │   └── pipeline.ts
+│   │   │   ├── query
+│   │   │   │   └── query.ts
+│   │   │   └── use-case
+│   │   │       └── use-case.ts
+│   │   ├── tests
+│   │   └── tsconfig.json
+│   ├── contracts
+│   │   ├── README.md
+│   │   ├── package.json
+│   │   ├── src
+│   │   │   └── .gitkeep
+│   │   ├── tests
+│   │   └── tsconfig.json
+│   ├── core
+│   │   ├── README.md
+│   │   ├── package.json
+│   │   ├── src
+│   │   │   └── .gitkeep
+│   │   ├── tests
+│   │   └── tsconfig.json
+│   ├── domain
+│   │   ├── README.md
+│   │   ├── package.json
+│   │   ├── src
+│   │   │   ├── aggregate
+│   │   │   │   └── aggregate-root.ts
+│   │   │   ├── entity
+│   │   │   │   └── entity.ts
+│   │   │   ├── error
+│   │   │   │   └── domain-error.ts
+│   │   │   ├── event
+│   │   │   │   └── domain-event.ts
+│   │   │   ├── index.ts
+│   │   │   ├── repository
+│   │   │   │   └── repository.ts
+│   │   │   ├── result
+│   │   │   │   └── result.ts
+│   │   │   ├── service
+│   │   │   │   └── domain-service.ts
+│   │   │   └── value-object
+│   │   │       └── value-object.ts
+│   │   ├── tests
+│   │   └── tsconfig.json
+│   ├── events
+│   │   ├── README.md
+│   │   ├── package.json
+│   │   ├── src
+│   │   │   └── .gitkeep
+│   │   ├── tests
+│   │   └── tsconfig.json
+│   ├── infrastructure
+│   │   ├── README.md
+│   │   ├── package.json
+│   │   ├── src
+│   │   │   ├── cache
+│   │   │   │   └── cache-provider.ts
+│   │   │   ├── clock
+│   │   │   │   └── clock.ts
+│   │   │   ├── configuration
+│   │   │   │   └── configuration-provider.ts
+│   │   │   ├── database
+│   │   │   │   └── database-provider.ts
+│   │   │   ├── filesystem
+│   │   │   │   └── file-system.ts
+│   │   │   ├── http
+│   │   │   │   └── http-client.ts
+│   │   │   ├── id
+│   │   │   │   └── id-generator.ts
+│   │   │   ├── index.ts
+│   │   │   └── storage
+│   │   │       └── storage-provider.ts
+│   │   ├── tests
+│   │   └── tsconfig.json
+│   ├── runtime
+│   │   ├── README.md
+│   │   ├── package.json
+│   │   ├── src
+│   │   │   ├── component
+│   │   │   │   └── component.ts
+│   │   │   ├── contracts
+│   │   │   │   └── contract.ts
+│   │   │   ├── events
+│   │   │   │   └── event.ts
+│   │   │   ├── health
+│   │   │   │   └── health.ts
+│   │   │   ├── index.ts
+│   │   │   ├── logger
+│   │   │   │   └── logger.ts
+│   │   │   ├── ports
+│   │   │   │   ├── input-port.ts
+│   │   │   │   └── output-port.ts
+│   │   │   └── tracing
+│   │   │       └── trace.ts
+│   │   ├── tests
+│   │   └── tsconfig.json
+│   ├── shared
+│   │   ├── README.md
+│   │   ├── package.json
+│   │   ├── src
+│   │   │   └── .gitkeep
+│   │   ├── tests
+│   │   └── tsconfig.json
+│   └── testing
+│       ├── README.md
+│       ├── package.json
+│       ├── src
+│       │   └── .gitkeep
+│       ├── tests
+│       └── tsconfig.json
+├── project-tree.txt
+├── scripts-build.sh
+├── templates
+│   └── component
+│       ├── CONTRACT.md
+│       ├── DECISIONS.md
+│       ├── EXECUTION.md
+│       ├── HEALTH.md
+│       ├── LOGGING.md
+│       ├── METRICS.md
+│       ├── README.md
+│       ├── SPECIFICATION.md
+│       └── TESTS.md
+├── tests
+├── tools
+│   └── validate-architecture.sh
+└── tsconfig.base.json
+
+228 directories, 243 files

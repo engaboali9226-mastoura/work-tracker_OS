@@ -1,117 +1,34 @@
-version: 1.0.0
+apiVersion: worktracker.io/v1
 
-components:
+kind: RegistryDocumentation
 
-  workday:
-    status: active
-    owner: business
-    package: component
-    dependencies: []
-    inputPorts:
-      - start-workday
-      - end-workday
-    outputPorts:
-      - workday-started
-      - workday-ended
+title: Component Registry
 
-  attendance:
-    status: active
-    owner: business
-    package: component
-    dependencies:
-      - workday
-    inputPorts:
-      - check-in
-      - check-out
-    outputPorts:
-      - checked-in
-      - checked-out
+status: Active
 
-  tasks:
-    status: active
-    owner: business
-    package: component
-    dependencies:
-      - workday
-    inputPorts:
-      - create-task
-      - start-task
-      - pause-task
-      - resume-task
-      - complete-task
-      - cancel-task
-    outputPorts:
-      - task-created
-      - task-started
-      - task-paused
-      - task-resumed
-      - task-completed
-      - task-cancelled
+description: |
 
-  notifications:
-    status: active
-    owner: business
-    package: component
-    dependencies:
-      - workday
-      - tasks
-    inputPorts:
-      - create-notification
-    outputPorts:
-      - notification-sent
+  This file is documentation only.
 
-  reports:
-    status: active
-    owner: business
-    package: component
-    dependencies:
-      - workday
-      - attendance
-      - tasks
-    inputPorts:
-      - generate-report
-    outputPorts:
-      - report-generated
+  The runtime registry is generated automatically.
 
-  dashboard:
-    status: active
-    owner: presentation
-    package: component
-    dependencies:
-      - workday
-      - attendance
-      - tasks
-      - notifications
-      - reports
-      - analytics
-    inputPorts:
-      - refresh-dashboard
-    outputPorts:
-      - dashboard-view
+sourceOfTruth:
 
-  analytics:
-    status: active
-    owner: intelligence
-    package: component
-    dependencies:
-      - attendance
-      - tasks
-      - reports
-    inputPorts:
-      - analyze
-    outputPorts:
-      - recommendation-generated
+  - components/*/component.yaml
 
-  integrations:
-    status: active
-    owner: infrastructure
-    package: component
-    dependencies:
-      - notifications
-      - analytics
-      - reports
-    inputPorts:
-      - synchronize
-    outputPorts:
-      - synchronization-completed
+generatedArtifact:
+
+  - runtime/component-registry.json
+
+generator:
+
+  execution/041-build-component-registry.sh
+
+notes:
+
+  - Never edit runtime/component-registry.json manually.
+
+  - Never register components manually.
+
+  - Every component is discovered from its manifest.
 

@@ -1,43 +1,37 @@
-workday:
-  dependsOn: []
+apiVersion: worktracker.io/v1
 
-attendance:
-  dependsOn:
-    - workday
+kind: DependencyDocumentation
 
-tasks:
-  dependsOn:
-    - workday
+title: Component Dependencies
 
-notifications:
-  dependsOn:
-    - workday
-    - tasks
+status: Active
 
-reports:
-  dependsOn:
-    - attendance
-    - tasks
-    - workday
+description: |
 
-dashboard:
-  dependsOn:
-    - workday
-    - attendance
-    - tasks
-    - notifications
-    - reports
-    - analytics
+  This file is documentation only.
 
-analytics:
-  dependsOn:
-    - attendance
-    - tasks
-    - reports
+  Component dependencies are declared inside each
+  component manifest.
 
-integrations:
-  dependsOn:
-    - notifications
-    - analytics
-    - reports
+sourceOfTruth:
+
+  - components/*/component.yaml
+
+manifestField:
+
+  spec:
+    dependencies: []
+
+generatedArtifacts:
+
+  - runtime/component-registry.json
+
+notes:
+
+  - Never duplicate dependencies here.
+
+  - Never maintain dependencies manually.
+
+  - Runtime discovers dependencies from every
+    component manifest.
 
