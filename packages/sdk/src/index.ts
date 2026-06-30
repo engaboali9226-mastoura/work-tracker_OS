@@ -25,3 +25,7 @@ export type {
 export type {
     ComponentBootstrap,
 } from "./component-bootstrap.js";
+
+export type {
+    RuntimeIntegration,
+} from "./runtime-integration.js";
