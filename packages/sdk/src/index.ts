@@ -29,3 +29,7 @@ export type {
 export type {
     RuntimeIntegration,
 } from "./runtime-integration.js";
+
+export type {
+    PlatformAPI,
+} from "./platform-api.js";
