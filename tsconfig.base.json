@@ -2,21 +2,19 @@
   "compilerOptions": {
     "target": "ES2022",
     "lib": ["ES2022"],
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
+
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
 
     "strict": true,
 
     "skipLibCheck": true,
 
     "declaration": true,
-
     "declarationMap": true,
-
     "sourceMap": true,
 
     "esModuleInterop": true,
-
     "allowSyntheticDefaultImports": true,
 
     "resolveJsonModule": true,
@@ -24,10 +22,43 @@
     "forceConsistentCasingInFileNames": true,
 
     "noImplicitOverride": true,
-
     "noUncheckedIndexedAccess": true,
-
     "exactOptionalPropertyTypes": true,
+
+    "baseUrl": ".",
+
+    "paths": {
+      "@worktracker/shared": [
+        "packages/shared/src/index.ts"
+      ],
+      "@worktracker/core": [
+        "packages/core/src/index.ts"
+      ],
+      "@worktracker/contracts": [
+        "packages/contracts/src/index.ts"
+      ],
+      "@worktracker/application": [
+        "packages/application/src/index.ts"
+      ],
+      "@worktracker/domain": [
+        "packages/domain/src/index.ts"
+      ],
+      "@worktracker/events": [
+        "packages/events/src/index.ts"
+      ],
+      "@worktracker/infrastructure": [
+        "packages/infrastructure/src/index.ts"
+      ],
+      "@worktracker/runtime": [
+        "packages/runtime/src/index.ts"
+      ],
+      "@worktracker/sdk": [
+        "packages/sdk/src/index.ts"
+      ],
+      "@worktracker/testing": [
+        "packages/testing/src/index.ts"
+      ]
+    },
 
     "types": [
       "node"

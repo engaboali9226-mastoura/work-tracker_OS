@@ -1,0 +1,741 @@
+====================================================
+SHARED ARCHITECTURE REFERENCE REVIEW
+====================================================
+
+====================================================
+FILE: docs/03-architecture/ARCHITECTURE_FOUNDATION.md
+====================================================
+# Architecture Foundation
+
+Status: Frozen
+
+Version: 1.0
+
+---
+
+# Purpose
+
+Defines the permanent architecture of Work Tracker OS.
+
+Business features MUST evolve without changing this foundation.
+
+Architecture changes require an ADR.
+
+---
+
+# Package Responsibilities
+
+## core
+
+Platform abstractions.
+
+Contains:
+
+- Core Types
+- Base Interfaces
+- Lifecycle Contracts
+- Platform Errors
+- Component Identity
+
+Must NOT contain:
+
+- Runtime
+- Business Logic
+- Infrastructure
+
+---
+
+## runtime
+
+Execution engine.
+
+Contains:
+
+- Component Loader
+- Lifecycle Manager
+- Port Dispatcher
+- Runtime Host
+- Health Engine
+- Metrics Engine
+- Logger
+- Tracing
+
+Must NOT contain:
+
+- Business Rules
+
+---
+
+## contracts
+
+Shared contracts.
+
+Contains:
+
+- DTOs
+- Shared Schemas
+- Public Interfaces
+
+Must NOT contain:
+
+- Runtime code
+
+---
+
+## events
+
+Platform event definitions.
+
+Contains:
+
+- Event Types
+- Event Contracts
+- Message Definitions
+
+Must NOT contain:
+
+- Business workflows
+
+---
+
+## domain
+
+Business model.
+
+Contains:
+
+- Entity
+- Aggregate
+- Repository
+- Domain Service
+- Value Object
+
+Must NOT contain:
+
+- Infrastructure
+- HTTP
+
+---
+
+## application
+
+Application use cases.
+
+Contains:
+
+- Commands
+- Queries
+- Use Cases
+- Handlers
+
+Must NOT contain:
+
+- Database
+- HTTP
+
+---
+
+## infrastructure
+
+External integrations.
+
+Contains:
+
+- Database
+- HTTP
+- Storage
+- Cache
+- Clock
+- Configuration
+
+Must NOT contain:
+
+- Business Rules
+
+---
+
+## shared
+
+Pure reusable utilities.
+
+Must remain business independent.
+
+---
+
+## testing
+
+Testing utilities only.
+
+---
+
+# Component Responsibilities
+
+Every component owns:
+
+- Manifest
+- Contracts
+- Documentation
+- Tests
+- Implementation
+
+---
+
+# Source Of Truth
+
+Component metadata:
+
+components/*/component.yaml
+
+Runtime registry:
+
+Generated automatically.
+
+Dependencies:
+
+Declared inside component manifests.
+
+Ports:
+
+Declared inside component manifests.
+
+---
+
+# Dependency Direction
+
+Architecture
+
+↓
+
+Core
+
+↓
+
+Runtime
+
+↓
+
+Components
+
+No reverse dependency is allowed.
+
+---
+
+# Modification Policy
+
+Changing the architecture requires:
+
+1. ADR
+2. Review
+3. Approval
+
+Business implementation MUST NOT modify architecture.
+
+
+====================================================
+FILE: docs/03-architecture/COMPONENT_MODEL.md
+====================================================
+# Component Model
+
+Every Component Contains
+
+- Specification
+- Contracts
+- Inputs
+- Outputs
+- Internal Logic
+- Configuration
+- Tests
+- Documentation
+- Execution
+- Health
+- Logs
+- Metrics
+
+
+====================================================
+FILE: docs/03-architecture/PACKAGES.md
+====================================================
+# Platform Packages
+
+@worktracker/core
+
+Shared runtime.
+
+---
+
+@worktracker/contracts
+
+Communication contracts.
+
+---
+
+@worktracker/events
+
+Platform events.
+
+---
+
+@worktracker/shared
+
+Common utilities.
+
+---
+
+@worktracker/testing
+
+Testing infrastructure.
+
+
+====================================================
+FILE: docs/03-architecture/PORT_MODEL.md
+====================================================
+# Port Model
+
+External World
+
+↓
+
+Input Port
+
+↓
+
+Validation
+
+↓
+
+Business Logic
+
+↓
+
+Output Port
+
+↓
+
+External World
+
+
+====================================================
+FILE: docs/03-architecture/REPOSITORY_STRUCTURE.md
+====================================================
+apps/
+
+components/
+
+contracts/
+
+docs/
+
+execution/
+
+packages/
+
+templates/
+
+tools/
+
+tests/
+
+.ai/
+
+
+====================================================
+FILE: architecture/component-registry.yaml
+====================================================
+apiVersion: worktracker.io/v1
+
+kind: RegistryDocumentation
+
+title: Component Registry
+
+status: Active
+
+description: |
+
+  This file is documentation only.
+
+  The runtime registry is generated automatically.
+
+sourceOfTruth:
+
+  - components/*/component.yaml
+
+generatedArtifact:
+
+  - runtime/component-registry.json
+
+generator:
+
+  execution/041-build-component-registry.sh
+
+notes:
+
+  - Never edit runtime/component-registry.json manually.
+
+  - Never register components manually.
+
+  - Every component is discovered from its manifest.
+
+
+====================================================
+FILE: architecture/component-dependencies.yaml
+====================================================
+apiVersion: worktracker.io/v1
+
+kind: DependencyDocumentation
+
+title: Component Dependencies
+
+status: Active
+
+description: |
+
+  This file is documentation only.
+
+  Component dependencies are declared inside each
+  component manifest.
+
+sourceOfTruth:
+
+  - components/*/component.yaml
+
+manifestField:
+
+  spec:
+    dependencies: []
+
+generatedArtifacts:
+
+  - runtime/component-registry.json
+
+notes:
+
+  - Never duplicate dependencies here.
+
+  - Never maintain dependencies manually.
+
+  - Runtime discovers dependencies from every
+    component manifest.
+
+
+====================================================
+FILE: architecture/component-ports.yaml
+====================================================
+apiVersion: worktracker.io/v1
+
+kind: PortDocumentation
+
+title: Component Ports
+
+status: Active
+
+description: |
+
+  This file is documentation only.
+
+  Every component declares its own input and output
+  ports inside its manifest.
+
+sourceOfTruth:
+
+  - components/*/component.yaml
+
+manifestField:
+
+  spec:
+
+    ports:
+
+      inputs: []
+
+      outputs: []
+
+generatedArtifacts:
+
+  - runtime/component-registry.json
+
+notes:
+
+  - Never declare ports here.
+
+  - Never duplicate port definitions.
+
+  - Runtime discovers ports from every component
+    manifest.
+
+
+====================================================
+FILE: architecture/system.manifest.yaml
+====================================================
+name: Work Tracker OS
+
+version: 1.0.0
+
+status: foundation
+
+packages:
+
+  - runtime
+  - domain
+  - application
+  - infrastructure
+  - core
+  - contracts
+  - events
+  - shared
+  - testing
+
+applications:
+
+  - forge
+  - web
+
+components:
+
+  - workday
+  - attendance
+  - tasks
+  - notifications
+  - reports
+  - dashboard
+  - analytics
+  - integrations
+
+
+====================================================
+FILE: templates/component/component.yaml
+====================================================
+apiVersion: worktracker.io/v1
+
+kind: Component
+
+metadata:
+
+  name: component-name
+
+  displayName: Component Name
+
+  version: 1.0.0
+
+  description: ""
+
+spec:
+
+  owner: business
+
+  category: business
+
+  lifecycle:
+
+    startup: automatic
+
+    restartPolicy: always
+
+    shutdownTimeout: 30s
+
+  dependencies: []
+
+  ports:
+
+    inputs: []
+
+    outputs: []
+
+  services: []
+
+  configuration: {}
+
+  capabilities: []
+
+runtime:
+
+  health:
+
+    enabled: true
+
+  metrics:
+
+    enabled: true
+
+  logging:
+
+    enabled: true
+
+  tracing:
+
+    enabled: true
+
+status:
+
+  phase: Draft
+
+
+====================================================
+FILE: templates/component/SPECIFICATION.md
+====================================================
+# Component Specification
+
+---
+
+## Component Name
+
+---
+
+## Purpose
+
+---
+
+## Responsibilities
+
+---
+
+## Non Responsibilities
+
+---
+
+## Inputs
+
+---
+
+## Outputs
+
+---
+
+## Commands
+
+---
+
+## Events In
+
+---
+
+## Events Out
+
+---
+
+## Business Rules
+
+---
+
+## State
+
+---
+
+## Configuration
+
+---
+
+## Dependencies
+
+---
+
+## Contracts
+
+---
+
+## Health Check
+
+---
+
+## Logging
+
+---
+
+## Metrics
+
+---
+
+## Security
+
+---
+
+## Validation Rules
+
+---
+
+## Error Handling
+
+---
+
+## Test Scenarios
+
+---
+
+## Acceptance Criteria
+
+
+====================================================
+FILE: templates/component/CONTRACT.md
+====================================================
+# Component Contract
+
+## Input Ports
+
+---
+
+## Output Ports
+
+---
+
+## Input Messages
+
+---
+
+## Output Messages
+
+---
+
+## Validation
+
+---
+
+## Version
+
+
+====================================================
+FILE: .ai/context/PROJECT_RULES.md
+====================================================
+
+# PROJECT RULES
+
+1. Documentation First
+
+2. Specification Before Code
+
+3. Every Component Is Independent
+
+4. Components Communicate Through Contracts
+
+5. No Direct Dependencies
+
+6. Every Component Is Testable Alone
+
+7. Every Component Owns Its Data
+
+8. Every Component Has Inputs And Outputs
+
+9. Every Component Can Be Replaced
+
+10. Repository Is The Source Of Truth
+
+
+====================================================
+FILE: .ai/state/PROJECT_STATE.md
+====================================================
+# PROJECT STATE
+
+Current Sprint
+
+001
+
+Current Objective
+
+Build WorkOS CLI
+
+Completed
+
+- Foundation
+
+In Progress
+
+- CLI Foundation
+

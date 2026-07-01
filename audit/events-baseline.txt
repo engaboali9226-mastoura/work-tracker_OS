@@ -1,0 +1,50 @@
+# Events Baseline
+
+## Package
+
+total 28
+drwxrwxrwx+  4 codespace codespace 4096 Jun 30 06:43 .
+drwxrwxrwx+ 12 codespace codespace 4096 Jun 30 08:34 ..
+-rw-rw-rw-   1 codespace codespace   34 Jun 30 06:43 README.md
+-rw-rw-rw-   1 codespace codespace  156 Jun 30 06:43 package.json
+drwxrwxrwx+  2 codespace codespace 4096 Jun 30 06:43 src
+drwxrwxrwx+  2 codespace codespace 4096 Jun 30 06:43 tests
+-rw-rw-rw-   1 codespace codespace  140 Jun 30 06:43 tsconfig.json
+
+----------------------------------------
+
+## Source
+
+/workspaces/work-tracker_OS/packages/events/src/.gitkeep
+
+----------------------------------------
+
+## Tests
+
+
+----------------------------------------
+
+## Public API
+
+(missing)
+
+----------------------------------------
+
+## package.json
+
+{
+  "name":"@worktracker/events",
+  "private":true,
+  "version":"0.0.1",
+  "type":"module",
+  "scripts":{
+    "build":"tsc",
+    "test":"node --test"
+  }
+}
+
+----------------------------------------
+
+## TypeScript
+
+FAIL

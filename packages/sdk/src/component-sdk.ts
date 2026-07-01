@@ -1,6 +1,6 @@
 import type {
     RuntimeComponent,
-} from "../../runtime/src/component/component.js";
+} from "@worktracker/runtime";
 
 /**
  * Component SDK

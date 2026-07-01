@@ -1,0 +1,35 @@
+=====================================
+CORE FOUNDATION FREEZE
+=====================================
+
+STATUS
+
+Frozen
+
+PACKAGE
+
+packages/shared
+packages/core
+
+VERIFICATION
+
+[PASS] Shared TypeScript Build
+[PASS] Core TypeScript Build
+
+FOUNDATION STATUS
+
+Shared : Stable
+Core   : Stable
+
+NEXT PACKAGE
+
+packages/contracts
+
+RULE
+
+No changes are allowed to Shared/Core unless a verification
+failure or architecture decision requires them.
+
+FREEZE DATE
+
+$(date)

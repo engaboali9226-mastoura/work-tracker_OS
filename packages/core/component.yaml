@@ -1,0 +1,20 @@
+name: core
+type: package
+status: foundation
+version: 0.1.0
+
+description: >
+  Core package containing platform abstractions and base contracts.
+
+owner: platform
+
+dependencies:
+  - shared
+
+exports: []
+
+contracts:
+  - contracts/CONTRACT.md
+
+specification:
+  - specification/SPECIFICATION.md

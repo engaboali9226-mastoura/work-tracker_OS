@@ -1,3 +1,3 @@
 # Contracts
 
-Shared communication contracts.
+Shared contracts.

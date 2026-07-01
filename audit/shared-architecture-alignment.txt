@@ -1,0 +1,143 @@
+=======================================
+SHARED ARCHITECTURE ALIGNMENT
+=======================================
+
+===== COMPONENT =====
+packages/shared/README.md
+packages/shared/component.yaml
+packages/shared/contracts/CONTRACT.md
+packages/shared/package.json
+packages/shared/specification/SPECIFICATION.md
+packages/shared/src/.gitkeep
+packages/shared/tsconfig.json
+
+===== COMPONENT YAML =====
+name: shared
+type: package
+status: foundation
+version: 0.1.0
+
+description: >
+  Shared package containing common abstractions, utilities,
+  types and reusable building blocks used across the platform.
+
+owner: platform
+
+dependencies: []
+
+exports: []
+
+contracts:
+  - contracts/CONTRACT.md
+
+specification:
+  - specification/SPECIFICATION.md
+
+===== SPECIFICATION =====
+# Shared Specification
+
+## Purpose
+
+The Shared package provides generic, framework-independent building blocks
+that can be reused by every package in the platform.
+
+## Responsibilities
+
+- Shared types
+- Shared value objects
+- Common utilities
+- Generic helpers
+- Generic constants
+- Generic errors
+
+## Forbidden
+
+The Shared package MUST NOT contain:
+
+- Business logic
+- Domain logic
+- Infrastructure logic
+- Runtime logic
+- SDK logic
+- UI code
+- Framework-specific code
+- Repository implementations
+- Services
+
+## Dependencies
+
+Shared must remain dependency-free except for standard TypeScript/JavaScript
+libraries.
+
+## Consumers
+
+Expected consumers include:
+
+- Core
+- Domain
+- Contracts
+- SDK
+- Runtime
+- Infrastructure
+- Applications
+
+
+===== CONTRACT =====
+# Shared Contract
+
+## Stability
+
+Public APIs inside Shared are considered stable.
+
+## Compatibility
+
+Changes must preserve backward compatibility whenever possible.
+
+## Rules
+
+- Prefer immutable objects.
+- Prefer pure functions.
+- No side effects.
+- No hidden state.
+- No singleton services.
+- No framework coupling.
+
+## Export Policy
+
+Only reusable generic APIs may be exported.
+
+
+===== README =====
+# Shared
+
+Shared utilities.
+
+===== PLATFORM REFERENCES =====
+.ai/architecture/COMPONENT_TEMPLATE.md
+.ai/context/PROJECT_RULES.md
+.ai/decisions/ADR-000.md
+.ai/state/PROJECT_STATE.md
+architecture/component-dependencies.yaml
+architecture/component-ports.yaml
+architecture/component-registry.yaml
+architecture/system.manifest.yaml
+docs/01-vision/VISION.md
+docs/02-principles/ARCHITECTURE_PRINCIPLES.md
+docs/03-architecture/ARCHITECTURE_FOUNDATION.md
+docs/03-architecture/COMMUNICATION_MODEL.md
+docs/03-architecture/COMPONENT_MODEL.md
+docs/03-architecture/DOCUMENTATION_BOUNDARIES.md
+docs/03-architecture/PACKAGES.md
+docs/03-architecture/PORT_MODEL.md
+docs/03-architecture/REPOSITORY_STRUCTURE.md
+docs/architecture/ARCHITECTURE_PRINCIPLES.md
+templates/component/CONTRACT.md
+templates/component/DECISIONS.md
+templates/component/EXECUTION.md
+templates/component/HEALTH.md
+templates/component/LOGGING.md
+templates/component/METRICS.md
+templates/component/README.md
+templates/component/SPECIFICATION.md
+templates/component/TESTS.md
+templates/component/component.yaml

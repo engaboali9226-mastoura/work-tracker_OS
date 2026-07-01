@@ -1,0 +1,4593 @@
+++ export XIT=0
+++ XIT=0
+++ '[' '!' -z engaboali9226-mastoura ']'
+++ echo -n '[0;32m@engaboali9226-mastoura '
+++ '[' 0 -ne 0 ']'
+++ echo -n '[0m➜'
++++ git config --get devcontainers-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git config --get codespaces-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git --no-optional-locks symbolic-ref --short HEAD
+++ export BRANCH=main
+++ BRANCH=main
+++ '[' main '!=' '' ']'
+++ echo -n '[0;36m([1;31mmain'
++++ git config --get devcontainers-theme.show-dirty
+++ '[' '' = 1 ']'
+++ echo -n '[0;36m) '
+++ export XIT=0
+++ XIT=0
+++ '[' '!' -z engaboali9226-mastoura ']'
+++ echo -n '[0;32m@engaboali9226-mastoura '
+++ '[' 0 -ne 0 ']'
+++ echo -n '[0m➜'
++++ git config --get devcontainers-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git config --get codespaces-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git --no-optional-locks symbolic-ref --short HEAD
+++ export BRANCH=main
+++ BRANCH=main
+++ '[' main '!=' '' ']'
+++ echo -n '[0;36m([1;31mmain'
++++ git config --get devcontainers-theme.show-dirty
+++ '[' '' = 1 ']'
+++ echo -n '[0;36m) '
+++ __vsc_preexec_only exec
+++ '[' 1 = 0 ']'
++ echo =====================================
+=====================================
+++ export XIT=0
+++ XIT=0
+++ '[' '!' -z engaboali9226-mastoura ']'
+++ echo -n '[0;32m@engaboali9226-mastoura '
+++ '[' 0 -ne 0 ']'
+++ echo -n '[0m➜'
++++ git config --get devcontainers-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git config --get codespaces-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git --no-optional-locks symbolic-ref --short HEAD
+++ export BRANCH=main
+++ BRANCH=main
+++ '[' main '!=' '' ']'
+++ echo -n '[0;36m([1;31mmain'
++++ git config --get devcontainers-theme.show-dirty
+++ '[' '' = 1 ']'
+++ echo -n '[0;36m) '
+++ __vsc_preexec_only =====================================
+++ '[' 1 = 0 ']'
++ echo 'NPX / TSC DIAGNOSTIC'
+NPX / TSC DIAGNOSTIC
+++ export XIT=0
+++ XIT=0
+++ '[' '!' -z engaboali9226-mastoura ']'
+++ echo -n '[0;32m@engaboali9226-mastoura '
+++ '[' 0 -ne 0 ']'
+++ echo -n '[0m➜'
++++ git config --get devcontainers-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git config --get codespaces-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git --no-optional-locks symbolic-ref --short HEAD
+++ export BRANCH=main
+++ BRANCH=main
+++ '[' main '!=' '' ']'
+++ echo -n '[0;36m([1;31mmain'
++++ git config --get devcontainers-theme.show-dirty
+++ '[' '' = 1 ']'
+++ echo -n '[0;36m) '
+++ __vsc_preexec_only 'NPX / TSC DIAGNOSTIC'
+++ '[' 1 = 0 ']'
++ echo =====================================
+=====================================
+++ export XIT=0
+++ XIT=0
+++ '[' '!' -z engaboali9226-mastoura ']'
+++ echo -n '[0;32m@engaboali9226-mastoura '
+++ '[' 0 -ne 0 ']'
+++ echo -n '[0m➜'
++++ git config --get devcontainers-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git config --get codespaces-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git --no-optional-locks symbolic-ref --short HEAD
+++ export BRANCH=main
+++ BRANCH=main
+++ '[' main '!=' '' ']'
+++ echo -n '[0;36m([1;31mmain'
++++ git config --get devcontainers-theme.show-dirty
+++ '[' '' = 1 ']'
+++ echo -n '[0;36m) '
+++ export XIT=0
+++ XIT=0
+++ '[' '!' -z engaboali9226-mastoura ']'
+++ echo -n '[0;32m@engaboali9226-mastoura '
+++ '[' 0 -ne 0 ']'
+++ echo -n '[0m➜'
++++ git config --get devcontainers-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git config --get codespaces-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git --no-optional-locks symbolic-ref --short HEAD
+++ export BRANCH=main
+++ BRANCH=main
+++ '[' main '!=' '' ']'
+++ echo -n '[0;36m([1;31mmain'
++++ git config --get devcontainers-theme.show-dirty
+++ '[' '' = 1 ']'
+++ echo -n '[0;36m) '
+++ __vsc_preexec_only =====================================
+++ '[' 1 = 0 ']'
++ date
+Wed Jul  1 08:35:52 UTC 2026
+++ export XIT=0
+++ XIT=0
+++ '[' '!' -z engaboali9226-mastoura ']'
+++ echo -n '[0;32m@engaboali9226-mastoura '
+++ '[' 0 -ne 0 ']'
+++ echo -n '[0m➜'
++++ git config --get devcontainers-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git config --get codespaces-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git --no-optional-locks symbolic-ref --short HEAD
+++ export BRANCH=main
+++ BRANCH=main
+++ '[' main '!=' '' ']'
+++ echo -n '[0;36m([1;31mmain'
++++ git config --get devcontainers-theme.show-dirty
+++ '[' '' = 1 ']'
+++ echo -n '[0;36m) '
+++ export XIT=0
+++ XIT=0
+++ '[' '!' -z engaboali9226-mastoura ']'
+++ echo -n '[0;32m@engaboali9226-mastoura '
+++ '[' 0 -ne 0 ']'
+++ echo -n '[0m➜'
++++ git config --get devcontainers-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git config --get codespaces-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git --no-optional-locks symbolic-ref --short HEAD
+++ export BRANCH=main
+++ BRANCH=main
+++ '[' main '!=' '' ']'
+++ echo -n '[0;36m([1;31mmain'
++++ git config --get devcontainers-theme.show-dirty
+++ '[' '' = 1 ']'
+++ echo -n '[0;36m) '
+++ __vsc_preexec_only date
+++ '[' 1 = 0 ']'
++ echo
+
+++ export XIT=0
+++ XIT=0
+++ '[' '!' -z engaboali9226-mastoura ']'
+++ echo -n '[0;32m@engaboali9226-mastoura '
+++ '[' 0 -ne 0 ']'
+++ echo -n '[0m➜'
++++ git config --get devcontainers-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git config --get codespaces-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git --no-optional-locks symbolic-ref --short HEAD
+++ export BRANCH=main
+++ BRANCH=main
+++ '[' main '!=' '' ']'
+++ echo -n '[0;36m([1;31mmain'
++++ git config --get devcontainers-theme.show-dirty
+++ '[' '' = 1 ']'
+++ echo -n '[0;36m) '
+++ __vsc_preexec_only echo
+++ '[' 1 = 0 ']'
++ echo '[1] pwd'
+[1] pwd
+++ export XIT=0
+++ XIT=0
+++ '[' '!' -z engaboali9226-mastoura ']'
+++ echo -n '[0;32m@engaboali9226-mastoura '
+++ '[' 0 -ne 0 ']'
+++ echo -n '[0m➜'
++++ git config --get devcontainers-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git config --get codespaces-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git --no-optional-locks symbolic-ref --short HEAD
+++ export BRANCH=main
+++ BRANCH=main
+++ '[' main '!=' '' ']'
+++ echo -n '[0;36m([1;31mmain'
++++ git config --get devcontainers-theme.show-dirty
+++ '[' '' = 1 ']'
+++ echo -n '[0;36m) '
+++ __vsc_preexec_only '[1] pwd'
+++ '[' 1 = 0 ']'
++ pwd
+/workspaces/work-tracker_OS/packages/events
+++ export XIT=0
+++ XIT=0
+++ '[' '!' -z engaboali9226-mastoura ']'
+++ echo -n '[0;32m@engaboali9226-mastoura '
+++ '[' 0 -ne 0 ']'
+++ echo -n '[0m➜'
++++ git config --get devcontainers-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git config --get codespaces-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git --no-optional-locks symbolic-ref --short HEAD
+++ export BRANCH=main
+++ BRANCH=main
+++ '[' main '!=' '' ']'
+++ echo -n '[0;36m([1;31mmain'
++++ git config --get devcontainers-theme.show-dirty
+++ '[' '' = 1 ']'
+++ echo -n '[0;36m) '
+++ export XIT=0
+++ XIT=0
+++ '[' '!' -z engaboali9226-mastoura ']'
+++ echo -n '[0;32m@engaboali9226-mastoura '
+++ '[' 0 -ne 0 ']'
+++ echo -n '[0m➜'
++++ git config --get devcontainers-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git config --get codespaces-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git --no-optional-locks symbolic-ref --short HEAD
+++ export BRANCH=main
+++ BRANCH=main
+++ '[' main '!=' '' ']'
+++ echo -n '[0;36m([1;31mmain'
++++ git config --get devcontainers-theme.show-dirty
+++ '[' '' = 1 ']'
+++ echo -n '[0;36m) '
+++ __vsc_preexec_only pwd
+++ '[' 1 = 0 ']'
++ echo
+
+++ export XIT=0
+++ XIT=0
+++ '[' '!' -z engaboali9226-mastoura ']'
+++ echo -n '[0;32m@engaboali9226-mastoura '
+++ '[' 0 -ne 0 ']'
+++ echo -n '[0m➜'
++++ git config --get devcontainers-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git config --get codespaces-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git --no-optional-locks symbolic-ref --short HEAD
+++ export BRANCH=main
+++ BRANCH=main
+++ '[' main '!=' '' ']'
+++ echo -n '[0;36m([1;31mmain'
++++ git config --get devcontainers-theme.show-dirty
+++ '[' '' = 1 ']'
+++ echo -n '[0;36m) '
+++ __vsc_preexec_only echo
+++ '[' 1 = 0 ']'
++ echo '[2] node'
+[2] node
+++ export XIT=0
+++ XIT=0
+++ '[' '!' -z engaboali9226-mastoura ']'
+++ echo -n '[0;32m@engaboali9226-mastoura '
+++ '[' 0 -ne 0 ']'
+++ echo -n '[0m➜'
++++ git config --get devcontainers-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git config --get codespaces-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git --no-optional-locks symbolic-ref --short HEAD
+++ export BRANCH=main
+++ BRANCH=main
+++ '[' main '!=' '' ']'
+++ echo -n '[0;36m([1;31mmain'
++++ git config --get devcontainers-theme.show-dirty
+++ '[' '' = 1 ']'
+++ echo -n '[0;36m) '
+++ __vsc_preexec_only '[2] node'
+++ '[' 1 = 0 ']'
++ node -v
+v24.14.0
+++ export XIT=0
+++ XIT=0
+++ '[' '!' -z engaboali9226-mastoura ']'
+++ echo -n '[0;32m@engaboali9226-mastoura '
+++ '[' 0 -ne 0 ']'
+++ echo -n '[0m➜'
++++ git config --get devcontainers-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git config --get codespaces-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git --no-optional-locks symbolic-ref --short HEAD
+++ export BRANCH=main
+++ BRANCH=main
+++ '[' main '!=' '' ']'
+++ echo -n '[0;36m([1;31mmain'
++++ git config --get devcontainers-theme.show-dirty
+++ '[' '' = 1 ']'
+++ echo -n '[0;36m) '
+++ export XIT=0
+++ XIT=0
+++ '[' '!' -z engaboali9226-mastoura ']'
+++ echo -n '[0;32m@engaboali9226-mastoura '
+++ '[' 0 -ne 0 ']'
+++ echo -n '[0m➜'
++++ git config --get devcontainers-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git config --get codespaces-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git --no-optional-locks symbolic-ref --short HEAD
+++ export BRANCH=main
+++ BRANCH=main
+++ '[' main '!=' '' ']'
+++ echo -n '[0;36m([1;31mmain'
++++ git config --get devcontainers-theme.show-dirty
+++ '[' '' = 1 ']'
+++ echo -n '[0;36m) '
+++ __vsc_preexec_only -v
+++ '[' 1 = 0 ']'
++ echo
+
+++ export XIT=0
+++ XIT=0
+++ '[' '!' -z engaboali9226-mastoura ']'
+++ echo -n '[0;32m@engaboali9226-mastoura '
+++ '[' 0 -ne 0 ']'
+++ echo -n '[0m➜'
++++ git config --get devcontainers-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git config --get codespaces-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git --no-optional-locks symbolic-ref --short HEAD
+++ export BRANCH=main
+++ BRANCH=main
+++ '[' main '!=' '' ']'
+++ echo -n '[0;36m([1;31mmain'
++++ git config --get devcontainers-theme.show-dirty
+++ '[' '' = 1 ']'
+++ echo -n '[0;36m) '
+++ __vsc_preexec_only echo
+++ '[' 1 = 0 ']'
++ echo '[3] npm'
+[3] npm
+++ export XIT=0
+++ XIT=0
+++ '[' '!' -z engaboali9226-mastoura ']'
+++ echo -n '[0;32m@engaboali9226-mastoura '
+++ '[' 0 -ne 0 ']'
+++ echo -n '[0m➜'
++++ git config --get devcontainers-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git config --get codespaces-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git --no-optional-locks symbolic-ref --short HEAD
+++ export BRANCH=main
+++ BRANCH=main
+++ '[' main '!=' '' ']'
+++ echo -n '[0;36m([1;31mmain'
++++ git config --get devcontainers-theme.show-dirty
+++ '[' '' = 1 ']'
+++ echo -n '[0;36m) '
+++ __vsc_preexec_only '[3] npm'
+++ '[' 1 = 0 ']'
++ npm -v
+11.9.0
+++ export XIT=0
+++ XIT=0
+++ '[' '!' -z engaboali9226-mastoura ']'
+++ echo -n '[0;32m@engaboali9226-mastoura '
+++ '[' 0 -ne 0 ']'
+++ echo -n '[0m➜'
++++ git config --get devcontainers-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git config --get codespaces-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git --no-optional-locks symbolic-ref --short HEAD
+++ export BRANCH=main
+++ BRANCH=main
+++ '[' main '!=' '' ']'
+++ echo -n '[0;36m([1;31mmain'
++++ git config --get devcontainers-theme.show-dirty
+++ '[' '' = 1 ']'
+++ echo -n '[0;36m) '
+++ export XIT=0
+++ XIT=0
+++ '[' '!' -z engaboali9226-mastoura ']'
+++ echo -n '[0;32m@engaboali9226-mastoura '
+++ '[' 0 -ne 0 ']'
+++ echo -n '[0m➜'
++++ git config --get devcontainers-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git config --get codespaces-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git --no-optional-locks symbolic-ref --short HEAD
+++ export BRANCH=main
+++ BRANCH=main
+++ '[' main '!=' '' ']'
+++ echo -n '[0;36m([1;31mmain'
++++ git config --get devcontainers-theme.show-dirty
+++ '[' '' = 1 ']'
+++ echo -n '[0;36m) '
+++ __vsc_preexec_only -v
+++ '[' 1 = 0 ']'
++ echo
+
+++ export XIT=0
+++ XIT=0
+++ '[' '!' -z engaboali9226-mastoura ']'
+++ echo -n '[0;32m@engaboali9226-mastoura '
+++ '[' 0 -ne 0 ']'
+++ echo -n '[0m➜'
++++ git config --get devcontainers-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git config --get codespaces-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git --no-optional-locks symbolic-ref --short HEAD
+++ export BRANCH=main
+++ BRANCH=main
+++ '[' main '!=' '' ']'
+++ echo -n '[0;36m([1;31mmain'
++++ git config --get devcontainers-theme.show-dirty
+++ '[' '' = 1 ']'
+++ echo -n '[0;36m) '
+++ __vsc_preexec_only echo
+++ '[' 1 = 0 ']'
++ echo '[4] npx'
+[4] npx
+++ export XIT=0
+++ XIT=0
+++ '[' '!' -z engaboali9226-mastoura ']'
+++ echo -n '[0;32m@engaboali9226-mastoura '
+++ '[' 0 -ne 0 ']'
+++ echo -n '[0m➜'
++++ git config --get devcontainers-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git config --get codespaces-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git --no-optional-locks symbolic-ref --short HEAD
+++ export BRANCH=main
+++ BRANCH=main
+++ '[' main '!=' '' ']'
+++ echo -n '[0;36m([1;31mmain'
++++ git config --get devcontainers-theme.show-dirty
+++ '[' '' = 1 ']'
+++ echo -n '[0;36m) '
+++ __vsc_preexec_only '[4] npx'
+++ '[' 1 = 0 ']'
++ which npx
+/home/codespace/nvm/current/bin/npx
+++ export XIT=0
+++ XIT=0
+++ '[' '!' -z engaboali9226-mastoura ']'
+++ echo -n '[0;32m@engaboali9226-mastoura '
+++ '[' 0 -ne 0 ']'
+++ echo -n '[0m➜'
++++ git config --get devcontainers-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git config --get codespaces-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git --no-optional-locks symbolic-ref --short HEAD
+++ export BRANCH=main
+++ BRANCH=main
+++ '[' main '!=' '' ']'
+++ echo -n '[0;36m([1;31mmain'
++++ git config --get devcontainers-theme.show-dirty
+++ '[' '' = 1 ']'
+++ echo -n '[0;36m) '
+++ __vsc_preexec_only npx
+++ '[' 1 = 0 ']'
++ npx --version
+11.9.0
+++ export XIT=0
+++ XIT=0
+++ '[' '!' -z engaboali9226-mastoura ']'
+++ echo -n '[0;32m@engaboali9226-mastoura '
+++ '[' 0 -ne 0 ']'
+++ echo -n '[0m➜'
++++ git config --get devcontainers-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git config --get codespaces-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git --no-optional-locks symbolic-ref --short HEAD
+++ export BRANCH=main
+++ BRANCH=main
+++ '[' main '!=' '' ']'
+++ echo -n '[0;36m([1;31mmain'
++++ git config --get devcontainers-theme.show-dirty
+++ '[' '' = 1 ']'
+++ echo -n '[0;36m) '
+++ export XIT=0
+++ XIT=0
+++ '[' '!' -z engaboali9226-mastoura ']'
+++ echo -n '[0;32m@engaboali9226-mastoura '
+++ '[' 0 -ne 0 ']'
+++ echo -n '[0m➜'
++++ git config --get devcontainers-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git config --get codespaces-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git --no-optional-locks symbolic-ref --short HEAD
+++ export BRANCH=main
+++ BRANCH=main
+++ '[' main '!=' '' ']'
+++ echo -n '[0;36m([1;31mmain'
++++ git config --get devcontainers-theme.show-dirty
+++ '[' '' = 1 ']'
+++ echo -n '[0;36m) '
+++ __vsc_preexec_only --version
+++ '[' 1 = 0 ']'
++ echo
+
+++ export XIT=0
+++ XIT=0
+++ '[' '!' -z engaboali9226-mastoura ']'
+++ echo -n '[0;32m@engaboali9226-mastoura '
+++ '[' 0 -ne 0 ']'
+++ echo -n '[0m➜'
++++ git config --get devcontainers-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git config --get codespaces-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git --no-optional-locks symbolic-ref --short HEAD
+++ export BRANCH=main
+++ BRANCH=main
+++ '[' main '!=' '' ']'
+++ echo -n '[0;36m([1;31mmain'
++++ git config --get devcontainers-theme.show-dirty
+++ '[' '' = 1 ']'
+++ echo -n '[0;36m) '
+++ __vsc_preexec_only echo
+++ '[' 1 = 0 ']'
++ echo '[5] tsc'
+[5] tsc
+++ export XIT=0
+++ XIT=0
+++ '[' '!' -z engaboali9226-mastoura ']'
+++ echo -n '[0;32m@engaboali9226-mastoura '
+++ '[' 0 -ne 0 ']'
+++ echo -n '[0m➜'
++++ git config --get devcontainers-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git config --get codespaces-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git --no-optional-locks symbolic-ref --short HEAD
+++ export BRANCH=main
+++ BRANCH=main
+++ '[' main '!=' '' ']'
+++ echo -n '[0;36m([1;31mmain'
++++ git config --get devcontainers-theme.show-dirty
+++ '[' '' = 1 ']'
+++ echo -n '[0;36m) '
+++ __vsc_preexec_only '[5] tsc'
+++ '[' 1 = 0 ']'
++ which tsc
+++ __vsc_preexec_only tsc
+++ '[' 1 = 0 ']'
++ true
+++ export XIT=0
+++ XIT=0
+++ '[' '!' -z engaboali9226-mastoura ']'
+++ echo -n '[0;32m@engaboali9226-mastoura '
+++ '[' 0 -ne 0 ']'
+++ echo -n '[0m➜'
++++ git config --get devcontainers-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git config --get codespaces-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git --no-optional-locks symbolic-ref --short HEAD
+++ export BRANCH=main
+++ BRANCH=main
+++ '[' main '!=' '' ']'
+++ echo -n '[0;36m([1;31mmain'
++++ git config --get devcontainers-theme.show-dirty
+++ '[' '' = 1 ']'
+++ echo -n '[0;36m) '
+++ __vsc_preexec_only true
+++ '[' 1 = 0 ']'
++ tsc --version
+bash: tsc: command not found
+++ __vsc_preexec_only --version
+++ '[' 1 = 0 ']'
++ true
+++ export XIT=0
+++ XIT=0
+++ '[' '!' -z engaboali9226-mastoura ']'
+++ echo -n '[0;32m@engaboali9226-mastoura '
+++ '[' 0 -ne 0 ']'
+++ echo -n '[0m➜'
++++ git config --get devcontainers-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git config --get codespaces-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git --no-optional-locks symbolic-ref --short HEAD
+++ export BRANCH=main
+++ BRANCH=main
+++ '[' main '!=' '' ']'
+++ echo -n '[0;36m([1;31mmain'
++++ git config --get devcontainers-theme.show-dirty
+++ '[' '' = 1 ']'
+++ echo -n '[0;36m) '
+++ export XIT=0
+++ XIT=0
+++ '[' '!' -z engaboali9226-mastoura ']'
+++ echo -n '[0;32m@engaboali9226-mastoura '
+++ '[' 0 -ne 0 ']'
+++ echo -n '[0m➜'
++++ git config --get devcontainers-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git config --get codespaces-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git --no-optional-locks symbolic-ref --short HEAD
+++ export BRANCH=main
+++ BRANCH=main
+++ '[' main '!=' '' ']'
+++ echo -n '[0;36m([1;31mmain'
++++ git config --get devcontainers-theme.show-dirty
+++ '[' '' = 1 ']'
+++ echo -n '[0;36m) '
+++ __vsc_preexec_only true
+++ '[' 1 = 0 ']'
++ echo
+
+++ export XIT=0
+++ XIT=0
+++ '[' '!' -z engaboali9226-mastoura ']'
+++ echo -n '[0;32m@engaboali9226-mastoura '
+++ '[' 0 -ne 0 ']'
+++ echo -n '[0m➜'
++++ git config --get devcontainers-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git config --get codespaces-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git --no-optional-locks symbolic-ref --short HEAD
+++ export BRANCH=main
+++ BRANCH=main
+++ '[' main '!=' '' ']'
+++ echo -n '[0;36m([1;31mmain'
++++ git config --get devcontainers-theme.show-dirty
+++ '[' '' = 1 ']'
+++ echo -n '[0;36m) '
+++ __vsc_preexec_only echo
+++ '[' 1 = 0 ']'
++ echo '[6] package'
+[6] package
+++ export XIT=0
+++ XIT=0
+++ '[' '!' -z engaboali9226-mastoura ']'
+++ echo -n '[0;32m@engaboali9226-mastoura '
+++ '[' 0 -ne 0 ']'
+++ echo -n '[0m➜'
++++ git config --get devcontainers-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git config --get codespaces-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git --no-optional-locks symbolic-ref --short HEAD
+++ export BRANCH=main
+++ BRANCH=main
+++ '[' main '!=' '' ']'
+++ echo -n '[0;36m([1;31mmain'
++++ git config --get devcontainers-theme.show-dirty
+++ '[' '' = 1 ']'
+++ echo -n '[0;36m) '
+++ __vsc_preexec_only '[6] package'
+++ '[' 1 = 0 ']'
++ cd /workspaces/work-tracker_OS/packages/events
++ __zsh_like_cd cd /workspaces/work-tracker_OS/packages/events
++ typeset __zsh_like_cd_hook
++ builtin cd /workspaces/work-tracker_OS/packages/events
++ for __zsh_like_cd_hook in chpwd "${chpwd_functions[@]}"
++ typeset -f chpwd
++ for __zsh_like_cd_hook in chpwd "${chpwd_functions[@]}"
++ typeset -f __rvm_cd_functions_set
++ __rvm_cd_functions_set
++ __rvm_do_with_env_before
++ [[ -n '' ]]
++ [[ -n /usr/local/rvm ]]
++ source /usr/local/rvm/scripts/initialize
+++ [[ -n 5.2.21(1)-release ]]
+++ shopt -s extglob
+++ ((  0 == 1  ))
+++ export __rvm_env_loaded
+++ : __rvm_env_loaded:0:
+++ : __rvm_env_loaded:1:
+++ [[ -z '' ]]
+++ typeset -f __rvm_cleanse_variables
+++ __rvm_cleanse_variables
+++ __rvm_unset_ruby_variables
+++ unset rvm_env_string rvm_ruby_string rvm_ruby_strings rvm_ruby_binary rvm_ruby_gem_home rvm_ruby_gem_path rvm_ruby_home rvm_ruby_interpreter rvm_ruby_irbrc rvm_ruby_log_path rvm_ruby_major_version rvm_ruby_minor_version rvm_ruby_package_name rvm_ruby_patch_level rvm_ruby_release_version rvm_ruby_repo_url rvm_ruby_repo_branch rvm_ruby_revision rvm_ruby_selected_flag rvm_ruby_tag rvm_ruby_version rvm_head_flag rvm_ruby_package_file rvm_ruby_configure rvm_ruby_name rvm_ruby_url rvm_ruby_global_gems_path rvm_ruby_args rvm_ruby_name rvm_llvm_flag rvm_ruby_repo_tag
+++ __rvm_load_rvmrc
+++ typeset _file
+++ typeset -a rvm_rvmrc_files
+++ ((  0 == 1  ))
+++ [[ -n '' ]]
++++ umask
+++ export rvm_stored_umask=0022
+++ rvm_stored_umask=0022
+++ rvm_rvmrc_files=("/etc/rvmrc" "$HOME/.rvmrc")
+++ [[ -n /usr/local ]]
+++ [[ /home/codespace/.rvmrc -ef /usr/local/.rvmrc ]]
+++ rvm_rvmrc_files+=("${rvm_prefix}/.rvmrc")
+++ for _file in "${rvm_rvmrc_files[@]}"
+++ [[ -s /etc/rvmrc ]]
+++ __rvm_grep '^\s*rvm .*$' /etc/rvmrc
+++ source /etc/rvmrc
++++ umask u=rwx,g=rwx,o=rx
+++ for _file in "${rvm_rvmrc_files[@]}"
+++ [[ -s /home/codespace/.rvmrc ]]
+++ __rvm_grep '^\s*rvm .*$' /home/codespace/.rvmrc
+++ source /home/codespace/.rvmrc
++++ rvm_silence_path_mismatch_check_flag=1
+++ for _file in "${rvm_rvmrc_files[@]}"
+++ [[ -s /usr/local/.rvmrc ]]
+++ return 0
+++ [[ 0 -eq 1 ]]
+++ unset rvm_gemset_name
+++ unset rvm_configure_flags rvm_patch_names rvm_make_flags
+++ unset rvm_env_string rvm_ruby_string rvm_action rvm_error_message rvm_force_flag rvm_debug_flag rvm_delete_flag rvm_summary_flag rvm_json_flag rvm_yaml_flag rvm_file_name rvm_user_flag rvm_system_flag rvm_install_flag rvm_llvm_flag rvm_sticky_flag rvm_rvmrc_flag rvm_gems_flag rvm_docs_flag rvm_ruby_alias rvm_static_flag rvm_archive_extension rvm_hook rvm_ruby_name rvm_remote_flag
+++ __rvm_load_rvmrc
+++ typeset _file
+++ typeset -a rvm_rvmrc_files
+++ ((  0 == 1  ))
+++ [[ -n 0022 ]]
+++ rvm_rvmrc_files=("/etc/rvmrc" "$HOME/.rvmrc")
+++ [[ -n /usr/local ]]
+++ [[ /home/codespace/.rvmrc -ef /usr/local/.rvmrc ]]
+++ rvm_rvmrc_files+=("${rvm_prefix}/.rvmrc")
+++ for _file in "${rvm_rvmrc_files[@]}"
+++ [[ -s /etc/rvmrc ]]
+++ __rvm_grep '^\s*rvm .*$' /etc/rvmrc
+++ source /etc/rvmrc
++++ umask u=rwx,g=rwx,o=rx
+++ for _file in "${rvm_rvmrc_files[@]}"
+++ [[ -s /home/codespace/.rvmrc ]]
+++ __rvm_grep '^\s*rvm .*$' /home/codespace/.rvmrc
+++ source /home/codespace/.rvmrc
++++ rvm_silence_path_mismatch_check_flag=1
+++ for _file in "${rvm_rvmrc_files[@]}"
+++ [[ -s /usr/local/.rvmrc ]]
+++ return 0
+++ ((  0 == 0  ))
+++ [[ -n 0022 ]]
+++ rvm_rvmrc_files=("/etc/rvmrc" "$HOME/.rvmrc")
+++ [[ -n /usr/local ]]
+++ [[ /home/codespace/.rvmrc -ef /usr/local/.rvmrc ]]
+++ rvm_rvmrc_files+=("${rvm_prefix}/.rvmrc")
+++ for rvmrc in "${rvm_rvmrc_files[@]}"
+++ [[ -f /etc/rvmrc ]]
+++ GREP_OPTIONS=
+++ command grep '^\s*rvm .*$' /etc/rvmrc
+++ source /etc/rvmrc
++++ umask u=rwx,g=rwx,o=rx
+++ for rvmrc in "${rvm_rvmrc_files[@]}"
+++ [[ -f /home/codespace/.rvmrc ]]
+++ GREP_OPTIONS=
+++ command grep '^\s*rvm .*$' /home/codespace/.rvmrc
+++ source /home/codespace/.rvmrc
++++ rvm_silence_path_mismatch_check_flag=1
+++ for rvmrc in "${rvm_rvmrc_files[@]}"
+++ [[ -f /usr/local/.rvmrc ]]
+++ unset rvm_rvmrc_files
+++ export rvm_path
+++ [[ -z /usr/local/rvm ]]
+++ true /usr/local/rvm/scripts
+++ [[ -n '' ]]
+++ case "$rvm_path" in
+++ rvm_user_install_flag=0
+++ export rvm_user_install_flag
+++ : rvm_bin_path:/usr/local/rvm/bin rvm_man_path:/usr/local/rvm/share/man rvm_archives_path:/usr/local/rvm/archives rvm_docs_path:/usr/local/rvm/docs rvm_environments_path:/usr/local/rvm/environments rvm_examples_path:/usr/local/rvm/examples rvm_gems_path:/usr/local/rvm/gems rvm_gemsets_path:/usr/local/rvm/gemsets rvm_help_path:/usr/local/rvm/help rvm_docs_path:/usr/local/rvm/docs rvm_hooks_path:/usr/local/rvm/hooks rvm_lib_path:/usr/local/rvm/lib rvm_log_path:/usr/local/rvm/log rvm_patches_path:/usr/local/rvm/patches rvm_repos_path:/usr/local/rvm/repos rvm_rubies_path:/usr/local/rvm/rubies rvm_rubygems_path:/usr/local/rvm/rubygems rvm_src_path:/usr/local/rvm/src rvm_tmp_path:/usr/local/rvm/tmp rvm_user_path:/usr/local/rvm/user rvm_usr_path:/usr/local/rvm/usr rvm_wrappers_path:/usr/local/rvm/wrappers rvm_verbose_flag:0 rvm_debug_flag:0 rvm_gems_cache_path:/usr/local/rvm/gems/cache
+++ export rvm_action rvm_alias_expanded rvm_archive_extension rvm_archives_path rvm_bin_flag rvm_bin_path rvm_debug_flag rvm_default_flag rvm_delete_flag rvm_docs_path rvm_docs_type rvm_dump_environment_flag rvm_environments_path rvm_error_message rvm_examples_path rvm_expanding_aliases rvm_file_name rvm_gemdir_flag rvm_gems_cache_path rvm_gems_path rvm_gemset_name rvm_gemset_separator rvm_gemsets_path rvm_gemstone_package_file rvm_gemstone_url rvm_head_flag rvm_help_path rvm_docs_path rvm_hook rvm_hooks_path rvm_install_on_use_flag rvm_lib_path rvm_llvm_flag rvm_loaded_flag rvm_log_path rvm_niceness rvm_nightly_flag rvm_only_path_flag rvm_parse_break rvm_patch_original_pwd rvm_patches_path rvm_path rvm_pretty_print_flag rvm_proxy rvm_quiet_flag rvm_reload_flag rvm_remove_flag rvm_repos_path rvm_rubies_path rvm_ruby_alias rvm_ruby_args rvm_ruby_binary rvm_ruby_bits rvm_ruby_configure rvm_ruby_file rvm_ruby_gem_home rvm_ruby_gem_path rvm_ruby_global_gems_path rvm_ruby_home rvm_ruby_interpreter rvm_ruby_irbrc rvm_ruby_major_version rvm_ruby_make rvm_ruby_make_install rvm_ruby_minor_version rvm_ruby_mode rvm_ruby_name rvm_ruby_package_file rvm_ruby_package_name rvm_ruby_patch rvm_ruby_patch_level rvm_ruby_release_version rvm_ruby_repo_url rvm_ruby_revision rvm_ruby_selected_flag rvm_ruby_sha rvm_ruby_string rvm_ruby_strings rvm_ruby_tag rvm_ruby_url rvm_ruby_user_tag rvm_ruby_version rvm_script_name rvm_scripts_path rvm_sdk rvm_user_install_flag rvm_silent_flag rvm_src_path rvm_sticky_flag rvm_system_flag rvm_tmp_path rvm_token rvm_trace_flag rvm_use_flag rvm_user_flag rvm_user_path rvm_usr_path rvm_verbose_flag rvm_wrappers_path rvm_ruby_repo_branch rvm_man_path rvm_remote_flag rvm_ruby_repo_tag
++ __rvm_setup
++ __variables_definition export
++ typeset -a __variables_list __array_list
++ typeset __method
++ __method=export
++ __variables_list=(rvm_head_flag rvm_ruby_selected_flag rvm_user_install_flag rvm_path_flag rvm_cron_flag rvm_static_flag rvm_default_flag rvm_loaded_flag rvm_llvm_flag rvm_skip_autoreconf_flag rvm_dynamic_extensions_flag rvm_18_flag rvm_19_flag rvm_20_flag rvm_21_flag rvm_force_autoconf_flag rvm_dump_environment_flag rvm_curl_flags rvm_rubygems_version rvm_verbose_flag rvm_debug_flag rvm_trace_flag __array_start rvm_skip_pristine_flag rvm_create_flag rvm_remove_flag rvm_movable_flag rvm_archive_flag rvm_gemdir_flag rvm_reload_flag rvm_auto_reload_flag rvm_disable_binary_flag rvm_ignore_gemsets_flag rvm_skip_gemsets_flag rvm_install_on_use_flag rvm_remote_flag rvm_verify_downloads_flag rvm_skip_openssl_flag rvm_gems_cache_path rvm_gems_path rvm_man_path rvm_ruby_gem_path rvm_ruby_log_path rvm_gems_cache_path rvm_archives_path rvm_docs_path rvm_environments_path rvm_examples_path rvm_gems_path rvm_gemsets_path rvm_help_path rvm_hooks_path rvm_lib_path rvm_log_path rvm_patches_path rvm_repos_path rvm_rubies_path rvm_scripts_path rvm_src_path rvm_tmp_path rvm_user_path rvm_usr_path rvm_wrappers_path rvm_stored_errexit rvm_ruby_strings rvm_ruby_binary rvm_ruby_gem_home rvm_ruby_home rvm_ruby_interpreter rvm_ruby_irbrc rvm_ruby_major_version rvm_ruby_minor_version rvm_ruby_package_name rvm_ruby_patch_level rvm_ruby_release_version rvm_ruby_repo_url rvm_ruby_repo_branch rvm_ruby_revision rvm_ruby_tag rvm_ruby_sha rvm_ruby_repo_tag rvm_ruby_version rvm_ruby_package_file rvm_ruby_name rvm_ruby_name rvm_ruby_args rvm_ruby_user_tag rvm_ruby_patch detected_rvm_ruby_name __rvm_env_loaded next_token rvm_error_message rvm_gemset_name rvm_parse_break rvm_token rvm_action rvm_export_args rvm_gemset_separator rvm_expanding_aliases rvm_tar_command rvm_tar_options rvm_patch_original_pwd rvm_project_rvmrc rvm_archive_extension rvm_autoinstall_bundler_flag rvm_codesign_identity rvm_expected_gemset_name rvm_without_gems rvm_with_gems rvm_with_default_gems rvm_ignore_dotfiles_flag rvm_fuzzy_flag rvm_autolibs_flag rvm_autolibs_flag_number rvm_autolibs_flag_runner rvm_quiet_curl_flag rvm_max_time_flag rvm_error_clr rvm_warn_clr rvm_debug_clr rvm_notify_clr rvm_code_clr rvm_comment_clr rvm_reset_clr rvm_error_color rvm_warn_color rvm_debug_color rvm_notify_color rvm_code_color rvm_comment_color rvm_reset_color rvm_log_timestamp rvm_log_filesystem rvm_log_namelen rvm_show_log_lines_on_error)
++ __array_list=(rvm_patch_names rvm_ree_options rvm_autoconf_flags rvm_architectures)
++ case "${__method}" in
++ true
++ export rvm_head_flag rvm_ruby_selected_flag rvm_user_install_flag rvm_path_flag rvm_cron_flag rvm_static_flag rvm_default_flag rvm_loaded_flag rvm_llvm_flag rvm_skip_autoreconf_flag rvm_dynamic_extensions_flag rvm_18_flag rvm_19_flag rvm_20_flag rvm_21_flag rvm_force_autoconf_flag rvm_dump_environment_flag rvm_curl_flags rvm_rubygems_version rvm_verbose_flag rvm_debug_flag rvm_trace_flag __array_start rvm_skip_pristine_flag rvm_create_flag rvm_remove_flag rvm_movable_flag rvm_archive_flag rvm_gemdir_flag rvm_reload_flag rvm_auto_reload_flag rvm_disable_binary_flag rvm_ignore_gemsets_flag rvm_skip_gemsets_flag rvm_install_on_use_flag rvm_remote_flag rvm_verify_downloads_flag rvm_skip_openssl_flag rvm_gems_cache_path rvm_gems_path rvm_man_path rvm_ruby_gem_path rvm_ruby_log_path rvm_gems_cache_path rvm_archives_path rvm_docs_path rvm_environments_path rvm_examples_path rvm_gems_path rvm_gemsets_path rvm_help_path rvm_hooks_path rvm_lib_path rvm_log_path rvm_patches_path rvm_repos_path rvm_rubies_path rvm_scripts_path rvm_src_path rvm_tmp_path rvm_user_path rvm_usr_path rvm_wrappers_path rvm_stored_errexit rvm_ruby_strings rvm_ruby_binary rvm_ruby_gem_home rvm_ruby_home rvm_ruby_interpreter rvm_ruby_irbrc rvm_ruby_major_version rvm_ruby_minor_version rvm_ruby_package_name rvm_ruby_patch_level rvm_ruby_release_version rvm_ruby_repo_url rvm_ruby_repo_branch rvm_ruby_revision rvm_ruby_tag rvm_ruby_sha rvm_ruby_repo_tag rvm_ruby_version rvm_ruby_package_file rvm_ruby_name rvm_ruby_name rvm_ruby_args rvm_ruby_user_tag rvm_ruby_patch detected_rvm_ruby_name __rvm_env_loaded next_token rvm_error_message rvm_gemset_name rvm_parse_break rvm_token rvm_action rvm_export_args rvm_gemset_separator rvm_expanding_aliases rvm_tar_command rvm_tar_options rvm_patch_original_pwd rvm_project_rvmrc rvm_archive_extension rvm_autoinstall_bundler_flag rvm_codesign_identity rvm_expected_gemset_name rvm_without_gems rvm_with_gems rvm_with_default_gems rvm_ignore_dotfiles_flag rvm_fuzzy_flag rvm_autolibs_flag rvm_autolibs_flag_number rvm_autolibs_flag_runner rvm_quiet_curl_flag rvm_max_time_flag rvm_error_clr rvm_warn_clr rvm_debug_clr rvm_notify_clr rvm_code_clr rvm_comment_clr rvm_reset_clr rvm_error_color rvm_warn_color rvm_debug_color rvm_notify_color rvm_code_color rvm_comment_color rvm_reset_color rvm_log_timestamp rvm_log_filesystem rvm_log_namelen rvm_show_log_lines_on_error
++ [[ -n 5.2.21(1)-release ]]
++ export -fn __rvm_select_version_variables __rvm_ruby_string_parse_ __rvm_rm_rf_verbose __rvm_parse_args __rvm_ruby_string_find __rvm_file_load_env __rvm_remove_without_gems
++ ((  __rvm_env_loaded != 1  ))
++ [[ -n 5.2.21(1)-release ]]
++ __function_on_stack cd pushd popd
++ __rvm_string_includes '__function_on_stack __rvm_setup __rvm_do_with_env_before __rvm_cd_functions_set __zsh_like_cd cd' cd pushd popd
++ typeset __search '__text=__function_on_stack __rvm_setup __rvm_do_with_env_before __rvm_cd_functions_set __zsh_like_cd cd'
++ shift
++ for __search in "$@"
++ [[  __function_on_stack __rvm_setup __rvm_do_with_env_before __rvm_cd_functions_set __zsh_like_cd cd  == *\ \c\d\ * ]]
++ return 0
++ [[ -n '' ]]
++ [[ -n '' ]]
++ __rvm_project_rvmrc
++ export __rvm_project_rvmrc_lock
++ : __rvm_project_rvmrc_lock:0
++ : __rvm_project_rvmrc_lock:1
++ ((  __rvm_project_rvmrc_lock > 1  ))
++ typeset working_dir found_file rvm_trustworthiness_result save_PATH
++ working_dir=/workspaces/work-tracker_OS/packages/events
++ save_PATH=/usr/local/rvm/gems/ruby-3.4.7/bin:/usr/local/rvm/gems/ruby-3.4.7@global/bin:/usr/local/rvm/rubies/ruby-3.4.7/bin:/vscode/bin/linux-x64/7e7950df89d055b5a378379db9ee14290772148a/bin/remote-cli:/home/codespace/.local/bin:/home/codespace/.dotnet:/home/codespace/nvm/current/bin:/home/codespace/.php/current/bin:/home/codespace/.python/current/bin:/home/codespace/java/current/bin:/home/codespace/.ruby/current/bin:/home/codespace/.local/bin:/usr/local/python/current/bin:/usr/local/py-utils/bin:/usr/local/jupyter:/usr/local/oryx:/usr/local/go/bin:/go/bin:/usr/local/sdkman/bin:/usr/local/sdkman/candidates/java/current/bin:/usr/local/sdkman/candidates/gradle/current/bin:/usr/local/sdkman/candidates/maven/current/bin:/usr/local/sdkman/candidates/ant/current/bin:/usr/local/rvm/gems/default/bin:/usr/local/rvm/gems/default@global/bin:/usr/local/rvm/rubies/default/bin:/usr/local/share/rbenv/bin:/usr/local/php/current/bin:/opt/conda/bin:/usr/local/nvs:/usr/local/share/nvm/versions/node/v24.14.0/bin:/usr/local/hugo/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/share/dotnet:/home/codespace/.dotnet/tools:/usr/local/rvm/bin
++ :
++ [[ -z /workspaces/work-tracker_OS/packages/events ]]
++ [[ /home/codespace == \/\w\o\r\k\s\p\a\c\e\s\/\w\o\r\k\-\t\r\a\c\k\e\r\_\O\S\/\p\a\c\k\a\g\e\s\/\e\v\e\n\t\s ]]
++ [[ /usr/local == \/\w\o\r\k\s\p\a\c\e\s\/\w\o\r\k\-\t\r\a\c\k\e\r\_\O\S\/\p\a\c\k\a\g\e\s\/\e\v\e\n\t\s ]]
++ [[ /workspaces/work-tracker_OS/packages/events == \. ]]
++ __rvm_project_dir_check /workspaces/work-tracker_OS/packages/events found_file
++ typeset _found_file path_to_check variable variable_default
++ typeset -a _valid_files
++ path_to_check=/workspaces/work-tracker_OS/packages/events
++ variable=found_file
++ variable_default=
++ _valid_files=("$path_to_check" "$path_to_check/.rvmrc" "$path_to_check/.versions.conf" "$path_to_check/.ruby-version" "$path_to_check/.rbfu-version" "$path_to_check/.rbenv-version" "$path_to_check/Gemfile")
++ __rvm_find_first_file _found_file /workspaces/work-tracker_OS/packages/events /workspaces/work-tracker_OS/packages/events/.rvmrc /workspaces/work-tracker_OS/packages/events/.versions.conf /workspaces/work-tracker_OS/packages/events/.ruby-version /workspaces/work-tracker_OS/packages/events/.rbfu-version /workspaces/work-tracker_OS/packages/events/.rbenv-version /workspaces/work-tracker_OS/packages/events/Gemfile
++ typeset _first_file _variable_first_file __file_enum
++ _first_file=
++ _variable_first_file=_found_file
++ shift
++ for __file_enum in "$@"
++ [[ -f /workspaces/work-tracker_OS/packages/events ]]
++ for __file_enum in "$@"
++ [[ -f /workspaces/work-tracker_OS/packages/events/.rvmrc ]]
++ for __file_enum in "$@"
++ [[ -f /workspaces/work-tracker_OS/packages/events/.versions.conf ]]
++ for __file_enum in "$@"
++ [[ -f /workspaces/work-tracker_OS/packages/events/.ruby-version ]]
++ for __file_enum in "$@"
++ [[ -f /workspaces/work-tracker_OS/packages/events/.rbfu-version ]]
++ for __file_enum in "$@"
++ [[ -f /workspaces/work-tracker_OS/packages/events/.rbenv-version ]]
++ for __file_enum in "$@"
++ [[ -f /workspaces/work-tracker_OS/packages/events/Gemfile ]]
++ eval '_found_file=""'
+++ _found_file=
++ return 1
++ true
++ [[ ! -s '' ]]
++ _found_file=
++ [[ -n found_file ]]
++ eval 'found_file="${_found_file:-}"'
+++ found_file=
++ [[ -n '' ]]
++ typeset __result=1
++ unset RVM_PROJECT_PATH
++ return 1
++ working_dir=/workspaces/work-tracker_OS/packages
++ :
++ [[ -z /workspaces/work-tracker_OS/packages ]]
++ [[ /home/codespace == \/\w\o\r\k\s\p\a\c\e\s\/\w\o\r\k\-\t\r\a\c\k\e\r\_\O\S\/\p\a\c\k\a\g\e\s ]]
++ [[ /usr/local == \/\w\o\r\k\s\p\a\c\e\s\/\w\o\r\k\-\t\r\a\c\k\e\r\_\O\S\/\p\a\c\k\a\g\e\s ]]
++ [[ /workspaces/work-tracker_OS/packages == \. ]]
++ __rvm_project_dir_check /workspaces/work-tracker_OS/packages found_file
++ typeset _found_file path_to_check variable variable_default
++ typeset -a _valid_files
++ path_to_check=/workspaces/work-tracker_OS/packages
++ variable=found_file
++ variable_default=
++ _valid_files=("$path_to_check" "$path_to_check/.rvmrc" "$path_to_check/.versions.conf" "$path_to_check/.ruby-version" "$path_to_check/.rbfu-version" "$path_to_check/.rbenv-version" "$path_to_check/Gemfile")
++ __rvm_find_first_file _found_file /workspaces/work-tracker_OS/packages /workspaces/work-tracker_OS/packages/.rvmrc /workspaces/work-tracker_OS/packages/.versions.conf /workspaces/work-tracker_OS/packages/.ruby-version /workspaces/work-tracker_OS/packages/.rbfu-version /workspaces/work-tracker_OS/packages/.rbenv-version /workspaces/work-tracker_OS/packages/Gemfile
++ typeset _first_file _variable_first_file __file_enum
++ _first_file=
++ _variable_first_file=_found_file
++ shift
++ for __file_enum in "$@"
++ [[ -f /workspaces/work-tracker_OS/packages ]]
++ for __file_enum in "$@"
++ [[ -f /workspaces/work-tracker_OS/packages/.rvmrc ]]
++ for __file_enum in "$@"
++ [[ -f /workspaces/work-tracker_OS/packages/.versions.conf ]]
++ for __file_enum in "$@"
++ [[ -f /workspaces/work-tracker_OS/packages/.ruby-version ]]
++ for __file_enum in "$@"
++ [[ -f /workspaces/work-tracker_OS/packages/.rbfu-version ]]
++ for __file_enum in "$@"
++ [[ -f /workspaces/work-tracker_OS/packages/.rbenv-version ]]
++ for __file_enum in "$@"
++ [[ -f /workspaces/work-tracker_OS/packages/Gemfile ]]
++ eval '_found_file=""'
+++ _found_file=
++ return 1
++ true
++ [[ ! -s '' ]]
++ _found_file=
++ [[ -n found_file ]]
++ eval 'found_file="${_found_file:-}"'
+++ found_file=
++ [[ -n '' ]]
++ typeset __result=1
++ unset RVM_PROJECT_PATH
++ return 1
++ working_dir=/workspaces/work-tracker_OS
++ :
++ [[ -z /workspaces/work-tracker_OS ]]
++ [[ /home/codespace == \/\w\o\r\k\s\p\a\c\e\s\/\w\o\r\k\-\t\r\a\c\k\e\r\_\O\S ]]
++ [[ /usr/local == \/\w\o\r\k\s\p\a\c\e\s\/\w\o\r\k\-\t\r\a\c\k\e\r\_\O\S ]]
++ [[ /workspaces/work-tracker_OS == \. ]]
++ __rvm_project_dir_check /workspaces/work-tracker_OS found_file
++ typeset _found_file path_to_check variable variable_default
++ typeset -a _valid_files
++ path_to_check=/workspaces/work-tracker_OS
++ variable=found_file
++ variable_default=
++ _valid_files=("$path_to_check" "$path_to_check/.rvmrc" "$path_to_check/.versions.conf" "$path_to_check/.ruby-version" "$path_to_check/.rbfu-version" "$path_to_check/.rbenv-version" "$path_to_check/Gemfile")
++ __rvm_find_first_file _found_file /workspaces/work-tracker_OS /workspaces/work-tracker_OS/.rvmrc /workspaces/work-tracker_OS/.versions.conf /workspaces/work-tracker_OS/.ruby-version /workspaces/work-tracker_OS/.rbfu-version /workspaces/work-tracker_OS/.rbenv-version /workspaces/work-tracker_OS/Gemfile
++ typeset _first_file _variable_first_file __file_enum
++ _first_file=
++ _variable_first_file=_found_file
++ shift
++ for __file_enum in "$@"
++ [[ -f /workspaces/work-tracker_OS ]]
++ for __file_enum in "$@"
++ [[ -f /workspaces/work-tracker_OS/.rvmrc ]]
++ for __file_enum in "$@"
++ [[ -f /workspaces/work-tracker_OS/.versions.conf ]]
++ for __file_enum in "$@"
++ [[ -f /workspaces/work-tracker_OS/.ruby-version ]]
++ for __file_enum in "$@"
++ [[ -f /workspaces/work-tracker_OS/.rbfu-version ]]
++ for __file_enum in "$@"
++ [[ -f /workspaces/work-tracker_OS/.rbenv-version ]]
++ for __file_enum in "$@"
++ [[ -f /workspaces/work-tracker_OS/Gemfile ]]
++ eval '_found_file=""'
+++ _found_file=
++ return 1
++ true
++ [[ ! -s '' ]]
++ _found_file=
++ [[ -n found_file ]]
++ eval 'found_file="${_found_file:-}"'
+++ found_file=
++ [[ -n '' ]]
++ typeset __result=1
++ unset RVM_PROJECT_PATH
++ return 1
++ working_dir=/workspaces
++ :
++ [[ -z /workspaces ]]
++ [[ /home/codespace == \/\w\o\r\k\s\p\a\c\e\s ]]
++ [[ /usr/local == \/\w\o\r\k\s\p\a\c\e\s ]]
++ [[ /workspaces == \. ]]
++ __rvm_project_dir_check /workspaces found_file
++ typeset _found_file path_to_check variable variable_default
++ typeset -a _valid_files
++ path_to_check=/workspaces
++ variable=found_file
++ variable_default=
++ _valid_files=("$path_to_check" "$path_to_check/.rvmrc" "$path_to_check/.versions.conf" "$path_to_check/.ruby-version" "$path_to_check/.rbfu-version" "$path_to_check/.rbenv-version" "$path_to_check/Gemfile")
++ __rvm_find_first_file _found_file /workspaces /workspaces/.rvmrc /workspaces/.versions.conf /workspaces/.ruby-version /workspaces/.rbfu-version /workspaces/.rbenv-version /workspaces/Gemfile
++ typeset _first_file _variable_first_file __file_enum
++ _first_file=
++ _variable_first_file=_found_file
++ shift
++ for __file_enum in "$@"
++ [[ -f /workspaces ]]
++ for __file_enum in "$@"
++ [[ -f /workspaces/.rvmrc ]]
++ for __file_enum in "$@"
++ [[ -f /workspaces/.versions.conf ]]
++ for __file_enum in "$@"
++ [[ -f /workspaces/.ruby-version ]]
++ for __file_enum in "$@"
++ [[ -f /workspaces/.rbfu-version ]]
++ for __file_enum in "$@"
++ [[ -f /workspaces/.rbenv-version ]]
++ for __file_enum in "$@"
++ [[ -f /workspaces/Gemfile ]]
++ eval '_found_file=""'
+++ _found_file=
++ return 1
++ true
++ [[ ! -s '' ]]
++ _found_file=
++ [[ -n found_file ]]
++ eval 'found_file="${_found_file:-}"'
+++ found_file=
++ [[ -n '' ]]
++ typeset __result=1
++ unset RVM_PROJECT_PATH
++ return 1
++ working_dir=
++ :
++ [[ -z '' ]]
++ ((  0 >= 1  ))
++ [[ -n '' ]]
++ __rvm_file_env_check_unload
++ ((  0 > 0  ))
++ rvm_saved_env=()
++ unset rvm_current_rvmrc rvm_previous_environment
++ break
++ unset __rvm_project_rvmrc_lock
++ return 1
++ true
++ __rvm_after_cd
++ typeset rvm_hook
++ rvm_hook=after_cd
++ [[ -n /usr/local/rvm/scripts ]]
++ source /usr/local/rvm/scripts/hook
+++ typeset old_rvm_verbose_flag old_rvm_debug_flag
+++ old_rvm_verbose_flag=0
+++ old_rvm_debug_flag=0
+++ typeset rvm_verbose_flag rvm_debug_flag hooks
+++ true rvm_verbose_flag:0 rvm_hooks_path:/usr/local/rvm/hooks rvm_debug_flag:0 rvm_hook:after_cd
+++ [[ -n after_cd ]]
+++ hooks=()
+++ [[ -d /usr/local/rvm/hooks ]]
+++ hooks+=("$rvm_hooks_path")
+++ [[ /workspaces/work-tracker_OS/packages/events/.rvm/hooks != \/\u\s\r\/\l\o\c\a\l\/\r\v\m\/\h\o\o\k\s ]]
+++ [[ -d /workspaces/work-tracker_OS/packages/events/.rvm/hooks ]]
+++ [[ -n /usr/local/rvm/hooks ]]
+++ __rvm_read_lines _hooks_list /dev/fd/63
++++ __rvm_find -L /usr/local/rvm/hooks -iname 'after_cd*' -type f
+++ typeset IFS
+++ IFS='
+'
+++ [[ /dev/fd/63 == \- ]]
+++ eval '_hooks_list=( $( \command \cat "${2:--}" ) )'
++++ _hooks_list=($(\command \cat "${2:--}"))
+++++ command cat /dev/fd/63
+++ for hook in "${_hooks_list[@]}"
+++ [[ -x /usr/local/rvm/hooks/after_cd_install_vendored_gems ]]
+++ [[ after_cd_install_vendored_gems == \a\f\t\e\r\_\c\d ]]
+++ for hook in "${_hooks_list[@]}"
+++ [[ -x /usr/local/rvm/hooks/after_cd_bundler ]]
+++ [[ after_cd_bundler == \a\f\t\e\r\_\c\d ]]
+++ unset rvm_hook hooks _hooks_list hook
++ __rvm_do_with_env_after
++ __rvm_teardown
++ builtin command -v __rvm_cleanup_tmp
++ __rvm_cleanup_tmp
++ [[ -d /usr/local/rvm/tmp/ ]]
++ case "${rvm_tmp_path%\/}" in
++ __rvm_rm_rf '/usr/local/rvm/tmp/121268*'
++ __rvm_rm_rf_verbose '/usr/local/rvm/tmp/121268*'
++ typeset target
++ target='/usr/local/rvm/tmp/121268*'
++ [[ -n '' ]]
++ [[ -n 5.2.21(1)-release ]]
++ builtin shopt -s extglob
++ case "${target}" in
++ [[ -z /usr/local/rvm/tmp/121268* ]]
++ [[ -d /usr/local/rvm/tmp/121268* ]]
++ [[ -f /usr/local/rvm/tmp/121268* ]]
++ [[ -L /usr/local/rvm/tmp/121268* ]]
++ rvm_debug '__rvm_rm_rf already gone: /usr/local/rvm/tmp/121268*'
++ ((  0  ))
++ return 0
++ true
++ true
++ export __rvm_env_loaded
++ : __rvm_env_loaded:1:
++ : __rvm_env_loaded:1:
++ : __rvm_env_loaded:0:
++ [[ -z /usr/local/rvm/tmp ]]
++ ((  __rvm_env_loaded > 0  ))
++ [[ -n 5.2.21(1)-release ]]
++ trap - EXIT HUP INT QUIT TERM
++ [[ -n '' ]]
++ ((  rvm_bash_nounset == 1  ))
++ unset rvm_bash_nounset
++ [[ -n '' ]]
++ [[ -n 0022 ]]
++ umask 0022
++ unset rvm_stored_umask
++ builtin command -v __rvm_cleanup_download
++ [[ '' == \1 ]]
++ __variables_definition unset
++ typeset -a __variables_list __array_list
++ typeset __method
++ __method=unset
++ __variables_list=(rvm_head_flag rvm_ruby_selected_flag rvm_user_install_flag rvm_path_flag rvm_cron_flag rvm_static_flag rvm_default_flag rvm_loaded_flag rvm_llvm_flag rvm_skip_autoreconf_flag rvm_dynamic_extensions_flag rvm_18_flag rvm_19_flag rvm_20_flag rvm_21_flag rvm_force_autoconf_flag rvm_dump_environment_flag rvm_curl_flags rvm_rubygems_version rvm_verbose_flag rvm_debug_flag rvm_trace_flag __array_start rvm_skip_pristine_flag rvm_create_flag rvm_remove_flag rvm_movable_flag rvm_archive_flag rvm_gemdir_flag rvm_reload_flag rvm_auto_reload_flag rvm_disable_binary_flag rvm_ignore_gemsets_flag rvm_skip_gemsets_flag rvm_install_on_use_flag rvm_remote_flag rvm_verify_downloads_flag rvm_skip_openssl_flag rvm_gems_cache_path rvm_gems_path rvm_man_path rvm_ruby_gem_path rvm_ruby_log_path rvm_gems_cache_path rvm_archives_path rvm_docs_path rvm_environments_path rvm_examples_path rvm_gems_path rvm_gemsets_path rvm_help_path rvm_hooks_path rvm_lib_path rvm_log_path rvm_patches_path rvm_repos_path rvm_rubies_path rvm_scripts_path rvm_src_path rvm_tmp_path rvm_user_path rvm_usr_path rvm_wrappers_path rvm_stored_errexit rvm_ruby_strings rvm_ruby_binary rvm_ruby_gem_home rvm_ruby_home rvm_ruby_interpreter rvm_ruby_irbrc rvm_ruby_major_version rvm_ruby_minor_version rvm_ruby_package_name rvm_ruby_patch_level rvm_ruby_release_version rvm_ruby_repo_url rvm_ruby_repo_branch rvm_ruby_revision rvm_ruby_tag rvm_ruby_sha rvm_ruby_repo_tag rvm_ruby_version rvm_ruby_package_file rvm_ruby_name rvm_ruby_name rvm_ruby_args rvm_ruby_user_tag rvm_ruby_patch detected_rvm_ruby_name __rvm_env_loaded next_token rvm_error_message rvm_gemset_name rvm_parse_break rvm_token rvm_action rvm_export_args rvm_gemset_separator rvm_expanding_aliases rvm_tar_command rvm_tar_options rvm_patch_original_pwd rvm_project_rvmrc rvm_archive_extension rvm_autoinstall_bundler_flag rvm_codesign_identity rvm_expected_gemset_name rvm_without_gems rvm_with_gems rvm_with_default_gems rvm_ignore_dotfiles_flag rvm_fuzzy_flag rvm_autolibs_flag rvm_autolibs_flag_number rvm_autolibs_flag_runner rvm_quiet_curl_flag rvm_max_time_flag rvm_error_clr rvm_warn_clr rvm_debug_clr rvm_notify_clr rvm_code_clr rvm_comment_clr rvm_reset_clr rvm_error_color rvm_warn_color rvm_debug_color rvm_notify_color rvm_code_color rvm_comment_color rvm_reset_color rvm_log_timestamp rvm_log_filesystem rvm_log_namelen rvm_show_log_lines_on_error)
++ __array_list=(rvm_patch_names rvm_ree_options rvm_autoconf_flags rvm_architectures)
++ case "${__method}" in
++ unset rvm_patch_names rvm_ree_options rvm_autoconf_flags rvm_architectures
++ unset rvm_head_flag rvm_ruby_selected_flag rvm_user_install_flag rvm_path_flag rvm_cron_flag rvm_static_flag rvm_default_flag rvm_loaded_flag rvm_llvm_flag rvm_skip_autoreconf_flag rvm_dynamic_extensions_flag rvm_18_flag rvm_19_flag rvm_20_flag rvm_21_flag rvm_force_autoconf_flag rvm_dump_environment_flag rvm_curl_flags rvm_rubygems_version rvm_verbose_flag rvm_debug_flag rvm_trace_flag __array_start rvm_skip_pristine_flag rvm_create_flag rvm_remove_flag rvm_movable_flag rvm_archive_flag rvm_gemdir_flag rvm_reload_flag rvm_auto_reload_flag rvm_disable_binary_flag rvm_ignore_gemsets_flag rvm_skip_gemsets_flag rvm_install_on_use_flag rvm_remote_flag rvm_verify_downloads_flag rvm_skip_openssl_flag rvm_gems_cache_path rvm_gems_path rvm_man_path rvm_ruby_gem_path rvm_ruby_log_path rvm_gems_cache_path rvm_archives_path rvm_docs_path rvm_environments_path rvm_examples_path rvm_gems_path rvm_gemsets_path rvm_help_path rvm_hooks_path rvm_lib_path rvm_log_path rvm_patches_path rvm_repos_path rvm_rubies_path rvm_scripts_path rvm_src_path rvm_tmp_path rvm_user_path rvm_usr_path rvm_wrappers_path rvm_stored_errexit rvm_ruby_strings rvm_ruby_binary rvm_ruby_gem_home rvm_ruby_home rvm_ruby_interpreter rvm_ruby_irbrc rvm_ruby_major_version rvm_ruby_minor_version rvm_ruby_package_name rvm_ruby_patch_level rvm_ruby_release_version rvm_ruby_repo_url rvm_ruby_repo_branch rvm_ruby_revision rvm_ruby_tag rvm_ruby_sha rvm_ruby_repo_tag rvm_ruby_version rvm_ruby_package_file rvm_ruby_name rvm_ruby_name rvm_ruby_args rvm_ruby_user_tag rvm_ruby_patch detected_rvm_ruby_name __rvm_env_loaded next_token rvm_error_message rvm_gemset_name rvm_parse_break rvm_token rvm_action rvm_export_args rvm_gemset_separator rvm_expanding_aliases rvm_tar_command rvm_tar_options rvm_patch_original_pwd rvm_project_rvmrc rvm_archive_extension rvm_autoinstall_bundler_flag rvm_codesign_identity rvm_expected_gemset_name rvm_without_gems rvm_with_gems rvm_with_default_gems rvm_ignore_dotfiles_flag rvm_fuzzy_flag rvm_autolibs_flag rvm_autolibs_flag_number rvm_autolibs_flag_runner rvm_quiet_curl_flag rvm_max_time_flag rvm_error_clr rvm_warn_clr rvm_debug_clr rvm_notify_clr rvm_code_clr rvm_comment_clr rvm_reset_clr rvm_error_color rvm_warn_color rvm_debug_color rvm_notify_color rvm_code_color rvm_comment_color rvm_reset_color rvm_log_timestamp rvm_log_filesystem rvm_log_namelen rvm_show_log_lines_on_error
++ [[ -n 5.2.21(1)-release ]]
++ export -fn __rvm_select_version_variables __rvm_ruby_string_parse_ __rvm_rm_rf_verbose __rvm_parse_args __rvm_ruby_string_find __rvm_file_load_env __rvm_remove_without_gems
++ unset _system_arch _system_name _system_type _system_version
++ return 0
++ return 0
++ true
+++ export XIT=0
+++ XIT=0
+++ '[' '!' -z engaboali9226-mastoura ']'
+++ echo -n '[0;32m@engaboali9226-mastoura '
+++ '[' 0 -ne 0 ']'
+++ echo -n '[0m➜'
++++ git config --get devcontainers-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git config --get codespaces-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git --no-optional-locks symbolic-ref --short HEAD
+++ export BRANCH=main
+++ BRANCH=main
+++ '[' main '!=' '' ']'
+++ echo -n '[0;36m([1;31mmain'
++++ git config --get devcontainers-theme.show-dirty
+++ '[' '' = 1 ']'
+++ echo -n '[0;36m) '
+++ export XIT=0
+++ XIT=0
+++ '[' '!' -z engaboali9226-mastoura ']'
+++ echo -n '[0;32m@engaboali9226-mastoura '
+++ '[' 0 -ne 0 ']'
+++ echo -n '[0m➜'
++++ git config --get devcontainers-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git config --get codespaces-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git --no-optional-locks symbolic-ref --short HEAD
+++ export BRANCH=main
+++ BRANCH=main
+++ '[' main '!=' '' ']'
+++ echo -n '[0;36m([1;31mmain'
++++ git config --get devcontainers-theme.show-dirty
+++ '[' '' = 1 ']'
+++ echo -n '[0;36m) '
+++ __vsc_preexec_only /workspaces/work-tracker_OS/packages/events
+++ '[' 1 = 0 ']'
++ pwd
+/workspaces/work-tracker_OS/packages/events
+++ export XIT=0
+++ XIT=0
+++ '[' '!' -z engaboali9226-mastoura ']'
+++ echo -n '[0;32m@engaboali9226-mastoura '
+++ '[' 0 -ne 0 ']'
+++ echo -n '[0m➜'
++++ git config --get devcontainers-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git config --get codespaces-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git --no-optional-locks symbolic-ref --short HEAD
+++ export BRANCH=main
+++ BRANCH=main
+++ '[' main '!=' '' ']'
+++ echo -n '[0;36m([1;31mmain'
++++ git config --get devcontainers-theme.show-dirty
+++ '[' '' = 1 ']'
+++ echo -n '[0;36m) '
+++ export XIT=0
+++ XIT=0
+++ '[' '!' -z engaboali9226-mastoura ']'
+++ echo -n '[0;32m@engaboali9226-mastoura '
+++ '[' 0 -ne 0 ']'
+++ echo -n '[0m➜'
++++ git config --get devcontainers-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git config --get codespaces-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git --no-optional-locks symbolic-ref --short HEAD
+++ export BRANCH=main
+++ BRANCH=main
+++ '[' main '!=' '' ']'
+++ echo -n '[0;36m([1;31mmain'
++++ git config --get devcontainers-theme.show-dirty
+++ '[' '' = 1 ']'
+++ echo -n '[0;36m) '
+++ __vsc_preexec_only pwd
+++ '[' 1 = 0 ']'
++ echo
+
+++ export XIT=0
+++ XIT=0
+++ '[' '!' -z engaboali9226-mastoura ']'
+++ echo -n '[0;32m@engaboali9226-mastoura '
+++ '[' 0 -ne 0 ']'
+++ echo -n '[0m➜'
++++ git config --get devcontainers-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git config --get codespaces-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git --no-optional-locks symbolic-ref --short HEAD
+++ export BRANCH=main
+++ BRANCH=main
+++ '[' main '!=' '' ']'
+++ echo -n '[0;36m([1;31mmain'
++++ git config --get devcontainers-theme.show-dirty
+++ '[' '' = 1 ']'
+++ echo -n '[0;36m) '
+++ __vsc_preexec_only echo
+++ '[' 1 = 0 ']'
++ echo '[7] local typescript'
+[7] local typescript
+++ export XIT=0
+++ XIT=0
+++ '[' '!' -z engaboali9226-mastoura ']'
+++ echo -n '[0;32m@engaboali9226-mastoura '
+++ '[' 0 -ne 0 ']'
+++ echo -n '[0m➜'
++++ git config --get devcontainers-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git config --get codespaces-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git --no-optional-locks symbolic-ref --short HEAD
+++ export BRANCH=main
+++ BRANCH=main
+++ '[' main '!=' '' ']'
+++ echo -n '[0;36m([1;31mmain'
++++ git config --get devcontainers-theme.show-dirty
+++ '[' '' = 1 ']'
+++ echo -n '[0;36m) '
+++ export XIT=0
+++ XIT=0
+++ '[' '!' -z engaboali9226-mastoura ']'
+++ echo -n '[0;32m@engaboali9226-mastoura '
+++ '[' 0 -ne 0 ']'
+++ echo -n '[0m➜'
++++ git config --get devcontainers-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git config --get codespaces-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git --no-optional-locks symbolic-ref --short HEAD
+++ export BRANCH=main
+++ BRANCH=main
+++ '[' main '!=' '' ']'
+++ echo -n '[0;36m([1;31mmain'
++++ git config --get devcontainers-theme.show-dirty
+++ '[' '' = 1 ']'
+++ echo -n '[0;36m) '
+++ __vsc_preexec_only '[7] local typescript'
+++ '[' 1 = 0 ']'
++ ls --color=auto -la node_modules/.bin
+++ __vsc_preexec_only node_modules/.bin
+++ '[' 1 = 0 ']'
++ true
+++ export XIT=0
+++ XIT=0
+++ '[' '!' -z engaboali9226-mastoura ']'
+++ echo -n '[0;32m@engaboali9226-mastoura '
+++ '[' 0 -ne 0 ']'
+++ echo -n '[0m➜'
++++ git config --get devcontainers-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git config --get codespaces-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git --no-optional-locks symbolic-ref --short HEAD
+++ export BRANCH=main
+++ BRANCH=main
+++ '[' main '!=' '' ']'
+++ echo -n '[0;36m([1;31mmain'
++++ git config --get devcontainers-theme.show-dirty
+++ '[' '' = 1 ']'
+++ echo -n '[0;36m) '
+++ export XIT=0
+++ XIT=0
+++ '[' '!' -z engaboali9226-mastoura ']'
+++ echo -n '[0;32m@engaboali9226-mastoura '
+++ '[' 0 -ne 0 ']'
+++ echo -n '[0m➜'
++++ git config --get devcontainers-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git config --get codespaces-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git --no-optional-locks symbolic-ref --short HEAD
+++ export BRANCH=main
+++ BRANCH=main
+++ '[' main '!=' '' ']'
+++ echo -n '[0;36m([1;31mmain'
++++ git config --get devcontainers-theme.show-dirty
+++ '[' '' = 1 ']'
+++ echo -n '[0;36m) '
+++ __vsc_preexec_only true
+++ '[' 1 = 0 ']'
++ echo
+
+++ export XIT=0
+++ XIT=0
+++ '[' '!' -z engaboali9226-mastoura ']'
+++ echo -n '[0;32m@engaboali9226-mastoura '
+++ '[' 0 -ne 0 ']'
+++ echo -n '[0m➜'
++++ git config --get devcontainers-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git config --get codespaces-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git --no-optional-locks symbolic-ref --short HEAD
+++ export BRANCH=main
+++ BRANCH=main
+++ '[' main '!=' '' ']'
+++ echo -n '[0;36m([1;31mmain'
++++ git config --get devcontainers-theme.show-dirty
+++ '[' '' = 1 ']'
+++ echo -n '[0;36m) '
+++ __vsc_preexec_only echo
+++ '[' 1 = 0 ']'
++ echo '[8] npx tsc --version'
+[8] npx tsc --version
+++ export XIT=0
+++ XIT=0
+++ '[' '!' -z engaboali9226-mastoura ']'
+++ echo -n '[0;32m@engaboali9226-mastoura '
+++ '[' 0 -ne 0 ']'
+++ echo -n '[0m➜'
++++ git config --get devcontainers-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git config --get codespaces-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git --no-optional-locks symbolic-ref --short HEAD
+++ export BRANCH=main
+++ BRANCH=main
+++ '[' main '!=' '' ']'
+++ echo -n '[0;36m([1;31mmain'
++++ git config --get devcontainers-theme.show-dirty
+++ '[' '' = 1 ']'
+++ echo -n '[0;36m) '
+++ export XIT=0
+++ XIT=0
+++ '[' '!' -z engaboali9226-mastoura ']'
+++ echo -n '[0;32m@engaboali9226-mastoura '
+++ '[' 0 -ne 0 ']'
+++ echo -n '[0m➜'
++++ git config --get devcontainers-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git config --get codespaces-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git --no-optional-locks symbolic-ref --short HEAD
+++ export BRANCH=main
+++ BRANCH=main
+++ '[' main '!=' '' ']'
+++ echo -n '[0;36m([1;31mmain'
++++ git config --get devcontainers-theme.show-dirty
+++ '[' '' = 1 ']'
+++ echo -n '[0;36m) '
+++ __vsc_preexec_only '[8] npx tsc --version'
+++ '[' 1 = 0 ']'
++ npx tsc --version
+Version 5.9.3
+++ export XIT=0
+++ XIT=0
+++ '[' '!' -z engaboali9226-mastoura ']'
+++ echo -n '[0;32m@engaboali9226-mastoura '
+++ '[' 0 -ne 0 ']'
+++ echo -n '[0m➜'
++++ git config --get devcontainers-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git config --get codespaces-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git --no-optional-locks symbolic-ref --short HEAD
+++ export BRANCH=main
+++ BRANCH=main
+++ '[' main '!=' '' ']'
+++ echo -n '[0;36m([1;31mmain'
++++ git config --get devcontainers-theme.show-dirty
+++ '[' '' = 1 ']'
+++ echo -n '[0;36m) '
+++ __vsc_preexec_only --version
+++ '[' 1 = 0 ']'
++ echo EXIT=0
+EXIT=0
+++ export XIT=0
+++ XIT=0
+++ '[' '!' -z engaboali9226-mastoura ']'
+++ echo -n '[0;32m@engaboali9226-mastoura '
+++ '[' 0 -ne 0 ']'
+++ echo -n '[0m➜'
++++ git config --get devcontainers-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git config --get codespaces-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git --no-optional-locks symbolic-ref --short HEAD
+++ export BRANCH=main
+++ BRANCH=main
+++ '[' main '!=' '' ']'
+++ echo -n '[0;36m([1;31mmain'
++++ git config --get devcontainers-theme.show-dirty
+++ '[' '' = 1 ']'
+++ echo -n '[0;36m) '
+++ export XIT=0
+++ XIT=0
+++ '[' '!' -z engaboali9226-mastoura ']'
+++ echo -n '[0;32m@engaboali9226-mastoura '
+++ '[' 0 -ne 0 ']'
+++ echo -n '[0m➜'
++++ git config --get devcontainers-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git config --get codespaces-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git --no-optional-locks symbolic-ref --short HEAD
+++ export BRANCH=main
+++ BRANCH=main
+++ '[' main '!=' '' ']'
+++ echo -n '[0;36m([1;31mmain'
++++ git config --get devcontainers-theme.show-dirty
+++ '[' '' = 1 ']'
+++ echo -n '[0;36m) '
+++ __vsc_preexec_only EXIT=0
+++ '[' 1 = 0 ']'
++ echo
+
+++ export XIT=0
+++ XIT=0
+++ '[' '!' -z engaboali9226-mastoura ']'
+++ echo -n '[0;32m@engaboali9226-mastoura '
+++ '[' 0 -ne 0 ']'
+++ echo -n '[0m➜'
++++ git config --get devcontainers-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git config --get codespaces-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git --no-optional-locks symbolic-ref --short HEAD
+++ export BRANCH=main
+++ BRANCH=main
+++ '[' main '!=' '' ']'
+++ echo -n '[0;36m([1;31mmain'
++++ git config --get devcontainers-theme.show-dirty
+++ '[' '' = 1 ']'
+++ echo -n '[0;36m) '
+++ __vsc_preexec_only echo
+++ '[' 1 = 0 ']'
++ echo '[9] npx tsc --noEmit'
+[9] npx tsc --noEmit
+++ export XIT=0
+++ XIT=0
+++ '[' '!' -z engaboali9226-mastoura ']'
+++ echo -n '[0;32m@engaboali9226-mastoura '
+++ '[' 0 -ne 0 ']'
+++ echo -n '[0m➜'
++++ git config --get devcontainers-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git config --get codespaces-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git --no-optional-locks symbolic-ref --short HEAD
+++ export BRANCH=main
+++ BRANCH=main
+++ '[' main '!=' '' ']'
+++ echo -n '[0;36m([1;31mmain'
++++ git config --get devcontainers-theme.show-dirty
+++ '[' '' = 1 ']'
+++ echo -n '[0;36m) '
+++ export XIT=0
+++ XIT=0
+++ '[' '!' -z engaboali9226-mastoura ']'
+++ echo -n '[0;32m@engaboali9226-mastoura '
+++ '[' 0 -ne 0 ']'
+++ echo -n '[0m➜'
++++ git config --get devcontainers-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git config --get codespaces-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git --no-optional-locks symbolic-ref --short HEAD
+++ export BRANCH=main
+++ BRANCH=main
+++ '[' main '!=' '' ']'
+++ echo -n '[0;36m([1;31mmain'
++++ git config --get devcontainers-theme.show-dirty
+++ '[' '' = 1 ']'
+++ echo -n '[0;36m) '
+++ __vsc_preexec_only '[9] npx tsc --noEmit'
+++ '[' 1 = 0 ']'
++ npx tsc --noEmit
+error TS18003: No inputs were found in config file '/workspaces/work-tracker_OS/packages/events/tsconfig.json'. Specified 'include' paths were '["src"]' and 'exclude' paths were '["/workspaces/work-tracker_OS/packages/events/dist"]'.
+++ export XIT=2
+++ XIT=2
+++ '[' '!' -z engaboali9226-mastoura ']'
+++ echo -n '[0;32m@engaboali9226-mastoura '
+++ '[' 2 -ne 0 ']'
+++ echo -n '[1;31m➜'
++++ git config --get devcontainers-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git config --get codespaces-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git --no-optional-locks symbolic-ref --short HEAD
+++ export BRANCH=main
+++ BRANCH=main
+++ '[' main '!=' '' ']'
+++ echo -n '[0;36m([1;31mmain'
++++ git config --get devcontainers-theme.show-dirty
+++ '[' '' = 1 ']'
+++ echo -n '[0;36m) '
+++ __vsc_preexec_only --noEmit
+++ '[' 1 = 0 ']'
++ echo EXIT=2
+EXIT=2
+++ export XIT=0
+++ XIT=0
+++ '[' '!' -z engaboali9226-mastoura ']'
+++ echo -n '[0;32m@engaboali9226-mastoura '
+++ '[' 0 -ne 0 ']'
+++ echo -n '[0m➜'
++++ git config --get devcontainers-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git config --get codespaces-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git --no-optional-locks symbolic-ref --short HEAD
+++ export BRANCH=main
+++ BRANCH=main
+++ '[' main '!=' '' ']'
+++ echo -n '[0;36m([1;31mmain'
++++ git config --get devcontainers-theme.show-dirty
+++ '[' '' = 1 ']'
+++ echo -n '[0;36m) '
+++ export XIT=0
+++ XIT=0
+++ '[' '!' -z engaboali9226-mastoura ']'
+++ echo -n '[0;32m@engaboali9226-mastoura '
+++ '[' 0 -ne 0 ']'
+++ echo -n '[0m➜'
++++ git config --get devcontainers-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git config --get codespaces-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git --no-optional-locks symbolic-ref --short HEAD
+++ export BRANCH=main
+++ BRANCH=main
+++ '[' main '!=' '' ']'
+++ echo -n '[0;36m([1;31mmain'
++++ git config --get devcontainers-theme.show-dirty
+++ '[' '' = 1 ']'
+++ echo -n '[0;36m) '
+++ __vsc_preexec_only EXIT=2
+++ '[' 1 = 0 ']'
++ echo
+
+++ export XIT=0
+++ XIT=0
+++ '[' '!' -z engaboali9226-mastoura ']'
+++ echo -n '[0;32m@engaboali9226-mastoura '
+++ '[' 0 -ne 0 ']'
+++ echo -n '[0m➜'
++++ git config --get devcontainers-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git config --get codespaces-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git --no-optional-locks symbolic-ref --short HEAD
+++ export BRANCH=main
+++ BRANCH=main
+++ '[' main '!=' '' ']'
+++ echo -n '[0;36m([1;31mmain'
++++ git config --get devcontainers-theme.show-dirty
+++ '[' '' = 1 ']'
+++ echo -n '[0;36m) '
+++ __vsc_preexec_only echo
+++ '[' 1 = 0 ']'
++ echo '[10] finished'
+[10] finished
+++ export XIT=0
+++ XIT=0
+++ '[' '!' -z engaboali9226-mastoura ']'
+++ echo -n '[0;32m@engaboali9226-mastoura '
+++ '[' 0 -ne 0 ']'
+++ echo -n '[0m➜'
++++ git config --get devcontainers-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git config --get codespaces-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git --no-optional-locks symbolic-ref --short HEAD
+++ export BRANCH=main
+++ BRANCH=main
+++ '[' main '!=' '' ']'
+++ echo -n '[0;36m([1;31mmain'
++++ git config --get devcontainers-theme.show-dirty
+++ '[' '' = 1 ']'
+++ echo -n '[0;36m) '
+++ export XIT=0
+++ XIT=0
+++ '[' '!' -z engaboali9226-mastoura ']'
+++ echo -n '[0;32m@engaboali9226-mastoura '
+++ '[' 0 -ne 0 ']'
+++ echo -n '[0m➜'
++++ git config --get devcontainers-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git config --get codespaces-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git --no-optional-locks symbolic-ref --short HEAD
+++ export BRANCH=main
+++ BRANCH=main
+++ '[' main '!=' '' ']'
+++ echo -n '[0;36m([1;31mmain'
++++ git config --get devcontainers-theme.show-dirty
+++ '[' '' = 1 ']'
+++ echo -n '[0;36m) '
+++ __vsc_preexec_only '[10] finished'
+++ '[' 1 = 0 ']'
++ date
+Wed Jul  1 08:35:55 UTC 2026
++++ __vsc_preexec_only date
++++ '[' 1 = 0 ']'
+++ __vsc_prompt_cmd
+++ __vsc_status=0
+++ __vsc_precmd
+++ __vsc_command_complete 0
+++ [[ -z 1 ]]
+++ '[' 'LOG="/workspaces/work-tracker_OS/npx-diagnostic.log"' = '' ']'
+++ builtin printf '\e]633;D;%s\a' 0
+]633;D;0++ __vsc_update_cwd
+++ '[' 0 = 1 ']'
+++ __vsc_cwd=/workspaces/work-tracker_OS/packages/events
++++ __vsc_escape_value /workspaces/work-tracker_OS/packages/events
++++ '[' 43 -ge 2000 ']'
++++ builtin local -r LC_ALL=C
++++ builtin local -r str=/workspaces/work-tracker_OS/packages/events
++++ builtin local -ir len=43
++++ builtin local -i i
++++ builtin local -i val
++++ builtin local byte
++++ builtin local token
++++ builtin local out=
++++ (( i=0 ))
++++ (( i < 43 ))
++++ byte=/
++++ builtin printf -v val %d ''\''/'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=/
++++ out+=/
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=w
++++ builtin printf -v val %d ''\''w'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=w
++++ out+=w
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=o
++++ builtin printf -v val %d ''\''o'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=o
++++ out+=o
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=r
++++ builtin printf -v val %d ''\''r'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=r
++++ out+=r
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=k
++++ builtin printf -v val %d ''\''k'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=k
++++ out+=k
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=s
++++ builtin printf -v val %d ''\''s'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=s
++++ out+=s
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=p
++++ builtin printf -v val %d ''\''p'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=p
++++ out+=p
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=a
++++ builtin printf -v val %d ''\''a'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=a
++++ out+=a
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=c
++++ builtin printf -v val %d ''\''c'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=c
++++ out+=c
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=e
++++ builtin printf -v val %d ''\''e'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=e
++++ out+=e
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=s
++++ builtin printf -v val %d ''\''s'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=s
++++ out+=s
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=/
++++ builtin printf -v val %d ''\''/'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=/
++++ out+=/
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=w
++++ builtin printf -v val %d ''\''w'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=w
++++ out+=w
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=o
++++ builtin printf -v val %d ''\''o'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=o
++++ out+=o
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=r
++++ builtin printf -v val %d ''\''r'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=r
++++ out+=r
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=k
++++ builtin printf -v val %d ''\''k'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=k
++++ out+=k
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=-
++++ builtin printf -v val %d ''\''-'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=-
++++ out+=-
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=t
++++ builtin printf -v val %d ''\''t'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=t
++++ out+=t
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=r
++++ builtin printf -v val %d ''\''r'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=r
++++ out+=r
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=a
++++ builtin printf -v val %d ''\''a'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=a
++++ out+=a
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=c
++++ builtin printf -v val %d ''\''c'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=c
++++ out+=c
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=k
++++ builtin printf -v val %d ''\''k'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=k
++++ out+=k
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=e
++++ builtin printf -v val %d ''\''e'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=e
++++ out+=e
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=r
++++ builtin printf -v val %d ''\''r'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=r
++++ out+=r
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=_
++++ builtin printf -v val %d ''\''_'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=_
++++ out+=_
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=O
++++ builtin printf -v val %d ''\''O'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=O
++++ out+=O
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=S
++++ builtin printf -v val %d ''\''S'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=S
++++ out+=S
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=/
++++ builtin printf -v val %d ''\''/'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=/
++++ out+=/
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=p
++++ builtin printf -v val %d ''\''p'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=p
++++ out+=p
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=a
++++ builtin printf -v val %d ''\''a'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=a
++++ out+=a
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=c
++++ builtin printf -v val %d ''\''c'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=c
++++ out+=c
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=k
++++ builtin printf -v val %d ''\''k'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=k
++++ out+=k
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=a
++++ builtin printf -v val %d ''\''a'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=a
++++ out+=a
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=g
++++ builtin printf -v val %d ''\''g'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=g
++++ out+=g
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=e
++++ builtin printf -v val %d ''\''e'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=e
++++ out+=e
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=s
++++ builtin printf -v val %d ''\''s'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=s
++++ out+=s
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=/
++++ builtin printf -v val %d ''\''/'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=/
++++ out+=/
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=e
++++ builtin printf -v val %d ''\''e'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=e
++++ out+=e
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=v
++++ builtin printf -v val %d ''\''v'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=v
++++ out+=v
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=e
++++ builtin printf -v val %d ''\''e'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=e
++++ out+=e
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=n
++++ builtin printf -v val %d ''\''n'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=n
++++ out+=n
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=t
++++ builtin printf -v val %d ''\''t'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=t
++++ out+=t
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=s
++++ builtin printf -v val %d ''\''s'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=s
++++ out+=s
++++ (( ++i  ))
++++ (( i < 43 ))
++++ builtin printf '%s\n' /workspaces/work-tracker_OS/packages/events
+++ builtin printf '\e]633;P;Cwd=%s\a' /workspaces/work-tracker_OS/packages/events
+]633;P;Cwd=/workspaces/work-tracker_OS/packages/events++ __vsc_current_command=
+++ '[' 1 = 0 ']'
+++ __vsc_first_prompt=1
+++ __vsc_update_prompt
+++ '[' 1 = 1 ']'
+++ [[ \[]633;A\]`export XIT=$? \
+        && [ ! -z "${GITHUB_USER:-}" ] && echo -n "\[\033[0;32m\]@${GITHUB_USER:-} " || echo -n "\[\033[0;32m\]\u " \
+        && [ "$XIT" -ne "0" ] && echo -n "\[\033[1;31m\]➜" || echo -n "\[\033[0m\]➜"` \[\033[1;34m\]\w `\
+        if [ "$(git config --get devcontainers-theme.hide-status 2>/dev/null)" != 1 ] && [ "$(git config --get codespaces-theme.hide-status 2>/dev/null)" != 1 ]; then \
+            export BRANCH="$(git --no-optional-locks symbolic-ref --short HEAD 2>/dev/null || git --no-optional-locks rev-parse --short HEAD 2>/dev/null)"; \
+            if [ "${BRANCH:-}" != "" ]; then \
+                echo -n "\[\033[0;36m\](\[\033[1;31m\]${BRANCH:-}" \
+                && if [ "$(git config --get devcontainers-theme.show-dirty 2>/dev/null)" = 1 ] && \
+                    git --no-optional-locks ls-files --error-unmatch -m --directory --no-empty-directory -o --exclude-standard ":/*" > /dev/null 2>&1; then \
+                        echo -n " \[\033[1;33m\]✗"; \
+                fi \
+                && echo -n "\[\033[0;36m\]) "; \
+            fi; \
+        fi`\[\033[0m\]$ \[]633;B\] == '' ]]
+++ [[ \[]633;A\]`export XIT=$? \
+        && [ ! -z "${GITHUB_USER:-}" ] && echo -n "\[\033[0;32m\]@${GITHUB_USER:-} " || echo -n "\[\033[0;32m\]\u " \
+        && [ "$XIT" -ne "0" ] && echo -n "\[\033[1;31m\]➜" || echo -n "\[\033[0m\]➜"` \[\033[1;34m\]\w `\
+        if [ "$(git config --get devcontainers-theme.hide-status 2>/dev/null)" != 1 ] && [ "$(git config --get codespaces-theme.hide-status 2>/dev/null)" != 1 ]; then \
+            export BRANCH="$(git --no-optional-locks symbolic-ref --short HEAD 2>/dev/null || git --no-optional-locks rev-parse --short HEAD 2>/dev/null)"; \
+            if [ "${BRANCH:-}" != "" ]; then \
+                echo -n "\[\033[0;36m\](\[\033[1;31m\]${BRANCH:-}" \
+                && if [ "$(git config --get devcontainers-theme.show-dirty 2>/dev/null)" = 1 ] && \
+                    git --no-optional-locks ls-files --error-unmatch -m --directory --no-empty-directory -o --exclude-standard ":/*" > /dev/null 2>&1; then \
+                        echo -n " \[\033[1;33m\]✗"; \
+                fi \
+                && echo -n "\[\033[0;36m\]) "; \
+            fi; \
+        fi`\[\033[0m\]$ \[]633;B\] != \\\[\\]\6\3\3\;\A\\\\]\`\e\x\p\o\r\t\ \X\I\T\=\$\?\ \\\
+\ \ \ \ \ \ \ \ \&\&\ \[\ \!\ \-\z\ \"\$\{\G\I\T\H\U\B\_\U\S\E\R\:\-\}\"\ \]\ \&\&\ \e\c\h\o\ \-\n\ \"\\\[\\\0\3\3\[\0\;\3\2\m\\\]\@\$\{\G\I\T\H\U\B\_\U\S\E\R\:\-\}\ \"\ \|\|\ \e\c\h\o\ \-\n\ \"\\\[\\\0\3\3\[\0\;\3\2\m\\\]\\\u\ \"\ \\\
+\ \ \ \ \ \ \ \ \&\&\ \[\ \"\$\X\I\T\"\ \-\n\e\ \"\0\"\ \]\ \&\&\ \e\c\h\o\ \-\n\ \"\\\[\\\0\3\3\[\1\;\3\1\m\\\]\➜\"\ \|\|\ \e\c\h\o\ \-\n\ \"\\\[\\\0\3\3\[\0\m\\\]\➜\"\`\ \\\[\\\0\3\3\[\1\;\3\4\m\\\]\\\w\ \`\\\
+\ \ \ \ \ \ \ \ \i\f\ \[\ \"\$\(\g\i\t\ \c\o\n\f\i\g\ \-\-\g\e\t\ \d\e\v\c\o\n\t\a\i\n\e\r\s\-\t\h\e\m\e\.\h\i\d\e\-\s\t\a\t\u\s\ \2\>\/\d\e\v\/\n\u\l\l\)\"\ \!\=\ \1\ \]\ \&\&\ \[\ \"\$\(\g\i\t\ \c\o\n\f\i\g\ \-\-\g\e\t\ \c\o\d\e\s\p\a\c\e\s\-\t\h\e\m\e\.\h\i\d\e\-\s\t\a\t\u\s\ \2\>\/\d\e\v\/\n\u\l\l\)\"\ \!\=\ \1\ \]\;\ \t\h\e\n\ \\\
+\ \ \ \ \ \ \ \ \ \ \ \ \e\x\p\o\r\t\ \B\R\A\N\C\H\=\"\$\(\g\i\t\ \-\-\n\o\-\o\p\t\i\o\n\a\l\-\l\o\c\k\s\ \s\y\m\b\o\l\i\c\-\r\e\f\ \-\-\s\h\o\r\t\ \H\E\A\D\ \2\>\/\d\e\v\/\n\u\l\l\ \|\|\ \g\i\t\ \-\-\n\o\-\o\p\t\i\o\n\a\l\-\l\o\c\k\s\ \r\e\v\-\p\a\r\s\e\ \-\-\s\h\o\r\t\ \H\E\A\D\ \2\>\/\d\e\v\/\n\u\l\l\)\"\;\ \\\
+\ \ \ \ \ \ \ \ \ \ \ \ \i\f\ \[\ \"\$\{\B\R\A\N\C\H\:\-\}\"\ \!\=\ \"\"\ \]\;\ \t\h\e\n\ \\\
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \e\c\h\o\ \-\n\ \"\\\[\\\0\3\3\[\0\;\3\6\m\\\]\(\\\[\\\0\3\3\[\1\;\3\1\m\\\]\$\{\B\R\A\N\C\H\:\-\}\"\ \\\
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \&\&\ \i\f\ \[\ \"\$\(\g\i\t\ \c\o\n\f\i\g\ \-\-\g\e\t\ \d\e\v\c\o\n\t\a\i\n\e\r\s\-\t\h\e\m\e\.\s\h\o\w\-\d\i\r\t\y\ \2\>\/\d\e\v\/\n\u\l\l\)\"\ \=\ \1\ \]\ \&\&\ \\\
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \g\i\t\ \-\-\n\o\-\o\p\t\i\o\n\a\l\-\l\o\c\k\s\ \l\s\-\f\i\l\e\s\ \-\-\e\r\r\o\r\-\u\n\m\a\t\c\h\ \-\m\ \-\-\d\i\r\e\c\t\o\r\y\ \-\-\n\o\-\e\m\p\t\y\-\d\i\r\e\c\t\o\r\y\ \-\o\ \-\-\e\x\c\l\u\d\e\-\s\t\a\n\d\a\r\d\ \"\:\/\*\"\ \>\ \/\d\e\v\/\n\u\l\l\ \2\>\&\1\;\ \t\h\e\n\ \\\
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \e\c\h\o\ \-\n\ \"\ \\\[\\\0\3\3\[\1\;\3\3\m\\\]\✗\"\;\ \\\
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \f\i\ \\\
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \&\&\ \e\c\h\o\ \-\n\ \"\\\[\\\0\3\3\[\0\;\3\6\m\\\]\)\ \"\;\ \\\
+\ \ \ \ \ \ \ \ \ \ \ \ \f\i\;\ \\\
+\ \ \ \ \ \ \ \ \f\i\`\\\[\\\0\3\3\[\0\m\\\]\$\ \\\[\\]\6\3\3\;\B\\\\] ]]
+++ [[ \[]633;F\]> \[]633;G\] == '' ]]
+++ [[ \[]633;F\]> \[]633;G\] != \\\[\\]\6\3\3\;\F\\\\]\>\ \\\[\\]\6\3\3\;\G\\\\] ]]
+++ __vsc_in_command_execution=0
+++ __vsc_update_env
+++ [[ 0 -gt 0 ]]
+++ export XIT=0
+++ XIT=0
+++ '[' '!' -z engaboali9226-mastoura ']'
+++ echo -n '[0;32m@engaboali9226-mastoura '
+++ '[' 0 -ne 0 ']'
+++ echo -n '[0m➜'
++++ git config --get devcontainers-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git config --get codespaces-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git --no-optional-locks symbolic-ref --short HEAD
+++ export BRANCH=main
+++ BRANCH=main
+++ '[' main '!=' '' ']'
+++ echo -n '[0;36m([1;31mmain'
++++ git config --get devcontainers-theme.show-dirty
+++ '[' '' = 1 ']'
+++ echo -n '[0;36m) '
+[?2004h]633;A[0;32m@engaboali9226-mastoura [0m➜ [1;34m/workspaces/work-tracker_OS/packages/events [0;36m([1;31mmain[0;36m) [0m$ ]633;Bqqqq^C[?2004l[?2004h[?2004l
++++ __vsc_preexec_only date
++++ '[' 0 = 0 ']'
++++ __vsc_in_command_execution=1
++++ __vsc_preexec
++++ __vsc_initialized=1
++++ [[ ! __vsc_prompt_cmd == __vsc_prompt* ]]
++++ __vsc_current_command=
++++ __vsc_command_output_start
++++ [[ -z 1 ]]
+++++ __vsc_escape_value ''
+++++ '[' 0 -ge 2000 ']'
+++++ builtin local -r LC_ALL=C
+++++ builtin local -r str=
+++++ builtin local -ir len=0
+++++ builtin local -i i
+++++ builtin local -i val
+++++ builtin local byte
+++++ builtin local token
+++++ builtin local out=
+++++ (( i=0 ))
+++++ (( i < 0 ))
+++++ builtin printf '%s\n' ''
++++ builtin printf '\e]633;E;%s;%s\a' '' ea7e2404-8b62-423a-a792-04b3ee104902
+]633;E;;ea7e2404-8b62-423a-a792-04b3ee104902+++ builtin printf '\e]633;C\a'
+]633;C++ __vsc_prompt_cmd
+++ __vsc_status=130
+++ __vsc_precmd
+++ __vsc_command_complete 130
+++ [[ -z 1 ]]
+++ '[' '' = '' ']'
+++ builtin printf '\e]633;D\a'
+]633;D++ __vsc_update_cwd
+++ '[' 0 = 1 ']'
+++ __vsc_cwd=/workspaces/work-tracker_OS/packages/events
++++ __vsc_escape_value /workspaces/work-tracker_OS/packages/events
++++ '[' 43 -ge 2000 ']'
++++ builtin local -r LC_ALL=C
++++ builtin local -r str=/workspaces/work-tracker_OS/packages/events
++++ builtin local -ir len=43
++++ builtin local -i i
++++ builtin local -i val
++++ builtin local byte
++++ builtin local token
++++ builtin local out=
++++ (( i=0 ))
++++ (( i < 43 ))
++++ byte=/
++++ builtin printf -v val %d ''\''/'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=/
++++ out+=/
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=w
++++ builtin printf -v val %d ''\''w'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=w
++++ out+=w
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=o
++++ builtin printf -v val %d ''\''o'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=o
++++ out+=o
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=r
++++ builtin printf -v val %d ''\''r'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=r
++++ out+=r
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=k
++++ builtin printf -v val %d ''\''k'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=k
++++ out+=k
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=s
++++ builtin printf -v val %d ''\''s'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=s
++++ out+=s
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=p
++++ builtin printf -v val %d ''\''p'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=p
++++ out+=p
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=a
++++ builtin printf -v val %d ''\''a'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=a
++++ out+=a
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=c
++++ builtin printf -v val %d ''\''c'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=c
++++ out+=c
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=e
++++ builtin printf -v val %d ''\''e'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=e
++++ out+=e
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=s
++++ builtin printf -v val %d ''\''s'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=s
++++ out+=s
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=/
++++ builtin printf -v val %d ''\''/'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=/
++++ out+=/
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=w
++++ builtin printf -v val %d ''\''w'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=w
++++ out+=w
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=o
++++ builtin printf -v val %d ''\''o'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=o
++++ out+=o
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=r
++++ builtin printf -v val %d ''\''r'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=r
++++ out+=r
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=k
++++ builtin printf -v val %d ''\''k'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=k
++++ out+=k
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=-
++++ builtin printf -v val %d ''\''-'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=-
++++ out+=-
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=t
++++ builtin printf -v val %d ''\''t'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=t
++++ out+=t
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=r
++++ builtin printf -v val %d ''\''r'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=r
++++ out+=r
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=a
++++ builtin printf -v val %d ''\''a'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=a
++++ out+=a
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=c
++++ builtin printf -v val %d ''\''c'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=c
++++ out+=c
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=k
++++ builtin printf -v val %d ''\''k'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=k
++++ out+=k
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=e
++++ builtin printf -v val %d ''\''e'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=e
++++ out+=e
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=r
++++ builtin printf -v val %d ''\''r'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=r
++++ out+=r
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=_
++++ builtin printf -v val %d ''\''_'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=_
++++ out+=_
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=O
++++ builtin printf -v val %d ''\''O'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=O
++++ out+=O
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=S
++++ builtin printf -v val %d ''\''S'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=S
++++ out+=S
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=/
++++ builtin printf -v val %d ''\''/'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=/
++++ out+=/
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=p
++++ builtin printf -v val %d ''\''p'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=p
++++ out+=p
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=a
++++ builtin printf -v val %d ''\''a'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=a
++++ out+=a
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=c
++++ builtin printf -v val %d ''\''c'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=c
++++ out+=c
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=k
++++ builtin printf -v val %d ''\''k'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=k
++++ out+=k
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=a
++++ builtin printf -v val %d ''\''a'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=a
++++ out+=a
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=g
++++ builtin printf -v val %d ''\''g'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=g
++++ out+=g
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=e
++++ builtin printf -v val %d ''\''e'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=e
++++ out+=e
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=s
++++ builtin printf -v val %d ''\''s'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=s
++++ out+=s
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=/
++++ builtin printf -v val %d ''\''/'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=/
++++ out+=/
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=e
++++ builtin printf -v val %d ''\''e'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=e
++++ out+=e
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=v
++++ builtin printf -v val %d ''\''v'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=v
++++ out+=v
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=e
++++ builtin printf -v val %d ''\''e'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=e
++++ out+=e
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=n
++++ builtin printf -v val %d ''\''n'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=n
++++ out+=n
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=t
++++ builtin printf -v val %d ''\''t'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=t
++++ out+=t
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=s
++++ builtin printf -v val %d ''\''s'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=s
++++ out+=s
++++ (( ++i  ))
++++ (( i < 43 ))
++++ builtin printf '%s\n' /workspaces/work-tracker_OS/packages/events
+++ builtin printf '\e]633;P;Cwd=%s\a' /workspaces/work-tracker_OS/packages/events
+]633;P;Cwd=/workspaces/work-tracker_OS/packages/events++ __vsc_current_command=
+++ '[' 1 = 0 ']'
+++ __vsc_first_prompt=1
+++ __vsc_update_prompt
+++ '[' 1 = 1 ']'
+++ [[ \[]633;A\]`export XIT=$? \
+        && [ ! -z "${GITHUB_USER:-}" ] && echo -n "\[\033[0;32m\]@${GITHUB_USER:-} " || echo -n "\[\033[0;32m\]\u " \
+        && [ "$XIT" -ne "0" ] && echo -n "\[\033[1;31m\]➜" || echo -n "\[\033[0m\]➜"` \[\033[1;34m\]\w `\
+        if [ "$(git config --get devcontainers-theme.hide-status 2>/dev/null)" != 1 ] && [ "$(git config --get codespaces-theme.hide-status 2>/dev/null)" != 1 ]; then \
+            export BRANCH="$(git --no-optional-locks symbolic-ref --short HEAD 2>/dev/null || git --no-optional-locks rev-parse --short HEAD 2>/dev/null)"; \
+            if [ "${BRANCH:-}" != "" ]; then \
+                echo -n "\[\033[0;36m\](\[\033[1;31m\]${BRANCH:-}" \
+                && if [ "$(git config --get devcontainers-theme.show-dirty 2>/dev/null)" = 1 ] && \
+                    git --no-optional-locks ls-files --error-unmatch -m --directory --no-empty-directory -o --exclude-standard ":/*" > /dev/null 2>&1; then \
+                        echo -n " \[\033[1;33m\]✗"; \
+                fi \
+                && echo -n "\[\033[0;36m\]) "; \
+            fi; \
+        fi`\[\033[0m\]$ \[]633;B\] == '' ]]
+++ [[ \[]633;A\]`export XIT=$? \
+        && [ ! -z "${GITHUB_USER:-}" ] && echo -n "\[\033[0;32m\]@${GITHUB_USER:-} " || echo -n "\[\033[0;32m\]\u " \
+        && [ "$XIT" -ne "0" ] && echo -n "\[\033[1;31m\]➜" || echo -n "\[\033[0m\]➜"` \[\033[1;34m\]\w `\
+        if [ "$(git config --get devcontainers-theme.hide-status 2>/dev/null)" != 1 ] && [ "$(git config --get codespaces-theme.hide-status 2>/dev/null)" != 1 ]; then \
+            export BRANCH="$(git --no-optional-locks symbolic-ref --short HEAD 2>/dev/null || git --no-optional-locks rev-parse --short HEAD 2>/dev/null)"; \
+            if [ "${BRANCH:-}" != "" ]; then \
+                echo -n "\[\033[0;36m\](\[\033[1;31m\]${BRANCH:-}" \
+                && if [ "$(git config --get devcontainers-theme.show-dirty 2>/dev/null)" = 1 ] && \
+                    git --no-optional-locks ls-files --error-unmatch -m --directory --no-empty-directory -o --exclude-standard ":/*" > /dev/null 2>&1; then \
+                        echo -n " \[\033[1;33m\]✗"; \
+                fi \
+                && echo -n "\[\033[0;36m\]) "; \
+            fi; \
+        fi`\[\033[0m\]$ \[]633;B\] != \\\[\\]\6\3\3\;\A\\\\]\`\e\x\p\o\r\t\ \X\I\T\=\$\?\ \\\
+\ \ \ \ \ \ \ \ \&\&\ \[\ \!\ \-\z\ \"\$\{\G\I\T\H\U\B\_\U\S\E\R\:\-\}\"\ \]\ \&\&\ \e\c\h\o\ \-\n\ \"\\\[\\\0\3\3\[\0\;\3\2\m\\\]\@\$\{\G\I\T\H\U\B\_\U\S\E\R\:\-\}\ \"\ \|\|\ \e\c\h\o\ \-\n\ \"\\\[\\\0\3\3\[\0\;\3\2\m\\\]\\\u\ \"\ \\\
+\ \ \ \ \ \ \ \ \&\&\ \[\ \"\$\X\I\T\"\ \-\n\e\ \"\0\"\ \]\ \&\&\ \e\c\h\o\ \-\n\ \"\\\[\\\0\3\3\[\1\;\3\1\m\\\]\➜\"\ \|\|\ \e\c\h\o\ \-\n\ \"\\\[\\\0\3\3\[\0\m\\\]\➜\"\`\ \\\[\\\0\3\3\[\1\;\3\4\m\\\]\\\w\ \`\\\
+\ \ \ \ \ \ \ \ \i\f\ \[\ \"\$\(\g\i\t\ \c\o\n\f\i\g\ \-\-\g\e\t\ \d\e\v\c\o\n\t\a\i\n\e\r\s\-\t\h\e\m\e\.\h\i\d\e\-\s\t\a\t\u\s\ \2\>\/\d\e\v\/\n\u\l\l\)\"\ \!\=\ \1\ \]\ \&\&\ \[\ \"\$\(\g\i\t\ \c\o\n\f\i\g\ \-\-\g\e\t\ \c\o\d\e\s\p\a\c\e\s\-\t\h\e\m\e\.\h\i\d\e\-\s\t\a\t\u\s\ \2\>\/\d\e\v\/\n\u\l\l\)\"\ \!\=\ \1\ \]\;\ \t\h\e\n\ \\\
+\ \ \ \ \ \ \ \ \ \ \ \ \e\x\p\o\r\t\ \B\R\A\N\C\H\=\"\$\(\g\i\t\ \-\-\n\o\-\o\p\t\i\o\n\a\l\-\l\o\c\k\s\ \s\y\m\b\o\l\i\c\-\r\e\f\ \-\-\s\h\o\r\t\ \H\E\A\D\ \2\>\/\d\e\v\/\n\u\l\l\ \|\|\ \g\i\t\ \-\-\n\o\-\o\p\t\i\o\n\a\l\-\l\o\c\k\s\ \r\e\v\-\p\a\r\s\e\ \-\-\s\h\o\r\t\ \H\E\A\D\ \2\>\/\d\e\v\/\n\u\l\l\)\"\;\ \\\
+\ \ \ \ \ \ \ \ \ \ \ \ \i\f\ \[\ \"\$\{\B\R\A\N\C\H\:\-\}\"\ \!\=\ \"\"\ \]\;\ \t\h\e\n\ \\\
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \e\c\h\o\ \-\n\ \"\\\[\\\0\3\3\[\0\;\3\6\m\\\]\(\\\[\\\0\3\3\[\1\;\3\1\m\\\]\$\{\B\R\A\N\C\H\:\-\}\"\ \\\
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \&\&\ \i\f\ \[\ \"\$\(\g\i\t\ \c\o\n\f\i\g\ \-\-\g\e\t\ \d\e\v\c\o\n\t\a\i\n\e\r\s\-\t\h\e\m\e\.\s\h\o\w\-\d\i\r\t\y\ \2\>\/\d\e\v\/\n\u\l\l\)\"\ \=\ \1\ \]\ \&\&\ \\\
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \g\i\t\ \-\-\n\o\-\o\p\t\i\o\n\a\l\-\l\o\c\k\s\ \l\s\-\f\i\l\e\s\ \-\-\e\r\r\o\r\-\u\n\m\a\t\c\h\ \-\m\ \-\-\d\i\r\e\c\t\o\r\y\ \-\-\n\o\-\e\m\p\t\y\-\d\i\r\e\c\t\o\r\y\ \-\o\ \-\-\e\x\c\l\u\d\e\-\s\t\a\n\d\a\r\d\ \"\:\/\*\"\ \>\ \/\d\e\v\/\n\u\l\l\ \2\>\&\1\;\ \t\h\e\n\ \\\
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \e\c\h\o\ \-\n\ \"\ \\\[\\\0\3\3\[\1\;\3\3\m\\\]\✗\"\;\ \\\
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \f\i\ \\\
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \&\&\ \e\c\h\o\ \-\n\ \"\\\[\\\0\3\3\[\0\;\3\6\m\\\]\)\ \"\;\ \\\
+\ \ \ \ \ \ \ \ \ \ \ \ \f\i\;\ \\\
+\ \ \ \ \ \ \ \ \f\i\`\\\[\\\0\3\3\[\0\m\\\]\$\ \\\[\\]\6\3\3\;\B\\\\] ]]
+++ [[ \[]633;F\]> \[]633;G\] == '' ]]
+++ [[ \[]633;F\]> \[]633;G\] != \\\[\\]\6\3\3\;\F\\\\]\>\ \\\[\\]\6\3\3\;\G\\\\] ]]
+++ __vsc_in_command_execution=0
+++ __vsc_update_env
+++ [[ 0 -gt 0 ]]
+++ export XIT=130
+++ XIT=130
+++ '[' '!' -z engaboali9226-mastoura ']'
+++ echo -n '[0;32m@engaboali9226-mastoura '
+++ '[' 130 -ne 0 ']'
+++ echo -n '[1;31m➜'
++++ git config --get devcontainers-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git config --get codespaces-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git --no-optional-locks symbolic-ref --short HEAD
+++ export BRANCH=main
+++ BRANCH=main
+++ '[' main '!=' '' ']'
+++ echo -n '[0;36m([1;31mmain'
++++ git config --get devcontainers-theme.show-dirty
+++ '[' '' = 1 ']'
+++ echo -n '[0;36m) '
+[?2004h]633;A[0;32m@engaboali9226-mastoura [1;31m➜ [1;34m/workspaces/work-tracker_OS/packages/events [0;36m([1;31mmain[0;36m) [0m$ ]633;B^C[?2004l[?2004h[?2004l
++++ __vsc_preexec_only date
++++ '[' 0 = 0 ']'
++++ __vsc_in_command_execution=1
++++ __vsc_preexec
++++ __vsc_initialized=1
++++ [[ ! __vsc_prompt_cmd == __vsc_prompt* ]]
++++ __vsc_current_command=
++++ __vsc_command_output_start
++++ [[ -z 1 ]]
+++++ __vsc_escape_value ''
+++++ '[' 0 -ge 2000 ']'
+++++ builtin local -r LC_ALL=C
+++++ builtin local -r str=
+++++ builtin local -ir len=0
+++++ builtin local -i i
+++++ builtin local -i val
+++++ builtin local byte
+++++ builtin local token
+++++ builtin local out=
+++++ (( i=0 ))
+++++ (( i < 0 ))
+++++ builtin printf '%s\n' ''
++++ builtin printf '\e]633;E;%s;%s\a' '' ea7e2404-8b62-423a-a792-04b3ee104902
+]633;E;;ea7e2404-8b62-423a-a792-04b3ee104902+++ builtin printf '\e]633;C\a'
+]633;C++ __vsc_prompt_cmd
+++ __vsc_status=130
+++ __vsc_precmd
+++ __vsc_command_complete 130
+++ [[ -z 1 ]]
+++ '[' '' = '' ']'
+++ builtin printf '\e]633;D\a'
+]633;D++ __vsc_update_cwd
+++ '[' 0 = 1 ']'
+++ __vsc_cwd=/workspaces/work-tracker_OS/packages/events
++++ __vsc_escape_value /workspaces/work-tracker_OS/packages/events
++++ '[' 43 -ge 2000 ']'
++++ builtin local -r LC_ALL=C
++++ builtin local -r str=/workspaces/work-tracker_OS/packages/events
++++ builtin local -ir len=43
++++ builtin local -i i
++++ builtin local -i val
++++ builtin local byte
++++ builtin local token
++++ builtin local out=
++++ (( i=0 ))
++++ (( i < 43 ))
++++ byte=/
++++ builtin printf -v val %d ''\''/'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=/
++++ out+=/
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=w
++++ builtin printf -v val %d ''\''w'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=w
++++ out+=w
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=o
++++ builtin printf -v val %d ''\''o'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=o
++++ out+=o
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=r
++++ builtin printf -v val %d ''\''r'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=r
++++ out+=r
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=k
++++ builtin printf -v val %d ''\''k'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=k
++++ out+=k
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=s
++++ builtin printf -v val %d ''\''s'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=s
++++ out+=s
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=p
++++ builtin printf -v val %d ''\''p'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=p
++++ out+=p
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=a
++++ builtin printf -v val %d ''\''a'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=a
++++ out+=a
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=c
++++ builtin printf -v val %d ''\''c'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=c
++++ out+=c
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=e
++++ builtin printf -v val %d ''\''e'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=e
++++ out+=e
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=s
++++ builtin printf -v val %d ''\''s'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=s
++++ out+=s
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=/
++++ builtin printf -v val %d ''\''/'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=/
++++ out+=/
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=w
++++ builtin printf -v val %d ''\''w'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=w
++++ out+=w
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=o
++++ builtin printf -v val %d ''\''o'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=o
++++ out+=o
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=r
++++ builtin printf -v val %d ''\''r'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=r
++++ out+=r
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=k
++++ builtin printf -v val %d ''\''k'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=k
++++ out+=k
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=-
++++ builtin printf -v val %d ''\''-'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=-
++++ out+=-
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=t
++++ builtin printf -v val %d ''\''t'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=t
++++ out+=t
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=r
++++ builtin printf -v val %d ''\''r'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=r
++++ out+=r
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=a
++++ builtin printf -v val %d ''\''a'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=a
++++ out+=a
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=c
++++ builtin printf -v val %d ''\''c'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=c
++++ out+=c
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=k
++++ builtin printf -v val %d ''\''k'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=k
++++ out+=k
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=e
++++ builtin printf -v val %d ''\''e'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=e
++++ out+=e
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=r
++++ builtin printf -v val %d ''\''r'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=r
++++ out+=r
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=_
++++ builtin printf -v val %d ''\''_'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=_
++++ out+=_
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=O
++++ builtin printf -v val %d ''\''O'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=O
++++ out+=O
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=S
++++ builtin printf -v val %d ''\''S'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=S
++++ out+=S
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=/
++++ builtin printf -v val %d ''\''/'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=/
++++ out+=/
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=p
++++ builtin printf -v val %d ''\''p'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=p
++++ out+=p
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=a
++++ builtin printf -v val %d ''\''a'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=a
++++ out+=a
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=c
++++ builtin printf -v val %d ''\''c'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=c
++++ out+=c
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=k
++++ builtin printf -v val %d ''\''k'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=k
++++ out+=k
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=a
++++ builtin printf -v val %d ''\''a'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=a
++++ out+=a
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=g
++++ builtin printf -v val %d ''\''g'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=g
++++ out+=g
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=e
++++ builtin printf -v val %d ''\''e'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=e
++++ out+=e
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=s
++++ builtin printf -v val %d ''\''s'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=s
++++ out+=s
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=/
++++ builtin printf -v val %d ''\''/'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=/
++++ out+=/
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=e
++++ builtin printf -v val %d ''\''e'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=e
++++ out+=e
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=v
++++ builtin printf -v val %d ''\''v'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=v
++++ out+=v
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=e
++++ builtin printf -v val %d ''\''e'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=e
++++ out+=e
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=n
++++ builtin printf -v val %d ''\''n'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=n
++++ out+=n
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=t
++++ builtin printf -v val %d ''\''t'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=t
++++ out+=t
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=s
++++ builtin printf -v val %d ''\''s'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=s
++++ out+=s
++++ (( ++i  ))
++++ (( i < 43 ))
++++ builtin printf '%s\n' /workspaces/work-tracker_OS/packages/events
+++ builtin printf '\e]633;P;Cwd=%s\a' /workspaces/work-tracker_OS/packages/events
+]633;P;Cwd=/workspaces/work-tracker_OS/packages/events++ __vsc_current_command=
+++ '[' 1 = 0 ']'
+++ __vsc_first_prompt=1
+++ __vsc_update_prompt
+++ '[' 1 = 1 ']'
+++ [[ \[]633;A\]`export XIT=$? \
+        && [ ! -z "${GITHUB_USER:-}" ] && echo -n "\[\033[0;32m\]@${GITHUB_USER:-} " || echo -n "\[\033[0;32m\]\u " \
+        && [ "$XIT" -ne "0" ] && echo -n "\[\033[1;31m\]➜" || echo -n "\[\033[0m\]➜"` \[\033[1;34m\]\w `\
+        if [ "$(git config --get devcontainers-theme.hide-status 2>/dev/null)" != 1 ] && [ "$(git config --get codespaces-theme.hide-status 2>/dev/null)" != 1 ]; then \
+            export BRANCH="$(git --no-optional-locks symbolic-ref --short HEAD 2>/dev/null || git --no-optional-locks rev-parse --short HEAD 2>/dev/null)"; \
+            if [ "${BRANCH:-}" != "" ]; then \
+                echo -n "\[\033[0;36m\](\[\033[1;31m\]${BRANCH:-}" \
+                && if [ "$(git config --get devcontainers-theme.show-dirty 2>/dev/null)" = 1 ] && \
+                    git --no-optional-locks ls-files --error-unmatch -m --directory --no-empty-directory -o --exclude-standard ":/*" > /dev/null 2>&1; then \
+                        echo -n " \[\033[1;33m\]✗"; \
+                fi \
+                && echo -n "\[\033[0;36m\]) "; \
+            fi; \
+        fi`\[\033[0m\]$ \[]633;B\] == '' ]]
+++ [[ \[]633;A\]`export XIT=$? \
+        && [ ! -z "${GITHUB_USER:-}" ] && echo -n "\[\033[0;32m\]@${GITHUB_USER:-} " || echo -n "\[\033[0;32m\]\u " \
+        && [ "$XIT" -ne "0" ] && echo -n "\[\033[1;31m\]➜" || echo -n "\[\033[0m\]➜"` \[\033[1;34m\]\w `\
+        if [ "$(git config --get devcontainers-theme.hide-status 2>/dev/null)" != 1 ] && [ "$(git config --get codespaces-theme.hide-status 2>/dev/null)" != 1 ]; then \
+            export BRANCH="$(git --no-optional-locks symbolic-ref --short HEAD 2>/dev/null || git --no-optional-locks rev-parse --short HEAD 2>/dev/null)"; \
+            if [ "${BRANCH:-}" != "" ]; then \
+                echo -n "\[\033[0;36m\](\[\033[1;31m\]${BRANCH:-}" \
+                && if [ "$(git config --get devcontainers-theme.show-dirty 2>/dev/null)" = 1 ] && \
+                    git --no-optional-locks ls-files --error-unmatch -m --directory --no-empty-directory -o --exclude-standard ":/*" > /dev/null 2>&1; then \
+                        echo -n " \[\033[1;33m\]✗"; \
+                fi \
+                && echo -n "\[\033[0;36m\]) "; \
+            fi; \
+        fi`\[\033[0m\]$ \[]633;B\] != \\\[\\]\6\3\3\;\A\\\\]\`\e\x\p\o\r\t\ \X\I\T\=\$\?\ \\\
+\ \ \ \ \ \ \ \ \&\&\ \[\ \!\ \-\z\ \"\$\{\G\I\T\H\U\B\_\U\S\E\R\:\-\}\"\ \]\ \&\&\ \e\c\h\o\ \-\n\ \"\\\[\\\0\3\3\[\0\;\3\2\m\\\]\@\$\{\G\I\T\H\U\B\_\U\S\E\R\:\-\}\ \"\ \|\|\ \e\c\h\o\ \-\n\ \"\\\[\\\0\3\3\[\0\;\3\2\m\\\]\\\u\ \"\ \\\
+\ \ \ \ \ \ \ \ \&\&\ \[\ \"\$\X\I\T\"\ \-\n\e\ \"\0\"\ \]\ \&\&\ \e\c\h\o\ \-\n\ \"\\\[\\\0\3\3\[\1\;\3\1\m\\\]\➜\"\ \|\|\ \e\c\h\o\ \-\n\ \"\\\[\\\0\3\3\[\0\m\\\]\➜\"\`\ \\\[\\\0\3\3\[\1\;\3\4\m\\\]\\\w\ \`\\\
+\ \ \ \ \ \ \ \ \i\f\ \[\ \"\$\(\g\i\t\ \c\o\n\f\i\g\ \-\-\g\e\t\ \d\e\v\c\o\n\t\a\i\n\e\r\s\-\t\h\e\m\e\.\h\i\d\e\-\s\t\a\t\u\s\ \2\>\/\d\e\v\/\n\u\l\l\)\"\ \!\=\ \1\ \]\ \&\&\ \[\ \"\$\(\g\i\t\ \c\o\n\f\i\g\ \-\-\g\e\t\ \c\o\d\e\s\p\a\c\e\s\-\t\h\e\m\e\.\h\i\d\e\-\s\t\a\t\u\s\ \2\>\/\d\e\v\/\n\u\l\l\)\"\ \!\=\ \1\ \]\;\ \t\h\e\n\ \\\
+\ \ \ \ \ \ \ \ \ \ \ \ \e\x\p\o\r\t\ \B\R\A\N\C\H\=\"\$\(\g\i\t\ \-\-\n\o\-\o\p\t\i\o\n\a\l\-\l\o\c\k\s\ \s\y\m\b\o\l\i\c\-\r\e\f\ \-\-\s\h\o\r\t\ \H\E\A\D\ \2\>\/\d\e\v\/\n\u\l\l\ \|\|\ \g\i\t\ \-\-\n\o\-\o\p\t\i\o\n\a\l\-\l\o\c\k\s\ \r\e\v\-\p\a\r\s\e\ \-\-\s\h\o\r\t\ \H\E\A\D\ \2\>\/\d\e\v\/\n\u\l\l\)\"\;\ \\\
+\ \ \ \ \ \ \ \ \ \ \ \ \i\f\ \[\ \"\$\{\B\R\A\N\C\H\:\-\}\"\ \!\=\ \"\"\ \]\;\ \t\h\e\n\ \\\
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \e\c\h\o\ \-\n\ \"\\\[\\\0\3\3\[\0\;\3\6\m\\\]\(\\\[\\\0\3\3\[\1\;\3\1\m\\\]\$\{\B\R\A\N\C\H\:\-\}\"\ \\\
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \&\&\ \i\f\ \[\ \"\$\(\g\i\t\ \c\o\n\f\i\g\ \-\-\g\e\t\ \d\e\v\c\o\n\t\a\i\n\e\r\s\-\t\h\e\m\e\.\s\h\o\w\-\d\i\r\t\y\ \2\>\/\d\e\v\/\n\u\l\l\)\"\ \=\ \1\ \]\ \&\&\ \\\
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \g\i\t\ \-\-\n\o\-\o\p\t\i\o\n\a\l\-\l\o\c\k\s\ \l\s\-\f\i\l\e\s\ \-\-\e\r\r\o\r\-\u\n\m\a\t\c\h\ \-\m\ \-\-\d\i\r\e\c\t\o\r\y\ \-\-\n\o\-\e\m\p\t\y\-\d\i\r\e\c\t\o\r\y\ \-\o\ \-\-\e\x\c\l\u\d\e\-\s\t\a\n\d\a\r\d\ \"\:\/\*\"\ \>\ \/\d\e\v\/\n\u\l\l\ \2\>\&\1\;\ \t\h\e\n\ \\\
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \e\c\h\o\ \-\n\ \"\ \\\[\\\0\3\3\[\1\;\3\3\m\\\]\✗\"\;\ \\\
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \f\i\ \\\
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \&\&\ \e\c\h\o\ \-\n\ \"\\\[\\\0\3\3\[\0\;\3\6\m\\\]\)\ \"\;\ \\\
+\ \ \ \ \ \ \ \ \ \ \ \ \f\i\;\ \\\
+\ \ \ \ \ \ \ \ \f\i\`\\\[\\\0\3\3\[\0\m\\\]\$\ \\\[\\]\6\3\3\;\B\\\\] ]]
+++ [[ \[]633;F\]> \[]633;G\] == '' ]]
+++ [[ \[]633;F\]> \[]633;G\] != \\\[\\]\6\3\3\;\F\\\\]\>\ \\\[\\]\6\3\3\;\G\\\\] ]]
+++ __vsc_in_command_execution=0
+++ __vsc_update_env
+++ [[ 0 -gt 0 ]]
+++ export XIT=130
+++ XIT=130
+++ '[' '!' -z engaboali9226-mastoura ']'
+++ echo -n '[0;32m@engaboali9226-mastoura '
+++ '[' 130 -ne 0 ']'
+++ echo -n '[1;31m➜'
++++ git config --get devcontainers-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git config --get codespaces-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git --no-optional-locks symbolic-ref --short HEAD
+++ export BRANCH=main
+++ BRANCH=main
+++ '[' main '!=' '' ']'
+++ echo -n '[0;36m([1;31mmain'
++++ git config --get devcontainers-theme.show-dirty
+++ '[' '' = 1 ']'
+++ echo -n '[0;36m) '
+[?2004h]633;A[0;32m@engaboali9226-mastoura [1;31m➜ [1;34m/workspaces/work-tracker_OS/packages/events [0;36m([1;31mmain[0;36m) [0m$ ]633;Bqqqq^C[?2004l[?2004h[?2004l
++++ __vsc_preexec_only date
++++ '[' 0 = 0 ']'
++++ __vsc_in_command_execution=1
++++ __vsc_preexec
++++ __vsc_initialized=1
++++ [[ ! __vsc_prompt_cmd == __vsc_prompt* ]]
++++ __vsc_current_command=
++++ __vsc_command_output_start
++++ [[ -z 1 ]]
+++++ __vsc_escape_value ''
+++++ '[' 0 -ge 2000 ']'
+++++ builtin local -r LC_ALL=C
+++++ builtin local -r str=
+++++ builtin local -ir len=0
+++++ builtin local -i i
+++++ builtin local -i val
+++++ builtin local byte
+++++ builtin local token
+++++ builtin local out=
+++++ (( i=0 ))
+++++ (( i < 0 ))
+++++ builtin printf '%s\n' ''
++++ builtin printf '\e]633;E;%s;%s\a' '' ea7e2404-8b62-423a-a792-04b3ee104902
+]633;E;;ea7e2404-8b62-423a-a792-04b3ee104902+++ builtin printf '\e]633;C\a'
+]633;C++ __vsc_prompt_cmd
+++ __vsc_status=130
+++ __vsc_precmd
+++ __vsc_command_complete 130
+++ [[ -z 1 ]]
+++ '[' '' = '' ']'
+++ builtin printf '\e]633;D\a'
+]633;D++ __vsc_update_cwd
+++ '[' 0 = 1 ']'
+++ __vsc_cwd=/workspaces/work-tracker_OS/packages/events
++++ __vsc_escape_value /workspaces/work-tracker_OS/packages/events
++++ '[' 43 -ge 2000 ']'
++++ builtin local -r LC_ALL=C
++++ builtin local -r str=/workspaces/work-tracker_OS/packages/events
++++ builtin local -ir len=43
++++ builtin local -i i
++++ builtin local -i val
++++ builtin local byte
++++ builtin local token
++++ builtin local out=
++++ (( i=0 ))
++++ (( i < 43 ))
++++ byte=/
++++ builtin printf -v val %d ''\''/'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=/
++++ out+=/
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=w
++++ builtin printf -v val %d ''\''w'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=w
++++ out+=w
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=o
++++ builtin printf -v val %d ''\''o'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=o
++++ out+=o
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=r
++++ builtin printf -v val %d ''\''r'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=r
++++ out+=r
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=k
++++ builtin printf -v val %d ''\''k'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=k
++++ out+=k
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=s
++++ builtin printf -v val %d ''\''s'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=s
++++ out+=s
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=p
++++ builtin printf -v val %d ''\''p'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=p
++++ out+=p
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=a
++++ builtin printf -v val %d ''\''a'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=a
++++ out+=a
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=c
++++ builtin printf -v val %d ''\''c'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=c
++++ out+=c
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=e
++++ builtin printf -v val %d ''\''e'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=e
++++ out+=e
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=s
++++ builtin printf -v val %d ''\''s'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=s
++++ out+=s
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=/
++++ builtin printf -v val %d ''\''/'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=/
++++ out+=/
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=w
++++ builtin printf -v val %d ''\''w'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=w
++++ out+=w
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=o
++++ builtin printf -v val %d ''\''o'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=o
++++ out+=o
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=r
++++ builtin printf -v val %d ''\''r'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=r
++++ out+=r
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=k
++++ builtin printf -v val %d ''\''k'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=k
++++ out+=k
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=-
++++ builtin printf -v val %d ''\''-'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=-
++++ out+=-
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=t
++++ builtin printf -v val %d ''\''t'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=t
++++ out+=t
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=r
++++ builtin printf -v val %d ''\''r'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=r
++++ out+=r
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=a
++++ builtin printf -v val %d ''\''a'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=a
++++ out+=a
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=c
++++ builtin printf -v val %d ''\''c'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=c
++++ out+=c
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=k
++++ builtin printf -v val %d ''\''k'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=k
++++ out+=k
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=e
++++ builtin printf -v val %d ''\''e'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=e
++++ out+=e
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=r
++++ builtin printf -v val %d ''\''r'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=r
++++ out+=r
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=_
++++ builtin printf -v val %d ''\''_'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=_
++++ out+=_
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=O
++++ builtin printf -v val %d ''\''O'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=O
++++ out+=O
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=S
++++ builtin printf -v val %d ''\''S'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=S
++++ out+=S
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=/
++++ builtin printf -v val %d ''\''/'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=/
++++ out+=/
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=p
++++ builtin printf -v val %d ''\''p'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=p
++++ out+=p
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=a
++++ builtin printf -v val %d ''\''a'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=a
++++ out+=a
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=c
++++ builtin printf -v val %d ''\''c'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=c
++++ out+=c
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=k
++++ builtin printf -v val %d ''\''k'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=k
++++ out+=k
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=a
++++ builtin printf -v val %d ''\''a'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=a
++++ out+=a
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=g
++++ builtin printf -v val %d ''\''g'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=g
++++ out+=g
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=e
++++ builtin printf -v val %d ''\''e'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=e
++++ out+=e
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=s
++++ builtin printf -v val %d ''\''s'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=s
++++ out+=s
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=/
++++ builtin printf -v val %d ''\''/'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=/
++++ out+=/
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=e
++++ builtin printf -v val %d ''\''e'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=e
++++ out+=e
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=v
++++ builtin printf -v val %d ''\''v'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=v
++++ out+=v
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=e
++++ builtin printf -v val %d ''\''e'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=e
++++ out+=e
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=n
++++ builtin printf -v val %d ''\''n'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=n
++++ out+=n
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=t
++++ builtin printf -v val %d ''\''t'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=t
++++ out+=t
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=s
++++ builtin printf -v val %d ''\''s'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=s
++++ out+=s
++++ (( ++i  ))
++++ (( i < 43 ))
++++ builtin printf '%s\n' /workspaces/work-tracker_OS/packages/events
+++ builtin printf '\e]633;P;Cwd=%s\a' /workspaces/work-tracker_OS/packages/events
+]633;P;Cwd=/workspaces/work-tracker_OS/packages/events++ __vsc_current_command=
+++ '[' 1 = 0 ']'
+++ __vsc_first_prompt=1
+++ __vsc_update_prompt
+++ '[' 1 = 1 ']'
+++ [[ \[]633;A\]`export XIT=$? \
+        && [ ! -z "${GITHUB_USER:-}" ] && echo -n "\[\033[0;32m\]@${GITHUB_USER:-} " || echo -n "\[\033[0;32m\]\u " \
+        && [ "$XIT" -ne "0" ] && echo -n "\[\033[1;31m\]➜" || echo -n "\[\033[0m\]➜"` \[\033[1;34m\]\w `\
+        if [ "$(git config --get devcontainers-theme.hide-status 2>/dev/null)" != 1 ] && [ "$(git config --get codespaces-theme.hide-status 2>/dev/null)" != 1 ]; then \
+            export BRANCH="$(git --no-optional-locks symbolic-ref --short HEAD 2>/dev/null || git --no-optional-locks rev-parse --short HEAD 2>/dev/null)"; \
+            if [ "${BRANCH:-}" != "" ]; then \
+                echo -n "\[\033[0;36m\](\[\033[1;31m\]${BRANCH:-}" \
+                && if [ "$(git config --get devcontainers-theme.show-dirty 2>/dev/null)" = 1 ] && \
+                    git --no-optional-locks ls-files --error-unmatch -m --directory --no-empty-directory -o --exclude-standard ":/*" > /dev/null 2>&1; then \
+                        echo -n " \[\033[1;33m\]✗"; \
+                fi \
+                && echo -n "\[\033[0;36m\]) "; \
+            fi; \
+        fi`\[\033[0m\]$ \[]633;B\] == '' ]]
+++ [[ \[]633;A\]`export XIT=$? \
+        && [ ! -z "${GITHUB_USER:-}" ] && echo -n "\[\033[0;32m\]@${GITHUB_USER:-} " || echo -n "\[\033[0;32m\]\u " \
+        && [ "$XIT" -ne "0" ] && echo -n "\[\033[1;31m\]➜" || echo -n "\[\033[0m\]➜"` \[\033[1;34m\]\w `\
+        if [ "$(git config --get devcontainers-theme.hide-status 2>/dev/null)" != 1 ] && [ "$(git config --get codespaces-theme.hide-status 2>/dev/null)" != 1 ]; then \
+            export BRANCH="$(git --no-optional-locks symbolic-ref --short HEAD 2>/dev/null || git --no-optional-locks rev-parse --short HEAD 2>/dev/null)"; \
+            if [ "${BRANCH:-}" != "" ]; then \
+                echo -n "\[\033[0;36m\](\[\033[1;31m\]${BRANCH:-}" \
+                && if [ "$(git config --get devcontainers-theme.show-dirty 2>/dev/null)" = 1 ] && \
+                    git --no-optional-locks ls-files --error-unmatch -m --directory --no-empty-directory -o --exclude-standard ":/*" > /dev/null 2>&1; then \
+                        echo -n " \[\033[1;33m\]✗"; \
+                fi \
+                && echo -n "\[\033[0;36m\]) "; \
+            fi; \
+        fi`\[\033[0m\]$ \[]633;B\] != \\\[\\]\6\3\3\;\A\\\\]\`\e\x\p\o\r\t\ \X\I\T\=\$\?\ \\\
+\ \ \ \ \ \ \ \ \&\&\ \[\ \!\ \-\z\ \"\$\{\G\I\T\H\U\B\_\U\S\E\R\:\-\}\"\ \]\ \&\&\ \e\c\h\o\ \-\n\ \"\\\[\\\0\3\3\[\0\;\3\2\m\\\]\@\$\{\G\I\T\H\U\B\_\U\S\E\R\:\-\}\ \"\ \|\|\ \e\c\h\o\ \-\n\ \"\\\[\\\0\3\3\[\0\;\3\2\m\\\]\\\u\ \"\ \\\
+\ \ \ \ \ \ \ \ \&\&\ \[\ \"\$\X\I\T\"\ \-\n\e\ \"\0\"\ \]\ \&\&\ \e\c\h\o\ \-\n\ \"\\\[\\\0\3\3\[\1\;\3\1\m\\\]\➜\"\ \|\|\ \e\c\h\o\ \-\n\ \"\\\[\\\0\3\3\[\0\m\\\]\➜\"\`\ \\\[\\\0\3\3\[\1\;\3\4\m\\\]\\\w\ \`\\\
+\ \ \ \ \ \ \ \ \i\f\ \[\ \"\$\(\g\i\t\ \c\o\n\f\i\g\ \-\-\g\e\t\ \d\e\v\c\o\n\t\a\i\n\e\r\s\-\t\h\e\m\e\.\h\i\d\e\-\s\t\a\t\u\s\ \2\>\/\d\e\v\/\n\u\l\l\)\"\ \!\=\ \1\ \]\ \&\&\ \[\ \"\$\(\g\i\t\ \c\o\n\f\i\g\ \-\-\g\e\t\ \c\o\d\e\s\p\a\c\e\s\-\t\h\e\m\e\.\h\i\d\e\-\s\t\a\t\u\s\ \2\>\/\d\e\v\/\n\u\l\l\)\"\ \!\=\ \1\ \]\;\ \t\h\e\n\ \\\
+\ \ \ \ \ \ \ \ \ \ \ \ \e\x\p\o\r\t\ \B\R\A\N\C\H\=\"\$\(\g\i\t\ \-\-\n\o\-\o\p\t\i\o\n\a\l\-\l\o\c\k\s\ \s\y\m\b\o\l\i\c\-\r\e\f\ \-\-\s\h\o\r\t\ \H\E\A\D\ \2\>\/\d\e\v\/\n\u\l\l\ \|\|\ \g\i\t\ \-\-\n\o\-\o\p\t\i\o\n\a\l\-\l\o\c\k\s\ \r\e\v\-\p\a\r\s\e\ \-\-\s\h\o\r\t\ \H\E\A\D\ \2\>\/\d\e\v\/\n\u\l\l\)\"\;\ \\\
+\ \ \ \ \ \ \ \ \ \ \ \ \i\f\ \[\ \"\$\{\B\R\A\N\C\H\:\-\}\"\ \!\=\ \"\"\ \]\;\ \t\h\e\n\ \\\
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \e\c\h\o\ \-\n\ \"\\\[\\\0\3\3\[\0\;\3\6\m\\\]\(\\\[\\\0\3\3\[\1\;\3\1\m\\\]\$\{\B\R\A\N\C\H\:\-\}\"\ \\\
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \&\&\ \i\f\ \[\ \"\$\(\g\i\t\ \c\o\n\f\i\g\ \-\-\g\e\t\ \d\e\v\c\o\n\t\a\i\n\e\r\s\-\t\h\e\m\e\.\s\h\o\w\-\d\i\r\t\y\ \2\>\/\d\e\v\/\n\u\l\l\)\"\ \=\ \1\ \]\ \&\&\ \\\
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \g\i\t\ \-\-\n\o\-\o\p\t\i\o\n\a\l\-\l\o\c\k\s\ \l\s\-\f\i\l\e\s\ \-\-\e\r\r\o\r\-\u\n\m\a\t\c\h\ \-\m\ \-\-\d\i\r\e\c\t\o\r\y\ \-\-\n\o\-\e\m\p\t\y\-\d\i\r\e\c\t\o\r\y\ \-\o\ \-\-\e\x\c\l\u\d\e\-\s\t\a\n\d\a\r\d\ \"\:\/\*\"\ \>\ \/\d\e\v\/\n\u\l\l\ \2\>\&\1\;\ \t\h\e\n\ \\\
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \e\c\h\o\ \-\n\ \"\ \\\[\\\0\3\3\[\1\;\3\3\m\\\]\✗\"\;\ \\\
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \f\i\ \\\
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \&\&\ \e\c\h\o\ \-\n\ \"\\\[\\\0\3\3\[\0\;\3\6\m\\\]\)\ \"\;\ \\\
+\ \ \ \ \ \ \ \ \ \ \ \ \f\i\;\ \\\
+\ \ \ \ \ \ \ \ \f\i\`\\\[\\\0\3\3\[\0\m\\\]\$\ \\\[\\]\6\3\3\;\B\\\\] ]]
+++ [[ \[]633;F\]> \[]633;G\] == '' ]]
+++ [[ \[]633;F\]> \[]633;G\] != \\\[\\]\6\3\3\;\F\\\\]\>\ \\\[\\]\6\3\3\;\G\\\\] ]]
+++ __vsc_in_command_execution=0
+++ __vsc_update_env
+++ [[ 0 -gt 0 ]]
+++ export XIT=130
+++ XIT=130
+++ '[' '!' -z engaboali9226-mastoura ']'
+++ echo -n '[0;32m@engaboali9226-mastoura '
+++ '[' 130 -ne 0 ']'
+++ echo -n '[1;31m➜'
++++ git config --get devcontainers-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git config --get codespaces-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git --no-optional-locks symbolic-ref --short HEAD
+++ export BRANCH=main
+++ BRANCH=main
+++ '[' main '!=' '' ']'
+++ echo -n '[0;36m([1;31mmain'
++++ git config --get devcontainers-theme.show-dirty
+++ '[' '' = 1 ']'
+++ echo -n '[0;36m) '
+[?2004h]633;A[0;32m@engaboali9226-mastoura [1;31m➜ [1;34m/workspaces/work-tracker_OS/packages/events [0;36m([1;31mmain[0;36m) [0m$ ]633;B^C[?2004l[?2004h[?2004l
++++ __vsc_preexec_only date
++++ '[' 0 = 0 ']'
++++ __vsc_in_command_execution=1
++++ __vsc_preexec
++++ __vsc_initialized=1
++++ [[ ! __vsc_prompt_cmd == __vsc_prompt* ]]
++++ __vsc_current_command=
++++ __vsc_command_output_start
++++ [[ -z 1 ]]
+++++ __vsc_escape_value ''
+++++ '[' 0 -ge 2000 ']'
+++++ builtin local -r LC_ALL=C
+++++ builtin local -r str=
+++++ builtin local -ir len=0
+++++ builtin local -i i
+++++ builtin local -i val
+++++ builtin local byte
+++++ builtin local token
+++++ builtin local out=
+++++ (( i=0 ))
+++++ (( i < 0 ))
+++++ builtin printf '%s\n' ''
++++ builtin printf '\e]633;E;%s;%s\a' '' ea7e2404-8b62-423a-a792-04b3ee104902
+]633;E;;ea7e2404-8b62-423a-a792-04b3ee104902+++ builtin printf '\e]633;C\a'
+]633;C++ __vsc_prompt_cmd
+++ __vsc_status=130
+++ __vsc_precmd
+++ __vsc_command_complete 130
+++ [[ -z 1 ]]
+++ '[' '' = '' ']'
+++ builtin printf '\e]633;D\a'
+]633;D++ __vsc_update_cwd
+++ '[' 0 = 1 ']'
+++ __vsc_cwd=/workspaces/work-tracker_OS/packages/events
++++ __vsc_escape_value /workspaces/work-tracker_OS/packages/events
++++ '[' 43 -ge 2000 ']'
++++ builtin local -r LC_ALL=C
++++ builtin local -r str=/workspaces/work-tracker_OS/packages/events
++++ builtin local -ir len=43
++++ builtin local -i i
++++ builtin local -i val
++++ builtin local byte
++++ builtin local token
++++ builtin local out=
++++ (( i=0 ))
++++ (( i < 43 ))
++++ byte=/
++++ builtin printf -v val %d ''\''/'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=/
++++ out+=/
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=w
++++ builtin printf -v val %d ''\''w'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=w
++++ out+=w
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=o
++++ builtin printf -v val %d ''\''o'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=o
++++ out+=o
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=r
++++ builtin printf -v val %d ''\''r'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=r
++++ out+=r
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=k
++++ builtin printf -v val %d ''\''k'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=k
++++ out+=k
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=s
++++ builtin printf -v val %d ''\''s'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=s
++++ out+=s
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=p
++++ builtin printf -v val %d ''\''p'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=p
++++ out+=p
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=a
++++ builtin printf -v val %d ''\''a'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=a
++++ out+=a
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=c
++++ builtin printf -v val %d ''\''c'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=c
++++ out+=c
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=e
++++ builtin printf -v val %d ''\''e'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=e
++++ out+=e
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=s
++++ builtin printf -v val %d ''\''s'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=s
++++ out+=s
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=/
++++ builtin printf -v val %d ''\''/'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=/
++++ out+=/
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=w
++++ builtin printf -v val %d ''\''w'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=w
++++ out+=w
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=o
++++ builtin printf -v val %d ''\''o'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=o
++++ out+=o
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=r
++++ builtin printf -v val %d ''\''r'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=r
++++ out+=r
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=k
++++ builtin printf -v val %d ''\''k'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=k
++++ out+=k
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=-
++++ builtin printf -v val %d ''\''-'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=-
++++ out+=-
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=t
++++ builtin printf -v val %d ''\''t'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=t
++++ out+=t
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=r
++++ builtin printf -v val %d ''\''r'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=r
++++ out+=r
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=a
++++ builtin printf -v val %d ''\''a'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=a
++++ out+=a
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=c
++++ builtin printf -v val %d ''\''c'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=c
++++ out+=c
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=k
++++ builtin printf -v val %d ''\''k'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=k
++++ out+=k
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=e
++++ builtin printf -v val %d ''\''e'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=e
++++ out+=e
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=r
++++ builtin printf -v val %d ''\''r'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=r
++++ out+=r
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=_
++++ builtin printf -v val %d ''\''_'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=_
++++ out+=_
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=O
++++ builtin printf -v val %d ''\''O'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=O
++++ out+=O
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=S
++++ builtin printf -v val %d ''\''S'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=S
++++ out+=S
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=/
++++ builtin printf -v val %d ''\''/'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=/
++++ out+=/
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=p
++++ builtin printf -v val %d ''\''p'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=p
++++ out+=p
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=a
++++ builtin printf -v val %d ''\''a'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=a
++++ out+=a
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=c
++++ builtin printf -v val %d ''\''c'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=c
++++ out+=c
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=k
++++ builtin printf -v val %d ''\''k'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=k
++++ out+=k
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=a
++++ builtin printf -v val %d ''\''a'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=a
++++ out+=a
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=g
++++ builtin printf -v val %d ''\''g'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=g
++++ out+=g
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=e
++++ builtin printf -v val %d ''\''e'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=e
++++ out+=e
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=s
++++ builtin printf -v val %d ''\''s'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=s
++++ out+=s
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=/
++++ builtin printf -v val %d ''\''/'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=/
++++ out+=/
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=e
++++ builtin printf -v val %d ''\''e'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=e
++++ out+=e
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=v
++++ builtin printf -v val %d ''\''v'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=v
++++ out+=v
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=e
++++ builtin printf -v val %d ''\''e'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=e
++++ out+=e
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=n
++++ builtin printf -v val %d ''\''n'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=n
++++ out+=n
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=t
++++ builtin printf -v val %d ''\''t'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=t
++++ out+=t
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=s
++++ builtin printf -v val %d ''\''s'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=s
++++ out+=s
++++ (( ++i  ))
++++ (( i < 43 ))
++++ builtin printf '%s\n' /workspaces/work-tracker_OS/packages/events
+++ builtin printf '\e]633;P;Cwd=%s\a' /workspaces/work-tracker_OS/packages/events
+]633;P;Cwd=/workspaces/work-tracker_OS/packages/events++ __vsc_current_command=
+++ '[' 1 = 0 ']'
+++ __vsc_first_prompt=1
+++ __vsc_update_prompt
+++ '[' 1 = 1 ']'
+++ [[ \[]633;A\]`export XIT=$? \
+        && [ ! -z "${GITHUB_USER:-}" ] && echo -n "\[\033[0;32m\]@${GITHUB_USER:-} " || echo -n "\[\033[0;32m\]\u " \
+        && [ "$XIT" -ne "0" ] && echo -n "\[\033[1;31m\]➜" || echo -n "\[\033[0m\]➜"` \[\033[1;34m\]\w `\
+        if [ "$(git config --get devcontainers-theme.hide-status 2>/dev/null)" != 1 ] && [ "$(git config --get codespaces-theme.hide-status 2>/dev/null)" != 1 ]; then \
+            export BRANCH="$(git --no-optional-locks symbolic-ref --short HEAD 2>/dev/null || git --no-optional-locks rev-parse --short HEAD 2>/dev/null)"; \
+            if [ "${BRANCH:-}" != "" ]; then \
+                echo -n "\[\033[0;36m\](\[\033[1;31m\]${BRANCH:-}" \
+                && if [ "$(git config --get devcontainers-theme.show-dirty 2>/dev/null)" = 1 ] && \
+                    git --no-optional-locks ls-files --error-unmatch -m --directory --no-empty-directory -o --exclude-standard ":/*" > /dev/null 2>&1; then \
+                        echo -n " \[\033[1;33m\]✗"; \
+                fi \
+                && echo -n "\[\033[0;36m\]) "; \
+            fi; \
+        fi`\[\033[0m\]$ \[]633;B\] == '' ]]
+++ [[ \[]633;A\]`export XIT=$? \
+        && [ ! -z "${GITHUB_USER:-}" ] && echo -n "\[\033[0;32m\]@${GITHUB_USER:-} " || echo -n "\[\033[0;32m\]\u " \
+        && [ "$XIT" -ne "0" ] && echo -n "\[\033[1;31m\]➜" || echo -n "\[\033[0m\]➜"` \[\033[1;34m\]\w `\
+        if [ "$(git config --get devcontainers-theme.hide-status 2>/dev/null)" != 1 ] && [ "$(git config --get codespaces-theme.hide-status 2>/dev/null)" != 1 ]; then \
+            export BRANCH="$(git --no-optional-locks symbolic-ref --short HEAD 2>/dev/null || git --no-optional-locks rev-parse --short HEAD 2>/dev/null)"; \
+            if [ "${BRANCH:-}" != "" ]; then \
+                echo -n "\[\033[0;36m\](\[\033[1;31m\]${BRANCH:-}" \
+                && if [ "$(git config --get devcontainers-theme.show-dirty 2>/dev/null)" = 1 ] && \
+                    git --no-optional-locks ls-files --error-unmatch -m --directory --no-empty-directory -o --exclude-standard ":/*" > /dev/null 2>&1; then \
+                        echo -n " \[\033[1;33m\]✗"; \
+                fi \
+                && echo -n "\[\033[0;36m\]) "; \
+            fi; \
+        fi`\[\033[0m\]$ \[]633;B\] != \\\[\\]\6\3\3\;\A\\\\]\`\e\x\p\o\r\t\ \X\I\T\=\$\?\ \\\
+\ \ \ \ \ \ \ \ \&\&\ \[\ \!\ \-\z\ \"\$\{\G\I\T\H\U\B\_\U\S\E\R\:\-\}\"\ \]\ \&\&\ \e\c\h\o\ \-\n\ \"\\\[\\\0\3\3\[\0\;\3\2\m\\\]\@\$\{\G\I\T\H\U\B\_\U\S\E\R\:\-\}\ \"\ \|\|\ \e\c\h\o\ \-\n\ \"\\\[\\\0\3\3\[\0\;\3\2\m\\\]\\\u\ \"\ \\\
+\ \ \ \ \ \ \ \ \&\&\ \[\ \"\$\X\I\T\"\ \-\n\e\ \"\0\"\ \]\ \&\&\ \e\c\h\o\ \-\n\ \"\\\[\\\0\3\3\[\1\;\3\1\m\\\]\➜\"\ \|\|\ \e\c\h\o\ \-\n\ \"\\\[\\\0\3\3\[\0\m\\\]\➜\"\`\ \\\[\\\0\3\3\[\1\;\3\4\m\\\]\\\w\ \`\\\
+\ \ \ \ \ \ \ \ \i\f\ \[\ \"\$\(\g\i\t\ \c\o\n\f\i\g\ \-\-\g\e\t\ \d\e\v\c\o\n\t\a\i\n\e\r\s\-\t\h\e\m\e\.\h\i\d\e\-\s\t\a\t\u\s\ \2\>\/\d\e\v\/\n\u\l\l\)\"\ \!\=\ \1\ \]\ \&\&\ \[\ \"\$\(\g\i\t\ \c\o\n\f\i\g\ \-\-\g\e\t\ \c\o\d\e\s\p\a\c\e\s\-\t\h\e\m\e\.\h\i\d\e\-\s\t\a\t\u\s\ \2\>\/\d\e\v\/\n\u\l\l\)\"\ \!\=\ \1\ \]\;\ \t\h\e\n\ \\\
+\ \ \ \ \ \ \ \ \ \ \ \ \e\x\p\o\r\t\ \B\R\A\N\C\H\=\"\$\(\g\i\t\ \-\-\n\o\-\o\p\t\i\o\n\a\l\-\l\o\c\k\s\ \s\y\m\b\o\l\i\c\-\r\e\f\ \-\-\s\h\o\r\t\ \H\E\A\D\ \2\>\/\d\e\v\/\n\u\l\l\ \|\|\ \g\i\t\ \-\-\n\o\-\o\p\t\i\o\n\a\l\-\l\o\c\k\s\ \r\e\v\-\p\a\r\s\e\ \-\-\s\h\o\r\t\ \H\E\A\D\ \2\>\/\d\e\v\/\n\u\l\l\)\"\;\ \\\
+\ \ \ \ \ \ \ \ \ \ \ \ \i\f\ \[\ \"\$\{\B\R\A\N\C\H\:\-\}\"\ \!\=\ \"\"\ \]\;\ \t\h\e\n\ \\\
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \e\c\h\o\ \-\n\ \"\\\[\\\0\3\3\[\0\;\3\6\m\\\]\(\\\[\\\0\3\3\[\1\;\3\1\m\\\]\$\{\B\R\A\N\C\H\:\-\}\"\ \\\
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \&\&\ \i\f\ \[\ \"\$\(\g\i\t\ \c\o\n\f\i\g\ \-\-\g\e\t\ \d\e\v\c\o\n\t\a\i\n\e\r\s\-\t\h\e\m\e\.\s\h\o\w\-\d\i\r\t\y\ \2\>\/\d\e\v\/\n\u\l\l\)\"\ \=\ \1\ \]\ \&\&\ \\\
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \g\i\t\ \-\-\n\o\-\o\p\t\i\o\n\a\l\-\l\o\c\k\s\ \l\s\-\f\i\l\e\s\ \-\-\e\r\r\o\r\-\u\n\m\a\t\c\h\ \-\m\ \-\-\d\i\r\e\c\t\o\r\y\ \-\-\n\o\-\e\m\p\t\y\-\d\i\r\e\c\t\o\r\y\ \-\o\ \-\-\e\x\c\l\u\d\e\-\s\t\a\n\d\a\r\d\ \"\:\/\*\"\ \>\ \/\d\e\v\/\n\u\l\l\ \2\>\&\1\;\ \t\h\e\n\ \\\
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \e\c\h\o\ \-\n\ \"\ \\\[\\\0\3\3\[\1\;\3\3\m\\\]\✗\"\;\ \\\
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \f\i\ \\\
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \&\&\ \e\c\h\o\ \-\n\ \"\\\[\\\0\3\3\[\0\;\3\6\m\\\]\)\ \"\;\ \\\
+\ \ \ \ \ \ \ \ \ \ \ \ \f\i\;\ \\\
+\ \ \ \ \ \ \ \ \f\i\`\\\[\\\0\3\3\[\0\m\\\]\$\ \\\[\\]\6\3\3\;\B\\\\] ]]
+++ [[ \[]633;F\]> \[]633;G\] == '' ]]
+++ [[ \[]633;F\]> \[]633;G\] != \\\[\\]\6\3\3\;\F\\\\]\>\ \\\[\\]\6\3\3\;\G\\\\] ]]
+++ __vsc_in_command_execution=0
+++ __vsc_update_env
+++ [[ 0 -gt 0 ]]
+++ export XIT=130
+++ XIT=130
+++ '[' '!' -z engaboali9226-mastoura ']'
+++ echo -n '[0;32m@engaboali9226-mastoura '
+++ '[' 130 -ne 0 ']'
+++ echo -n '[1;31m➜'
++++ git config --get devcontainers-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git config --get codespaces-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git --no-optional-locks symbolic-ref --short HEAD
+++ export BRANCH=main
+++ BRANCH=main
+++ '[' main '!=' '' ']'
+++ echo -n '[0;36m([1;31mmain'
++++ git config --get devcontainers-theme.show-dirty
+++ '[' '' = 1 ']'
+++ echo -n '[0;36m) '
+[?2004h]633;A[0;32m@engaboali9226-mastoura [1;31m➜ [1;34m/workspaces/work-tracker_OS/packages/events [0;36m([1;31mmain[0;36m) [0m$ ]633;B^C[?2004l[?2004h[?2004l
++++ __vsc_preexec_only date
++++ '[' 0 = 0 ']'
++++ __vsc_in_command_execution=1
++++ __vsc_preexec
++++ __vsc_initialized=1
++++ [[ ! __vsc_prompt_cmd == __vsc_prompt* ]]
++++ __vsc_current_command=
++++ __vsc_command_output_start
++++ [[ -z 1 ]]
+++++ __vsc_escape_value ''
+++++ '[' 0 -ge 2000 ']'
+++++ builtin local -r LC_ALL=C
+++++ builtin local -r str=
+++++ builtin local -ir len=0
+++++ builtin local -i i
+++++ builtin local -i val
+++++ builtin local byte
+++++ builtin local token
+++++ builtin local out=
+++++ (( i=0 ))
+++++ (( i < 0 ))
+++++ builtin printf '%s\n' ''
++++ builtin printf '\e]633;E;%s;%s\a' '' ea7e2404-8b62-423a-a792-04b3ee104902
+]633;E;;ea7e2404-8b62-423a-a792-04b3ee104902+++ builtin printf '\e]633;C\a'
+]633;C++ __vsc_prompt_cmd
+++ __vsc_status=130
+++ __vsc_precmd
+++ __vsc_command_complete 130
+++ [[ -z 1 ]]
+++ '[' '' = '' ']'
+++ builtin printf '\e]633;D\a'
+]633;D++ __vsc_update_cwd
+++ '[' 0 = 1 ']'
+++ __vsc_cwd=/workspaces/work-tracker_OS/packages/events
++++ __vsc_escape_value /workspaces/work-tracker_OS/packages/events
++++ '[' 43 -ge 2000 ']'
++++ builtin local -r LC_ALL=C
++++ builtin local -r str=/workspaces/work-tracker_OS/packages/events
++++ builtin local -ir len=43
++++ builtin local -i i
++++ builtin local -i val
++++ builtin local byte
++++ builtin local token
++++ builtin local out=
++++ (( i=0 ))
++++ (( i < 43 ))
++++ byte=/
++++ builtin printf -v val %d ''\''/'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=/
++++ out+=/
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=w
++++ builtin printf -v val %d ''\''w'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=w
++++ out+=w
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=o
++++ builtin printf -v val %d ''\''o'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=o
++++ out+=o
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=r
++++ builtin printf -v val %d ''\''r'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=r
++++ out+=r
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=k
++++ builtin printf -v val %d ''\''k'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=k
++++ out+=k
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=s
++++ builtin printf -v val %d ''\''s'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=s
++++ out+=s
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=p
++++ builtin printf -v val %d ''\''p'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=p
++++ out+=p
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=a
++++ builtin printf -v val %d ''\''a'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=a
++++ out+=a
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=c
++++ builtin printf -v val %d ''\''c'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=c
++++ out+=c
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=e
++++ builtin printf -v val %d ''\''e'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=e
++++ out+=e
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=s
++++ builtin printf -v val %d ''\''s'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=s
++++ out+=s
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=/
++++ builtin printf -v val %d ''\''/'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=/
++++ out+=/
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=w
++++ builtin printf -v val %d ''\''w'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=w
++++ out+=w
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=o
++++ builtin printf -v val %d ''\''o'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=o
++++ out+=o
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=r
++++ builtin printf -v val %d ''\''r'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=r
++++ out+=r
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=k
++++ builtin printf -v val %d ''\''k'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=k
++++ out+=k
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=-
++++ builtin printf -v val %d ''\''-'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=-
++++ out+=-
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=t
++++ builtin printf -v val %d ''\''t'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=t
++++ out+=t
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=r
++++ builtin printf -v val %d ''\''r'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=r
++++ out+=r
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=a
++++ builtin printf -v val %d ''\''a'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=a
++++ out+=a
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=c
++++ builtin printf -v val %d ''\''c'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=c
++++ out+=c
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=k
++++ builtin printf -v val %d ''\''k'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=k
++++ out+=k
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=e
++++ builtin printf -v val %d ''\''e'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=e
++++ out+=e
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=r
++++ builtin printf -v val %d ''\''r'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=r
++++ out+=r
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=_
++++ builtin printf -v val %d ''\''_'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=_
++++ out+=_
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=O
++++ builtin printf -v val %d ''\''O'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=O
++++ out+=O
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=S
++++ builtin printf -v val %d ''\''S'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=S
++++ out+=S
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=/
++++ builtin printf -v val %d ''\''/'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=/
++++ out+=/
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=p
++++ builtin printf -v val %d ''\''p'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=p
++++ out+=p
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=a
++++ builtin printf -v val %d ''\''a'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=a
++++ out+=a
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=c
++++ builtin printf -v val %d ''\''c'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=c
++++ out+=c
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=k
++++ builtin printf -v val %d ''\''k'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=k
++++ out+=k
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=a
++++ builtin printf -v val %d ''\''a'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=a
++++ out+=a
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=g
++++ builtin printf -v val %d ''\''g'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=g
++++ out+=g
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=e
++++ builtin printf -v val %d ''\''e'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=e
++++ out+=e
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=s
++++ builtin printf -v val %d ''\''s'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=s
++++ out+=s
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=/
++++ builtin printf -v val %d ''\''/'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=/
++++ out+=/
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=e
++++ builtin printf -v val %d ''\''e'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=e
++++ out+=e
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=v
++++ builtin printf -v val %d ''\''v'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=v
++++ out+=v
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=e
++++ builtin printf -v val %d ''\''e'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=e
++++ out+=e
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=n
++++ builtin printf -v val %d ''\''n'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=n
++++ out+=n
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=t
++++ builtin printf -v val %d ''\''t'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=t
++++ out+=t
++++ (( ++i  ))
++++ (( i < 43 ))
++++ byte=s
++++ builtin printf -v val %d ''\''s'
++++ ((  val < 31  ))
++++ ((  val == 92  ))
++++ ((  val == 59  ))
++++ token=s
++++ out+=s
++++ (( ++i  ))
++++ (( i < 43 ))
++++ builtin printf '%s\n' /workspaces/work-tracker_OS/packages/events
+++ builtin printf '\e]633;P;Cwd=%s\a' /workspaces/work-tracker_OS/packages/events
+]633;P;Cwd=/workspaces/work-tracker_OS/packages/events++ __vsc_current_command=
+++ '[' 1 = 0 ']'
+++ __vsc_first_prompt=1
+++ __vsc_update_prompt
+++ '[' 1 = 1 ']'
+++ [[ \[]633;A\]`export XIT=$? \
+        && [ ! -z "${GITHUB_USER:-}" ] && echo -n "\[\033[0;32m\]@${GITHUB_USER:-} " || echo -n "\[\033[0;32m\]\u " \
+        && [ "$XIT" -ne "0" ] && echo -n "\[\033[1;31m\]➜" || echo -n "\[\033[0m\]➜"` \[\033[1;34m\]\w `\
+        if [ "$(git config --get devcontainers-theme.hide-status 2>/dev/null)" != 1 ] && [ "$(git config --get codespaces-theme.hide-status 2>/dev/null)" != 1 ]; then \
+            export BRANCH="$(git --no-optional-locks symbolic-ref --short HEAD 2>/dev/null || git --no-optional-locks rev-parse --short HEAD 2>/dev/null)"; \
+            if [ "${BRANCH:-}" != "" ]; then \
+                echo -n "\[\033[0;36m\](\[\033[1;31m\]${BRANCH:-}" \
+                && if [ "$(git config --get devcontainers-theme.show-dirty 2>/dev/null)" = 1 ] && \
+                    git --no-optional-locks ls-files --error-unmatch -m --directory --no-empty-directory -o --exclude-standard ":/*" > /dev/null 2>&1; then \
+                        echo -n " \[\033[1;33m\]✗"; \
+                fi \
+                && echo -n "\[\033[0;36m\]) "; \
+            fi; \
+        fi`\[\033[0m\]$ \[]633;B\] == '' ]]
+++ [[ \[]633;A\]`export XIT=$? \
+        && [ ! -z "${GITHUB_USER:-}" ] && echo -n "\[\033[0;32m\]@${GITHUB_USER:-} " || echo -n "\[\033[0;32m\]\u " \
+        && [ "$XIT" -ne "0" ] && echo -n "\[\033[1;31m\]➜" || echo -n "\[\033[0m\]➜"` \[\033[1;34m\]\w `\
+        if [ "$(git config --get devcontainers-theme.hide-status 2>/dev/null)" != 1 ] && [ "$(git config --get codespaces-theme.hide-status 2>/dev/null)" != 1 ]; then \
+            export BRANCH="$(git --no-optional-locks symbolic-ref --short HEAD 2>/dev/null || git --no-optional-locks rev-parse --short HEAD 2>/dev/null)"; \
+            if [ "${BRANCH:-}" != "" ]; then \
+                echo -n "\[\033[0;36m\](\[\033[1;31m\]${BRANCH:-}" \
+                && if [ "$(git config --get devcontainers-theme.show-dirty 2>/dev/null)" = 1 ] && \
+                    git --no-optional-locks ls-files --error-unmatch -m --directory --no-empty-directory -o --exclude-standard ":/*" > /dev/null 2>&1; then \
+                        echo -n " \[\033[1;33m\]✗"; \
+                fi \
+                && echo -n "\[\033[0;36m\]) "; \
+            fi; \
+        fi`\[\033[0m\]$ \[]633;B\] != \\\[\\]\6\3\3\;\A\\\\]\`\e\x\p\o\r\t\ \X\I\T\=\$\?\ \\\
+\ \ \ \ \ \ \ \ \&\&\ \[\ \!\ \-\z\ \"\$\{\G\I\T\H\U\B\_\U\S\E\R\:\-\}\"\ \]\ \&\&\ \e\c\h\o\ \-\n\ \"\\\[\\\0\3\3\[\0\;\3\2\m\\\]\@\$\{\G\I\T\H\U\B\_\U\S\E\R\:\-\}\ \"\ \|\|\ \e\c\h\o\ \-\n\ \"\\\[\\\0\3\3\[\0\;\3\2\m\\\]\\\u\ \"\ \\\
+\ \ \ \ \ \ \ \ \&\&\ \[\ \"\$\X\I\T\"\ \-\n\e\ \"\0\"\ \]\ \&\&\ \e\c\h\o\ \-\n\ \"\\\[\\\0\3\3\[\1\;\3\1\m\\\]\➜\"\ \|\|\ \e\c\h\o\ \-\n\ \"\\\[\\\0\3\3\[\0\m\\\]\➜\"\`\ \\\[\\\0\3\3\[\1\;\3\4\m\\\]\\\w\ \`\\\
+\ \ \ \ \ \ \ \ \i\f\ \[\ \"\$\(\g\i\t\ \c\o\n\f\i\g\ \-\-\g\e\t\ \d\e\v\c\o\n\t\a\i\n\e\r\s\-\t\h\e\m\e\.\h\i\d\e\-\s\t\a\t\u\s\ \2\>\/\d\e\v\/\n\u\l\l\)\"\ \!\=\ \1\ \]\ \&\&\ \[\ \"\$\(\g\i\t\ \c\o\n\f\i\g\ \-\-\g\e\t\ \c\o\d\e\s\p\a\c\e\s\-\t\h\e\m\e\.\h\i\d\e\-\s\t\a\t\u\s\ \2\>\/\d\e\v\/\n\u\l\l\)\"\ \!\=\ \1\ \]\;\ \t\h\e\n\ \\\
+\ \ \ \ \ \ \ \ \ \ \ \ \e\x\p\o\r\t\ \B\R\A\N\C\H\=\"\$\(\g\i\t\ \-\-\n\o\-\o\p\t\i\o\n\a\l\-\l\o\c\k\s\ \s\y\m\b\o\l\i\c\-\r\e\f\ \-\-\s\h\o\r\t\ \H\E\A\D\ \2\>\/\d\e\v\/\n\u\l\l\ \|\|\ \g\i\t\ \-\-\n\o\-\o\p\t\i\o\n\a\l\-\l\o\c\k\s\ \r\e\v\-\p\a\r\s\e\ \-\-\s\h\o\r\t\ \H\E\A\D\ \2\>\/\d\e\v\/\n\u\l\l\)\"\;\ \\\
+\ \ \ \ \ \ \ \ \ \ \ \ \i\f\ \[\ \"\$\{\B\R\A\N\C\H\:\-\}\"\ \!\=\ \"\"\ \]\;\ \t\h\e\n\ \\\
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \e\c\h\o\ \-\n\ \"\\\[\\\0\3\3\[\0\;\3\6\m\\\]\(\\\[\\\0\3\3\[\1\;\3\1\m\\\]\$\{\B\R\A\N\C\H\:\-\}\"\ \\\
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \&\&\ \i\f\ \[\ \"\$\(\g\i\t\ \c\o\n\f\i\g\ \-\-\g\e\t\ \d\e\v\c\o\n\t\a\i\n\e\r\s\-\t\h\e\m\e\.\s\h\o\w\-\d\i\r\t\y\ \2\>\/\d\e\v\/\n\u\l\l\)\"\ \=\ \1\ \]\ \&\&\ \\\
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \g\i\t\ \-\-\n\o\-\o\p\t\i\o\n\a\l\-\l\o\c\k\s\ \l\s\-\f\i\l\e\s\ \-\-\e\r\r\o\r\-\u\n\m\a\t\c\h\ \-\m\ \-\-\d\i\r\e\c\t\o\r\y\ \-\-\n\o\-\e\m\p\t\y\-\d\i\r\e\c\t\o\r\y\ \-\o\ \-\-\e\x\c\l\u\d\e\-\s\t\a\n\d\a\r\d\ \"\:\/\*\"\ \>\ \/\d\e\v\/\n\u\l\l\ \2\>\&\1\;\ \t\h\e\n\ \\\
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \e\c\h\o\ \-\n\ \"\ \\\[\\\0\3\3\[\1\;\3\3\m\\\]\✗\"\;\ \\\
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \f\i\ \\\
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \&\&\ \e\c\h\o\ \-\n\ \"\\\[\\\0\3\3\[\0\;\3\6\m\\\]\)\ \"\;\ \\\
+\ \ \ \ \ \ \ \ \ \ \ \ \f\i\;\ \\\
+\ \ \ \ \ \ \ \ \f\i\`\\\[\\\0\3\3\[\0\m\\\]\$\ \\\[\\]\6\3\3\;\B\\\\] ]]
+++ [[ \[]633;F\]> \[]633;G\] == '' ]]
+++ [[ \[]633;F\]> \[]633;G\] != \\\[\\]\6\3\3\;\F\\\\]\>\ \\\[\\]\6\3\3\;\G\\\\] ]]
+++ __vsc_in_command_execution=0
+++ __vsc_update_env
+++ [[ 0 -gt 0 ]]
+++ export XIT=130
+++ XIT=130
+++ '[' '!' -z engaboali9226-mastoura ']'
+++ echo -n '[0;32m@engaboali9226-mastoura '
+++ '[' 130 -ne 0 ']'
+++ echo -n '[1;31m➜'
++++ git config --get devcontainers-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git config --get codespaces-theme.hide-status
+++ '[' '' '!=' 1 ']'
++++ git --no-optional-locks symbolic-ref --short HEAD
+++ export BRANCH=main
+++ BRANCH=main
+++ '[' main '!=' '' ']'
+++ echo -n '[0;36m([1;31mmain'
++++ git config --get devcontainers-theme.show-dirty
+++ '[' '' = 1 ']'
+++ echo -n '[0;36m) '
+[?2004h]633;A[0;32m@engaboali9226-mastoura [1;31m➜ [1;34m/workspaces/work-tracker_OS/packages/events [0;36m([1;31mmain[0;36m) [0m$ ]633;Bqqqqqq[?2004l[?2004h[?2004l

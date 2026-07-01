@@ -1,0 +1,21 @@
+name: contracts
+type: package
+status: foundation
+version: 0.1.0
+
+description: >
+  Shared contracts, DTOs and public interfaces.
+
+owner: platform
+
+dependencies:
+  - shared
+  - core
+
+exports: []
+
+contracts:
+  - contracts/CONTRACT.md
+
+specification:
+  - specification/SPECIFICATION.md

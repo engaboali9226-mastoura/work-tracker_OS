@@ -1,0 +1,41 @@
+=====================================
+SHARED FOUNDATION AUDIT
+=====================================
+
+FILES
+packages/shared/README.md
+packages/shared/component.yaml
+packages/shared/contracts/CONTRACT.md
+packages/shared/package.json
+packages/shared/specification/SPECIFICATION.md
+packages/shared/src/.gitkeep
+packages/shared/tsconfig.json
+
+PACKAGE.JSON
+{
+  "name":"@worktracker/shared",
+  "private":true,
+  "version":"0.0.1",
+  "type":"module",
+  "scripts":{
+    "build":"tsc",
+    "test":"node --test"
+  }
+}
+
+TSCONFIG
+{
+  "extends":"../../tsconfig.base.json",
+  "compilerOptions":{
+    "rootDir":"src",
+    "outDir":"dist"
+  },
+  "include":[
+    "src"
+  ]
+}
+
+README
+# Shared
+
+Shared utilities.

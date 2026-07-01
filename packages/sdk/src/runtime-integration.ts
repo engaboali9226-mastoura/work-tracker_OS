@@ -1,6 +1,6 @@
 import type {
     RuntimeKernel,
-} from "../../runtime/src/kernel/runtime-kernel.js";
+} from "@worktracker/runtime";
 
 import type {
     ComponentBootstrap,

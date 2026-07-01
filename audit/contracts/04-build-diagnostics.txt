@@ -1,0 +1,32 @@
+Current Directory:
+/workspaces/work-tracker_OS
+
+Contracts Package:
+total 40
+drwxrwxrwx+  6 codespace codespace 4096 Jul  1 06:32 .
+drwxrwxrwx+ 12 codespace codespace 4096 Jun 30 08:34 ..
+-rw-rw-rw-   1 codespace codespace   31 Jul  1 06:32 README.md
+-rw-rw-rw-   1 codespace codespace  282 Jul  1 06:32 component.yaml
+drwxrwxrwx+  2 codespace codespace 4096 Jul  1 06:32 contracts
+-rw-rw-rw-   1 codespace codespace  159 Jun 30 06:43 package.json
+drwxrwxrwx+  2 codespace codespace 4096 Jul  1 06:32 specification
+drwxrwxrwx+  9 codespace codespace 4096 Jul  1 07:17 src
+drwxrwxrwx+  2 codespace codespace 4096 Jun 30 06:43 tests
+-rw-rw-rw-   1 codespace codespace  140 Jun 30 06:43 tsconfig.json
+
+=====================================
+Running TypeScript...
+=====================================
+
+/workspaces/work-tracker_OS/packages/contracts
+
+src/index.ts(3,15): error TS2306: File '/workspaces/work-tracker_OS/packages/contracts/src/commands/index.ts' is not a module.
+src/index.ts(4,15): error TS2306: File '/workspaces/work-tracker_OS/packages/contracts/src/queries/index.ts' is not a module.
+src/index.ts(5,15): error TS2306: File '/workspaces/work-tracker_OS/packages/contracts/src/requests/index.ts' is not a module.
+src/index.ts(6,15): error TS2306: File '/workspaces/work-tracker_OS/packages/contracts/src/responses/index.ts' is not a module.
+src/index.ts(7,15): error TS2306: File '/workspaces/work-tracker_OS/packages/contracts/src/events/index.ts' is not a module.
+src/index.ts(8,15): error TS2306: File '/workspaces/work-tracker_OS/packages/contracts/src/messages/index.ts' is not a module.
+
+=====================================
+Exit Code: 2
+=====================================
