@@ -14,3 +14,5 @@ export * from "./lifecycle/lifecycle.js";
 export * from "./host/host.js";
 export * from "./kernel/runtime-kernel.js";
 export * from "./tracing/trace.js";
+
+export * from "./validation/index.js";

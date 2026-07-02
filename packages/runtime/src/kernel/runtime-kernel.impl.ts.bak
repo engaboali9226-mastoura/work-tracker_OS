@@ -10,10 +10,6 @@ import type {
     Loader,
 } from "../loader/loader.js";
 
-import type {
-    ComponentValidator,
-} from "../validation/component-validator.js";
-
 /**
  * Default Runtime Kernel implementation.
  *
@@ -29,8 +25,6 @@ implements RuntimeKernel {
         private readonly registry: Registry,
 
         private readonly loader: Loader,
-
-        private readonly validator: ComponentValidator,
 
     ) {}
 
@@ -52,19 +46,6 @@ implements RuntimeKernel {
 
         const component =
             await this.loader.load(componentId);
-
-        const result =
-            this.validator.validate(component);
-
-        if (!result.valid) {
-
-            throw new Error(
-                result.errors
-                    .map(error => error.message)
-                    .join("; ")
-            );
-
-        }
 
         await this.registry.register(component);
 
