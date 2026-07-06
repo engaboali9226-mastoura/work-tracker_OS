@@ -40,6 +40,42 @@ const FILES = [
     ["component.yaml","component.yaml"]
 ] as const;
 
+function toDisplayName(
+    name: string,
+): string {
+
+    return name
+        .split("-")
+        .filter(Boolean)
+        .map(
+            part =>
+                part.charAt(0).toUpperCase() +
+                part.slice(1),
+        )
+        .join(" ");
+
+}
+
+function renderTemplate(
+    content: string,
+    name: string,
+): string {
+
+    const displayName =
+        toDisplayName(name);
+
+    return content
+        .replaceAll(
+            "component-name",
+            name,
+        )
+        .replaceAll(
+            "Component Name",
+            displayName,
+        );
+
+}
+
 export function generateComponent(name:string):void{
 
     validateComponentName(name);
@@ -84,9 +120,19 @@ export function generateComponent(name:string):void{
 
         }
 
-        fs.copyFileSync(
-            path.join(TEMPLATE_ROOT,source),
-            destination
+        const template =
+            fs.readFileSync(
+                path.join(TEMPLATE_ROOT,source),
+                "utf8",
+            );
+
+        fs.writeFileSync(
+            destination,
+            renderTemplate(
+                template,
+                name,
+            ),
+            "utf8",
         );
 
         report.created.push(target);
