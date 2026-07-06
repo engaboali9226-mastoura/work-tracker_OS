@@ -1,9 +1,10 @@
 {
-  "generatedAt": "2026-07-06T05:06:37.109Z",
+  "generatedAt": "2026-07-06T07:37:48.123Z",
   "components": [
     {
       "name": "ai-assistant",
       "manifest": "components/ai-assistant/component.yaml",
+      "specification": "components/ai-assistant/specification/SPECIFICATION.md",
       "contracts": "components/ai-assistant/contracts",
       "implementation": "components/ai-assistant/implementation",
       "tests": "components/ai-assistant/tests"
@@ -11,6 +12,7 @@
     {
       "name": "analytics",
       "manifest": "components/analytics/component.yaml",
+      "specification": "components/analytics/specification/SPECIFICATION.md",
       "contracts": "components/analytics/contracts",
       "implementation": "components/analytics/implementation",
       "tests": "components/analytics/tests"
@@ -18,6 +20,7 @@
     {
       "name": "attendance",
       "manifest": "components/attendance/component.yaml",
+      "specification": "components/attendance/specification/SPECIFICATION.md",
       "contracts": "components/attendance/contracts",
       "implementation": "components/attendance/implementation",
       "tests": "components/attendance/tests"
@@ -25,6 +28,7 @@
     {
       "name": "dashboard",
       "manifest": "components/dashboard/component.yaml",
+      "specification": "components/dashboard/specification/SPECIFICATION.md",
       "contracts": "components/dashboard/contracts",
       "implementation": "components/dashboard/implementation",
       "tests": "components/dashboard/tests"
@@ -32,6 +36,7 @@
     {
       "name": "integrations",
       "manifest": "components/integrations/component.yaml",
+      "specification": "components/integrations/specification/SPECIFICATION.md",
       "contracts": "components/integrations/contracts",
       "implementation": "components/integrations/implementation",
       "tests": "components/integrations/tests"
@@ -39,13 +44,12 @@
     {
       "name": "kernel",
       "manifest": "components/kernel/component.yaml",
-      "contracts": "components/kernel/contracts",
-      "implementation": "components/kernel/implementation",
-      "tests": "components/kernel/tests"
+      "specification": "components/kernel/specification/SPECIFICATION.md"
     },
     {
       "name": "notifications",
       "manifest": "components/notifications/component.yaml",
+      "specification": "components/notifications/specification/SPECIFICATION.md",
       "contracts": "components/notifications/contracts",
       "implementation": "components/notifications/implementation",
       "tests": "components/notifications/tests"
@@ -53,6 +57,7 @@
     {
       "name": "reports",
       "manifest": "components/reports/component.yaml",
+      "specification": "components/reports/specification/SPECIFICATION.md",
       "contracts": "components/reports/contracts",
       "implementation": "components/reports/implementation",
       "tests": "components/reports/tests"
@@ -60,6 +65,7 @@
     {
       "name": "scheduler",
       "manifest": "components/scheduler/component.yaml",
+      "specification": "components/scheduler/specification/SPECIFICATION.md",
       "contracts": "components/scheduler/contracts",
       "implementation": "components/scheduler/implementation",
       "tests": "components/scheduler/tests"
@@ -67,6 +73,7 @@
     {
       "name": "tasks",
       "manifest": "components/tasks/component.yaml",
+      "specification": "components/tasks/specification/SPECIFICATION.md",
       "contracts": "components/tasks/contracts",
       "implementation": "components/tasks/implementation",
       "tests": "components/tasks/tests"
@@ -74,6 +81,7 @@
     {
       "name": "workday",
       "manifest": "components/workday/component.yaml",
+      "specification": "components/workday/specification/SPECIFICATION.md",
       "contracts": "components/workday/contracts",
       "implementation": "components/workday/implementation",
       "tests": "components/workday/tests"

@@ -12,8 +12,8 @@ import {
 } from "./component-discovery.js";
 
 import {
-    YamlLoader,
-} from "./yaml-loader.js";
+    ComponentManifestLoader,
+} from "./component-manifest-loader.js";
 
 import {
     MarkdownLoader,
@@ -27,8 +27,8 @@ implements ArchitectureParser {
         const discovery =
             new ComponentDiscovery();
 
-        const yaml =
-            new YamlLoader();
+        const manifestLoader =
+            new ComponentManifestLoader();
 
         const markdown =
             new MarkdownLoader();
@@ -37,40 +37,49 @@ implements ArchitectureParser {
 
         for (const source of discovery.discover()) {
 
-            yaml.load(source.manifestPath);
+            const manifest =
+                manifestLoader.load(
+                    source.manifestPath,
+                );
 
-            markdown.load(source.specificationPath);
+            markdown.load(
+                source.specificationPath,
+            );
+
+            const componentName =
+                source.componentPath.split("/").pop() ?? "";
 
             components.push({
 
                 identity: {
 
                     name:
-                        source.componentPath.split("/").pop() ?? "",
+                        componentName,
 
                     displayName:
-                        source.componentPath.split("/").pop() ?? "",
+                        manifest.metadata.displayName,
 
                     version:
-                        "1.0.0",
+                        manifest.metadata.version,
 
                     category:
-                        "business",
+                        manifest.spec.category,
 
                     owner:
-                        "business",
+                        manifest.spec.owner,
 
                     description:
-                        "",
+                        manifest.metadata.description,
 
                     status:
-                        "Draft",
+                        manifest.status.phase,
 
                 },
 
                 purpose: {
 
-                    summary: "",
+                    summary:
+                        manifest.metadata.description,
 
                     objectives: [],
 
@@ -88,19 +97,44 @@ implements ArchitectureParser {
 
                 ports: [],
 
-                services: [],
+                services:
+                    manifest.spec.services.map(
+                        service => ({
+                            name:
+                                service,
 
-                dependencies: [],
+                            description:
+                                "",
+                        }),
+                    ),
+
+                dependencies:
+                    manifest.spec.dependencies.map(
+                        dependency => ({
+                            component:
+                                dependency,
+
+                            type:
+                                "runtime",
+
+                            required:
+                                true,
+                        }),
+                    ),
 
                 runtime: {
 
-                    health: true,
+                    health:
+                        manifest.runtime.health,
 
-                    metrics: true,
+                    metrics:
+                        manifest.runtime.metrics,
 
-                    logging: true,
+                    logging:
+                        manifest.runtime.logging,
 
-                    tracing: true,
+                    tracing:
+                        manifest.runtime.tracing,
 
                 },
 
@@ -108,20 +142,24 @@ implements ArchitectureParser {
 
                 observability: {
 
-                    logging: true,
+                    logging:
+                        manifest.runtime.logging,
 
-                    metrics: true,
+                    metrics:
+                        manifest.runtime.metrics,
 
-                    tracing: true,
+                    tracing:
+                        manifest.runtime.tracing,
 
-                    health: true,
+                    health:
+                        manifest.runtime.health,
 
                 },
 
                 roadmap: {
 
                     currentVersion:
-                        "1.0.0",
+                        manifest.metadata.version,
 
                     nextVersion:
                         "1.1.0",

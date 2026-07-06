@@ -1,3 +1,7 @@
+import {
+    existsSync,
+} from "node:fs";
+
 import type {
     ArchitectureModel,
 } from "../model/index.js";
@@ -39,21 +43,67 @@ implements ComponentRegistryProjector {
         name: string,
     ): ComponentRegistryEntry {
 
+        const root =
+            `components/${name}`;
+
+        const specification =
+            `${root}/specification/SPECIFICATION.md`;
+
+        const contracts =
+            `${root}/contracts`;
+
+        const implementation =
+            `${root}/implementation`;
+
+        const tests =
+            `${root}/tests`;
+
         return {
 
             name,
 
             manifest:
-                `components/${name}/component.yaml`,
+                `${root}/component.yaml`,
 
-            contracts:
-                `components/${name}/contracts`,
+            ...(
+                existsSync(
+                    specification,
+                )
+                    ? {
+                        specification,
+                    }
+                    : {}
+            ),
 
-            implementation:
-                `components/${name}/implementation`,
+            ...(
+                existsSync(
+                    contracts,
+                )
+                    ? {
+                        contracts,
+                    }
+                    : {}
+            ),
 
-            tests:
-                `components/${name}/tests`,
+            ...(
+                existsSync(
+                    implementation,
+                )
+                    ? {
+                        implementation,
+                    }
+                    : {}
+            ),
+
+            ...(
+                existsSync(
+                    tests,
+                )
+                    ? {
+                        tests,
+                    }
+                    : {}
+            ),
 
         };
 

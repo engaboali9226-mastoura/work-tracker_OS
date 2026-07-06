@@ -13,10 +13,12 @@ export interface ComponentRegistryEntry {
 
     readonly manifest: string;
 
-    readonly contracts: string;
+    readonly specification?: string;
 
-    readonly implementation: string;
+    readonly contracts?: string;
 
-    readonly tests: string;
+    readonly implementation?: string;
+
+    readonly tests?: string;
 
 }
