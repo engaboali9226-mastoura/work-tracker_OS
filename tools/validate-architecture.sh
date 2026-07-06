@@ -10,10 +10,6 @@ echo "Architecture Validation"
 echo "========================================="
 echo ""
 
-###############################################################################
-# Manifest
-###############################################################################
-
 FILES=(
 architecture/system.manifest.yaml
 architecture/component-dependencies.yaml
@@ -22,55 +18,68 @@ architecture/component-ports.yaml
 
 for file in "${FILES[@]}"
 do
-
     if [ -f "$file" ]; then
-
         echo "✔ $file"
-
     else
-
         echo "✘ $file"
-
         FAILED=1
-
     fi
-
 done
 
 echo ""
 
-###############################################################################
-# Components
-###############################################################################
+if [ ! -d components ]; then
+    echo "✘ components directory"
+    FAILED=1
+else
+    for component_path in components/*
+    do
+        [ -d "$component_path" ] || continue
 
-COMPONENTS=(
-workday
-attendance
-tasks
-notifications
-reports
-dashboard
-analytics
-integrations
-)
+        component="$(basename "$component_path")"
 
-for component in "${COMPONENTS[@]}"
-do
+        echo "Checking $component"
 
-    echo "Checking $component"
+        if [ -f "$component_path/component.yaml" ]; then
+            echo "  ✔ component.yaml"
+        else
+            echo "  ✘ component.yaml"
+            FAILED=1
+        fi
 
-    test -d components/$component || FAILED=1
-    test -f components/$component/specification/SPECIFICATION.md || FAILED=1
-    test -f components/$component/contracts/CONTRACT.md || FAILED=1
-    test -f components/$component/docs/README.md || FAILED=1
+        if [ -f "$component_path/specification/SPECIFICATION.md" ]; then
+            echo "  ✔ specification/SPECIFICATION.md"
+        else
+            echo "  ✘ specification/SPECIFICATION.md"
+            FAILED=1
+        fi
 
-done
+        if [ -d "$component_path/contracts" ]; then
+            if [ -f "$component_path/contracts/CONTRACT.md" ]; then
+                echo "  ✔ contracts/CONTRACT.md"
+            else
+                echo "  ✘ contracts/CONTRACT.md"
+                FAILED=1
+            fi
+        else
+            echo "  - contracts directory not present"
+        fi
+
+        if [ -d "$component_path/docs" ]; then
+            if [ -f "$component_path/docs/README.md" ]; then
+                echo "  ✔ docs/README.md"
+            else
+                echo "  ✘ docs/README.md"
+                FAILED=1
+            fi
+        else
+            echo "  - docs directory not present"
+        fi
+
+    done
+fi
 
 echo ""
-
-###############################################################################
-# Packages
-###############################################################################
 
 PACKAGES=(
 runtime
@@ -86,38 +95,39 @@ testing
 
 for package in "${PACKAGES[@]}"
 do
-
-    test -d packages/$package || FAILED=1
+    if [ -d "packages/$package" ]; then
+        echo "✔ packages/$package"
+    else
+        echo "✘ packages/$package"
+        FAILED=1
+    fi
 done
 
 echo ""
 
-###############################################################################
-# Applications
-###############################################################################
+if [ -d apps/forge ]; then
+    echo "✔ apps/forge"
+else
+    echo "✘ apps/forge"
+    FAILED=1
+fi
 
-test -d apps/forge || FAILED=1
-test -d apps/web || FAILED=1
+if [ -d apps/web ]; then
+    echo "✔ apps/web"
+else
+    echo "✘ apps/web"
+    FAILED=1
+fi
 
 echo ""
 
-###############################################################################
-# Result
-###############################################################################
-
 if [ "$FAILED" -eq 0 ]; then
-
     echo "========================================="
     echo "Architecture Validation Passed"
     echo "========================================="
-
 else
-
     echo "========================================="
     echo "Architecture Validation Failed"
     echo "========================================="
-
     exit 1
-
 fi
-
