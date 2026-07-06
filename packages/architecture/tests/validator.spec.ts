@@ -95,7 +95,7 @@ test(
 );
 
 test(
-    "Manifest name mismatch is warning and does not invalidate architecture",
+    "Manifest name mismatch is error and invalidates architecture",
     () => {
 
         const validator =
@@ -132,14 +132,14 @@ test(
 
         assert.equal(
             report.valid,
-            true,
+            false,
         );
 
         assert.equal(
             report.issues.some(
                 issue =>
                     issue.code === "ARCH-005" &&
-                    issue.severity === "warning",
+                    issue.severity === "error",
             ),
             true,
         );

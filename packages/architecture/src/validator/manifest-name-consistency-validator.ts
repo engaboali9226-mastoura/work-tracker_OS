@@ -37,7 +37,7 @@ export class ManifestNameConsistencyValidator {
                     "ARCH-005",
 
                 severity:
-                    "warning",
+                    "error",
 
                 message:
                     `Component manifest name mismatch: folder identity "${componentName}" does not match manifest metadata.name "${manifestName}"`,
