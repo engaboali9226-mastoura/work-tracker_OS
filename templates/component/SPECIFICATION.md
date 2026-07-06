@@ -1,4 +1,4 @@
-# Component Specification
+# Component Name Specification
 
 ---
 
@@ -88,3 +88,4 @@
 
 ## Acceptance Criteria
 
+---

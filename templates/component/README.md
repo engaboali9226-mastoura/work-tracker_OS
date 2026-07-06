@@ -1,12 +1,21 @@
-# Component
+# Component Name
 
-Purpose
+## Purpose
 
-Responsibilities
+---
 
-Folder Structure
+## Responsibilities
 
-How To Execute
+---
 
-How To Test
+## Folder Structure
 
+---
+
+## How To Execute
+
+---
+
+## How To Test
+
+---

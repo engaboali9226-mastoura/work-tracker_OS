@@ -34,6 +34,20 @@ function cleanupProbe(): void {
 
 }
 
+function readProbeFile(
+    relativePath: string,
+): string {
+
+    return fs.readFileSync(
+        path.join(
+            probePath,
+            relativePath,
+        ),
+        "utf8",
+    );
+
+}
+
 test(
     "Forge generator creates a manifest-aware component",
     () => {
@@ -46,16 +60,9 @@ test(
                 probeName,
             );
 
-            const manifestPath =
-                path.join(
-                    probePath,
-                    "component.yaml",
-                );
-
             const manifest =
-                fs.readFileSync(
-                    manifestPath,
-                    "utf8",
+                readProbeFile(
+                    "component.yaml",
                 );
 
             assert.match(
@@ -102,6 +109,108 @@ test(
                     ),
                 ),
             );
+
+        } finally {
+
+            cleanupProbe();
+
+        }
+
+    },
+);
+
+test(
+    "Forge generator renders component-aware documentation",
+    () => {
+
+        cleanupProbe();
+
+        try {
+
+            generateComponent(
+                probeName,
+            );
+
+            const readme =
+                readProbeFile(
+                    "docs/README.md",
+                );
+
+            const specification =
+                readProbeFile(
+                    "specification/SPECIFICATION.md",
+                );
+
+            const contract =
+                readProbeFile(
+                    "contracts/CONTRACT.md",
+                );
+
+            const decisions =
+                readProbeFile(
+                    "docs/DECISIONS.md",
+                );
+
+            const execution =
+                readProbeFile(
+                    "execution/EXECUTION.md",
+                );
+
+            const tests =
+                readProbeFile(
+                    "tests/TESTS.md",
+                );
+
+            assert.match(
+                readme,
+                /^# Selfgen Test Probe/m,
+            );
+
+            assert.match(
+                specification,
+                /^# Selfgen Test Probe Specification/m,
+            );
+
+            assert.match(
+                contract,
+                /^# Selfgen Test Probe Contract/m,
+            );
+
+            assert.match(
+                decisions,
+                /^# Selfgen Test Probe Decisions/m,
+            );
+
+            assert.match(
+                execution,
+                /^# Selfgen Test Probe Execution/m,
+            );
+
+            assert.match(
+                tests,
+                /^# Selfgen Test Probe Test Plan/m,
+            );
+
+            for (const content of [
+                readme,
+                specification,
+                contract,
+                decisions,
+                execution,
+                tests,
+            ]) {
+
+                assert.doesNotMatch(
+                    content,
+                    /# Component$/m,
+                );
+
+                assert.doesNotMatch(
+                    content,
+                    /Component Name/,
+                );
+
+            }
 
         } finally {
 

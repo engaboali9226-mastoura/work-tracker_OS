@@ -1,12 +1,21 @@
-# Logging
+# Component Name Logging
 
-Inputs
+## Inputs
 
-Outputs
+---
 
-Warnings
+## Outputs
 
-Errors
+---
 
-Execution Time
+## Warnings
 
+---
+
+## Errors
+
+---
+
+## Execution Time
+
+---

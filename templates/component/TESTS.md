@@ -1,12 +1,21 @@
-# Test Plan
+# Component Name Test Plan
 
-Unit Tests
+## Unit Tests
 
-Integration Tests
+---
 
-Contract Tests
+## Integration Tests
 
-Failure Tests
+---
 
-Recovery Tests
+## Contract Tests
 
+---
+
+## Failure Tests
+
+---
+
+## Recovery Tests
+
+---

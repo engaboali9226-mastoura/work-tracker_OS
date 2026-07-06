@@ -1,4 +1,4 @@
-# Component Contract
+# Component Name Contract
 
 ## Input Ports
 
@@ -22,3 +22,4 @@
 
 ## Version
 
+---

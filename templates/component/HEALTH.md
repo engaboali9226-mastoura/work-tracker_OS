@@ -1,10 +1,17 @@
-# Health
+# Component Name Health
 
-Status
+## Status
 
-Dependencies
+---
 
-Checks
+## Dependencies
 
-Recovery
+---
 
+## Checks
+
+---
+
+## Recovery
+
+---
