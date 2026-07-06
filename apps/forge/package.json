@@ -6,7 +6,7 @@
   "scripts": {
     "build": "tsc",
     "dev": "tsx src/main.ts",
-    "test": "node --test"
+    "test": "node --import tsx --test tests/*.spec.ts"
   },
   "dependencies": {},
   "devDependencies": {
