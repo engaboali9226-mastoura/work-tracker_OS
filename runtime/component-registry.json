@@ -1,92 +1,82 @@
 {
-  "generatedAt":"2026-06-30T07:48:36Z",
-  "components":[
+  "generatedAt": "2026-07-06T05:06:37.109Z",
+  "components": [
     {
-      "name":"ai-assistant",
-      "manifest":"components/ai-assistant/component.yaml",
-      "contracts":"components/ai-assistant/contracts",
-      "implementation":"components/ai-assistant/implementation",
-      "tests":"components/ai-assistant/tests"
-    }
-,
+      "name": "ai-assistant",
+      "manifest": "components/ai-assistant/component.yaml",
+      "contracts": "components/ai-assistant/contracts",
+      "implementation": "components/ai-assistant/implementation",
+      "tests": "components/ai-assistant/tests"
+    },
     {
-      "name":"analytics",
-      "manifest":"components/analytics/component.yaml",
-      "contracts":"components/analytics/contracts",
-      "implementation":"components/analytics/implementation",
-      "tests":"components/analytics/tests"
-    }
-,
+      "name": "analytics",
+      "manifest": "components/analytics/component.yaml",
+      "contracts": "components/analytics/contracts",
+      "implementation": "components/analytics/implementation",
+      "tests": "components/analytics/tests"
+    },
     {
-      "name":"attendance",
-      "manifest":"components/attendance/component.yaml",
-      "contracts":"components/attendance/contracts",
-      "implementation":"components/attendance/implementation",
-      "tests":"components/attendance/tests"
-    }
-,
+      "name": "attendance",
+      "manifest": "components/attendance/component.yaml",
+      "contracts": "components/attendance/contracts",
+      "implementation": "components/attendance/implementation",
+      "tests": "components/attendance/tests"
+    },
     {
-      "name":"dashboard",
-      "manifest":"components/dashboard/component.yaml",
-      "contracts":"components/dashboard/contracts",
-      "implementation":"components/dashboard/implementation",
-      "tests":"components/dashboard/tests"
-    }
-,
+      "name": "dashboard",
+      "manifest": "components/dashboard/component.yaml",
+      "contracts": "components/dashboard/contracts",
+      "implementation": "components/dashboard/implementation",
+      "tests": "components/dashboard/tests"
+    },
     {
-      "name":"integrations",
-      "manifest":"components/integrations/component.yaml",
-      "contracts":"components/integrations/contracts",
-      "implementation":"components/integrations/implementation",
-      "tests":"components/integrations/tests"
-    }
-,
+      "name": "integrations",
+      "manifest": "components/integrations/component.yaml",
+      "contracts": "components/integrations/contracts",
+      "implementation": "components/integrations/implementation",
+      "tests": "components/integrations/tests"
+    },
     {
-      "name":"kernel",
-      "manifest":"components/kernel/component.yaml",
-      "contracts":"components/kernel/contracts",
-      "implementation":"components/kernel/implementation",
-      "tests":"components/kernel/tests"
-    }
-,
+      "name": "kernel",
+      "manifest": "components/kernel/component.yaml",
+      "contracts": "components/kernel/contracts",
+      "implementation": "components/kernel/implementation",
+      "tests": "components/kernel/tests"
+    },
     {
-      "name":"notifications",
-      "manifest":"components/notifications/component.yaml",
-      "contracts":"components/notifications/contracts",
-      "implementation":"components/notifications/implementation",
-      "tests":"components/notifications/tests"
-    }
-,
+      "name": "notifications",
+      "manifest": "components/notifications/component.yaml",
+      "contracts": "components/notifications/contracts",
+      "implementation": "components/notifications/implementation",
+      "tests": "components/notifications/tests"
+    },
     {
-      "name":"reports",
-      "manifest":"components/reports/component.yaml",
-      "contracts":"components/reports/contracts",
-      "implementation":"components/reports/implementation",
-      "tests":"components/reports/tests"
-    }
-,
+      "name": "reports",
+      "manifest": "components/reports/component.yaml",
+      "contracts": "components/reports/contracts",
+      "implementation": "components/reports/implementation",
+      "tests": "components/reports/tests"
+    },
     {
-      "name":"scheduler",
-      "manifest":"components/scheduler/component.yaml",
-      "contracts":"components/scheduler/contracts",
-      "implementation":"components/scheduler/implementation",
-      "tests":"components/scheduler/tests"
-    }
-,
+      "name": "scheduler",
+      "manifest": "components/scheduler/component.yaml",
+      "contracts": "components/scheduler/contracts",
+      "implementation": "components/scheduler/implementation",
+      "tests": "components/scheduler/tests"
+    },
     {
-      "name":"tasks",
-      "manifest":"components/tasks/component.yaml",
-      "contracts":"components/tasks/contracts",
-      "implementation":"components/tasks/implementation",
-      "tests":"components/tasks/tests"
-    }
-,
+      "name": "tasks",
+      "manifest": "components/tasks/component.yaml",
+      "contracts": "components/tasks/contracts",
+      "implementation": "components/tasks/implementation",
+      "tests": "components/tasks/tests"
+    },
     {
-      "name":"workday",
-      "manifest":"components/workday/component.yaml",
-      "contracts":"components/workday/contracts",
-      "implementation":"components/workday/implementation",
-      "tests":"components/workday/tests"
+      "name": "workday",
+      "manifest": "components/workday/component.yaml",
+      "contracts": "components/workday/contracts",
+      "implementation": "components/workday/implementation",
+      "tests": "components/workday/tests"
     }
   ]
 }

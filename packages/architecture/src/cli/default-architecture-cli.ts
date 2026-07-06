@@ -2,6 +2,11 @@ import type {
     ArchitectureCli,
 } from "./architecture-cli.js";
 
+import {
+    DefaultArchitectureRegistryGenerator,
+} from "../registry/index.js";
+
+
 export class DefaultArchitectureCli
 implements ArchitectureCli {
 
@@ -23,8 +28,11 @@ implements ArchitectureCli {
 
             case "report":
 
+                await new DefaultArchitectureRegistryGenerator()
+                    .generate();
+
                 console.log(
-                    "Architecture report requested.",
+                    "Architecture report generated.",
                 );
 
                 break;
