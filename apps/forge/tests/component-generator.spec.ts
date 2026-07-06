@@ -40,68 +40,74 @@ test(
 
         cleanupProbe();
 
-        generateComponent(
-            probeName,
-        );
+        try {
 
-        const manifestPath =
-            path.join(
-                probePath,
-                "component.yaml",
+            generateComponent(
+                probeName,
             );
 
-        const manifest =
-            fs.readFileSync(
-                manifestPath,
-                "utf8",
+            const manifestPath =
+                path.join(
+                    probePath,
+                    "component.yaml",
+                );
+
+            const manifest =
+                fs.readFileSync(
+                    manifestPath,
+                    "utf8",
+                );
+
+            assert.match(
+                manifest,
+                /name:\s+selfgen-test-probe/,
             );
 
-        assert.match(
-            manifest,
-            /name:\s+selfgen-test-probe/,
-        );
+            assert.match(
+                manifest,
+                /displayName:\s+Selfgen Test Probe/,
+            );
 
-        assert.match(
-            manifest,
-            /displayName:\s+Selfgen Test Probe/,
-        );
+            assert.doesNotMatch(
+                manifest,
+                /name:\s+component-name/,
+            );
 
-        assert.doesNotMatch(
-            manifest,
-            /name:\s+component-name/,
-        );
-
-        assert.ok(
-            fs.existsSync(
-                path.join(
-                    probePath,
-                    "specification",
-                    "SPECIFICATION.md",
+            assert.ok(
+                fs.existsSync(
+                    path.join(
+                        probePath,
+                        "specification",
+                        "SPECIFICATION.md",
+                    ),
                 ),
-            ),
-        );
+            );
 
-        assert.ok(
-            fs.existsSync(
-                path.join(
-                    probePath,
-                    "contracts",
-                    "CONTRACT.md",
+            assert.ok(
+                fs.existsSync(
+                    path.join(
+                        probePath,
+                        "contracts",
+                        "CONTRACT.md",
+                    ),
                 ),
-            ),
-        );
+            );
 
-        assert.ok(
-            fs.existsSync(
-                path.join(
-                    probePath,
-                    "docs",
-                    "README.md",
+            assert.ok(
+                fs.existsSync(
+                    path.join(
+                        probePath,
+                        "docs",
+                        "README.md",
+                    ),
                 ),
-            ),
-        );
+            );
 
-        cleanupProbe();
+        } finally {
+
+            cleanupProbe();
+
+        }
 
     },
 );
@@ -114,6 +120,37 @@ test(
             () => generateComponent("runtime"),
             /reserved package name/,
         );
+
+    },
+);
+
+test(
+    "Forge generator rejects invalid component names",
+    () => {
+
+        const invalidNames = [
+            "Runtime",
+            "my component",
+            "my_component",
+            "myComponent",
+            "component.name",
+            "-bad-name",
+            "bad-name-",
+            "bad--name",
+            "1-component",
+            "component-1",
+            "",
+        ];
+
+        for (const invalidName of invalidNames) {
+
+            assert.throws(
+                () => generateComponent(invalidName),
+                /valid component name/,
+                invalidName,
+            );
+
+        }
 
     },
 );

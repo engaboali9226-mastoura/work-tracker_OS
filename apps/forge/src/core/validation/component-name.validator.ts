@@ -1,18 +1,33 @@
 import { RESERVED_COMPONENT_NAMES }
 from "../constants/reserved-component-names.js";
 
-export function validateComponentName(name:string):void{
+const COMPONENT_NAME_PATTERN =
+    /^[a-z]+(?:-[a-z]+)*$/;
 
-    if(
-        RESERVED_COMPONENT_NAMES.includes(
-            name as never
+export function validateComponentName(
+    name: string,
+): void {
+
+    if (
+        !COMPONENT_NAME_PATTERN.test(
+            name,
         )
-    ){
+    ) {
 
         throw new Error(
+            `"${name}" is not a valid component name. Component names must use lowercase kebab-case.`,
+        );
 
-            `"${name}" is a reserved package name.`
+    }
 
+    if (
+        RESERVED_COMPONENT_NAMES.includes(
+            name as never,
+        )
+    ) {
+
+        throw new Error(
+            `"${name}" is a reserved package name.`,
         );
 
     }
