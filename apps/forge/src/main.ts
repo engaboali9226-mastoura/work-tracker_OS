@@ -4,38 +4,82 @@ from "./commands/create-component.command.js";
 import { doctorCommand }
 from "./commands/doctor.command.js";
 
-const [, , command, arg] = process.argv;
+function printHelp(): void {
 
-switch(command){
+    console.log("");
 
-    case "component:create":
+    console.log("Forge");
 
-        createComponentCommand(arg);
+    console.log("");
 
-        break;
+    console.log("Commands");
 
-    case "doctor":
+    console.log("----------------------");
 
-        doctorCommand();
+    console.log("component:create <name>");
 
-        break;
+    console.log("doctor");
 
-    default:
+    console.log("");
 
-        console.log("");
+}
 
-        console.log("Forge");
+function run(): void {
 
-        console.log("");
+    const [, , command, arg] =
+        process.argv;
 
-        console.log("Commands");
+    switch (command) {
 
-        console.log("----------------------");
+        case "component:create":
 
-        console.log("component:create <name>");
+            createComponentCommand(
+                arg,
+            );
 
-        console.log("doctor");
+            break;
 
-        console.log("");
+        case "doctor":
+
+            doctorCommand();
+
+            break;
+
+        case undefined:
+
+            printHelp();
+
+            break;
+
+        default:
+
+            throw new Error(
+                `Unknown command "${command}".`,
+            );
+
+    }
+
+}
+
+try {
+
+    run();
+
+} catch (error) {
+
+    const message =
+        error instanceof Error
+            ? error.message
+            : String(error);
+
+    console.error("");
+
+    console.error(
+        `Forge Error: ${message}`,
+    );
+
+    console.error("");
+
+    process.exit(1);
 
 }
