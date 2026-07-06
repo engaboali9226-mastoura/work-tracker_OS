@@ -4,9 +4,9 @@ kind: Component
 
 metadata:
 
-  name: component-name
+  name: kernel
 
-  displayName: Component Name
+  displayName: Kernel
 
   version: 1.0.0
 

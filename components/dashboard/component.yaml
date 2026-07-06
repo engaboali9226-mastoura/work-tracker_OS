@@ -4,9 +4,9 @@ kind: Component
 
 metadata:
 
-  name: component-name
+  name: dashboard
 
-  displayName: Component Name
+  displayName: Dashboard
 
   version: 1.0.0
 

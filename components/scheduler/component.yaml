@@ -4,9 +4,9 @@ kind: Component
 
 metadata:
 
-  name: component-name
+  name: scheduler
 
-  displayName: Component Name
+  displayName: Scheduler
 
   version: 1.0.0
 

@@ -4,9 +4,9 @@ kind: Component
 
 metadata:
 
-  name: component-name
+  name: analytics
 
-  displayName: Component Name
+  displayName: Analytics
 
   version: 1.0.0
 

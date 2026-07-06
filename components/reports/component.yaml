@@ -4,9 +4,9 @@ kind: Component
 
 metadata:
 
-  name: component-name
+  name: reports
 
-  displayName: Component Name
+  displayName: Reports
 
   version: 1.0.0
 

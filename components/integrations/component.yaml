@@ -4,9 +4,9 @@ kind: Component
 
 metadata:
 
-  name: component-name
+  name: integrations
 
-  displayName: Component Name
+  displayName: Integrations
 
   version: 1.0.0
 

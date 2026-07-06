@@ -4,9 +4,9 @@ kind: Component
 
 metadata:
 
-  name: component-name
+  name: notifications
 
-  displayName: Component Name
+  displayName: Notifications
 
   version: 1.0.0
 

@@ -4,9 +4,9 @@ kind: Component
 
 metadata:
 
-  name: component-name
+  name: workday
 
-  displayName: Component Name
+  displayName: Workday
 
   version: 1.0.0
 

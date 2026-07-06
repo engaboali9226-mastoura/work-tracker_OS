@@ -4,9 +4,9 @@ kind: Component
 
 metadata:
 
-  name: component-name
+  name: tasks
 
-  displayName: Component Name
+  displayName: Tasks
 
   version: 1.0.0
 
