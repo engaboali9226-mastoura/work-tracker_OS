@@ -2,6 +2,8 @@ export interface ComponentIdentity {
 
     readonly name: string;
 
+    readonly manifestName?: string;
+
     readonly displayName: string;
 
     readonly version: string;
@@ -15,4 +17,3 @@ export interface ComponentIdentity {
     readonly status: string;
 
 }
-

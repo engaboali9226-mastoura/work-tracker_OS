@@ -56,6 +56,9 @@ implements ArchitectureParser {
                     name:
                         componentName,
 
+                    manifestName:
+                        manifest.metadata.name,
+
                     displayName:
                         manifest.metadata.displayName,
 

@@ -22,6 +22,10 @@ import {
     DuplicateComponentValidator,
 } from "./duplicate-component-validator.js";
 
+import {
+    ManifestNameConsistencyValidator,
+} from "./manifest-name-consistency-validator.js";
+
 export class DefaultArchitectureValidator
 implements ArchitectureValidator {
 
@@ -43,10 +47,17 @@ implements ArchitectureValidator {
             ...new DuplicateComponentValidator().validate(model),
         );
 
+        issues.push(
+            ...new ManifestNameConsistencyValidator().validate(model),
+        );
+
         return {
 
             valid:
-                issues.length === 0,
+                !issues.some(
+                    issue =>
+                        issue.severity === "error",
+                ),
 
             issues,
 
