@@ -3,8 +3,16 @@ import type {
 } from "./architecture-cli.js";
 
 import {
+    DefaultArchitectureParser,
+} from "../parser/index.js";
+
+import {
     DefaultArchitectureRegistryGenerator,
 } from "../registry/index.js";
+
+import {
+    DefaultArchitectureValidator,
+} from "../validator/index.js";
 
 
 export class DefaultArchitectureCli
@@ -24,9 +32,7 @@ implements ArchitectureCli {
 
             case "validate":
 
-                console.log(
-                    "Architecture validation requested.",
-                );
+                await this.validate();
 
                 break;
 
@@ -86,6 +92,59 @@ implements ArchitectureCli {
             default:
 
                 this.help();
+
+        }
+
+    }
+
+    private async validate(): Promise<void> {
+
+        const model =
+            await new DefaultArchitectureParser(
+                this.workspaceRoot,
+            ).parse();
+
+        const report =
+            new DefaultArchitectureValidator()
+                .validate(
+                    model,
+                );
+
+        if (report.valid) {
+
+            console.log(
+                "Architecture validation passed.",
+            );
+
+        } else {
+
+            console.log(
+                "Architecture validation failed.",
+            );
+
+        }
+
+        console.log(
+            `Components: ${model.system.components.length}`,
+        );
+
+        console.log(
+            `Issues: ${report.issues.length}`,
+        );
+
+        for (const issue of report.issues) {
+
+            console.log(
+                `[${issue.severity}] ${issue.code}: ${issue.message}`,
+            );
+
+        }
+
+        if (!report.valid) {
+
+            throw new Error(
+                "Architecture validation failed.",
+            );
 
         }
 
