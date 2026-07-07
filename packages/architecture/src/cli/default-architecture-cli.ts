@@ -11,6 +11,10 @@ import {
 } from "../dependency/index.js";
 
 import {
+    ImpactReportBuilder,
+} from "../impact/index.js";
+
+import {
     DefaultArchitectureMetricsEngine,
     MetricsMarkdownExporter,
 } from "../metrics/index.js";
@@ -78,8 +82,8 @@ implements ArchitectureCli {
 
             case "impact":
 
-                console.log(
-                    "Architecture impact analysis requested.",
+                await this.impact(
+                    args[1],
                 );
 
                 break;
@@ -179,6 +183,90 @@ implements ArchitectureCli {
         console.log(
             markdown,
         );
+
+    }
+
+    private async impact(
+        component: string | undefined,
+    ): Promise<void> {
+
+        if (!component) {
+
+            throw new Error(
+                "Component name is required. Usage: architecture impact <component>",
+            );
+
+        }
+
+        const model =
+            await this.parse();
+
+        const exists =
+            model.system.components.some(
+                item =>
+                    item.identity.name === component,
+            );
+
+        if (!exists) {
+
+            throw new Error(
+                `Component not found: ${component}`,
+            );
+
+        }
+
+        const report =
+            new ImpactReportBuilder()
+                .build(
+                    component,
+                    model,
+                );
+
+        console.log(
+            "# Architecture Impact",
+        );
+
+        console.log(
+            "",
+        );
+
+        console.log(
+            `Component: ${report.component}`,
+        );
+
+        console.log(
+            `Affected Relationships: ${report.totalRelationships}`,
+        );
+
+        console.log(
+            "",
+        );
+
+        console.log(
+            "| Source | Type | Target |",
+        );
+
+        console.log(
+            "|--------|------|--------|",
+        );
+
+        if (report.affectedRelationships.length === 0) {
+
+            console.log(
+                "| none | none | none |",
+            );
+
+            return;
+
+        }
+
+        for (const relationship of report.affectedRelationships) {
+
+            console.log(
+                `| ${relationship.source} | ${relationship.type} | ${relationship.target} |`,
+            );
+
+        }
 
     }
 

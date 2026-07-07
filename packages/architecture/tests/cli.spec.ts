@@ -223,6 +223,67 @@ test(
 );
 
 test(
+    "Architecture CLI impact command prints component impact",
+    async () => {
+
+        const output =
+            await captureOutput(
+                async () => {
+                    await new DefaultArchitectureCli(
+                        workspaceRoot,
+                    ).run(
+                        [
+                            "impact",
+                            "attendance",
+                        ],
+                    );
+                },
+            );
+
+        assert.match(
+            output,
+            /# Architecture Impact/,
+        );
+
+        assert.match(
+            output,
+            /Component: attendance/,
+        );
+
+        assert.match(
+            output,
+            /Affected Relationships: 0/,
+        );
+
+        assert.match(
+            output,
+            /\| none \| none \| none \|/,
+        );
+
+    },
+);
+
+test(
+    "Architecture CLI impact command requires a component name",
+    async () => {
+
+        await assert.rejects(
+            async () => {
+                await new DefaultArchitectureCli(
+                    workspaceRoot,
+                ).run(
+                    [
+                        "impact",
+                    ],
+                );
+            },
+            /Component name is required/,
+        );
+
+    },
+);
+
+test(
     "Architecture CLI entrypoint prints clean error for missing dependency component",
     () => {
 
@@ -276,6 +337,40 @@ test(
         assert.match(
             result.stderr,
             /Architecture Error: Component not found: not-real-component/,
+        );
+
+        assert.doesNotMatch(
+            result.stderr,
+            /at DefaultArchitectureCli/,
+        );
+
+        assert.doesNotMatch(
+            result.stderr,
+            /Node\.js v/,
+        );
+
+    },
+);
+
+test(
+    "Architecture CLI entrypoint prints clean error for missing impact component",
+    () => {
+
+        const result =
+            runArchitectureCli(
+                [
+                    "impact",
+                ],
+            );
+
+        assert.equal(
+            result.status,
+            1,
+        );
+
+        assert.match(
+            result.stderr,
+            /Architecture Error: Component name is required\. Usage: architecture impact <component>/,
         );
 
         assert.doesNotMatch(
