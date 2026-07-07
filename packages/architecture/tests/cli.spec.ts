@@ -1,5 +1,10 @@
 import assert from "node:assert/strict";
 import {
+    existsSync,
+    readFileSync,
+    rmSync,
+} from "node:fs";
+import {
     spawnSync,
 } from "node:child_process";
 import path from "node:path";
@@ -13,6 +18,14 @@ const workspaceRoot =
     path.resolve(
         import.meta.dirname,
         "../../..",
+    );
+
+const diagramsDirectory =
+    path.join(
+        workspaceRoot,
+        "docs",
+        "architecture",
+        "diagrams",
     );
 
 async function captureOutput(
@@ -81,6 +94,29 @@ function runArchitectureCli(
 
 }
 
+function resetDiagrams(): void {
+
+    rmSync(
+        diagramsDirectory,
+        {
+            recursive: true,
+            force: true,
+        },
+    );
+
+}
+
+function diagramFile(
+    fileName: string,
+): string {
+
+    return path.join(
+        diagramsDirectory,
+        fileName,
+    );
+
+}
+
 test(
     "Architecture CLI validate command validates the workspace",
     async () => {
@@ -111,6 +147,180 @@ test(
         assert.match(
             output,
             /Issues: 0/,
+        );
+
+    },
+);
+
+test(
+    "Architecture CLI diagram command generates Mermaid diagrams",
+    async () => {
+
+        resetDiagrams();
+
+        const output =
+            await captureOutput(
+                async () => {
+                    await new DefaultArchitectureCli(
+                        workspaceRoot,
+                    ).run(
+                        [
+                            "diagram",
+                        ],
+                    );
+                },
+            );
+
+        assert.match(
+            output,
+            /Architecture diagrams generated\./,
+        );
+
+        assert.match(
+            output,
+            /Output: docs\/architecture\/diagrams/,
+        );
+
+        assert.equal(
+            existsSync(
+                diagramFile(
+                    "component-graph.mmd",
+                ),
+            ),
+            true,
+        );
+
+        assert.equal(
+            existsSync(
+                diagramFile(
+                    "dependency-graph.mmd",
+                ),
+            ),
+            true,
+        );
+
+        assert.equal(
+            existsSync(
+                diagramFile(
+                    "event-flow.mmd",
+                ),
+            ),
+            true,
+        );
+
+        assert.equal(
+            existsSync(
+                diagramFile(
+                    "command-flow.mmd",
+                ),
+            ),
+            true,
+        );
+
+        assert.equal(
+            existsSync(
+                diagramFile(
+                    "runtime-flow.mmd",
+                ),
+            ),
+            true,
+        );
+
+        const componentDiagram =
+            readFileSync(
+                diagramFile(
+                    "component-graph.mmd",
+                ),
+                "utf8",
+            );
+
+        assert.match(
+            componentDiagram,
+            /graph TD/,
+        );
+
+        assert.match(
+            componentDiagram,
+            /attendance\[attendance\]/,
+        );
+
+        const runtimeDiagram =
+            readFileSync(
+                diagramFile(
+                    "runtime-flow.mmd",
+                ),
+                "utf8",
+            );
+
+        assert.match(
+            runtimeDiagram,
+            /flowchart TD/,
+        );
+
+        assert.match(
+            runtimeDiagram,
+            /Kernel --> Registry/,
+        );
+
+    },
+);
+
+test(
+    "Architecture CLI diagram command respects explicit workspace root",
+    async () => {
+
+        resetDiagrams();
+
+        const originalDirectory =
+            process.cwd();
+
+        process.chdir(
+            path.join(
+                workspaceRoot,
+                "apps",
+                "forge",
+            ),
+        );
+
+        try {
+
+            await new DefaultArchitectureCli(
+                workspaceRoot,
+            ).run(
+                [
+                    "diagram",
+                ],
+            );
+
+        } finally {
+
+            process.chdir(
+                originalDirectory,
+            );
+
+        }
+
+        assert.equal(
+            existsSync(
+                diagramFile(
+                    "component-graph.mmd",
+                ),
+            ),
+            true,
+        );
+
+        assert.equal(
+            existsSync(
+                path.join(
+                    workspaceRoot,
+                    "apps",
+                    "forge",
+                    "docs",
+                    "architecture",
+                    "diagrams",
+                ),
+            ),
+            false,
         );
 
     },

@@ -11,6 +11,10 @@ import {
 } from "../dependency/index.js";
 
 import {
+    DefaultArchitectureDiagramGenerator,
+} from "../diagram/index.js";
+
+import {
     ImpactReportBuilder,
 } from "../impact/index.js";
 
@@ -68,9 +72,7 @@ implements ArchitectureCli {
 
             case "diagram":
 
-                console.log(
-                    "Architecture diagram requested.",
-                );
+                await this.diagram();
 
                 break;
 
@@ -160,6 +162,28 @@ implements ArchitectureCli {
             );
 
         }
+
+    }
+
+    private async diagram(): Promise<void> {
+
+        const model =
+            await this.parse();
+
+        await new DefaultArchitectureDiagramGenerator(
+            this.workspaceRoot,
+        )
+            .generate(
+                model,
+            );
+
+        console.log(
+            "Architecture diagrams generated.",
+        );
+
+        console.log(
+            "Output: docs/architecture/diagrams",
+        );
 
     }
 

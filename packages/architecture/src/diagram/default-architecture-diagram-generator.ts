@@ -1,3 +1,7 @@
+import {
+    join,
+} from "node:path";
+
 import type {
     ArchitectureDiagramGenerator,
 } from "./architecture-diagram-generator.js";
@@ -33,6 +37,10 @@ import {
 export class DefaultArchitectureDiagramGenerator
 implements ArchitectureDiagramGenerator {
 
+    constructor(
+        private readonly workspaceRoot = process.cwd(),
+    ) {}
+
     async generate(
         model: ArchitectureModel,
     ): Promise<void> {
@@ -41,28 +49,60 @@ implements ArchitectureDiagramGenerator {
             new MermaidWriter();
 
         writer.write(
-            "docs/architecture/diagrams/component-graph.mmd",
-            new ComponentDiagram().build(model),
+            this.diagramPath(
+                "component-graph.mmd",
+            ),
+            new ComponentDiagram().build(
+                model,
+            ),
         );
 
         writer.write(
-            "docs/architecture/diagrams/dependency-graph.mmd",
-            new DependencyDiagram().build(model),
+            this.diagramPath(
+                "dependency-graph.mmd",
+            ),
+            new DependencyDiagram().build(
+                model,
+            ),
         );
 
         writer.write(
-            "docs/architecture/diagrams/event-flow.mmd",
-            new EventDiagram().build(model),
+            this.diagramPath(
+                "event-flow.mmd",
+            ),
+            new EventDiagram().build(
+                model,
+            ),
         );
 
         writer.write(
-            "docs/architecture/diagrams/command-flow.mmd",
-            new CommandDiagram().build(model),
+            this.diagramPath(
+                "command-flow.mmd",
+            ),
+            new CommandDiagram().build(
+                model,
+            ),
         );
 
         writer.write(
-            "docs/architecture/diagrams/runtime-flow.mmd",
+            this.diagramPath(
+                "runtime-flow.mmd",
+            ),
             new RuntimeFlowDiagram().build(),
+        );
+
+    }
+
+    private diagramPath(
+        fileName: string,
+    ): string {
+
+        return join(
+            this.workspaceRoot,
+            "docs",
+            "architecture",
+            "diagrams",
+            fileName,
         );
 
     }
