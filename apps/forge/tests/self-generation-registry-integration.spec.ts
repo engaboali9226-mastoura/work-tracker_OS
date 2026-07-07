@@ -44,23 +44,18 @@ test(
     "Self-generated component is discoverable and projected into registry",
     async () => {
 
-        const previousCwd =
-            process.cwd();
-
         cleanupProbe();
 
         try {
-
-            process.chdir(
-                workspaceRoot,
-            );
 
             generateComponent(
                 probeName,
             );
 
             const model =
-                await new DefaultArchitectureParser()
+                await new DefaultArchitectureParser(
+                    workspaceRoot,
+                )
                     .parse();
 
             const hasComponent =
@@ -75,7 +70,9 @@ test(
             );
 
             const registry =
-                new DefaultComponentRegistryProjector()
+                new DefaultComponentRegistryProjector(
+                    workspaceRoot,
+                )
                     .project(
                         model,
                     );
@@ -118,11 +115,6 @@ test(
         } finally {
 
             cleanupProbe();
-
-            process.chdir(
-                previousCwd,
-            );
-
         }
 
     },

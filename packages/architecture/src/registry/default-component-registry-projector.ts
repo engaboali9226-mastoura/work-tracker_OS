@@ -2,6 +2,10 @@ import {
     existsSync,
 } from "node:fs";
 
+import {
+    join,
+} from "node:path";
+
 import type {
     ArchitectureModel,
 } from "../model/index.js";
@@ -17,6 +21,10 @@ import type {
 
 export class DefaultComponentRegistryProjector
 implements ComponentRegistryProjector {
+
+    constructor(
+        private readonly workspaceRoot = process.cwd(),
+    ) {}
 
     project(
         model: ArchitectureModel,
@@ -36,6 +44,19 @@ implements ComponentRegistryProjector {
                 ),
 
         };
+
+    }
+
+    private exists(
+        relativePath: string,
+    ): boolean {
+
+        return existsSync(
+            join(
+                this.workspaceRoot,
+                relativePath,
+            ),
+        );
 
     }
 
@@ -66,7 +87,7 @@ implements ComponentRegistryProjector {
                 `${root}/component.yaml`,
 
             ...(
-                existsSync(
+                this.exists(
                     specification,
                 )
                     ? {
@@ -76,7 +97,7 @@ implements ComponentRegistryProjector {
             ),
 
             ...(
-                existsSync(
+                this.exists(
                     contracts,
                 )
                     ? {
@@ -86,7 +107,7 @@ implements ComponentRegistryProjector {
             ),
 
             ...(
-                existsSync(
+                this.exists(
                     implementation,
                 )
                     ? {
@@ -96,7 +117,7 @@ implements ComponentRegistryProjector {
             ),
 
             ...(
-                existsSync(
+                this.exists(
                     tests,
                 )
                     ? {

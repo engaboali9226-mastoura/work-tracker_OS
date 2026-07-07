@@ -21,14 +21,24 @@ import {
 export class DefaultArchitectureRegistryGenerator
 implements ArchitectureRegistryGenerator {
 
+    constructor(
+        private readonly workspaceRoot = process.cwd(),
+    ) {}
+
     async generate(): Promise<void> {
 
         const model =
-            await new DefaultArchitectureParser().parse();
+            await new DefaultArchitectureParser(
+                this.workspaceRoot,
+            ).parse();
 
         const registry =
-            new DefaultComponentRegistryProjector()
-                .project(model);
+            new DefaultComponentRegistryProjector(
+                this.workspaceRoot,
+            )
+                .project(
+                    model,
+                );
 
         const json =
             JSON.stringify(
@@ -39,6 +49,7 @@ implements ArchitectureRegistryGenerator {
 
         new JsonWriter().write(
             resolve(
+                this.workspaceRoot,
                 "runtime",
                 "component-registry.json",
             ),

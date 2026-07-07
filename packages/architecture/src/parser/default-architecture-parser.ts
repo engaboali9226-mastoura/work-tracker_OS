@@ -1,3 +1,8 @@
+import {
+    basename,
+    join,
+} from "node:path";
+
 import type {
     ArchitectureParser,
 } from "./architecture-parser.js";
@@ -22,10 +27,19 @@ import {
 export class DefaultArchitectureParser
 implements ArchitectureParser {
 
+    constructor(
+        private readonly workspaceRoot = process.cwd(),
+    ) {}
+
     async parse(): Promise<ArchitectureModel> {
 
         const discovery =
-            new ComponentDiscovery();
+            new ComponentDiscovery(
+                join(
+                    this.workspaceRoot,
+                    "components",
+                ),
+            );
 
         const manifestLoader =
             new ComponentManifestLoader();
@@ -47,7 +61,9 @@ implements ArchitectureParser {
             );
 
             const componentName =
-                source.componentPath.split("/").pop() ?? "";
+                basename(
+                    source.componentPath,
+                );
 
             components.push({
 
