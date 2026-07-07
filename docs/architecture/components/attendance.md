@@ -1,0 +1,13 @@
+# attendance
+
+## Purpose
+
+
+
+## Responsibilities
+
+
+
+## Dependencies
+
+

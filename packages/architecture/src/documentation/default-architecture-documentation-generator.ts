@@ -1,3 +1,7 @@
+import {
+    join,
+} from "node:path";
+
 import type {
     ArchitectureDocumentationGenerator,
 } from "./architecture-documentation-generator.js";
@@ -25,6 +29,10 @@ import {
 export class DefaultArchitectureDocumentationGenerator
 implements ArchitectureDocumentationGenerator {
 
+    constructor(
+        private readonly workspaceRoot = process.cwd(),
+    ) {}
+
     async generate(
         model: ArchitectureModel,
     ): Promise<void> {
@@ -33,13 +41,21 @@ implements ArchitectureDocumentationGenerator {
             new MarkdownWriter();
 
         writer.write(
-            "docs/architecture/README.md",
-            new ReadmeGenerator().build(model),
+            this.outputPath(
+                "README.md",
+            ),
+            new ReadmeGenerator().build(
+                model,
+            ),
         );
 
         writer.write(
-            "docs/architecture/OVERVIEW.md",
-            new OverviewGenerator().build(model),
+            this.outputPath(
+                "OVERVIEW.md",
+            ),
+            new OverviewGenerator().build(
+                model,
+            ),
         );
 
         const componentGenerator =
@@ -48,11 +64,29 @@ implements ArchitectureDocumentationGenerator {
         for (const component of model.system.components) {
 
             writer.write(
-                `docs/architecture/components/${component.identity.name}.md`,
-                componentGenerator.build(component),
+                this.outputPath(
+                    "components",
+                    `${component.identity.name}.md`,
+                ),
+                componentGenerator.build(
+                    component,
+                ),
             );
 
         }
+
+    }
+
+    private outputPath(
+        ...parts: readonly string[]
+    ): string {
+
+        return join(
+            this.workspaceRoot,
+            "docs",
+            "architecture",
+            ...parts,
+        );
 
     }
 

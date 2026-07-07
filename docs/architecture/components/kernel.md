@@ -1,0 +1,13 @@
+# kernel
+
+## Purpose
+
+
+
+## Responsibilities
+
+
+
+## Dependencies
+
+

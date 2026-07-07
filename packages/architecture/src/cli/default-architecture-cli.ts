@@ -15,6 +15,10 @@ import {
 } from "../diagram/index.js";
 
 import {
+    DefaultArchitectureDocumentationGenerator,
+} from "../documentation/index.js";
+
+import {
     ComponentReport,
     DefaultArchitectureExplorer,
 } from "../explorer/index.js";
@@ -78,6 +82,12 @@ implements ArchitectureCli {
             case "diagram":
 
                 await this.diagram();
+
+                break;
+
+            case "docs":
+
+                await this.docs();
 
                 break;
 
@@ -188,6 +198,28 @@ implements ArchitectureCli {
 
         console.log(
             "Output: docs/architecture/diagrams",
+        );
+
+    }
+
+    private async docs(): Promise<void> {
+
+        const model =
+            await this.parse();
+
+        await new DefaultArchitectureDocumentationGenerator(
+            this.workspaceRoot,
+        )
+            .generate(
+                model,
+            );
+
+        console.log(
+            "Architecture documentation generated.",
+        );
+
+        console.log(
+            "Output: docs/architecture",
         );
 
     }
@@ -457,6 +489,7 @@ Commands
  validate
  report
  diagram
+ docs
  metrics
  impact
  dependencies
