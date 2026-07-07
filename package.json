@@ -8,7 +8,7 @@
   ],
   "scripts": {
     "build": "./scripts-build.sh",
-    "test": "npm run test --workspaces",
+    "test": "npm --workspace packages/architecture run build && npm run test --workspaces",
     "forge": "npm --workspace apps/forge run dev --",
     "web": "npm --workspace apps/web run dev",
     "web:build": "npm --workspace apps/web run build",
