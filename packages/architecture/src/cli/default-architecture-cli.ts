@@ -10,6 +10,10 @@ import {
 export class DefaultArchitectureCli
 implements ArchitectureCli {
 
+    constructor(
+        private readonly workspaceRoot = process.cwd(),
+    ) {}
+
     async run(
         args: readonly string[],
     ): Promise<void> {
@@ -28,7 +32,9 @@ implements ArchitectureCli {
 
             case "report":
 
-                await new DefaultArchitectureRegistryGenerator()
+                await new DefaultArchitectureRegistryGenerator(
+                    this.workspaceRoot,
+                )
                     .generate();
 
                 console.log(
