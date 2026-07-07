@@ -55,7 +55,7 @@ test("Forge doctor command prints a healthy workspace report", () => {
     assert.match(output, /Forge Doctor/);
     assert.match(output, /Required Paths/);
     assert.match(output, /Required Templates/);
-    assert.match(output, /Components:\s+\d+/);
+    assert.match(output, /Components:\s+(?:\x1B\[[0-9;]*m)*\d+(?:\x1B\[[0-9;]*m)*/);
     assert.match(output, /Workspace Healthy/);
     assert.doesNotMatch(output, /Forge Error:/);
 });

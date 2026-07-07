@@ -6,11 +6,10 @@ import test from "node:test";
 import { generateComponent }
 from "../src/generators/component.generator.ts";
 
-import { DefaultArchitectureParser }
-from "../../../packages/architecture/src/parser/default-architecture-parser.ts";
-
-import { DefaultComponentRegistryProjector }
-from "../../../packages/architecture/src/registry/default-component-registry-projector.ts";
+import {
+    DefaultArchitectureParser,
+    DefaultComponentRegistryProjector,
+} from "@worktracker/architecture";
 
 const workspaceRoot =
     path.resolve(

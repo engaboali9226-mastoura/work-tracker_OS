@@ -1,24 +1,27 @@
-export * from "./model";
-export * from "./parser";
+export * from "./model/index.js";
 
-export * from "./resolver";
+export * from "./parser/index.js";
 
-export * from "./documentation";
+export * from "./registry/index.js";
 
-export * from "./diagram";
+export * from "./resolver/index.js";
 
-export * from "./explorer";
+export * from "./documentation/index.js";
 
-export * from "./validator";
+export * from "./diagram/index.js";
 
-export * from "./impact";
+export * from "./explorer/index.js";
 
-export * from "./dependency";
+export * from "./validator/index.js";
 
-export * from "./metrics";
+export * from "./impact/index.js";
 
-export * from "./report";
+export * from "./dependency/index.js";
 
-export * from "./cli";
+export * from "./metrics/index.js";
 
-export * from "./cache";
+export * from "./report/index.js";
+
+export * from "./cli/index.js";
+
+export * from "./cache/index.js";
