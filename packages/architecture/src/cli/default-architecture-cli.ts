@@ -1,6 +1,14 @@
 import type {
+    ArchitectureModel,
+} from "../model/index.js";
+
+import type {
     ArchitectureCli,
 } from "./architecture-cli.js";
+
+import {
+    DependencyReportBuilder,
+} from "../dependency/index.js";
 
 import {
     DefaultArchitectureMetricsEngine,
@@ -78,8 +86,8 @@ implements ArchitectureCli {
 
             case "dependencies":
 
-                console.log(
-                    "Architecture dependency analysis requested.",
+                await this.dependencies(
+                    args[1],
                 );
 
                 break;
@@ -103,9 +111,7 @@ implements ArchitectureCli {
     private async validate(): Promise<void> {
 
         const model =
-            await new DefaultArchitectureParser(
-                this.workspaceRoot,
-            ).parse();
+            await this.parse();
 
         const report =
             new DefaultArchitectureValidator()
@@ -156,9 +162,7 @@ implements ArchitectureCli {
     private async metrics(): Promise<void> {
 
         const model =
-            await new DefaultArchitectureParser(
-                this.workspaceRoot,
-            ).parse();
+            await this.parse();
 
         const metrics =
             new DefaultArchitectureMetricsEngine()
@@ -175,6 +179,102 @@ implements ArchitectureCli {
         console.log(
             markdown,
         );
+
+    }
+
+    private async dependencies(
+        component: string | undefined,
+    ): Promise<void> {
+
+        if (!component) {
+
+            throw new Error(
+                "Component name is required. Usage: architecture dependencies <component>",
+            );
+
+        }
+
+        const model =
+            await this.parse();
+
+        const exists =
+            model.system.components.some(
+                item =>
+                    item.identity.name === component,
+            );
+
+        if (!exists) {
+
+            throw new Error(
+                `Component not found: ${component}`,
+            );
+
+        }
+
+        const report =
+            new DependencyReportBuilder()
+                .build(
+                    component,
+                    model,
+                );
+
+        console.log(
+            "# Architecture Dependencies",
+        );
+
+        console.log(
+            "",
+        );
+
+        console.log(
+            `Component: ${report.component}`,
+        );
+
+        console.log(
+            "",
+        );
+
+        console.log(
+            "| Type | Dependencies |",
+        );
+
+        console.log(
+            "|------|--------------|",
+        );
+
+        console.log(
+            `| Direct | ${this.formatList(report.direct)} |`,
+        );
+
+        console.log(
+            `| Reverse | ${this.formatList(report.reverse)} |`,
+        );
+
+        console.log(
+            `| Transitive | ${this.formatList(report.transitive)} |`,
+        );
+
+    }
+
+    private async parse(): Promise<ArchitectureModel> {
+
+        return new DefaultArchitectureParser(
+            this.workspaceRoot,
+        ).parse();
+
+    }
+
+    private formatList(
+        values: readonly string[],
+    ): string {
+
+        return values.length === 0
+
+            ? "none"
+
+            : values.join(
+                ", ",
+            );
 
     }
 

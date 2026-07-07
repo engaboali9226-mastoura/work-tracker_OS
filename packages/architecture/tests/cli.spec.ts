@@ -126,3 +126,69 @@ test(
 
     },
 );
+
+test(
+    "Architecture CLI dependencies command prints component dependencies",
+    async () => {
+
+        const output =
+            await captureOutput(
+                async () => {
+                    await new DefaultArchitectureCli(
+                        workspaceRoot,
+                    ).run(
+                        [
+                            "dependencies",
+                            "attendance",
+                        ],
+                    );
+                },
+            );
+
+        assert.match(
+            output,
+            /# Architecture Dependencies/,
+        );
+
+        assert.match(
+            output,
+            /Component: attendance/,
+        );
+
+        assert.match(
+            output,
+            /\| Direct \| none \|/,
+        );
+
+        assert.match(
+            output,
+            /\| Reverse \| none \|/,
+        );
+
+        assert.match(
+            output,
+            /\| Transitive \| none \|/,
+        );
+
+    },
+);
+
+test(
+    "Architecture CLI dependencies command requires a component name",
+    async () => {
+
+        await assert.rejects(
+            async () => {
+                await new DefaultArchitectureCli(
+                    workspaceRoot,
+                ).run(
+                    [
+                        "dependencies",
+                    ],
+                );
+            },
+            /Component name is required/,
+        );
+
+    },
+);
