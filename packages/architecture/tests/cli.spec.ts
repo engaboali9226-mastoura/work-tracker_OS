@@ -86,3 +86,43 @@ test(
 
     },
 );
+
+test(
+    "Architecture CLI metrics command prints workspace metrics",
+    async () => {
+
+        const output =
+            await captureOutput(
+                async () => {
+                    await new DefaultArchitectureCli(
+                        workspaceRoot,
+                    ).run(
+                        [
+                            "metrics",
+                        ],
+                    );
+                },
+            );
+
+        assert.match(
+            output,
+            /# Architecture Metrics/,
+        );
+
+        assert.match(
+            output,
+            /\| Components \| 11 \|/,
+        );
+
+        assert.match(
+            output,
+            /\| Relationships \| 0 \|/,
+        );
+
+        assert.match(
+            output,
+            /\| Avg Dependencies \/ Component \| 0\.00 \|/,
+        );
+
+    },
+);

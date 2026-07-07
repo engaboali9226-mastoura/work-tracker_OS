@@ -3,6 +3,11 @@ import type {
 } from "./architecture-cli.js";
 
 import {
+    DefaultArchitectureMetricsEngine,
+    MetricsMarkdownExporter,
+} from "../metrics/index.js";
+
+import {
     DefaultArchitectureParser,
 } from "../parser/index.js";
 
@@ -59,9 +64,7 @@ implements ArchitectureCli {
 
             case "metrics":
 
-                console.log(
-                    "Architecture metrics requested.",
-                );
+                await this.metrics();
 
                 break;
 
@@ -147,6 +150,31 @@ implements ArchitectureCli {
             );
 
         }
+
+    }
+
+    private async metrics(): Promise<void> {
+
+        const model =
+            await new DefaultArchitectureParser(
+                this.workspaceRoot,
+            ).parse();
+
+        const metrics =
+            new DefaultArchitectureMetricsEngine()
+                .calculate(
+                    model,
+                );
+
+        const markdown =
+            new MetricsMarkdownExporter()
+                .export(
+                    metrics,
+                );
+
+        console.log(
+            markdown,
+        );
 
     }
 
