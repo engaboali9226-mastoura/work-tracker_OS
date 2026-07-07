@@ -2,8 +2,38 @@ import {
     DefaultArchitectureCli,
 } from "./default-architecture-cli.js";
 
-await new DefaultArchitectureCli().run(
+try {
 
-    process.argv.slice(2),
+    await new DefaultArchitectureCli().run(
+        process.argv.slice(
+            2,
+        ),
+    );
 
-);
+} catch (error) {
+
+    const message =
+        error instanceof Error
+
+            ? error.message
+
+            : String(
+                error,
+            );
+
+    console.error(
+        "",
+    );
+
+    console.error(
+        `Architecture Error: ${message}`,
+    );
+
+    console.error(
+        "",
+    );
+
+    process.exitCode =
+        1;
+
+}

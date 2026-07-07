@@ -1,4 +1,7 @@
 import assert from "node:assert/strict";
+import {
+    spawnSync,
+} from "node:child_process";
 import path from "node:path";
 import test from "node:test";
 
@@ -48,6 +51,32 @@ async function captureOutput(
 
     return lines.join(
         "\n",
+    );
+
+}
+
+function runArchitectureCli(
+    args: readonly string[],
+) {
+
+    return spawnSync(
+        process.execPath,
+        [
+            "--import",
+            "tsx",
+            path.join(
+                "packages",
+                "architecture",
+                "src",
+                "cli",
+                "main.ts",
+            ),
+            ...args,
+        ],
+        {
+            cwd: workspaceRoot,
+            encoding: "utf8",
+        },
     );
 
 }
@@ -188,6 +217,75 @@ test(
                 );
             },
             /Component name is required/,
+        );
+
+    },
+);
+
+test(
+    "Architecture CLI entrypoint prints clean error for missing dependency component",
+    () => {
+
+        const result =
+            runArchitectureCli(
+                [
+                    "dependencies",
+                ],
+            );
+
+        assert.equal(
+            result.status,
+            1,
+        );
+
+        assert.match(
+            result.stderr,
+            /Architecture Error: Component name is required\. Usage: architecture dependencies <component>/,
+        );
+
+        assert.doesNotMatch(
+            result.stderr,
+            /at DefaultArchitectureCli/,
+        );
+
+        assert.doesNotMatch(
+            result.stderr,
+            /Node\.js v/,
+        );
+
+    },
+);
+
+test(
+    "Architecture CLI entrypoint prints clean error for unknown component",
+    () => {
+
+        const result =
+            runArchitectureCli(
+                [
+                    "dependencies",
+                    "not-real-component",
+                ],
+            );
+
+        assert.equal(
+            result.status,
+            1,
+        );
+
+        assert.match(
+            result.stderr,
+            /Architecture Error: Component not found: not-real-component/,
+        );
+
+        assert.doesNotMatch(
+            result.stderr,
+            /at DefaultArchitectureCli/,
+        );
+
+        assert.doesNotMatch(
+            result.stderr,
+            /Node\.js v/,
         );
 
     },
