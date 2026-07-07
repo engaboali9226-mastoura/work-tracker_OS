@@ -15,6 +15,11 @@ import {
 } from "../diagram/index.js";
 
 import {
+    ComponentReport,
+    DefaultArchitectureExplorer,
+} from "../explorer/index.js";
+
+import {
     ImpactReportBuilder,
 } from "../impact/index.js";
 
@@ -100,8 +105,8 @@ implements ArchitectureCli {
 
             case "explore":
 
-                console.log(
-                    "Architecture explorer requested.",
+                await this.explore(
+                    args[1],
                 );
 
                 break;
@@ -206,6 +211,58 @@ implements ArchitectureCli {
 
         console.log(
             markdown,
+        );
+
+    }
+
+    private async explore(
+        component: string | undefined,
+    ): Promise<void> {
+
+        if (!component) {
+
+            throw new Error(
+                "Component name is required. Usage: architecture explore <component>",
+            );
+
+        }
+
+        const model =
+            await this.parse();
+
+        const explorer =
+            new DefaultArchitectureExplorer(
+                model,
+            );
+
+        const target =
+            explorer.findComponent(
+                component,
+            );
+
+        if (!target) {
+
+            throw new Error(
+                `Component not found: ${component}`,
+            );
+
+        }
+
+        console.log(
+            "# Architecture Explore",
+        );
+
+        console.log(
+            "",
+        );
+
+        console.log(
+            new ComponentReport(
+                explorer,
+            )
+                .build(
+                    component,
+                ),
         );
 
     }

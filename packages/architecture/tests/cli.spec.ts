@@ -433,6 +433,72 @@ test(
 );
 
 test(
+    "Architecture CLI explore command prints component report",
+    async () => {
+
+        const output =
+            await captureOutput(
+                async () => {
+                    await new DefaultArchitectureCli(
+                        workspaceRoot,
+                    ).run(
+                        [
+                            "explore",
+                            "attendance",
+                        ],
+                    );
+                },
+            );
+
+        assert.match(
+            output,
+            /# Architecture Explore/,
+        );
+
+        assert.match(
+            output,
+            /"component": "attendance"/,
+        );
+
+        assert.match(
+            output,
+            /"dependencies": \[\]/,
+        );
+
+        assert.match(
+            output,
+            /"dependents": \[\]/,
+        );
+
+        assert.match(
+            output,
+            /"impact": \[\]/,
+        );
+
+    },
+);
+
+test(
+    "Architecture CLI explore command requires a component name",
+    async () => {
+
+        await assert.rejects(
+            async () => {
+                await new DefaultArchitectureCli(
+                    workspaceRoot,
+                ).run(
+                    [
+                        "explore",
+                    ],
+                );
+            },
+            /Component name is required/,
+        );
+
+    },
+);
+
+test(
     "Architecture CLI impact command prints component impact",
     async () => {
 
@@ -581,6 +647,75 @@ test(
         assert.match(
             result.stderr,
             /Architecture Error: Component name is required\. Usage: architecture impact <component>/,
+        );
+
+        assert.doesNotMatch(
+            result.stderr,
+            /at DefaultArchitectureCli/,
+        );
+
+        assert.doesNotMatch(
+            result.stderr,
+            /Node\.js v/,
+        );
+
+    },
+);
+
+test(
+    "Architecture CLI entrypoint prints clean error for missing explore component",
+    () => {
+
+        const result =
+            runArchitectureCli(
+                [
+                    "explore",
+                ],
+            );
+
+        assert.equal(
+            result.status,
+            1,
+        );
+
+        assert.match(
+            result.stderr,
+            /Architecture Error: Component name is required\. Usage: architecture explore <component>/,
+        );
+
+        assert.doesNotMatch(
+            result.stderr,
+            /at DefaultArchitectureCli/,
+        );
+
+        assert.doesNotMatch(
+            result.stderr,
+            /Node\.js v/,
+        );
+
+    },
+);
+
+test(
+    "Architecture CLI entrypoint prints clean error for unknown explore component",
+    () => {
+
+        const result =
+            runArchitectureCli(
+                [
+                    "explore",
+                    "not-real-component",
+                ],
+            );
+
+        assert.equal(
+            result.status,
+            1,
+        );
+
+        assert.match(
+            result.stderr,
+            /Architecture Error: Component not found: not-real-component/,
         );
 
         assert.doesNotMatch(
