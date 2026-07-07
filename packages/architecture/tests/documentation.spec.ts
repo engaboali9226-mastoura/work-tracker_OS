@@ -19,6 +19,7 @@ import test from "node:test";
 
 import type {
     ArchitectureModel,
+    ComponentArchitecture,
 } from "../src/model/index.js";
 
 import {
@@ -46,8 +47,14 @@ function testModel(): ArchitectureModel {
                         summary: "Track attendance events.",
                     },
                     responsibilities: [
-                        "Record start events",
-                        "Record end events",
+                        {
+                            name: "Record start events",
+                            description: "",
+                        },
+                        {
+                            name: "Record end events",
+                            description: "",
+                        },
                     ],
                     dependencies: [
                         {
@@ -63,7 +70,10 @@ function testModel(): ArchitectureModel {
                         summary: "Represent a work day.",
                     },
                     responsibilities: [
-                        "Own day state",
+                        {
+                            name: "Own day state",
+                            description: "",
+                        },
                     ],
                     dependencies: [],
                 },
@@ -73,6 +83,21 @@ function testModel(): ArchitectureModel {
             {},
         ],
     } as unknown as ArchitectureModel;
+
+}
+
+function componentWithoutOptionalContent(): ComponentArchitecture {
+
+    return {
+        identity: {
+            name: "empty-component",
+        },
+        purpose: {
+            summary: "",
+        },
+        responsibilities: [],
+        dependencies: [],
+    } as unknown as ComponentArchitecture;
 
 }
 
@@ -157,6 +182,11 @@ test(
 
         assert.match(
             markdown,
+            /Generated from Architecture Source of Truth\./,
+        );
+
+        assert.match(
+            markdown,
             /Track attendance events\./,
         );
 
@@ -173,6 +203,34 @@ test(
         assert.match(
             markdown,
             /- workday/,
+        );
+
+    },
+);
+
+test(
+    "ComponentDocumentationGenerator writes safe fallbacks for missing content",
+    () => {
+
+        const markdown =
+            new ComponentDocumentationGenerator()
+                .build(
+                    componentWithoutOptionalContent(),
+                );
+
+        assert.match(
+            markdown,
+            /No purpose documented yet\./,
+        );
+
+        assert.match(
+            markdown,
+            /- No responsibilities documented yet\./,
+        );
+
+        assert.match(
+            markdown,
+            /- none/,
         );
 
     },
@@ -318,6 +376,14 @@ test(
                     "utf8",
                 ),
                 /# attendance/,
+            );
+
+            assert.doesNotMatch(
+                readFileSync(
+                    attendanceDoc,
+                    "utf8",
+                ),
+                /## Purpose\s*## Responsibilities/s,
             );
 
         } finally {

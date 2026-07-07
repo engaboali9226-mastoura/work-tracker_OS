@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import {
     existsSync,
     readFileSync,
+    readdirSync,
     rmSync,
 } from "node:fs";
 
@@ -124,6 +125,27 @@ async function captureOutput(
 
 }
 
+function assertNoEmptyGeneratedSections(
+    markdown: string,
+): void {
+
+    assert.doesNotMatch(
+        markdown,
+        /## Purpose\s*## Responsibilities/s,
+    );
+
+    assert.doesNotMatch(
+        markdown,
+        /## Responsibilities\s*## Dependencies/s,
+    );
+
+    assert.doesNotMatch(
+        markdown,
+        /## Dependencies\s*$/s,
+    );
+
+}
+
 test(
     "Architecture CLI docs command generates architecture documentation",
     async () => {
@@ -184,26 +206,114 @@ test(
             true,
         );
 
-        assert.match(
+        const readme =
             readFileSync(
                 architectureDocPath(
                     "README.md",
                 ),
                 "utf8",
-            ),
-            /## Components/,
-        );
+            );
 
-        assert.match(
+        const attendance =
             readFileSync(
                 architectureDocPath(
                     "components",
                     "attendance.md",
                 ),
                 "utf8",
-            ),
+            );
+
+        assert.match(
+            readme,
+            /## Components/,
+        );
+
+        assert.match(
+            attendance,
             /# attendance/,
         );
+
+        assert.match(
+            attendance,
+            /Manage attendance and departure records\./,
+        );
+
+        assert.match(
+            attendance,
+            /- Register Check-In/,
+        );
+
+        assert.match(
+            attendance,
+            /- Determine Attendance Status/,
+        );
+
+        assertNoEmptyGeneratedSections(
+            attendance,
+        );
+
+    },
+);
+
+test(
+    "Architecture CLI docs command generates component docs without empty sections",
+    async () => {
+
+        resetGeneratedDocs();
+
+        await captureOutput(
+            async () => {
+
+                await new DefaultArchitectureCli(
+                    workspaceRoot,
+                )
+                    .run(
+                        [
+                            "docs",
+                        ],
+                    );
+
+            },
+        );
+
+        const componentDocs =
+            readdirSync(
+                architectureDocPath(
+                    "components",
+                ),
+            )
+                .filter(
+                    file => file.endsWith(
+                        ".md",
+                    ),
+                );
+
+        assert.equal(
+            componentDocs.length > 0,
+            true,
+        );
+
+        for (const file of componentDocs) {
+
+            const markdown =
+                readFileSync(
+                    architectureDocPath(
+                        "components",
+                        file,
+                    ),
+                    "utf8",
+                );
+
+            assert.match(
+                markdown,
+                /Generated from Architecture Source of Truth\./,
+            );
+
+            assertNoEmptyGeneratedSections(
+                markdown,
+            );
+
+        }
 
     },
 );

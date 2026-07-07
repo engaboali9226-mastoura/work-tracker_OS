@@ -10,6 +10,7 @@ import type {
 import type {
     ArchitectureModel,
     ComponentArchitecture,
+    Responsibility,
 } from "../model/index.js";
 
 import {
@@ -56,13 +57,26 @@ implements ArchitectureParser {
                     source.manifestPath,
                 );
 
-            markdown.load(
-                source.specificationPath,
-            );
+            const specification =
+                markdown.load(
+                    source.specificationPath,
+                );
 
             const componentName =
                 basename(
                     source.componentPath,
+                );
+
+            const purposeSummary =
+                this.extractSection(
+                    specification,
+                    "Purpose",
+                )
+                    || manifest.metadata.description;
+
+            const responsibilities =
+                this.extractResponsibilities(
+                    specification,
                 );
 
             components.push({
@@ -98,13 +112,13 @@ implements ArchitectureParser {
                 purpose: {
 
                     summary:
-                        manifest.metadata.description,
+                        purposeSummary,
 
                     objectives: [],
 
                 },
 
-                responsibilities: [],
+                responsibilities,
 
                 commands: [],
 
@@ -221,6 +235,192 @@ implements ArchitectureParser {
             },
 
         };
+
+    }
+
+    private extractResponsibilities(
+        markdown: string,
+    ): readonly Responsibility[] {
+
+        return this.extractListSection(
+            markdown,
+            "Responsibilities",
+        )
+            .map(
+                name => ({
+                    name,
+                    description: "",
+                }),
+            );
+
+    }
+
+    private extractSection(
+        markdown: string,
+        heading: string,
+    ): string {
+
+        const lines =
+            markdown.split(
+                /\r?\n/,
+            );
+
+        const startIndex =
+            lines.findIndex(
+                line => this.normalizedHeading(
+                    line,
+                ) === heading.toLowerCase(),
+            );
+
+        if (startIndex < 0) {
+
+            return "";
+
+        }
+
+        const content: string[] =
+            [];
+
+        for (let index = startIndex + 1; index < lines.length; index += 1) {
+
+            const line =
+                lines[index] ?? "";
+
+            const trimmed =
+                line.trim();
+
+            if (this.isSectionBoundary(trimmed)) {
+
+                break;
+
+            }
+
+            content.push(
+                line,
+            );
+
+        }
+
+        return this.trimBlankLines(
+            content,
+        )
+            .join(
+                "\n",
+            )
+            .trim();
+
+    }
+
+    private extractListSection(
+        markdown: string,
+        heading: string,
+    ): readonly string[] {
+
+        return this.extractSection(
+            markdown,
+            heading,
+        )
+            .split(
+                /\r?\n/,
+            )
+            .map(
+                line => line
+                    .trim()
+                    .replace(
+                        /^-\s+/,
+                        "",
+                    )
+                    .trim(),
+            )
+            .filter(
+                line => line.length > 0,
+            );
+
+    }
+
+    private isSectionBoundary(
+        line: string,
+    ): boolean {
+
+        if (/^-{3,}$/.test(line)) {
+
+            return true;
+
+        }
+
+        return this.knownHeadings()
+            .includes(
+                this.normalizedHeading(
+                    line,
+                ),
+            );
+
+    }
+
+    private normalizedHeading(
+        line: string,
+    ): string {
+
+        return line
+            .replace(
+                /^#+\s*/,
+                "",
+            )
+            .trim()
+            .toLowerCase();
+
+    }
+
+    private knownHeadings(): readonly string[] {
+
+        return [
+            "status",
+            "purpose",
+            "responsibilities",
+            "non responsibilities",
+            "inputs",
+            "outputs",
+            "commands",
+            "events in",
+            "events out",
+            "business rules",
+            "acceptance criteria",
+        ];
+
+    }
+
+    private trimBlankLines(
+        lines: readonly string[],
+    ): readonly string[] {
+
+        let start =
+            0;
+
+        let end =
+            lines.length;
+
+        while (
+            start < end
+            && (lines[start] ?? "").trim() === ""
+        ) {
+
+            start += 1;
+
+        }
+
+        while (
+            end > start
+            && (lines[end - 1] ?? "").trim() === ""
+        ) {
+
+            end -= 1;
+
+        }
+
+        return lines.slice(
+            start,
+            end,
+        );
 
     }
 

@@ -4,10 +4,12 @@ import {
 
 export class MarkdownLoader {
 
-    load(path: string): string {
+    load(
+        file: string,
+    ): string {
 
         return readFileSync(
-            path,
+            file,
             "utf8",
         );
 
