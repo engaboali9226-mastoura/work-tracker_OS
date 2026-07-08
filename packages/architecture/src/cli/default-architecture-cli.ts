@@ -1,3 +1,7 @@
+import {
+    join,
+} from "node:path";
+
 import type {
     ArchitectureModel,
 } from "../model/index.js";
@@ -38,6 +42,7 @@ import {
 
 import {
     DefaultArchitectureRegistryGenerator,
+    RuntimeRegistryContractValidator,
 } from "../registry/index.js";
 
 import {
@@ -138,13 +143,33 @@ implements ArchitectureCli {
         const model =
             await this.parse();
 
-        const report =
+        const architectureReport =
             new DefaultArchitectureValidator()
                 .validate(
                     model,
                 );
 
-        if (report.valid) {
+        const registryReport =
+            new RuntimeRegistryContractValidator()
+                .validateFile(
+                    join(
+                        this.workspaceRoot,
+                        "runtime",
+                        "component-registry.json",
+                    ),
+                );
+
+        const issues =
+            [
+                ...architectureReport.issues,
+                ...registryReport.issues,
+            ];
+
+        const valid =
+            architectureReport.valid
+            && registryReport.valid;
+
+        if (valid) {
 
             console.log(
                 "Architecture validation passed.",
@@ -163,10 +188,10 @@ implements ArchitectureCli {
         );
 
         console.log(
-            `Issues: ${report.issues.length}`,
+            `Issues: ${issues.length}`,
         );
 
-        for (const issue of report.issues) {
+        for (const issue of issues) {
 
             console.log(
                 `[${issue.severity}] ${issue.code}: ${issue.message}`,
@@ -174,7 +199,7 @@ implements ArchitectureCli {
 
         }
 
-        if (!report.valid) {
+        if (!valid) {
 
             throw new Error(
                 "Architecture validation failed.",
