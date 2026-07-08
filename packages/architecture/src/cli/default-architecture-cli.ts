@@ -74,7 +74,11 @@ implements ArchitectureCli {
                     .generate();
 
                 console.log(
-                    "Architecture report generated.",
+                    "Architecture registry generated.",
+                );
+
+                console.log(
+                    "Output: runtime/component-registry.json",
                 );
 
                 break;

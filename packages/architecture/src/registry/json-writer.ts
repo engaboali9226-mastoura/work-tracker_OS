@@ -1,5 +1,7 @@
 import {
+    existsSync,
     mkdirSync,
+    readFileSync,
     writeFileSync,
 } from "node:fs";
 
@@ -20,6 +22,26 @@ export class JsonWriter {
                 recursive: true,
             },
         );
+
+        if (
+            existsSync(
+                file,
+            )
+        ) {
+
+            const existing =
+                readFileSync(
+                    file,
+                    "utf8",
+                );
+
+            if (existing === content) {
+
+                return;
+
+            }
+
+        }
 
         writeFileSync(
             file,
