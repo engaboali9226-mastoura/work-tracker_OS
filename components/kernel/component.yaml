@@ -10,7 +10,7 @@ metadata:
 
   version: 1.0.0
 
-  description: ""
+  description: "Provide the common runtime model for every component."
 
 spec:
 
@@ -30,9 +30,13 @@ spec:
 
   ports:
 
-    inputs: []
+    inputs:
+      - Component Registration
+      - Component Configuration
 
-    outputs: []
+    outputs:
+      - Registration Result
+      - Health Result
 
   services: []
 

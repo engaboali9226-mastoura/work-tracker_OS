@@ -10,7 +10,7 @@ metadata:
 
   version: 1.0.0
 
-  description: ""
+  description: "Manage the complete lifecycle of work tasks."
 
 spec:
 
@@ -30,9 +30,26 @@ spec:
 
   ports:
 
-    inputs: []
+    inputs:
+      - CreateTask
+      - StartTask
+      - PauseTask
+      - ResumeTask
+      - CompleteTask
+      - CancelTask
+      - AddTaskNote
+      - GetTask
+      - GetActiveTasks
 
-    outputs: []
+    outputs:
+      - TaskCreated
+      - TaskStarted
+      - TaskPaused
+      - TaskResumed
+      - TaskCompleted
+      - TaskCancelled
+      - TaskNoteAdded
+      - ActiveTasks
 
   services: []
 

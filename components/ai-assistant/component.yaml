@@ -10,7 +10,7 @@ metadata:
 
   version: 1.0.0
 
-  description: ""
+  description: "Provide intelligent analysis, recommendations and natural language assistance for Work Tracker OS users."
 
 spec:
 
@@ -30,9 +30,17 @@ spec:
 
   ports:
 
-    inputs: []
+    inputs:
+      - AnalyzeContext
+      - GenerateRecommendation
+      - SummarizeWorkday
+      - AskQuestion
 
-    outputs: []
+    outputs:
+      - RecommendationGenerated
+      - SummaryGenerated
+      - InsightGenerated
+      - AnswerGenerated
 
   services: []
 

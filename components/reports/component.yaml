@@ -10,7 +10,7 @@ metadata:
 
   version: 1.0.0
 
-  description: ""
+  description: "Generate operational and management reports from business data."
 
 spec:
 
@@ -30,9 +30,17 @@ spec:
 
   ports:
 
-    inputs: []
+    inputs:
+      - GenerateDailyReport
+      - GenerateWeeklyReport
+      - GenerateMonthlyReport
+      - GenerateQuarterlyReport
+      - GenerateYearlyReport
+      - ExportReport
 
-    outputs: []
+    outputs:
+      - ReportGenerated
+      - ReportExported
 
   services: []
 

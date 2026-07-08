@@ -10,7 +10,7 @@ metadata:
 
   version: 1.0.0
 
-  description: ""
+  description: "Provide integration with external systems and services."
 
 spec:
 
@@ -30,9 +30,19 @@ spec:
 
   ports:
 
-    inputs: []
+    inputs:
+      - RegisterProvider
+      - SynchronizeData
+      - ReceiveWebhook
+      - PublishEvent
+      - ExecuteIntegration
 
-    outputs: []
+    outputs:
+      - ProviderRegistered
+      - SynchronizationCompleted
+      - SynchronizationFailed
+      - WebhookReceived
+      - IntegrationEventPublished
 
   services: []
 

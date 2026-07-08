@@ -34,9 +34,19 @@ export interface ComponentManifestSpec {
 
     readonly dependencies: readonly string[];
 
+    readonly ports: ComponentManifestPorts;
+
     readonly services: readonly string[];
 
     readonly capabilities: readonly string[];
+
+}
+
+export interface ComponentManifestPorts {
+
+    readonly inputs: readonly string[];
+
+    readonly outputs: readonly string[];
 
 }
 

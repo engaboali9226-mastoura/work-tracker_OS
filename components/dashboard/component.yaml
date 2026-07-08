@@ -10,7 +10,7 @@ metadata:
 
   version: 1.0.0
 
-  description: ""
+  description: "Provide the main user dashboard by aggregating data from business components."
 
 spec:
 
@@ -30,9 +30,13 @@ spec:
 
   ports:
 
-    inputs: []
+    inputs:
+      - GetDashboard
+      - RefreshDashboard
 
-    outputs: []
+    outputs:
+      - DashboardView
+      - DashboardUpdated
 
   services: []
 

@@ -10,7 +10,7 @@ metadata:
 
   version: 1.0.0
 
-  description: ""
+  description: "Manage the creation, scheduling and delivery of notifications."
 
 spec:
 
@@ -30,9 +30,19 @@ spec:
 
   ports:
 
-    inputs: []
+    inputs:
+      - CreateNotification
+      - ScheduleNotification
+      - SendNotification
+      - CancelNotification
+      - RetryNotification
 
-    outputs: []
+    outputs:
+      - NotificationCreated
+      - NotificationScheduled
+      - NotificationSent
+      - NotificationCancelled
+      - NotificationFailed
 
   services: []
 

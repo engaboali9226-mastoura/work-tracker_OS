@@ -10,7 +10,7 @@ metadata:
 
   version: 1.0.0
 
-  description: ""
+  description: "Analyze operational data and generate insights, trends, predictions and recommendations."
 
 spec:
 
@@ -30,9 +30,18 @@ spec:
 
   ports:
 
-    inputs: []
+    inputs:
+      - AnalyzeTasks
+      - AnalyzeWorkdays
+      - AnalyzeAttendance
+      - AnalyzeReports
+      - GenerateInsights
 
-    outputs: []
+    outputs:
+      - ProductivityMetrics
+      - PerformanceInsights
+      - RiskPrediction
+      - RecommendationGenerated
 
   services: []
 

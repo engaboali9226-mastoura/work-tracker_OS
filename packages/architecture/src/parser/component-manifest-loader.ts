@@ -113,6 +113,26 @@ export class ComponentManifestLoader {
                         "dependencies",
                     ),
 
+                ports: {
+
+                    inputs:
+                        this.readDoubleNestedStringArray(
+                            content,
+                            "spec",
+                            "ports",
+                            "inputs",
+                        ),
+
+                    outputs:
+                        this.readDoubleNestedStringArray(
+                            content,
+                            "spec",
+                            "ports",
+                            "outputs",
+                        ),
+
+                },
+
                 services:
                     this.readNestedStringArray(
                         content,
@@ -209,7 +229,7 @@ export class ComponentManifestLoader {
     ): string {
 
         const sectionContent =
-            this.readSection(
+            this.readTopLevelSection(
                 content,
                 section,
             );
@@ -238,20 +258,56 @@ export class ComponentManifestLoader {
         key: string,
     ): readonly string[] {
 
-        const sectionContent =
-            this.readSection(
+        return this.readIndentedStringArray(
+            this.readTopLevelSection(
                 content,
                 section,
-            );
+            ),
+            key,
+            2,
+            4,
+        );
+
+    }
+
+    private readDoubleNestedStringArray(
+        content: string,
+        section: string,
+        nestedSection: string,
+        key: string,
+    ): readonly string[] {
+
+        return this.readIndentedStringArray(
+            this.readNestedSection(
+                this.readTopLevelSection(
+                    content,
+                    section,
+                ),
+                nestedSection,
+                2,
+            ),
+            key,
+            4,
+            6,
+        );
+
+    }
+
+    private readIndentedStringArray(
+        content: string,
+        key: string,
+        keyIndent: number,
+        itemIndent: number,
+    ): readonly string[] {
 
         const lines =
-            sectionContent.split(
+            content.split(
                 /\r?\n/,
             );
 
         const keyExpression =
             new RegExp(
-                `^\\s{2}${key}:\\s*(.*)$`,
+                `^\\s{${keyIndent}}${key}:\\s*(.*)$`,
             );
 
         const start =
@@ -308,6 +364,16 @@ export class ComponentManifestLoader {
 
         const values: string[] = [];
 
+        const nextSiblingExpression =
+            new RegExp(
+                `^\\s{${keyIndent}}\\S[^:]*:\\s*`,
+            );
+
+        const itemExpression =
+            new RegExp(
+                `^\\s{${itemIndent}}-\\s+(.*)$`,
+            );
+
         for (
             let index = start + 1;
             index < lines.length;
@@ -318,7 +384,7 @@ export class ComponentManifestLoader {
                 lines[index] ?? "";
 
             if (
-                /^ {2}\S[^:]*:\s*/.test(
+                nextSiblingExpression.test(
                     line,
                 )
             ) {
@@ -329,7 +395,7 @@ export class ComponentManifestLoader {
 
             const item =
                 line.match(
-                    /^ {4}-\s+(.*)$/,
+                    itemExpression,
                 );
 
             if (item?.[1] !== undefined) {
@@ -358,34 +424,54 @@ export class ComponentManifestLoader {
         fallback: boolean,
     ): boolean {
 
-        const runtimeContent =
-            this.readSection(
+        const runtimeSection =
+            this.readTopLevelSection(
                 content,
                 "runtime",
             );
 
-        const expression =
-            new RegExp(
-                `^\\s{2}${key}:\\s*\\n\\s{4}enabled:\\s*(true|false)\\s*$`,
-                "m",
+        const runtimeItemSection =
+            this.readNestedSection(
+                runtimeSection,
+                key,
+                2,
             );
 
         const match =
-            runtimeContent.match(
-                expression,
+            runtimeItemSection.match(
+                /^ {4}enabled:\s*(.*)$/m,
             );
 
-        if (!match) {
+        if (!match?.[1]) {
 
             return fallback;
 
         }
 
-        return match[1] === "true";
+        const value =
+            this.cleanScalar(
+                match[1],
+                "",
+            )
+                .toLowerCase();
+
+        if (value === "true") {
+
+            return true;
+
+        }
+
+        if (value === "false") {
+
+            return false;
+
+        }
+
+        return fallback;
 
     }
 
-    private readSection(
+    private readTopLevelSection(
         content: string,
         section: string,
     ): string {
@@ -397,9 +483,68 @@ export class ComponentManifestLoader {
 
         const start =
             lines.findIndex(line =>
-                new RegExp(
-                    `^${section}:\\s*$`,
-                ).test(
+                line.trim() === `${section}:`,
+            );
+
+        if (start === -1) {
+
+            return "";
+
+        }
+
+        const result: string[] = [];
+
+        for (
+            let index = start + 1;
+            index < lines.length;
+            index += 1
+        ) {
+
+            const line =
+                lines[index] ?? "";
+
+            if (/^\S[^:]*:\s*/.test(line)) {
+
+                break;
+
+            }
+
+            result.push(
+                line,
+            );
+
+        }
+
+        return result.join(
+            "\n",
+        );
+
+    }
+
+    private readNestedSection(
+        content: string,
+        section: string,
+        indent: number,
+    ): string {
+
+        const lines =
+            content.split(
+                /\r?\n/,
+            );
+
+        const sectionExpression =
+            new RegExp(
+                `^\\s{${indent}}${section}:\\s*$`,
+            );
+
+        const siblingExpression =
+            new RegExp(
+                `^\\s{${indent}}\\S[^:]*:\\s*`,
+            );
+
+        const start =
+            lines.findIndex(line =>
+                sectionExpression.test(
                     line,
                 ),
             );
@@ -410,7 +555,10 @@ export class ComponentManifestLoader {
 
         }
 
-        const sectionLines: string[] = [];
+        const result =
+            [
+                lines[start] ?? "",
+            ];
 
         for (
             let index = start + 1;
@@ -422,11 +570,8 @@ export class ComponentManifestLoader {
                 lines[index] ?? "";
 
             if (
-                /^\S/.test(
+                siblingExpression.test(
                     line,
-                ) &&
-                line.includes(
-                    ":",
                 )
             ) {
 
@@ -434,13 +579,13 @@ export class ComponentManifestLoader {
 
             }
 
-            sectionLines.push(
+            result.push(
                 line,
             );
 
         }
 
-        return sectionLines.join(
+        return result.join(
             "\n",
         );
 
@@ -451,28 +596,46 @@ export class ComponentManifestLoader {
         fallback: string,
     ): string {
 
-        if (value === undefined) {
+        const trimmed =
+            value?.trim() ?? "";
+
+        if (trimmed.length === 0) {
 
             return fallback;
 
         }
 
-        const cleaned =
-            value
-                .trim()
-                .replace(/^["']/, "")
-                .replace(/["']$/, "");
+        let scalar =
+            trimmed;
 
         if (
-            cleaned.length === 0 ||
-            cleaned === "null"
+            (
+                scalar.startsWith('"') &&
+                scalar.endsWith('"')
+            ) ||
+            (
+                scalar.startsWith("'") &&
+                scalar.endsWith("'")
+            )
         ) {
+
+            scalar =
+                scalar
+                    .slice(
+                        1,
+                        -1,
+                    )
+                    .trim();
+
+        }
+
+        if (scalar.length === 0) {
 
             return fallback;
 
         }
 
-        return cleaned;
+        return scalar;
 
     }
 

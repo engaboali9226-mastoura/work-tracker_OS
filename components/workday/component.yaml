@@ -10,7 +10,7 @@ metadata:
 
   version: 1.0.0
 
-  description: ""
+  description: "Manage the lifecycle of the working day."
 
 spec:
 
@@ -30,9 +30,15 @@ spec:
 
   ports:
 
-    inputs: []
+    inputs:
+      - StartWorkday
+      - EndWorkday
+      - GetCurrentWorkday
 
-    outputs: []
+    outputs:
+      - WorkdayStarted
+      - WorkdayEnded
+      - CurrentWorkday
 
   services: []
 

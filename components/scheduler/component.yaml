@@ -10,7 +10,7 @@ metadata:
 
   version: 1.0.0
 
-  description: ""
+  description: "Manage all scheduled operations and time-based automation across Work Tracker OS."
 
 spec:
 
@@ -30,9 +30,20 @@ spec:
 
   ports:
 
-    inputs: []
+    inputs:
+      - RegisterSchedule
+      - CancelSchedule
+      - PauseSchedule
+      - ResumeSchedule
+      - ExecuteSchedule
 
-    outputs: []
+    outputs:
+      - ScheduleRegistered
+      - ScheduleExecuted
+      - ScheduleCancelled
+      - SchedulePaused
+      - ScheduleResumed
+      - ScheduleFailed
 
   services: []
 

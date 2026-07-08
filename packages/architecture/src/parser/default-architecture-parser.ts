@@ -144,7 +144,26 @@ implements ArchitectureParser {
 
                 contracts: [],
 
-                ports: [],
+                ports: [
+                    ...manifest.spec.ports.inputs.map(
+                        port => ({
+                            name:
+                                port,
+
+                            direction:
+                                "input" as const,
+                        }),
+                    ),
+                    ...manifest.spec.ports.outputs.map(
+                        port => ({
+                            name:
+                                port,
+
+                            direction:
+                                "output" as const,
+                        }),
+                    ),
+                ],
 
                 services:
                     manifest.spec.services.map(

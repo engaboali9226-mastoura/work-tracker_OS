@@ -10,7 +10,7 @@ metadata:
 
   version: 1.0.0
 
-  description: ""
+  description: "Manage attendance and departure records."
 
 spec:
 
@@ -30,9 +30,15 @@ spec:
 
   ports:
 
-    inputs: []
+    inputs:
+      - CheckIn
+      - CheckOut
+      - GetAttendance
 
-    outputs: []
+    outputs:
+      - CheckedIn
+      - CheckedOut
+      - AttendanceStatus
 
   services: []
 
