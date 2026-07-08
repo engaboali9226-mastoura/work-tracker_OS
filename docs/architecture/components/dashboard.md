@@ -16,6 +16,16 @@ Provide the main user dashboard by aggregating data from business components.
 - Display Upcoming Events
 - Display Quick Actions
 
+## Input Ports
+
+- GetDashboard
+- RefreshDashboard
+
+## Output Ports
+
+- DashboardView
+- DashboardUpdated
+
 ## Dependencies
 
 - none

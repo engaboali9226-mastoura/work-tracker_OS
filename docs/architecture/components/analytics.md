@@ -16,6 +16,21 @@ Analyze operational data and generate insights, trends, predictions and recommen
 - Predict Potential Risks
 - Build KPI Metrics
 
+## Input Ports
+
+- AnalyzeTasks
+- AnalyzeWorkdays
+- AnalyzeAttendance
+- AnalyzeReports
+- GenerateInsights
+
+## Output Ports
+
+- ProductivityMetrics
+- PerformanceInsights
+- RiskPrediction
+- RecommendationGenerated
+
 ## Dependencies
 
 - none

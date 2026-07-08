@@ -15,6 +15,20 @@ Generate operational and management reports from business data.
 - Generate Yearly Reports
 - Export Reports
 
+## Input Ports
+
+- GenerateDailyReport
+- GenerateWeeklyReport
+- GenerateMonthlyReport
+- GenerateQuarterlyReport
+- GenerateYearlyReport
+- ExportReport
+
+## Output Ports
+
+- ReportGenerated
+- ReportExported
+
 ## Dependencies
 
 - none

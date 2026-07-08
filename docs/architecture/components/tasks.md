@@ -18,6 +18,29 @@ Manage the complete lifecycle of work tasks.
 - Retrieve Active Tasks
 - Retrieve Task History
 
+## Input Ports
+
+- CreateTask
+- StartTask
+- PauseTask
+- ResumeTask
+- CompleteTask
+- CancelTask
+- AddTaskNote
+- GetTask
+- GetActiveTasks
+
+## Output Ports
+
+- TaskCreated
+- TaskStarted
+- TaskPaused
+- TaskResumed
+- TaskCompleted
+- TaskCancelled
+- TaskNoteAdded
+- ActiveTasks
+
 ## Dependencies
 
 - none

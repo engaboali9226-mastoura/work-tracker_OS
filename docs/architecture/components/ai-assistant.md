@@ -17,6 +17,20 @@ assistance for Work Tracker OS users.
 - Answer User Questions
 - Produce Actionable Insights
 
+## Input Ports
+
+- AnalyzeContext
+- GenerateRecommendation
+- SummarizeWorkday
+- AskQuestion
+
+## Output Ports
+
+- RecommendationGenerated
+- SummaryGenerated
+- InsightGenerated
+- AnswerGenerated
+
 ## Dependencies
 
 - none

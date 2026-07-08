@@ -17,6 +17,23 @@ Work Tracker OS.
 - Retry Failed Jobs
 - Publish Schedule Events
 
+## Input Ports
+
+- RegisterSchedule
+- CancelSchedule
+- PauseSchedule
+- ResumeSchedule
+- ExecuteSchedule
+
+## Output Ports
+
+- ScheduleRegistered
+- ScheduleExecuted
+- ScheduleCancelled
+- SchedulePaused
+- ScheduleResumed
+- ScheduleFailed
+
 ## Dependencies
 
 - none

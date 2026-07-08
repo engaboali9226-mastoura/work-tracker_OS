@@ -16,6 +16,22 @@ Provide integration with external systems and services.
 - Manage Authentication
 - Handle Integration Failures
 
+## Input Ports
+
+- RegisterProvider
+- SynchronizeData
+- ReceiveWebhook
+- PublishEvent
+- ExecuteIntegration
+
+## Output Ports
+
+- ProviderRegistered
+- SynchronizationCompleted
+- SynchronizationFailed
+- WebhookReceived
+- IntegrationEventPublished
+
 ## Dependencies
 
 - none

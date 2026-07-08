@@ -15,6 +15,22 @@ Manage the creation, scheduling and delivery of notifications.
 - Retry Failed Notification
 - Manage Notification Channels
 
+## Input Ports
+
+- CreateNotification
+- ScheduleNotification
+- SendNotification
+- CancelNotification
+- RetryNotification
+
+## Output Ports
+
+- NotificationCreated
+- NotificationScheduled
+- NotificationSent
+- NotificationCancelled
+- NotificationFailed
+
 ## Dependencies
 
 - none

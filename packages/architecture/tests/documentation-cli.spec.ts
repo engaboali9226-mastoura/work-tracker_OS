@@ -136,7 +136,7 @@ function assertNoEmptyGeneratedSections(
 
     assert.doesNotMatch(
         markdown,
-        /## Responsibilities\s*## Dependencies/s,
+        /## Responsibilities\s*## Input Ports\s*## Output Ports\s*## Dependencies/s,
     );
 
     assert.doesNotMatch(

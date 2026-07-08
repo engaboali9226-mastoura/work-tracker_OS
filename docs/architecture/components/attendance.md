@@ -13,6 +13,18 @@ Manage attendance and departure records.
 - Calculate Working Duration
 - Determine Attendance Status
 
+## Input Ports
+
+- CheckIn
+- CheckOut
+- GetAttendance
+
+## Output Ports
+
+- CheckedIn
+- CheckedOut
+- AttendanceStatus
+
 ## Dependencies
 
 - none

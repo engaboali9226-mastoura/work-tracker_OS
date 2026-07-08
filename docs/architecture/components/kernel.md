@@ -19,6 +19,16 @@ Provide the common runtime model for every component.
 - Health
 - Metrics
 
+## Input Ports
+
+- Component Registration
+- Component Configuration
+
+## Output Ports
+
+- Registration Result
+- Health Result
+
 ## Dependencies
 
 - none

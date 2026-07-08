@@ -13,6 +13,18 @@ Manage the lifecycle of the working day.
 - Get Current Workday
 - Publish Workday Events
 
+## Input Ports
+
+- StartWorkday
+- EndWorkday
+- GetCurrentWorkday
+
+## Output Ports
+
+- WorkdayStarted
+- WorkdayEnded
+- CurrentWorkday
+
 ## Dependencies
 
 - none

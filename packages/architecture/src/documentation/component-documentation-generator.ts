@@ -1,6 +1,7 @@
 import type {
     ComponentArchitecture,
     DependencyReference,
+    PortReference,
     Responsibility,
 } from "../model/index.js";
 
@@ -21,6 +22,14 @@ ${this.renderPurpose(component)}
 ## Responsibilities
 
 ${this.renderResponsibilities(component)}
+
+## Input Ports
+
+${this.renderPorts(component, "input")}
+
+## Output Ports
+
+${this.renderPorts(component, "output")}
 
 ## Dependencies
 
@@ -79,6 +88,45 @@ ${this.renderDependencies(component)}
         }
 
         return `- ${responsibility.name}: ${responsibility.description}`;
+
+    }
+
+    private renderPorts(
+        component: ComponentArchitecture,
+        direction: "input" | "output",
+    ): string {
+
+        const ports =
+            (
+                component.ports ?? []
+            ).filter(
+                port =>
+                    port.direction === direction,
+            );
+
+        if (ports.length === 0) {
+
+            return "- none";
+
+        }
+
+        return ports
+            .map(
+                port => this.renderPort(
+                    port,
+                ),
+            )
+            .join(
+                "\n",
+            );
+
+    }
+
+    private renderPort(
+        port: PortReference,
+    ): string {
+
+        return `- ${port.name}`;
 
     }
 
