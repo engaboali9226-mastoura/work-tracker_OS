@@ -120,6 +120,77 @@ test(
 );
 
 test(
+    "Forge generator aligns manifest source-of-truth fields",
+    () => {
+
+        cleanupProbe();
+
+        try {
+
+            generateComponent(
+                probeName,
+            );
+
+            const manifest =
+                readProbeFile(
+                    "component.yaml",
+                );
+
+            assert.doesNotMatch(
+                manifest,
+                /description:\s*""/,
+            );
+
+            assert.match(
+                manifest,
+                /description:\s+"Describe the responsibility of Selfgen Test Probe\."/,
+            );
+
+            assert.doesNotMatch(
+                manifest,
+                /inputs:\s*\[\]/,
+            );
+
+            assert.match(
+                manifest,
+                /-\s+SelfgenTestProbeInput/,
+            );
+
+            assert.doesNotMatch(
+                manifest,
+                /outputs:\s*\[\]/,
+            );
+
+            assert.match(
+                manifest,
+                /-\s+SelfgenTestProbeOutput/,
+            );
+
+            assert.match(
+                manifest,
+                /dependencies:\s*\[\]/,
+            );
+
+            assert.match(
+                manifest,
+                /services:\s*\[\]/,
+            );
+
+            assert.match(
+                manifest,
+                /capabilities:\s*\[\]/,
+            );
+
+        } finally {
+
+            cleanupProbe();
+
+        }
+
+    },
+);
+
+test(
     "Forge generator renders component-aware documentation",
     () => {
 

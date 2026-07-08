@@ -56,6 +56,22 @@ function toDisplayName(
 
 }
 
+function toPascalName(
+    name: string,
+): string {
+
+    return name
+        .split("-")
+        .filter(Boolean)
+        .map(
+            part =>
+                part.charAt(0).toUpperCase() +
+                part.slice(1),
+        )
+        .join("");
+
+}
+
 function renderTemplate(
     content: string,
     name: string,
@@ -63,6 +79,9 @@ function renderTemplate(
 
     const displayName =
         toDisplayName(name);
+
+    const pascalName =
+        toPascalName(name);
 
     return content
         .replaceAll(
@@ -72,6 +91,18 @@ function renderTemplate(
         .replaceAll(
             "Component Name",
             displayName,
+        )
+        .replaceAll(
+            "ComponentDescription",
+            `Describe the responsibility of ${displayName}.`,
+        )
+        .replaceAll(
+            "ComponentInput",
+            `${pascalName}Input`,
+        )
+        .replaceAll(
+            "ComponentOutput",
+            `${pascalName}Output`,
         );
 
 }

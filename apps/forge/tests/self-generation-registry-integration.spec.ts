@@ -57,15 +57,42 @@ test(
                 )
                     .parse();
 
-            const hasComponent =
-                model.system.components.some(
-                    component =>
-                        component.identity.name === probeName,
+            const component =
+                model.system.components.find(
+                    item =>
+                        item.identity.name === probeName,
                 );
 
+            assert.ok(
+                component,
+            );
+
             assert.equal(
-                hasComponent,
+                component.identity.description,
+                "Describe the responsibility of Selfgen Registry Test Probe.",
+            );
+
+            assert.equal(
+                component.ports.some(
+                    port =>
+                        port.name === "SelfgenRegistryTestProbeInput"
+                        && port.direction === "input",
+                ),
                 true,
+            );
+
+            assert.equal(
+                component.ports.some(
+                    port =>
+                        port.name === "SelfgenRegistryTestProbeOutput"
+                        && port.direction === "output",
+                ),
+                true,
+            );
+
+            assert.deepEqual(
+                component.dependencies,
+                [],
             );
 
             const registry =
@@ -78,8 +105,8 @@ test(
 
             const entry =
                 registry.components.find(
-                    component =>
-                        component.name === probeName,
+                    item =>
+                        item.name === probeName,
                 );
 
             assert.ok(

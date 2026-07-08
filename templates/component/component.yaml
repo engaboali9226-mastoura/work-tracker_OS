@@ -10,7 +10,7 @@ metadata:
 
   version: 1.0.0
 
-  description: ""
+  description: "ComponentDescription"
 
 spec:
 
@@ -30,9 +30,11 @@ spec:
 
   ports:
 
-    inputs: []
+    inputs:
+      - ComponentInput
 
-    outputs: []
+    outputs:
+      - ComponentOutput
 
   services: []
 
