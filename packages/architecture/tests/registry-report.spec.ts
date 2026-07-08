@@ -98,6 +98,37 @@ test(
             "components/attendance/tests",
         );
 
+        assert.deepEqual(
+            attendance.metadata,
+            {
+                manifestName: "attendance",
+                displayName: "Attendance",
+                version: "1.0.0",
+                category: "business",
+                owner: "business",
+                description: "Manage attendance and departure records.",
+                status: "Draft",
+            },
+        );
+
+        assert.deepEqual(
+            attendance.ports.inputs,
+            [
+                "CheckIn",
+                "CheckOut",
+                "GetAttendance",
+            ],
+        );
+
+        assert.deepEqual(
+            attendance.ports.outputs,
+            [
+                "CheckedIn",
+                "CheckedOut",
+                "AttendanceStatus",
+            ],
+        );
+
     },
 );
 
@@ -151,6 +182,107 @@ test(
         assert.equal(
             "tests" in kernel,
             false,
+        );
+
+        assert.deepEqual(
+            kernel.metadata,
+            {
+                manifestName: "kernel",
+                displayName: "Kernel",
+                version: "1.0.0",
+                category: "business",
+                owner: "business",
+                description: "Provide the common runtime model for every component.",
+                status: "Draft",
+            },
+        );
+
+        assert.deepEqual(
+            kernel.ports.inputs,
+            [
+                "Component Registration",
+                "Component Configuration",
+            ],
+        );
+
+        assert.deepEqual(
+            kernel.ports.outputs,
+            [
+                "Registration Result",
+                "Health Result",
+            ],
+        );
+
+    },
+);
+
+test(
+    "DefaultComponentRegistryProjector exposes task metadata and ports",
+    async () => {
+
+        const model =
+            await new DefaultArchitectureParser(
+                workspaceRoot,
+            )
+                .parse();
+
+        const registry =
+            new DefaultComponentRegistryProjector(
+                workspaceRoot,
+            )
+                .project(
+                    model,
+                );
+
+        const tasks =
+            registry.components.find(
+                component => component.name === "tasks",
+            );
+
+        assert.ok(
+            tasks,
+        );
+
+        assert.deepEqual(
+            tasks.metadata,
+            {
+                manifestName: "tasks",
+                displayName: "Tasks",
+                version: "1.0.0",
+                category: "business",
+                owner: "business",
+                description: "Manage the complete lifecycle of work tasks.",
+                status: "Draft",
+            },
+        );
+
+        assert.deepEqual(
+            tasks.ports.inputs,
+            [
+                "CreateTask",
+                "StartTask",
+                "PauseTask",
+                "ResumeTask",
+                "CompleteTask",
+                "CancelTask",
+                "AddTaskNote",
+                "GetTask",
+                "GetActiveTasks",
+            ],
+        );
+
+        assert.deepEqual(
+            tasks.ports.outputs,
+            [
+                "TaskCreated",
+                "TaskStarted",
+                "TaskPaused",
+                "TaskResumed",
+                "TaskCompleted",
+                "TaskCancelled",
+                "TaskNoteAdded",
+                "ActiveTasks",
+            ],
         );
 
     },

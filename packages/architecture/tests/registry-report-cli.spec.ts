@@ -104,6 +104,39 @@ test(
             11,
         );
 
+        const attendance =
+            registry.components.find(
+                (component: { name: string }) =>
+                    component.name === "attendance",
+            );
+
+        assert.ok(
+            attendance,
+        );
+
+        assert.equal(
+            attendance.metadata.description,
+            "Manage attendance and departure records.",
+        );
+
+        assert.deepEqual(
+            attendance.ports.inputs,
+            [
+                "CheckIn",
+                "CheckOut",
+                "GetAttendance",
+            ],
+        );
+
+        assert.deepEqual(
+            attendance.ports.outputs,
+            [
+                "CheckedIn",
+                "CheckedOut",
+                "AttendanceStatus",
+            ],
+        );
+
     },
 );
 

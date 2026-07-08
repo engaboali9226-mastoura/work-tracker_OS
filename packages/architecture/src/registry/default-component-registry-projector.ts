@@ -8,6 +8,7 @@ import {
 
 import type {
     ArchitectureModel,
+    ComponentArchitecture,
 } from "../model/index.js";
 
 import type {
@@ -39,7 +40,7 @@ implements ComponentRegistryProjector {
                 model.system.components.map(
                     component =>
                         this.projectComponent(
-                            component.identity.name,
+                            component,
                         ),
                 ),
 
@@ -61,8 +62,11 @@ implements ComponentRegistryProjector {
     }
 
     private projectComponent(
-        name: string,
+        component: ComponentArchitecture,
     ): ComponentRegistryEntry {
+
+        const name =
+            component.identity.name;
 
         const root =
             `components/${name}`;
@@ -125,6 +129,58 @@ implements ComponentRegistryProjector {
                     }
                     : {}
             ),
+
+            metadata: {
+
+                manifestName:
+                    component.identity.manifestName
+                    ?? component.identity.name,
+
+                displayName:
+                    component.identity.displayName,
+
+                version:
+                    component.identity.version,
+
+                category:
+                    component.identity.category,
+
+                owner:
+                    component.identity.owner,
+
+                description:
+                    component.identity.description,
+
+                status:
+                    component.identity.status,
+
+            },
+
+            ports: {
+
+                inputs:
+                    component.ports
+                        .filter(
+                            port =>
+                                port.direction === "input",
+                        )
+                        .map(
+                            port =>
+                                port.name,
+                        ),
+
+                outputs:
+                    component.ports
+                        .filter(
+                            port =>
+                                port.direction === "output",
+                        )
+                        .map(
+                            port =>
+                                port.name,
+                        ),
+
+            },
 
         };
 

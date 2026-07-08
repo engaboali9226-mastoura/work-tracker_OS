@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-06T07:37:48.123Z",
+  "generatedAt": "2026-07-08T14:57:57.363Z",
   "components": [
     {
       "name": "ai-assistant",
@@ -7,7 +7,30 @@
       "specification": "components/ai-assistant/specification/SPECIFICATION.md",
       "contracts": "components/ai-assistant/contracts",
       "implementation": "components/ai-assistant/implementation",
-      "tests": "components/ai-assistant/tests"
+      "tests": "components/ai-assistant/tests",
+      "metadata": {
+        "manifestName": "ai-assistant",
+        "displayName": "AI Assistant",
+        "version": "1.0.0",
+        "category": "business",
+        "owner": "business",
+        "description": "Provide intelligent analysis, recommendations and natural language assistance for Work Tracker OS users.",
+        "status": "Draft"
+      },
+      "ports": {
+        "inputs": [
+          "AnalyzeContext",
+          "GenerateRecommendation",
+          "SummarizeWorkday",
+          "AskQuestion"
+        ],
+        "outputs": [
+          "RecommendationGenerated",
+          "SummaryGenerated",
+          "InsightGenerated",
+          "AnswerGenerated"
+        ]
+      }
     },
     {
       "name": "analytics",
@@ -15,7 +38,31 @@
       "specification": "components/analytics/specification/SPECIFICATION.md",
       "contracts": "components/analytics/contracts",
       "implementation": "components/analytics/implementation",
-      "tests": "components/analytics/tests"
+      "tests": "components/analytics/tests",
+      "metadata": {
+        "manifestName": "analytics",
+        "displayName": "Analytics",
+        "version": "1.0.0",
+        "category": "business",
+        "owner": "business",
+        "description": "Analyze operational data and generate insights, trends, predictions and recommendations.",
+        "status": "Draft"
+      },
+      "ports": {
+        "inputs": [
+          "AnalyzeTasks",
+          "AnalyzeWorkdays",
+          "AnalyzeAttendance",
+          "AnalyzeReports",
+          "GenerateInsights"
+        ],
+        "outputs": [
+          "ProductivityMetrics",
+          "PerformanceInsights",
+          "RiskPrediction",
+          "RecommendationGenerated"
+        ]
+      }
     },
     {
       "name": "attendance",
@@ -23,7 +70,28 @@
       "specification": "components/attendance/specification/SPECIFICATION.md",
       "contracts": "components/attendance/contracts",
       "implementation": "components/attendance/implementation",
-      "tests": "components/attendance/tests"
+      "tests": "components/attendance/tests",
+      "metadata": {
+        "manifestName": "attendance",
+        "displayName": "Attendance",
+        "version": "1.0.0",
+        "category": "business",
+        "owner": "business",
+        "description": "Manage attendance and departure records.",
+        "status": "Draft"
+      },
+      "ports": {
+        "inputs": [
+          "CheckIn",
+          "CheckOut",
+          "GetAttendance"
+        ],
+        "outputs": [
+          "CheckedIn",
+          "CheckedOut",
+          "AttendanceStatus"
+        ]
+      }
     },
     {
       "name": "dashboard",
@@ -31,7 +99,26 @@
       "specification": "components/dashboard/specification/SPECIFICATION.md",
       "contracts": "components/dashboard/contracts",
       "implementation": "components/dashboard/implementation",
-      "tests": "components/dashboard/tests"
+      "tests": "components/dashboard/tests",
+      "metadata": {
+        "manifestName": "dashboard",
+        "displayName": "Dashboard",
+        "version": "1.0.0",
+        "category": "business",
+        "owner": "business",
+        "description": "Provide the main user dashboard by aggregating data from business components.",
+        "status": "Draft"
+      },
+      "ports": {
+        "inputs": [
+          "GetDashboard",
+          "RefreshDashboard"
+        ],
+        "outputs": [
+          "DashboardView",
+          "DashboardUpdated"
+        ]
+      }
     },
     {
       "name": "integrations",
@@ -39,12 +126,56 @@
       "specification": "components/integrations/specification/SPECIFICATION.md",
       "contracts": "components/integrations/contracts",
       "implementation": "components/integrations/implementation",
-      "tests": "components/integrations/tests"
+      "tests": "components/integrations/tests",
+      "metadata": {
+        "manifestName": "integrations",
+        "displayName": "Integrations",
+        "version": "1.0.0",
+        "category": "business",
+        "owner": "business",
+        "description": "Provide integration with external systems and services.",
+        "status": "Draft"
+      },
+      "ports": {
+        "inputs": [
+          "RegisterProvider",
+          "SynchronizeData",
+          "ReceiveWebhook",
+          "PublishEvent",
+          "ExecuteIntegration"
+        ],
+        "outputs": [
+          "ProviderRegistered",
+          "SynchronizationCompleted",
+          "SynchronizationFailed",
+          "WebhookReceived",
+          "IntegrationEventPublished"
+        ]
+      }
     },
     {
       "name": "kernel",
       "manifest": "components/kernel/component.yaml",
-      "specification": "components/kernel/specification/SPECIFICATION.md"
+      "specification": "components/kernel/specification/SPECIFICATION.md",
+      "metadata": {
+        "manifestName": "kernel",
+        "displayName": "Kernel",
+        "version": "1.0.0",
+        "category": "business",
+        "owner": "business",
+        "description": "Provide the common runtime model for every component.",
+        "status": "Draft"
+      },
+      "ports": {
+        "inputs": [
+          "Component Registration",
+          "Component Configuration"
+        ],
+        "outputs": [
+          "Registration Result",
+          "Health Result"
+        ]
+      }
     },
     {
       "name": "notifications",
@@ -52,7 +183,32 @@
       "specification": "components/notifications/specification/SPECIFICATION.md",
       "contracts": "components/notifications/contracts",
       "implementation": "components/notifications/implementation",
-      "tests": "components/notifications/tests"
+      "tests": "components/notifications/tests",
+      "metadata": {
+        "manifestName": "notifications",
+        "displayName": "Notifications",
+        "version": "1.0.0",
+        "category": "business",
+        "owner": "business",
+        "description": "Manage the creation, scheduling and delivery of notifications.",
+        "status": "Draft"
+      },
+      "ports": {
+        "inputs": [
+          "CreateNotification",
+          "ScheduleNotification",
+          "SendNotification",
+          "CancelNotification",
+          "RetryNotification"
+        ],
+        "outputs": [
+          "NotificationCreated",
+          "NotificationScheduled",
+          "NotificationSent",
+          "NotificationCancelled",
+          "NotificationFailed"
+        ]
+      }
     },
     {
       "name": "reports",
@@ -60,7 +216,30 @@
       "specification": "components/reports/specification/SPECIFICATION.md",
       "contracts": "components/reports/contracts",
       "implementation": "components/reports/implementation",
-      "tests": "components/reports/tests"
+      "tests": "components/reports/tests",
+      "metadata": {
+        "manifestName": "reports",
+        "displayName": "Reports",
+        "version": "1.0.0",
+        "category": "business",
+        "owner": "business",
+        "description": "Generate operational and management reports from business data.",
+        "status": "Draft"
+      },
+      "ports": {
+        "inputs": [
+          "GenerateDailyReport",
+          "GenerateWeeklyReport",
+          "GenerateMonthlyReport",
+          "GenerateQuarterlyReport",
+          "GenerateYearlyReport",
+          "ExportReport"
+        ],
+        "outputs": [
+          "ReportGenerated",
+          "ReportExported"
+        ]
+      }
     },
     {
       "name": "scheduler",
@@ -68,7 +247,33 @@
       "specification": "components/scheduler/specification/SPECIFICATION.md",
       "contracts": "components/scheduler/contracts",
       "implementation": "components/scheduler/implementation",
-      "tests": "components/scheduler/tests"
+      "tests": "components/scheduler/tests",
+      "metadata": {
+        "manifestName": "scheduler",
+        "displayName": "Scheduler",
+        "version": "1.0.0",
+        "category": "business",
+        "owner": "business",
+        "description": "Manage all scheduled operations and time-based automation across Work Tracker OS.",
+        "status": "Draft"
+      },
+      "ports": {
+        "inputs": [
+          "RegisterSchedule",
+          "CancelSchedule",
+          "PauseSchedule",
+          "ResumeSchedule",
+          "ExecuteSchedule"
+        ],
+        "outputs": [
+          "ScheduleRegistered",
+          "ScheduleExecuted",
+          "ScheduleCancelled",
+          "SchedulePaused",
+          "ScheduleResumed",
+          "ScheduleFailed"
+        ]
+      }
     },
     {
       "name": "tasks",
@@ -76,7 +281,39 @@
       "specification": "components/tasks/specification/SPECIFICATION.md",
       "contracts": "components/tasks/contracts",
       "implementation": "components/tasks/implementation",
-      "tests": "components/tasks/tests"
+      "tests": "components/tasks/tests",
+      "metadata": {
+        "manifestName": "tasks",
+        "displayName": "Tasks",
+        "version": "1.0.0",
+        "category": "business",
+        "owner": "business",
+        "description": "Manage the complete lifecycle of work tasks.",
+        "status": "Draft"
+      },
+      "ports": {
+        "inputs": [
+          "CreateTask",
+          "StartTask",
+          "PauseTask",
+          "ResumeTask",
+          "CompleteTask",
+          "CancelTask",
+          "AddTaskNote",
+          "GetTask",
+          "GetActiveTasks"
+        ],
+        "outputs": [
+          "TaskCreated",
+          "TaskStarted",
+          "TaskPaused",
+          "TaskResumed",
+          "TaskCompleted",
+          "TaskCancelled",
+          "TaskNoteAdded",
+          "ActiveTasks"
+        ]
+      }
     },
     {
       "name": "workday",
@@ -84,7 +321,28 @@
       "specification": "components/workday/specification/SPECIFICATION.md",
       "contracts": "components/workday/contracts",
       "implementation": "components/workday/implementation",
-      "tests": "components/workday/tests"
+      "tests": "components/workday/tests",
+      "metadata": {
+        "manifestName": "workday",
+        "displayName": "Workday",
+        "version": "1.0.0",
+        "category": "business",
+        "owner": "business",
+        "description": "Manage the lifecycle of the working day.",
+        "status": "Draft"
+      },
+      "ports": {
+        "inputs": [
+          "StartWorkday",
+          "EndWorkday",
+          "GetCurrentWorkday"
+        ],
+        "outputs": [
+          "WorkdayStarted",
+          "WorkdayEnded",
+          "CurrentWorkday"
+        ]
+      }
     }
   ]
 }
