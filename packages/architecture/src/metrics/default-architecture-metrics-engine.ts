@@ -16,24 +16,72 @@ implements ArchitectureMetricsEngine {
         const relationships =
             model.relationships;
 
-        const dependencies =
+        const dependencyRelationships =
             relationships.filter(
                 relationship =>
                     relationship.type === "dependency",
             );
 
-        const commands =
+        const commandRelationships =
             relationships.filter(
                 relationship =>
                     relationship.type === "command",
             );
 
-        const events =
+        const eventRelationships =
             relationships.filter(
                 relationship =>
                     relationship.type === "event-in"
                     || relationship.type === "event-out",
             );
+
+        const componentDependencies =
+            model.system.components.reduce(
+                (
+                    total,
+                    component,
+                ) => total + (
+                    component.dependencies?.length ?? 0
+                ),
+                0,
+            );
+
+        const componentCommands =
+            model.system.components.reduce(
+                (
+                    total,
+                    component,
+                ) => total + (
+                    component.commands?.length ?? 0
+                ),
+                0,
+            );
+
+        const componentEvents =
+            model.system.components.reduce(
+                (
+                    total,
+                    component,
+                ) => total + (
+                    component.events?.length ?? 0
+                ),
+                0,
+            );
+
+        const totalDependencies =
+            componentDependencies > 0
+                ? componentDependencies
+                : dependencyRelationships.length;
+
+        const totalCommands =
+            componentCommands > 0
+                ? componentCommands
+                : commandRelationships.length;
+
+        const totalEvents =
+            componentEvents > 0
+                ? componentEvents
+                : eventRelationships.length;
 
         return {
 
@@ -43,14 +91,11 @@ implements ArchitectureMetricsEngine {
             totalRelationships:
                 relationships.length,
 
-            totalDependencies:
-                dependencies.length,
+            totalDependencies,
 
-            totalCommands:
-                commands.length,
+            totalCommands,
 
-            totalEvents:
-                events.length,
+            totalEvents,
 
             averageDependenciesPerComponent:
 
@@ -58,7 +103,7 @@ implements ArchitectureMetricsEngine {
 
                     ? 0
 
-                    : dependencies.length
+                    : totalDependencies
                         / model.system.components.length,
 
         };

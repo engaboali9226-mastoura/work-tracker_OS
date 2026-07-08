@@ -1,5 +1,6 @@
 import type {
     ArchitectureModel,
+    ComponentArchitecture,
 } from "../model/index.js";
 
 export class DependencyDiagram {
@@ -10,23 +11,65 @@ export class DependencyDiagram {
 
         const lines: string[] = [];
 
-        lines.push("graph TD");
+        lines.push(
+            "graph TD",
+        );
 
-        for (const relationship of model.relationships) {
+        let hasDependencies =
+            false;
 
-            if (relationship.type !== "dependency") {
+        for (const component of model.system.components) {
 
-                continue;
+            for (const dependency of component.dependencies) {
+
+                hasDependencies =
+                    true;
+
+                lines.push(
+                    `    ${this.componentNodeId(component)}[${component.identity.name}] --> ${this.nodeId("component", dependency.component)}[${dependency.component}]`,
+                );
 
             }
 
+        }
+
+        if (!hasDependencies) {
+
             lines.push(
-                `    ${relationship.source} --> ${relationship.target}`,
+                "    NoDependencies[No component dependencies declared]",
             );
 
         }
 
-        return lines.join("\n");
+        return lines.join(
+            "\n",
+        );
+
+    }
+
+    private componentNodeId(
+        component: ComponentArchitecture,
+    ): string {
+
+        return this.nodeId(
+            "component",
+            component.identity.name,
+        );
+
+    }
+
+    private nodeId(
+        ...parts: readonly string[]
+    ): string {
+
+        return parts
+            .join(
+                "_",
+            )
+            .replace(
+                /[^a-zA-Z0-9_]/g,
+                "_",
+            );
 
     }
 

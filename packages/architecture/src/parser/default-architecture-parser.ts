@@ -9,7 +9,9 @@ import type {
 
 import type {
     ArchitectureModel,
+    CommandReference,
     ComponentArchitecture,
+    EventReference,
     Responsibility,
 } from "../model/index.js";
 
@@ -79,6 +81,16 @@ implements ArchitectureParser {
                     specification,
                 );
 
+            const commands =
+                this.extractCommands(
+                    specification,
+                );
+
+            const events =
+                this.extractEvents(
+                    specification,
+                );
+
             components.push({
 
                 identity: {
@@ -120,11 +132,11 @@ implements ArchitectureParser {
 
                 responsibilities,
 
-                commands: [],
+                commands,
 
                 queries: [],
 
-                events: [],
+                events,
 
                 contracts: [],
 
@@ -252,6 +264,79 @@ implements ArchitectureParser {
                     description: "",
                 }),
             );
+
+    }
+
+    private extractCommands(
+        markdown: string,
+    ): readonly CommandReference[] {
+
+        const commandNames =
+            this.unique(
+                [
+                    ...this.extractListSection(
+                        markdown,
+                        "Inputs",
+                    ),
+                    ...this.extractListSection(
+                        markdown,
+                        "Commands",
+                    ),
+                ],
+            );
+
+        return commandNames.map(
+            name => ({
+                name,
+                description: "",
+                contract: "",
+            }),
+        );
+
+    }
+
+    private extractEvents(
+        markdown: string,
+    ): readonly EventReference[] {
+
+        const incomingEvents =
+            this.extractListSection(
+                markdown,
+                "Events In",
+            )
+                .map(
+                    name => ({
+                        name,
+                        direction: "in" as const,
+                    }),
+                );
+
+        const outgoingEvents =
+            this.unique(
+                [
+                    ...this.extractListSection(
+                        markdown,
+                        "Outputs",
+                    ),
+                    ...this.extractListSection(
+                        markdown,
+                        "Events Out",
+                    ),
+                ],
+            )
+                .map(
+                    name => ({
+                        name,
+                        direction: "out" as const,
+                    }),
+                );
+
+        return this.uniqueEvents(
+            [
+                ...incomingEvents,
+                ...outgoingEvents,
+            ],
+        );
 
     }
 
@@ -421,6 +506,53 @@ implements ArchitectureParser {
             start,
             end,
         );
+
+    }
+
+    private unique(
+        values: readonly string[],
+    ): readonly string[] {
+
+        return [
+            ...new Set(
+                values,
+            ),
+        ];
+
+    }
+
+    private uniqueEvents(
+        events: readonly EventReference[],
+    ): readonly EventReference[] {
+
+        const seen =
+            new Set<string>();
+
+        const uniqueEvents: EventReference[] =
+            [];
+
+        for (const event of events) {
+
+            const key =
+                `${event.direction}:${event.name}`;
+
+            if (seen.has(key)) {
+
+                continue;
+
+            }
+
+            seen.add(
+                key,
+            );
+
+            uniqueEvents.push(
+                event,
+            );
+
+        }
+
+        return uniqueEvents;
 
     }
 

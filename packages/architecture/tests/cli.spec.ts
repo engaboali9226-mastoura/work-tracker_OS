@@ -244,6 +244,55 @@ test(
             /attendance\[attendance\]/,
         );
 
+        const commandFlowDiagram =
+            readFileSync(
+                diagramFile(
+                    "command-flow.mmd",
+                ),
+                "utf8",
+            );
+
+        assert.match(
+            commandFlowDiagram,
+            /CheckIn\[CheckIn\] --> component_attendance\[attendance\]/,
+        );
+
+        assert.doesNotMatch(
+            commandFlowDiagram,
+            /^graph LR$/s,
+        );
+
+        const eventFlowDiagram =
+            readFileSync(
+                diagramFile(
+                    "event-flow.mmd",
+                ),
+                "utf8",
+            );
+
+        assert.match(
+            eventFlowDiagram,
+            /component_attendance\[attendance\] --> event_attendance_out_CheckedIn\[CheckedIn\]/,
+        );
+
+        assert.doesNotMatch(
+            eventFlowDiagram,
+            /^graph LR$/s,
+        );
+
+        const dependencyGraphDiagram =
+            readFileSync(
+                diagramFile(
+                    "dependency-graph.mmd",
+                ),
+                "utf8",
+            );
+
+        assert.match(
+            dependencyGraphDiagram,
+            /NoDependencies\[No component dependencies declared\]/,
+        );
+
         const runtimeDiagram =
             readFileSync(
                 diagramFile(
@@ -356,6 +405,21 @@ test(
         assert.match(
             output,
             /\| Relationships \| 0 \|/,
+        );
+
+        assert.match(
+            output,
+            /\| Dependencies \| 0 \|/,
+        );
+
+        assert.match(
+            output,
+            /\| Commands \| [1-9][0-9]* \|/,
+        );
+
+        assert.match(
+            output,
+            /\| Events \| [1-9][0-9]* \|/,
         );
 
         assert.match(

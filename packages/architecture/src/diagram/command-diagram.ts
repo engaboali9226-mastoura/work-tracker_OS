@@ -1,5 +1,7 @@
 import type {
     ArchitectureModel,
+    CommandReference,
+    ComponentArchitecture,
 } from "../model/index.js";
 
 export class CommandDiagram {
@@ -10,23 +12,78 @@ export class CommandDiagram {
 
         const lines: string[] = [];
 
-        lines.push("graph LR");
+        lines.push(
+            "graph LR",
+        );
 
-        for (const relationship of model.relationships) {
+        let hasCommands =
+            false;
 
-            if (relationship.type !== "command") {
+        for (const component of model.system.components) {
 
-                continue;
+            for (const command of component.commands) {
+
+                hasCommands =
+                    true;
+
+                lines.push(
+                    `    ${this.commandNodeId(component, command)}[${command.name}] --> ${this.componentNodeId(component)}[${component.identity.name}]`,
+                );
 
             }
 
+        }
+
+        if (!hasCommands) {
+
             lines.push(
-                `    ${relationship.source} --> ${relationship.target}`,
+                "    NoCommands[No component commands declared]",
             );
 
         }
 
-        return lines.join("\n");
+        return lines.join(
+            "\n",
+        );
+
+    }
+
+    private commandNodeId(
+        component: ComponentArchitecture,
+        command: CommandReference,
+    ): string {
+
+        return this.nodeId(
+            "command",
+            component.identity.name,
+            command.name,
+        );
+
+    }
+
+    private componentNodeId(
+        component: ComponentArchitecture,
+    ): string {
+
+        return this.nodeId(
+            "component",
+            component.identity.name,
+        );
+
+    }
+
+    private nodeId(
+        ...parts: readonly string[]
+    ): string {
+
+        return parts
+            .join(
+                "_",
+            )
+            .replace(
+                /[^a-zA-Z0-9_]/g,
+                "_",
+            );
 
     }
 
