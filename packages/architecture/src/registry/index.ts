@@ -6,3 +6,4 @@ export * from "./component-registry-projector.js";
 export * from "./default-component-registry-projector.js";
 
 export * from "./json-writer.js";
+export * from "./runtime-registry-contract-validator.js";
