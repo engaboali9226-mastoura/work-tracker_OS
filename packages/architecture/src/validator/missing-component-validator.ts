@@ -21,7 +21,10 @@ export class MissingComponentValidator {
                 ),
             );
 
-        for (const relation of model.relationships) {
+        for (const relation of model.relationships.filter(
+            relationship =>
+                relationship.type === "dependency",
+        )) {
 
             if (!names.has(relation.source)) {
 

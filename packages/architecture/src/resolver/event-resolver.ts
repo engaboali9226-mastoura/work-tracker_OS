@@ -15,18 +15,37 @@ export class EventResolver {
 
             for (const event of component.events) {
 
-                relationships.push({
+                if (event.direction === "in") {
 
-                    source:
-                        component.identity.name,
+                    relationships.push({
 
-                    target:
-                        event.name,
+                        source:
+                            event.name,
 
-                    type:
-                        event.direction,
+                        target:
+                            component.identity.name,
 
-                });
+                        type:
+                            "event-in",
+
+                    });
+
+                } else {
+
+                    relationships.push({
+
+                        source:
+                            component.identity.name,
+
+                        target:
+                            event.name,
+
+                        type:
+                            "event-out",
+
+                    });
+
+                }
 
             }
 

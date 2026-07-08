@@ -18,10 +18,10 @@ export class CommandResolver {
                 relationships.push({
 
                     source:
-                        component.identity.name,
+                        command.name,
 
                     target:
-                        command.name,
+                        component.identity.name,
 
                     type:
                         "command",

@@ -27,6 +27,10 @@ import {
     MarkdownLoader,
 } from "./markdown-loader.js";
 
+import {
+    DefaultArchitectureResolver,
+} from "../resolver/default-architecture-resolver.js";
+
 export class DefaultArchitectureParser
 implements ArchitectureParser {
 
@@ -217,7 +221,7 @@ implements ArchitectureParser {
 
         }
 
-        return {
+        const model: ArchitectureModel = {
 
             system: {
 
@@ -247,6 +251,11 @@ implements ArchitectureParser {
             },
 
         };
+
+        return new DefaultArchitectureResolver()
+            .resolve(
+                model,
+            );
 
     }
 

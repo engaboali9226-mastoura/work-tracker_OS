@@ -24,7 +24,7 @@ export class DependencyResolver {
                         dependency.component,
 
                     type:
-                        dependency.type,
+                        "dependency",
 
                 });
 

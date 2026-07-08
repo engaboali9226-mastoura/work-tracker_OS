@@ -14,7 +14,10 @@ export class CircularDependencyValidator {
 
         const issues: ValidationIssue[] = [];
 
-        for (const relation of model.relationships) {
+        for (const relation of model.relationships.filter(
+            relationship =>
+                relationship.type === "dependency",
+        )) {
 
             if (
                 relation.type !== "dependency"
