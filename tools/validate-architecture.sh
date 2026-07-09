@@ -121,13 +121,26 @@ fi
 
 echo ""
 
-if [ "$FAILED" -eq 0 ]; then
+if [ "$FAILED" -ne 0 ]; then
     echo "========================================="
-    echo "Architecture Validation Passed"
-    echo "========================================="
-else
-    echo "========================================="
-    echo "Architecture Validation Failed"
+    echo "Architecture Structural Validation Failed"
     echo "========================================="
     exit 1
 fi
+
+echo "========================================="
+echo "Architecture Structural Validation Passed"
+echo "========================================="
+echo ""
+
+echo "========================================="
+echo "Architecture CLI Validation"
+echo "========================================="
+echo ""
+
+node --import tsx packages/architecture/src/cli/main.ts validate
+
+echo ""
+echo "========================================="
+echo "Architecture Validation Passed"
+echo "========================================="
