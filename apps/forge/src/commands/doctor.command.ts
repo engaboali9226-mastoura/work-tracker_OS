@@ -1,3 +1,4 @@
+import { spawnSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import { WORKSPACE_ROOT } from "../core/workspace/workspace-root.js";
@@ -14,10 +15,31 @@ export interface DoctorCheckResult extends DoctorCheck {
     readonly ok: boolean;
 }
 
+export interface DoctorExecutableCheck {
+    readonly label: string;
+    readonly command: string;
+    readonly args: readonly string[];
+}
+
+export interface DoctorExecutableCheckResult extends DoctorExecutableCheck {
+    readonly ok: boolean;
+    readonly exitCode: number | null;
+    readonly output: string;
+}
+
+export interface DoctorReportOptions {
+    readonly runExecutableChecks?: boolean;
+    readonly executableRunner?: (
+        workspaceRoot: string,
+        check: DoctorExecutableCheck
+    ) => DoctorExecutableCheckResult;
+}
+
 export interface DoctorReport {
     readonly workspaceRoot: string;
     readonly requiredPaths: readonly DoctorCheckResult[];
     readonly requiredTemplates: readonly DoctorCheckResult[];
+    readonly executableChecks: readonly DoctorExecutableCheckResult[];
     readonly componentCount: number;
     readonly templateCount: number;
     readonly healthy: boolean;
@@ -52,6 +74,14 @@ const REQUIRED_TEMPLATE_FILES: readonly DoctorCheck[] = [
     { label: "Tests template", relativePath: "templates/component/TESTS.md", kind: "file" },
 ];
 
+const EXECUTABLE_CHECKS: readonly DoctorExecutableCheck[] = [
+    {
+        label: "Architecture validation",
+        command: "npm",
+        args: ["run", "validate:architecture"],
+    },
+];
+
 function checkPath(root: string, check: DoctorCheck): DoctorCheckResult {
     const absolutePath = path.join(root, check.relativePath);
 
@@ -81,15 +111,54 @@ function countFiles(absolutePath: string): number {
         .length;
 }
 
-export function createDoctorReport(workspaceRoot: string = WORKSPACE_ROOT): DoctorReport {
+function runExecutableCheck(
+    workspaceRoot: string,
+    check: DoctorExecutableCheck,
+    options: DoctorReportOptions
+): DoctorExecutableCheckResult {
+    if (options.executableRunner) {
+        return options.executableRunner(workspaceRoot, check);
+    }
+
+    const result = spawnSync(
+        check.command,
+        [...check.args],
+        {
+            cwd: workspaceRoot,
+            encoding: "utf8",
+        }
+    );
+
+    const output = [
+        result.stdout ?? "",
+        result.stderr ?? "",
+    ].filter(Boolean).join("\n").trim();
+
+    return {
+        ...check,
+        ok: result.status === 0,
+        exitCode: result.status,
+        output,
+    };
+}
+
+export function createDoctorReport(
+    workspaceRoot: string = WORKSPACE_ROOT,
+    options: DoctorReportOptions = {}
+): DoctorReport {
     const requiredPaths = REQUIRED_PATHS.map(check => checkPath(workspaceRoot, check));
     const requiredTemplates = REQUIRED_TEMPLATE_FILES.map(check => checkPath(workspaceRoot, check));
+    const executableChecks =
+        options.runExecutableChecks === false
+            ? []
+            : EXECUTABLE_CHECKS.map(check => runExecutableCheck(workspaceRoot, check, options));
     const componentCount = countDirectories(path.join(workspaceRoot, "components"));
     const templateCount = countFiles(path.join(workspaceRoot, "templates", "component"));
 
     const healthy =
         requiredPaths.every(result => result.ok) &&
         requiredTemplates.every(result => result.ok) &&
+        executableChecks.every(result => result.ok) &&
         componentCount > 0 &&
         templateCount >= REQUIRED_TEMPLATE_FILES.length;
 
@@ -97,6 +166,7 @@ export function createDoctorReport(workspaceRoot: string = WORKSPACE_ROOT): Doct
         workspaceRoot,
         requiredPaths,
         requiredTemplates,
+        executableChecks,
         componentCount,
         templateCount,
         healthy,
@@ -105,6 +175,18 @@ export function createDoctorReport(workspaceRoot: string = WORKSPACE_ROOT): Doct
 
 function printCheckResult(result: DoctorCheckResult): void {
     console.log(result.ok ? "✔" : "✘", `${result.label}:`, result.relativePath);
+}
+
+function printExecutableCheckResult(result: DoctorExecutableCheckResult): void {
+    console.log(
+        result.ok ? "✔" : "✘",
+        `${result.label}:`,
+        [result.command, ...result.args].join(" ")
+    );
+
+    if (!result.ok && result.output) {
+        console.log(result.output);
+    }
 }
 
 export function doctorCommand(): void {
@@ -124,6 +206,11 @@ export function doctorCommand(): void {
     console.log("Required Templates");
     console.log("----------------------");
     report.requiredTemplates.forEach(printCheckResult);
+    console.log("");
+
+    console.log("Executable Checks");
+    console.log("----------------------");
+    report.executableChecks.forEach(printExecutableCheckResult);
     console.log("");
 
     console.log("Counts");

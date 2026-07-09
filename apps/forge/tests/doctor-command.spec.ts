@@ -59,3 +59,54 @@ test("Forge doctor command prints a healthy workspace report", () => {
     assert.match(output, /Workspace Healthy/);
     assert.doesNotMatch(output, /Forge Error:/);
 });
+
+
+test("Forge doctor report includes executable architecture validation checks", () => {
+    const report = createDoctorReport(
+        path.resolve(process.cwd(), "../.."),
+        {
+            executableRunner: (_workspaceRoot, check) => ({
+                ...check,
+                ok: true,
+                exitCode: 0,
+                output: "mock validation passed",
+            }),
+        }
+    );
+
+    assert.equal(report.healthy, true);
+    assert.equal(report.executableChecks.length, 1);
+    assert.equal(report.executableChecks[0].label, "Architecture validation");
+    assert.equal(report.executableChecks[0].command, "npm");
+    assert.deepEqual(report.executableChecks[0].args, ["run", "validate:architecture"]);
+    assert.equal(report.executableChecks[0].ok, true);
+});
+
+test("Forge doctor report becomes unhealthy when architecture validation fails", () => {
+    const report = createDoctorReport(
+        path.resolve(process.cwd(), "../.."),
+        {
+            executableRunner: (_workspaceRoot, check) => ({
+                ...check,
+                ok: false,
+                exitCode: 1,
+                output: "mock validation failed",
+            }),
+        }
+    );
+
+    assert.equal(report.healthy, false);
+    assert.equal(report.executableChecks.length, 1);
+    assert.equal(report.executableChecks[0].label, "Architecture validation");
+    assert.equal(report.executableChecks[0].ok, false);
+    assert.equal(report.executableChecks[0].exitCode, 1);
+});
+
+test("Forge doctor command output includes executable checks", () => {
+    const result = runForge(["doctor"]);
+
+    assert.equal(result.status, 0);
+    assert.match(result.stdout, /Executable Checks/);
+    assert.match(result.stdout, /Architecture validation/);
+    assert.match(result.stdout, /npm run validate:architecture/);
+});
