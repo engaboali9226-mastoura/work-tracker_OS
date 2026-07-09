@@ -6,5 +6,8 @@
   "scripts":{
     "build":"tsc",
     "test":"node --test"
+  },
+  "dependencies":{
+    "@worktracker/runtime":"0.0.1"
   }
 }
