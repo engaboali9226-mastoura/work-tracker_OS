@@ -81,43 +81,17 @@ fi
 
 echo ""
 
-PACKAGES=(
-runtime
-domain
-application
-infrastructure
-core
-contracts
-events
-shared
-testing
-)
-
-for package in "${PACKAGES[@]}"
+for dir in packages/* apps/*
 do
-    if [ -d "packages/$package" ]; then
-        echo "✔ packages/$package"
+    [ -d "$dir" ] || continue
+
+    if [ -f "$dir/package.json" ]; then
+        echo "✔ $dir"
     else
-        echo "✘ packages/$package"
+        echo "✘ $dir/package.json"
         FAILED=1
     fi
 done
-
-echo ""
-
-if [ -d apps/forge ]; then
-    echo "✔ apps/forge"
-else
-    echo "✘ apps/forge"
-    FAILED=1
-fi
-
-if [ -d apps/web ]; then
-    echo "✔ apps/web"
-else
-    echo "✘ apps/web"
-    FAILED=1
-fi
 
 echo ""
 
