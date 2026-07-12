@@ -1,55 +1,66 @@
+import type {
+    ComponentState,
+} from "../component/component-state.js";
+
 /**
  * Runtime Kernel Contract
  *
- * The Runtime Kernel is the central coordinator of
+ * The Runtime Kernel is the central execution coordinator of
  * Work Tracker OS.
- *
- * This file defines the contract only.
- * No implementation is allowed here.
  */
-
 export interface RuntimeKernel {
 
     /**
-     * Boot the runtime.
+     * Activate the runtime.
+     *
+     * Boot does not automatically discover, register,
+     * load or start components.
      */
     boot(): Promise<void>;
 
     /**
-     * Shutdown the runtime.
+     * Stop every currently running component in reverse
+     * registration order and deactivate the runtime.
      */
     shutdown(): Promise<void>;
 
     /**
-     * Register a component.
+     * Resolve, validate and register an executable component.
      */
     registerComponent(
-        componentId: string
+        componentId: string,
     ): Promise<void>;
 
     /**
-     * Remove a component.
+     * Remove a non-running component from the live runtime.
      */
     unregisterComponent(
-        componentId: string
+        componentId: string,
     ): Promise<void>;
 
     /**
      * Start a registered component.
      */
     startComponent(
-        componentId: string
+        componentId: string,
     ): Promise<void>;
 
     /**
      * Stop a running component.
      */
     stopComponent(
-        componentId: string
+        componentId: string,
     ): Promise<void>;
 
     /**
-     * Returns true if runtime is active.
+     * Return the runtime state of a registered component.
+     */
+    getComponentState(
+        componentId: string,
+    ): ComponentState | undefined;
+
+    /**
+     * Returns true when the runtime is active.
      */
     isRunning(): boolean;
 
