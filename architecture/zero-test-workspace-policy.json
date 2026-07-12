@@ -1,0 +1,45 @@
+{
+  "version": 1,
+  "exemptions": {
+    "apps/web": {
+      "category": "minimal-bootstrap",
+      "rationale": "The workspace currently contains only minimal React bootstrap behavior and static heading rendering, so dedicated behavioral tests would be artificial at this stage.",
+      "sourceFingerprint": "91be116790b3a32fc4c1cfb1dfa322284f72d95d02ee8c3405837ac6ac85e21a"
+    },
+    "apps/workos-cli": {
+      "category": "pre-implementation-placeholder",
+      "rationale": "The workspace is currently a pre-implementation placeholder with no meaningful application behavior to protect through dedicated tests.",
+      "sourceFingerprint": "528f0b287f3c68ae5ec08d52bf7342db77e9cf191eb98a65fcc1c9bb1c803a60"
+    },
+    "packages/application": {
+      "category": "interface-only",
+      "rationale": "The workspace currently contains interfaces only and has no concrete runtime behavior requiring behavioral tests.",
+      "sourceFingerprint": "eaa2a817b47b447b20d5c3cd9e3c1a0a4e72c73b58a0793390093f8b4a892eb1"
+    },
+    "packages/contracts": {
+      "category": "compile-time-contract-only",
+      "rationale": "The workspace currently provides compile-time contracts and interfaces without concrete runtime behavior.",
+      "sourceFingerprint": "6e37cb219d450dc46eda8da965099c3ce987f55fb8b7f90f279b2d304118e913"
+    },
+    "packages/events": {
+      "category": "interface-only",
+      "rationale": "The workspace currently contains event interfaces only and has no concrete runtime behavior requiring dedicated behavioral tests.",
+      "sourceFingerprint": "0fc320fac2afd4cfe6fb3b364073c1deebe346f0056d06204d55272dc120cf0b"
+    },
+    "packages/infrastructure": {
+      "category": "interface-only",
+      "rationale": "The workspace currently contains infrastructure interfaces only and has no concrete runtime implementation to test.",
+      "sourceFingerprint": "18906ffd612125b9eb74db50ade790bd30c99cfa823ff8f3e893889cae81adf2"
+    },
+    "packages/sdk": {
+      "category": "interface-only",
+      "rationale": "The workspace currently contains interfaces and type-only imports without concrete runtime behavior.",
+      "sourceFingerprint": "58ed217e13ef0fd6b5a1b8235634d11ee9edc8ac9020c914395df4b94d96919d"
+    },
+    "packages/testing": {
+      "category": "empty-placeholder",
+      "rationale": "The workspace is currently an intentionally empty placeholder and therefore has no behavior to protect with tests.",
+      "sourceFingerprint": "5887fe7742dde5353cc167cd6c11edf24add980d329a1e07001d408f4a910da2"
+    }
+  }
+}
