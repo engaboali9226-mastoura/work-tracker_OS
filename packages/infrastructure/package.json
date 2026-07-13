@@ -1,10 +1,13 @@
 {
-  "name":"@worktracker/infrastructure",
-  "private":true,
-  "version":"0.0.1",
-  "type":"module",
-  "scripts":{
-    "build":"tsc",
-    "test":"node --test"
+  "name": "@worktracker/infrastructure",
+  "private": true,
+  "version": "0.0.1",
+  "type": "module",
+  "scripts": {
+    "build": "(cd ../.. && npm --workspace packages/core run build) && tsc",
+    "test": "node --import tsx --test tests/**/*.spec.ts"
+  },
+  "dependencies": {
+    "@worktracker/core": "0.0.1"
   }
 }
