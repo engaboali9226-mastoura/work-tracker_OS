@@ -210,9 +210,9 @@ test(
     assert.equal(result.totalWorkspaces, 14);
     assert.equal(
       result.zeroTestWorkspaces.length,
-      6,
+      5,
     );
-    assert.equal(result.validExemptions, 6);
+    assert.equal(result.validExemptions, 5);
     assert.deepEqual(result.issues, []);
   },
 );

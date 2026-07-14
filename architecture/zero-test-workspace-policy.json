@@ -11,11 +11,6 @@
       "rationale": "The workspace is currently a pre-implementation placeholder with no meaningful application behavior to protect through dedicated tests.",
       "sourceFingerprint": "528f0b287f3c68ae5ec08d52bf7342db77e9cf191eb98a65fcc1c9bb1c803a60"
     },
-    "packages/application": {
-      "category": "interface-only",
-      "rationale": "The workspace currently contains interfaces only and has no concrete runtime behavior requiring behavioral tests.",
-      "sourceFingerprint": "eaa2a817b47b447b20d5c3cd9e3c1a0a4e72c73b58a0793390093f8b4a892eb1"
-    },
     "packages/contracts": {
       "category": "compile-time-contract-only",
       "rationale": "The workspace currently provides compile-time contracts and interfaces without concrete runtime behavior.",
