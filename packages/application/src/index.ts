@@ -9,3 +9,6 @@ export * from "./pipeline/pipeline.js";
 
 export * from "./transition/transition-rule.js";
 export * from "./transition/transition-engine.js";
+
+export * from "./scheduler/scheduled-operation.js";
+export * from "./scheduler/scheduler-execution-engine.js";
