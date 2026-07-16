@@ -6,3 +6,6 @@ export * from "./service/domain-service.js";
 export * from "./event/domain-event.js";
 export * from "./result/result.js";
 export * from "./error/domain-error.js";
+
+export * from "./workday/workday.js";
+export * from "./workday/workday-lifecycle.js";
