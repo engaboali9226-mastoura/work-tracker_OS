@@ -3,9 +3,14 @@ import { Timestamp } from "@worktracker/shared";
 export abstract class DomainEvent {
   public readonly occurredOn: Timestamp;
 
-  protected constructor() {
-    this.occurredOn = Timestamp.now();
-  }
+  public constructor(
+        occurredOn: Timestamp,
+    ) {
+
+        this.occurredOn =
+            occurredOn;
+
+    }
 
   public abstract readonly name: string;
 }

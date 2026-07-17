@@ -220,7 +220,7 @@ test(
 );
 
 test(
-  "Timestamp compares equal and different instants correctly",
+  "Timestamp compares equal and different instants exactly",
   () => {
     const first =
       new Timestamp(
@@ -275,4 +275,30 @@ test(
       "2026-07-09T12:00:00.000Z",
     );
   },
+);
+
+test(
+    "Timestamp constructor isolates caller-owned Date mutation",
+    () => {
+
+        const source =
+            new Date(
+                "2026-01-02T03:04:05.678Z",
+            );
+
+        const timestamp =
+            new Timestamp(
+                source,
+            );
+
+        source.setTime(
+            0,
+        );
+
+        assert.equal(
+            timestamp.toISOString(),
+            "2026-01-02T03:04:05.678Z",
+        );
+
+    },
 );

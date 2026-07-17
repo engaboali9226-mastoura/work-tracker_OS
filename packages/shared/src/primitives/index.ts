@@ -3,7 +3,6 @@ export * from "./result";
 export * from "../types/maybe";
 export * from "./timestamp";
 export * from "./async-result";
-export * from "./clock";
 export * from "./collection";
 export * from "./comparable";
 export * from "./disposable";

@@ -1,5 +1,20 @@
-export interface Clock {
+import {
+    Clock,
+} from "@worktracker/core";
 
-    now():Date;
+import {
+    Timestamp,
+} from "@worktracker/shared";
+
+export class SystemClock
+implements Clock {
+
+    public now(): Timestamp {
+
+        return new Timestamp(
+            new Date(),
+        );
+
+    }
 
 }

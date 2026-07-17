@@ -1,3 +1,5 @@
+import { Timestamp } from "@worktracker/shared";
+
 import assert from "node:assert/strict";
 import test from "node:test";
 
@@ -42,6 +44,17 @@ extends DomainEvent {
   public readonly name =
     "test-domain-event";
 
+
+
+    public constructor(
+        occurredOn: Timestamp,
+    ) {
+
+        super(
+            occurredOn,
+        );
+
+    }
 }
 
 test(
@@ -205,40 +218,51 @@ test(
 );
 
 test(
-  "DomainEvent captures a bounded Timestamp at construction",
-  () => {
+    "DomainEvent preserves an explicitly supplied Timestamp",
+    () => {
 
-    const before =
-      Date.now();
+        const occurredOn =
+            new Timestamp(
+                new Date(
+                    "2026-01-02T03:04:05.678Z",
+                ),
+            );
 
-    const event =
-      new TestDomainEvent();
+        const event =
+            new TestDomainEvent(
+                occurredOn,
+            );
 
-    const after =
-      Date.now();
+        assert.equal(
+            event.occurredOn,
+            occurredOn,
+        );
 
-    assert.equal(
-      event.occurredOn
-        instanceof Timestamp,
-      true,
-    );
+    },
+);
 
-    const occurredTime =
-      event.occurredOn
-        .toDate()
-        .getTime();
+test(
+    "DomainEvent preserves a historical Timestamp instead of replacing it with current time",
+    () => {
 
-    assert.equal(
-      occurredTime >= before,
-      true,
-    );
+        const occurredOn =
+            new Timestamp(
+                new Date(
+                    "2000-01-01T00:00:00.000Z",
+                ),
+            );
 
-    assert.equal(
-      occurredTime <= after,
-      true,
-    );
+        const event =
+            new TestDomainEvent(
+                occurredOn,
+            );
 
-  },
+        assert.equal(
+            event.occurredOn.toISOString(),
+            "2000-01-01T00:00:00.000Z",
+        );
+
+    },
 );
 
 test(
@@ -246,7 +270,13 @@ test(
   () => {
 
     const event =
-      new TestDomainEvent();
+      new TestDomainEvent(
+            new Timestamp(
+                new Date(
+                    "2026-01-02T03:04:05.678Z",
+                ),
+            ),
+        );
 
     assert.equal(
       event.name,

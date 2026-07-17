@@ -1,27 +1,43 @@
-/**
- * Immutable timestamp wrapper.
- */
-
 export class Timestamp {
-  public constructor(
-    private readonly value: Date = new Date(),
-  ) {}
 
-  public static now(): Timestamp {
-    return new Timestamp(new Date());
-  }
+    private readonly value:
+        Date;
 
-  public toDate(): Date {
-    return new Date(this.value);
-  }
+    public constructor(
+        value: Date,
+    ) {
 
-  public toISOString(): string {
-    return this.value.toISOString();
-  }
+        this.value =
+            new Date(
+                value.getTime(),
+            );
 
-  public equals(
-    other: Timestamp,
-  ): boolean {
-    return this.value.getTime() === other.value.getTime();
-  }
+    }
+
+    public toDate(): Date {
+
+        return new Date(
+            this.value.getTime(),
+        );
+
+    }
+
+    public toISOString(): string {
+
+        return this.value
+            .toISOString();
+
+    }
+
+    public equals(
+        other: Timestamp,
+    ): boolean {
+
+        return (
+            this.value.getTime() ===
+            other.value.getTime()
+        );
+
+    }
+
 }
