@@ -14,7 +14,7 @@ Stable parent:
 
 - Requirements: TCR-001 through TCR-048
 - Design decisions: TCD-001 through TCD-040
-- Requirements hash: `5aee972e5cd08336faab93468970e79119f14c66`
+- Requirements hash: `e118cbd401bf8d57b1a844a80f903150d365c0ee`
 - Design hash: `da4ba9b82a8a64aa7d157e0667281d5ffb66e371`
 
 ## 3. Implemented Architecture

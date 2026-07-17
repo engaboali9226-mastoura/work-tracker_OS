@@ -6,10 +6,10 @@
 **Status:** Implementation completed — pending independent review
 **Requirements:** `UCR-001..UCR-056`
 **Requirements report:** `reports/phase2-step-336-minimal-use-case-execution-foundation-requirements.md`
-**Requirements hash:** `4ece3fd536425a062e6c9832defe43ac79bccdbb`
+**Requirements hash:** `ca2ec601f84f745eb9e5612dbca6672dde052698`
 **Design decisions:** `UCD-001..UCD-046`
 **Design report:** `reports/phase2-step-338-minimal-use-case-execution-foundation-design.md`
-**Design hash:** `9dbb48e13a75a27496cdc48e5dbf59fe8a370819`
+**Design hash:** `a3f9ed8a0c39934c7b0eba6b798d5d20fbf306a7`
 **Stable parent commit:** `1e0a90a086dfdfa6050d2f50a0a71de55ec66a58`
 **Stable parent tag:** `platform-minimal-time-and-clock-foundation-v1.0.0`
 

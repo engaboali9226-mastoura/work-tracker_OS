@@ -3,7 +3,7 @@
 ## 1. Purpose
 
 Define the smallest coherent, deterministic and replaceable Time and Clock
-Foundation for Ribat Platform.
+Foundation for Noor Platform.
 
 This document converts the independently verified evidence from Step 322 and
 Review 323 into formal implementation requirements.
@@ -359,8 +359,8 @@ The first slice must not introduce:
 - holiday calendars
 - recurring schedules
 - Attendance time behavior
-- Ribat Personal features
-- Ribat Work features
+- Noor Personal features
+- Noor Work features
 
 ---
 

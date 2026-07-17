@@ -6,7 +6,7 @@
 **Status:** Design documented — pending independent review
 **Requirements:** `UCR-001..UCR-056`
 **Requirements report:** `reports/phase2-step-336-minimal-use-case-execution-foundation-requirements.md`
-**Requirements hash:** `4ece3fd536425a062e6c9832defe43ac79bccdbb`
+**Requirements hash:** `ca2ec601f84f745eb9e5612dbca6672dde052698`
 **Stable parent commit:** `1e0a90a086dfdfa6050d2f50a0a71de55ec66a58`
 **Stable parent tag:** `platform-minimal-time-and-clock-foundation-v1.0.0`
 
@@ -116,7 +116,7 @@ implementation-scope path.
 - **UCD-001:** Application remains the sole owner of UseCase execution abstractions.
 - **UCD-002:** The existing UseCase contract is reused as the canonical contract.
 - **UCD-003:** No duplicate or replacement UseCase interface is introduced.
-- **UCD-004:** The capability contains no Ribat Personal or Ribat Work feature.
+- **UCD-004:** The capability contains no Noor Personal or Noor Work feature.
 - **UCD-005:** Existing platform capabilities remain unchanged.
 
 ### B. Existing UseCase compatibility

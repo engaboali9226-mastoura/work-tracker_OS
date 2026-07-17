@@ -30,9 +30,9 @@ Rationale
 
 ---
 
-<!-- RIBAT_PLATFORM_CONTINUATION_BEGIN -->
+<!-- NOOR_PLATFORM_CONTINUATION_BEGIN -->
 
-# Superseding Ribat Platform Continuation Decision
+# Superseding Noor Platform Continuation Decision
 
 Status:
 
@@ -43,26 +43,26 @@ Stable starting point:
 `platform-minimal-workday-lifecycle-foundation-v1.0.0`
 
 The completed Workday foundation remains stable and will later belong to
-Ribat Work.
+Noor Work.
 
 The previous immediate continuation from Workday to Attendance is paused.
 
-The project will now complete the general Ribat Platform before building
+The project will now complete the general Noor Platform before building
 application-specific capabilities.
 
 Approved product structure:
 
 ```text
-Ribat Platform
-├── Ribat Personal
-└── Ribat Work
+Noor Platform
+├── Noor Personal
+└── Noor Work
 ```
 
 Classification rule:
 
-- life and self-development outside direct earning → Ribat Personal
-- employment, profession, business and earning → Ribat Work
-- shared technical capabilities → Ribat Platform
+- life and self-development outside direct earning → Noor Personal
+- employment, profession, business and earning → Noor Work
+- shared technical capabilities → Noor Platform
 
 The next required activity is:
 
@@ -91,13 +91,13 @@ Platform Completion Checkpoint.
 
 After platform completion:
 
-1. build Ribat Personal first
-2. build Ribat Work second
-3. reuse the stable Workday capability inside Ribat Work
-4. implement Attendance only as part of the later Ribat Work roadmap
+1. build Noor Personal first
+2. build Noor Work second
+3. reuse the stable Workday capability inside Noor Work
+4. implement Attendance only as part of the later Noor Work roadmap
 
 Canonical decision document:
 
-`docs/04-roadmap/RIBAT_PLATFORM_COMPLETION_PLAN.md`
+`docs/04-roadmap/NOOR_PLATFORM_COMPLETION_PLAN.md`
 
-<!-- RIBAT_PLATFORM_CONTINUATION_END -->
+<!-- NOOR_PLATFORM_CONTINUATION_END -->

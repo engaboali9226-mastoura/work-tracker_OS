@@ -1,4 +1,4 @@
-# Ribat Platform Completion Plan
+# Noor Platform Completion Plan
 
 ## Status
 
@@ -28,22 +28,22 @@ Minimal Workday Lifecycle Foundation.
 
 The general platform name is:
 
-**Ribat Platform**
+**Noor Platform**
 
 The complete product ecosystem may also be described as:
 
-**Ribat OS**
+**Noor OS**
 
 Approved Arabic brand name:
 
-**رباط**
+**نور**
 
 Approved visual direction:
 
 - an elegant Arabian horse head
 - a refined and strong profile
 - a distinctive dark teal or blue-green primary color
-- the Arabic word `رباط`
+- the Arabic word `نور`
 - a clean, premium and minimal identity
 
 The exact production asset formats and repository asset locations must be
@@ -53,14 +53,14 @@ handled in a dedicated brand-asset step.
 
 # 2. Product Model
 
-Ribat is one general platform that hosts multiple applications.
+Noor is one general platform that hosts multiple applications.
 
 The initial product structure is exactly:
 
 ```text
-Ribat Platform
-├── Ribat Personal
-└── Ribat Work
+Noor Platform
+├── Noor Personal
+└── Noor Work
 ```
 
 The platform is not itself a Personal or Work application.
@@ -71,13 +71,13 @@ The applications provide domain-specific behavior.
 
 ---
 
-# 3. Ribat Personal Boundary
+# 3. Noor Personal Boundary
 
-Ribat Personal owns everything whose primary purpose is the user's life,
+Noor Personal owns everything whose primary purpose is the user's life,
 self-development and wellbeing outside direct employment, professional
 delivery or income generation.
 
-Approved Ribat Personal modules include:
+Approved Noor Personal modules include:
 
 1. Today
 2. Habits and Routines
@@ -115,12 +115,12 @@ employment management or business execution.
 
 ---
 
-# 4. Ribat Work Boundary
+# 4. Noor Work Boundary
 
-Ribat Work owns everything whose primary purpose is employment, professional
+Noor Work owns everything whose primary purpose is employment, professional
 development, project execution, business activity or income generation.
 
-Approved Ribat Work modules include:
+Approved Noor Work modules include:
 
 1. Work Today
 2. Work Execution
@@ -160,10 +160,10 @@ Examples:
 - employment opportunities
 - business opportunities
 
-The already stable Workday capability belongs to Ribat Work when the Work
+The already stable Workday capability belongs to Noor Work when the Work
 application is built.
 
-Attendance and Work Tasks are deferred until Ribat Work development begins.
+Attendance and Work Tasks are deferred until Noor Work development begins.
 
 ---
 
@@ -176,40 +176,40 @@ The governing rule is:
 
 ```text
 Does it primarily serve life and self-development outside earning?
-→ Ribat Personal
+→ Noor Personal
 
 Does it primarily serve employment, profession, business or earning?
-→ Ribat Work
+→ Noor Work
 
 Is it a shared technical service needed by multiple applications?
-→ Ribat Platform
+→ Noor Platform
 ```
 
 Examples:
 
 English learning for travel or personal interest:
 
-`Ribat Personal`
+`Noor Personal`
 
 English learning for a promotion or professional opportunity:
 
-`Ribat Work`
+`Noor Work`
 
 Programming as a hobby:
 
-`Ribat Personal`
+`Noor Personal`
 
 Programming for employment, freelancing or building a commercial product:
 
-`Ribat Work`
+`Noor Work`
 
 Personal household budgeting:
 
-`Ribat Personal`
+`Noor Personal`
 
 Salary opportunities, clients, invoices and revenue generation:
 
-`Ribat Work`
+`Noor Work`
 
 ---
 
@@ -226,7 +226,7 @@ Example:
 
 ```text
 Professional English Course
-Primary owner: Ribat Work
+Primary owner: Noor Work
 Related Personal Goal: Travel confidently
 ```
 
@@ -253,8 +253,8 @@ They are not separate top-level applications in the initial product.
 The initial App Launcher should expose only:
 
 ```text
-Ribat Personal
-Ribat Work
+Noor Personal
+Noor Work
 ```
 
 Each application contains its internal modules.
@@ -264,9 +264,9 @@ large, independent and cannot coherently belong to Personal or Work.
 
 ---
 
-# 8. Ribat Platform Boundary
+# 8. Noor Platform Boundary
 
-Ribat Platform owns shared capabilities required by multiple applications.
+Noor Platform owns shared capabilities required by multiple applications.
 
 Mandatory shared platform capabilities before application development:
 
@@ -308,12 +308,12 @@ They must not be built prematurely merely because they may be useful later.
 
 # 9. User and Access Model
 
-Ribat is not an anonymously accessible platform.
+Noor is not an anonymously accessible platform.
 
 The required access flow is:
 
 ```text
-Open Ribat
+Open Noor
 ↓
 Validate session
 ↓
@@ -375,8 +375,8 @@ current user.
 
 The initial launcher contains at most:
 
-- Ribat Personal
-- Ribat Work
+- Noor Personal
+- Noor Work
 
 An application that is not available to the current user should not be shown
 in the first release.
@@ -418,7 +418,7 @@ Isolation must be enforced through appropriate platform layers, including:
 
 # 12. Platform Completion Sequence
 
-The continuation sequence before building Ribat Personal or Ribat Work is:
+The continuation sequence before building Noor Personal or Noor Work is:
 
 1. Platform Completion Gap Audit
 2. Identity Foundation
@@ -447,7 +447,7 @@ begin.
 
 The first application should be:
 
-**Ribat Personal**
+**Noor Personal**
 
 Initial candidate modules:
 
@@ -464,9 +464,9 @@ requirements.
 
 The second application should be:
 
-**Ribat Work**
+**Noor Work**
 
-Ribat Work will reuse the stable Workday capability and may then add:
+Noor Work will reuse the stable Workday capability and may then add:
 
 - Attendance
 - Work Tasks
@@ -480,7 +480,7 @@ Ribat Work will reuse the stable Workday capability and may then add:
 
 # 14. Platform Completion Definition of Done
 
-Ribat Platform is complete enough to stop platform construction when the
+Noor Platform is complete enough to stop platform construction when the
 following scenario is proven:
 
 ```text
@@ -494,7 +494,7 @@ Load user identity and permissions
 ↓
 Display allowed applications
 ↓
-Open an application inside Ribat
+Open an application inside Noor
 ↓
 Execute an application use case
 ↓
@@ -524,7 +524,7 @@ yet complete.
 
 The previous immediate continuation toward Attendance is paused.
 
-Attendance remains valid future Ribat Work functionality.
+Attendance remains valid future Noor Work functionality.
 
 It is not the next platform capability.
 

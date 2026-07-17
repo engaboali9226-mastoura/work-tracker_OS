@@ -66,7 +66,7 @@ design step, but the public semantic surface is fixed by these requirements.
 - **UCR-001:** The capability shall begin with approved requirements before design or implementation.
 - **UCR-002:** Application shall own the canonical use-case execution abstractions.
 - **UCR-003:** The capability shall remain a minimal platform foundation rather than an application feature.
-- **UCR-004:** No Ribat Personal or Ribat Work feature shall be introduced by this capability.
+- **UCR-004:** No Noor Personal or Noor Work feature shall be introduced by this capability.
 - **UCR-005:** Existing User Identity and Time and Clock behavior shall remain unchanged.
 - **UCR-006:** Existing Scheduler, State Transition, Workday, Runtime, Architecture, Event, Storage, and Domain boundaries shall remain protected.
 - **UCR-007:** The capability shall not require anonymous, authenticated, or authorized user behavior.
@@ -193,7 +193,7 @@ The following remain explicitly deferred:
 7. App Catalog and Launcher.
 8. Composition and Bootstrap.
 9. Security and Isolation.
-10. Ribat Personal and Ribat Work application features.
+10. Noor Personal and Noor Work application features.
 
 ## 10. Acceptance state
 

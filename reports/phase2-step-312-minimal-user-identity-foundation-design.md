@@ -12,7 +12,7 @@ Stable committed baseline:
 
 Stable checkpoint:
 
-`checkpoint-ribat-platform-boundaries-v1.0.0`
+`checkpoint-noor-platform-boundaries-v1.0.0`
 
 ## Requirements Source
 
@@ -433,7 +433,7 @@ Verify no changes under:
 - `architecture`
 - `runtime`
 
-This includes no Workday, Attendance, Ribat Personal or Ribat Work changes.
+This includes no Workday, Attendance, Noor Personal or Noor Work changes.
 
 ### Negative Probe 5 — Exact scope and complete verification
 
@@ -615,8 +615,8 @@ This design does not approve:
 - Platform Shell
 - protected routing
 - App Launcher
-- Ribat Personal functionality
-- Ribat Work functionality
+- Noor Personal functionality
+- Noor Work functionality
 - Attendance
 - Workday changes
 

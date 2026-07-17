@@ -12,13 +12,13 @@ Stable committed baseline:
 
 Stable checkpoint:
 
-`checkpoint-ribat-platform-boundaries-v1.0.0`
+`checkpoint-noor-platform-boundaries-v1.0.0`
 
 ## Evidence Source
 
 These requirements are based on:
 
-- Review 308 — Ribat Platform Completion Gap Audit
+- Review 308 — Noor Platform Completion Gap Audit
 - Review 309 — Minimal Identity Foundation Evidence Preflight
 - the existing shared `Identifier<T>` primitive
 - the existing Core identity namespace
@@ -41,7 +41,7 @@ The next capability shall be named:
 **Minimal User Identity Foundation**
 
 It shall establish the smallest provider-independent executable representation
-of a Ribat platform user identity.
+of a Noor platform user identity.
 
 It shall not expand into authentication, sessions, authorization, profiles or
 account management.
