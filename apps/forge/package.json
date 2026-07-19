@@ -6,7 +6,7 @@
   "scripts": {
     "build": "tsc",
     "dev": "tsx src/main.ts",
-    "test": "node --import tsx --test tests/*.spec.ts"
+    "test": "node --import tsx --test test-isolation-policy.spec.ts && node --import tsx --test --test-concurrency=1 tests/*.spec.ts && node --import tsx --test test-isolation-policy.spec.ts"
   },
   "dependencies": {
     "@worktracker/architecture": "0.0.1"
