@@ -118,3 +118,19 @@ echo ""
 echo "========================================="
 echo "Architecture Validation Passed"
 echo "========================================="
+
+# CONTRACTS_BOUNDARY_VALIDATION_BEGIN
+echo
+echo "========================================="
+echo "Contracts Boundary Validation"
+echo "========================================="
+
+CONTRACTS_BOUNDARY_REPOSITORY_ROOT="${WORKSPACE_ROOT:-${REPO_ROOT:-${ROOT_DIR:-$(cd "$(dirname "$0")/.." && pwd)}}}"
+
+node "$(cd "$(dirname "$0")/.." && pwd)/tools/validate-contracts-boundary.mjs"     "$CONTRACTS_BOUNDARY_REPOSITORY_ROOT"
+
+echo
+echo "========================================="
+echo "Contracts Boundary Validation Passed"
+echo "========================================="
+# CONTRACTS_BOUNDARY_VALIDATION_END
