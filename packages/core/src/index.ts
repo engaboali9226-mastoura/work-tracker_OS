@@ -22,3 +22,4 @@ export * from "./validation";
 export * from "./value-objects";
 
 export * from "./authentication";
+export * from "./session/index.js";

@@ -16,3 +16,4 @@ export * from "./scheduler/scheduled-operation.js";
 export * from "./scheduler/scheduler-execution-engine.js";
 
 export * from "./authentication/index.js";
+export * from "./session/index.js";
