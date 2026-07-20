@@ -1,10 +1,18 @@
 {
-  "extends":"../../tsconfig.base.json",
-  "compilerOptions":{
-    "rootDir":"src",
-    "outDir":"dist"
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "dist",
+    "paths": {
+      "@worktracker/core": [
+        "packages/core/dist/core/src/index.d.ts"
+      ],
+      "@worktracker/shared": [
+        "packages/core/dist/shared/src/index.d.ts"
+      ]
+    }
   },
-  "include":[
+  "include": [
     "src"
   ]
 }

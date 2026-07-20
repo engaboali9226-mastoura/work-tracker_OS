@@ -20,3 +20,5 @@ export * from "./specifications";
 export * from "./time";
 export * from "./validation";
 export * from "./value-objects";
+
+export * from "./authentication";
