@@ -23,14 +23,7 @@ jobs:
           node-version: 24.x
           cache: npm
 
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Validate architecture
-        run: npm run validate:architecture
-
-      - name: Run tests
-        run: npm test
-
+      - name: Run canonical architecture validation
+        run: bash tools/ci/run-architecture-validation.sh
       - name: Build workspace
         run: npm run build
