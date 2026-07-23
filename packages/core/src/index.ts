@@ -24,3 +24,4 @@ export * from "./value-objects";
 export * from "./authentication";
 export * from "./session/index.js";
 export * from "./authorization/index.js";
+export * from "./isolation/index.js";

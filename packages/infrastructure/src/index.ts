@@ -7,3 +7,4 @@ export * from "./cache/cache-provider.js";
 export * from "./clock/clock.js";
 export * from "./id/id-generator.js";
 export * from "./repository/in-memory-repository.js";
+export * from "./repository/in-memory-user-scoped-repository.js";
