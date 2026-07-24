@@ -1,0 +1,10 @@
+{
+  "name": "@noor/personal",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Noor Personal Fajr Day Foundation Core",
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  }
+}
