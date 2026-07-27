@@ -1,0 +1,13 @@
+{
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "name": "@noor/personal-prayer-engine-evaluator-foundation",
+  "private": true,
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "sideEffects": false,
+  "type": "module",
+  "version": "0.0.0"
+}

@@ -1,0 +1,10 @@
+{
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "name": "@noor/personal-prayer-engine-external-evidence-collection-foundation",
+  "private": true,
+  "sideEffects": false,
+  "type": "module",
+  "version": "0.0.0"
+}
