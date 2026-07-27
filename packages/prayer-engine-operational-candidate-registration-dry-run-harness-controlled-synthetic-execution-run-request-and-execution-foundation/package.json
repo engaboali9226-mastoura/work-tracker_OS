@@ -1,0 +1,8 @@
+{
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "name": "@noor/personal-prayer-engine-controlled-synthetic-execution-run-request-and-execution-foundation",
+  "private": true,
+  "type": "module"
+}
