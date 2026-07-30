@@ -207,7 +207,7 @@ test(
       });
 
     assert.equal(result.passed, true);
-    assert.equal(result.totalWorkspaces, 14);
+    assert.equal(result.totalWorkspaces, 27);
     assert.equal(
       result.zeroTestWorkspaces.length,
       4,
@@ -843,6 +843,51 @@ test(
       assert.match(
         formatted,
         /Remediation:/,
+      );
+    } finally {
+      fs.rmSync(rootDir, {
+        recursive: true,
+        force: true,
+      });
+    }
+  },
+);
+
+test(
+  "13. rejects a workspace with test files but no test script",
+  () => {
+    const rootDir = createTemporaryRoot();
+
+    try {
+      createWorkspace(
+        rootDir,
+        "packages/untested-by-root-command",
+        {
+          sourceFiles: {
+            "index.ts":
+              "export const value = 1;\n",
+          },
+          testFiles: {
+            "test/index.test.mjs":
+              'import test from "node:test";\n',
+          },
+        },
+      );
+
+      writePolicy(rootDir, {});
+
+      const result =
+        validateTemporaryRoot(rootDir);
+
+      assert.equal(result.passed, false);
+
+      assert.ok(
+        result.issues.some(
+          (issue) =>
+            issue.code === "ZT-008" &&
+            issue.workspace ===
+              "packages/untested-by-root-command",
+        ),
       );
     } finally {
       fs.rmSync(rootDir, {

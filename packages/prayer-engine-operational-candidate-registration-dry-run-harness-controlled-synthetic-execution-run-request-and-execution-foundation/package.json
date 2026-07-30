@@ -4,5 +4,10 @@
   },
   "name": "@noor/personal-prayer-engine-controlled-synthetic-execution-run-request-and-execution-foundation",
   "private": true,
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "node --test test/*.test.mjs",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
   "type": "module"
 }

@@ -19,6 +19,7 @@ export const ISSUE_CODES = Object.freeze({
   UNSUPPORTED_CATEGORY: "ZT-005",
   SOURCE_FINGERPRINT_MISMATCH: "ZT-006",
   MALFORMED_POLICY: "ZT-007",
+  MISSING_TEST_SCRIPT: "ZT-008",
 });
 
 const IGNORED_DIRECTORIES = new Set([
@@ -224,6 +225,25 @@ export function workspaceHasTests(rootDir, workspacePath) {
   });
 }
 
+function workspaceHasTestScript(
+  rootDir,
+  workspacePath,
+) {
+  const packagePath = path.join(
+    rootDir,
+    workspacePath,
+    "package.json",
+  );
+
+  const packageJson = readJsonFile(packagePath);
+  const testScript = packageJson.scripts?.test;
+
+  return (
+    typeof testScript === "string" &&
+    testScript.trim().length > 0
+  );
+}
+
 function createIssue(
   code,
   workspace,
@@ -314,6 +334,11 @@ export function validateZeroTestWorkspaceGovernance({
       !workspaceHasTests(rootDir, workspacePath),
   );
 
+  const testWorkspaces = workspaces.filter(
+    (workspacePath) =>
+      workspaceHasTests(rootDir, workspacePath),
+  );
+
   const workspaceSet = new Set(workspaces);
 
   const zeroTestWorkspaceSet = new Set(
@@ -324,6 +349,24 @@ export function validateZeroTestWorkspaceGovernance({
   const issues = [];
 
   const invalidExemptionWorkspaces = new Set();
+
+  for (const workspacePath of testWorkspaces) {
+    if (
+      !workspaceHasTestScript(
+        rootDir,
+        workspacePath,
+      )
+    ) {
+      issues.push(
+        createIssue(
+          ISSUE_CODES.MISSING_TEST_SCRIPT,
+          workspacePath,
+          "The workspace contains discovered test files but package.json has no non-empty test script.",
+          "Add a test script that executes the workspace test files so the root workspace test command cannot skip them.",
+        ),
+      );
+    }
+  }
 
   for (const workspacePath of zeroTestWorkspaces) {
     if (

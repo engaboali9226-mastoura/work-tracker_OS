@@ -4,6 +4,11 @@
   },
   "name": "@noor/personal-prayer-engine-external-evidence-collection-foundation",
   "private": true,
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "node --test test/*.test.mjs",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
   "sideEffects": false,
   "type": "module",
   "version": "0.0.0"
