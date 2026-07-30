@@ -6,6 +6,7 @@ status: foundation
 
 packages:
 
+  - platform
   - runtime
   - domain
   - application

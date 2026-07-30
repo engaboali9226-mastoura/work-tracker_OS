@@ -52,6 +52,9 @@
       "@worktracker/runtime": [
         "packages/runtime/src/index.ts"
       ],
+      "@worktracker/platform": [
+        "packages/platform/src/index.ts"
+      ],
       "@worktracker/sdk": [
         "packages/sdk/src/index.ts"
       ],
