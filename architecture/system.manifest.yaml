@@ -1,4 +1,4 @@
-name: Work Tracker OS
+name: Noor
 
 version: 1.0.0
 
@@ -18,8 +18,27 @@ packages:
 
 applications:
 
-  - forge
-  - web
+  - appKey: noor-personal
+    name: Noor Personal
+    description: Personal life, self-development, and wellbeing.
+    iconToken: noor.app.personal
+    route: /personal
+    status: experimental
+    requiredEntitlement:
+      action: access
+      resourceType: application
+      resourceId: noor-personal
+
+  - appKey: noor-work
+    name: Noor Work
+    description: Employment, professional delivery, business, and earning.
+    iconToken: noor.app.work
+    route: /work
+    status: planned
+    requiredEntitlement:
+      action: access
+      resourceType: application
+      resourceId: noor-work
 
 components:
 
@@ -31,4 +50,3 @@ components:
   - dashboard
   - analytics
   - integrations
-

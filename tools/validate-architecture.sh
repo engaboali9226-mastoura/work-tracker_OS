@@ -116,6 +116,14 @@ node --import tsx packages/architecture/src/cli/main.ts validate
 
 echo ""
 echo "========================================="
+echo "Application Catalog Validation"
+echo "========================================="
+echo ""
+
+node --import tsx tools/validate-application-catalog.ts
+
+echo ""
+echo "========================================="
 echo "Architecture Validation Passed"
 echo "========================================="
 
