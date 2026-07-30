@@ -5,6 +5,8 @@
   "type": "module",
   "description": "Noor Personal Fajr Day Foundation Core",
   "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "NOOR_PERSONAL_BUILD_DIR=dist node --test test/*.test.mjs",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   }
 }
