@@ -77,6 +77,21 @@ test("workflow preserves runner, actions and Node.js 24", () => {
   assert.match(workflow, /node-version:\s*["']?24\.x["']?/u);
 });
 
+test("workflow covers the Noor Personal branch for push and pull requests", () => {
+  for (const eventName of ["push", "pull_request"]) {
+    const eventBranchFilter = new RegExp(
+      `  ${eventName}:\\n    branches:\\n(?:      - [^\\n]+\\n)*      - product/noor-personal-mvp(?:\\n|$)`,
+      "u",
+    );
+
+    assert.match(
+      workflow,
+      eventBranchFilter,
+      `${eventName} must cover product/noor-personal-mvp.`,
+    );
+  }
+});
+
 test("workflow delegates exactly once to the canonical driver", () => {
   const matches =
     workflow.match(

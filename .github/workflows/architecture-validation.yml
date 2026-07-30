@@ -4,9 +4,11 @@ on:
   push:
     branches:
       - main
+      - product/noor-personal-mvp
   pull_request:
     branches:
       - main
+      - product/noor-personal-mvp
 
 jobs:
   architecture-validation:
