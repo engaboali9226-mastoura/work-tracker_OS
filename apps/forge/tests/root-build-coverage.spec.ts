@@ -120,6 +120,7 @@ test(
                 "packages/domain",
                 "packages/events",
                 "packages/infrastructure",
+                "packages/platform",
                 "packages/prayer-engine-evaluator-foundation",
                 "packages/prayer-engine-external-evidence-collection-foundation",
                 "packages/prayer-engine-external-evidence-execution-controls-foundation",
