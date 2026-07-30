@@ -6,3 +6,4 @@ export * from "./component-manifest-loader.js";
 export * from "./yaml-loader.js";
 export * from "./markdown-loader.js";
 export * from "./default-architecture-parser.js";
+export * from "./system-manifest-application-loader.js";

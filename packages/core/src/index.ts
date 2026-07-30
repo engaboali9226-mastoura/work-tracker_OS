@@ -25,3 +25,4 @@ export * from "./authentication";
 export * from "./session/index.js";
 export * from "./authorization/index.js";
 export * from "./isolation/index.js";
+export * from "./application-catalog/index.js";
