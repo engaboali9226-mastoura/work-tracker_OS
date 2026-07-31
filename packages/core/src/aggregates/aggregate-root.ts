@@ -1,4 +1,4 @@
-import { Entity } from "../entities";
+import { Entity } from "../entities/index.js";
 
 export abstract class AggregateRoot<
   TId = string,

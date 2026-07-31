@@ -1,2 +1,2 @@
-export * from "./component.interface";
-export * from "./lifecycle.interface";
+export * from "./component.interface.js";
+export * from "./lifecycle.interface.js";

@@ -34,25 +34,25 @@ test(
     const expected =
 `export type {
   AuthenticationAccountId,
-} from "./authentication-account-id";
+} from "./authentication-account-id.js";
 
 export {
   createAuthenticationAccountId,
-} from "./authentication-account-id";
+} from "./authentication-account-id.js";
 
 export {
   AuthenticationUnavailableError,
   InvalidAuthenticationRequestError,
   InvalidCredentialsError,
-} from "./authentication-errors";
+} from "./authentication-errors.js";
 
 export type {
   AuthenticationVerifier,
-} from "./authentication-verifier";
+} from "./authentication-verifier.js";
 
 export {
   VerifiedAuthentication,
-} from "./verified-authentication";
+} from "./verified-authentication.js";
 `;
 
     assert.equal(
@@ -106,7 +106,7 @@ test(
     assert.equal(
       (
         coreRoot.match(
-          /export \* from "\.\/authentication";/g,
+          /export \* from "\.\/authentication\/index\.js";/g,
         ) ?? []
       ).length,
       1,

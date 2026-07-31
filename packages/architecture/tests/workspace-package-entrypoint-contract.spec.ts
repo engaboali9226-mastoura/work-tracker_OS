@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
+import { spawnSync } from "node:child_process";
+import { pathToFileURL } from "node:url";
 import test from "node:test";
 
 const workspaceRoot =
@@ -114,19 +116,45 @@ test(
         `${packageName} must not rely on a package-root index.js`,
       );
 
-      const resolvedEntry =
-        await import.meta.resolve(packageName);
-
-      assert.equal(
-        resolvedEntry,
-        `file://${path.join(
+      const expectedRuntimeUrl = pathToFileURL(
+        path.join(
           packageDirectoryPath,
           runtimePath.slice(2),
-        )}`,
-        packageName,
+        ),
+      ).href;
+      const child = spawnSync(
+        process.execPath,
+        [
+          "--input-type=module",
+          "-e",
+          [
+            "const packageName = process.argv[1];",
+            "const expectedRuntimeUrl = process.argv[2];",
+            "const resolvedEntry = await import.meta.resolve(packageName);",
+            "if (resolvedEntry !== expectedRuntimeUrl) {",
+            "  console.error(JSON.stringify({ resolvedEntry, expectedRuntimeUrl }));",
+            "  process.exit(1);",
+            "}",
+            "await import(packageName);",
+          ].join("\n"),
+          packageName,
+          expectedRuntimeUrl,
+        ],
+        {
+          cwd: workspaceRoot,
+          encoding: "utf8",
+          env: {
+            ...process.env,
+            NODE_OPTIONS: "",
+          },
+        },
       );
 
-      await import(packageName);
+      assert.equal(
+        child.status,
+        0,
+        `${packageName}: ${child.stderr}`,
+      );
     }
   },
 );

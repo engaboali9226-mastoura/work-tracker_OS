@@ -1,1 +1,1 @@
-export * from "./service-provider.interface";
+export * from "./service-provider.interface.js";

@@ -1,10 +1,10 @@
 import type {
   UserId,
-} from "../identity/user-id";
+} from "../identity/user-id.js";
 
 import type {
   AuthenticationAccountId,
-} from "./authentication-account-id";
+} from "./authentication-account-id.js";
 
 export class VerifiedAuthentication {
 

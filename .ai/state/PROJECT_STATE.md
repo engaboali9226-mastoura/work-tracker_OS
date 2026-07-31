@@ -4,12 +4,7 @@
 
 This document is the authoritative project-state record for the Noor Personal Platform lineage. It must not be conflated with the separate canonical Prayer Engine worktree.
 
-- Platform repair branch: `agents/workspace-package-entrypoint-contract-repair`
-- Branch HEAD: `5d29dedde1c43011d16e09243b457fb048f427df`
-- Branch HEAD status: committed Application Composition baseline with accepted uncommitted package-contract repair
-- Publication status: pending; no repair commit, tag, push, or pull request exists
-
-## Completed Capabilities
+## Historical Lineage
 
 ### Application Catalog Foundation
 
@@ -17,95 +12,119 @@ This document is the authoritative project-state record for the Noor Personal Pl
 - Subject: `feat(platform): add application catalog foundation (#2)`
 - Status: Completed in the Platform lineage
 
-This checkpoint is not present on the separate canonical Prayer Engine branch.
-
 ### Application Composition and Bootstrap Foundation
 
 - Baseline commit: `5d29dedde1c43011d16e09243b457fb048f427df`
 - Subject: `feat(platform): add application composition foundation (#3)`
-- Technical status: Accepted after executable validation and package-contract repair
-- Publication status: Pending
+- Technical status: Accepted
+- Publication status: Included in the published repair candidate and pending protected-branch integration
 
-The baseline provides:
+### Original Published Package Entrypoint Repair
 
-- A clear `PlatformCompositionRoot`
-- Real `bootstrap()` and `shutdown()` lifecycle behavior
-- Typed failure and rollback behavior
-- Platform-owned dependency construction
-- Preserved inner-layer boundaries
+- Commit: `0111d1eae3c588b2f1284cbdc7d65f4e4b432ef7`
+- Branch: `agents/workspace-package-entrypoint-contract-repair`
+- Remote feature branch: Published at `0111d1eae3c588b2f1284cbdc7d65f4e4b432ef7`
+- Pull Request: #4
 
-## Accepted Uncommitted Repair
+## Remote Pull Request State
 
-The accepted repair restores package contracts for:
+- State: OPEN and non-draft
+- Remote head: `0111d1eae3c588b2f1284cbdc7d65f4e4b432ef7`
+- Protected base: `5d29dedde1c43011d16e09243b457fb048f427df`
+- Merge status: Not merged
+- Auto-merge: Absent
+- The existing failed GitHub Architecture Validation check belongs to the old remote head.
+- No new GitHub check has validated the corrected local commit.
 
-- `@worktracker/shared`
-- `@worktracker/core`
-- `@worktracker/application`
-- `@worktracker/runtime`
+## Independent Technical Approval
 
-The repair provides:
+- Independent pre-publication review decision: `APPROVED`
+- Approved patch SHA-256: `2fd1f3bf2d7654bbae5703cccc90cf9671198dcb089dcd4f4372d00b5d6ffb34`
+- Approved correction scope: 40 files
+- The 39 non-governance files preserve the independently reviewed content.
+- Complete local and independent validation passed before the local commit replacement.
 
-- Explicit `main` fields
-- Explicit `types` fields
-- Explicit `"."` exports
-- Runtime paths aligned with generated build output
-- Declaration paths aligned with generated build output
-- Successful package-name resolution
-- Successful dynamic imports
-- Preserved public APIs
-- No lockfile change
+## Proven Technical State
 
-Tracked repair files:
+The Node ESM repair corrected 95 relative module specifiers across 37 shared/core source files:
 
-- `packages/shared/package.json`
-- `packages/core/package.json`
-- `packages/application/package.json`
-- `packages/runtime/package.json`
-- `packages/architecture/tests/workspace-package-entrypoint-contract.spec.ts`
+- 69 file targets use explicit `.js`.
+- 26 directory-index targets use explicit `/index.js`.
+- Generated incompatible JavaScript specifiers: 0.
+- Generated incompatible declaration specifiers: 0.
 
-The repair remains uncommitted and unstaged on the repair branch. It has not been merged, published, tagged, pushed, or made available through a pull request.
+Validation results:
 
-## Validation Evidence
+- Plain Node package matrix: shared PASS; core PASS; application PASS; runtime PASS
+- Authentication public-API targeted tests: 4 passed, 0 failed
+- Entrypoint regression: 1 passed, 0 failed
+- CI-equivalent Architecture Validation: passed locally and independently
+- Platform tests: 4 passed, 0 failed
+- Application composition boundary: 11 passed, 0 failed
+- Architecture validator: PASS
+- Zero-test workspace validator: PASS
+- Five no-emit TypeScript checks: PASS
+- Lockfile: unchanged
 
-- Internal workspace builds:
-  - shared: PASS
-  - core: PASS
-  - application: PASS
-  - runtime: PASS
-- Workspace package entrypoint regression: `1 passed`, `0 failed`
-- Platform Composition and Bootstrap tests: `11 passed`, `0 failed`
-- Application composition architecture boundary: `4 passed`, `0 failed`
-- `./tools/validate-architecture.sh`: PASS
-- `node tools/validate-zero-test-workspaces.mjs`: PASS
-- No-emit TypeScript validation:
-  - shared: PASS
-  - core: PASS
-  - application: PASS
-  - runtime: PASS
-  - platform: PASS
-- Node package-name resolution: all four affected packages resolve and import successfully
-- `package-lock.json`: unchanged
-- Lockfile SHA-256: `575cc0f070334dd7354cfec49ccb0393123d8f55de667e61775da8cd76650a94`
+## Superseded Noncompliant Commit
 
-No Platform production build is claimed as executed.
+- Commit: `91860f73fb3c706e180baf0ad01038c60b75ada2`
+- It was an unpublished intermediate local commit.
+- It was noncompliant because of stale governance content and unauthorized commit metadata.
+- It was never pushed to PR #4.
+- It is superseded by the corrected local branch HEAD created by the authorized amend.
 
-## Governance and Publication State
+## Corrected Local Commit State
 
-- The repair branch remains at `5d29dedde1c43011d16e09243b457fb048f427df`.
-- Accepted repair changes remain uncommitted and unstaged.
-- No repair commit exists.
-- No tag exists for this repair.
-- No push or pull request publication has occurred.
-- The separate canonical worktree remains on the Prayer Engine lineage:
-  - Branch: `product/noor-personal-mvp`
-  - HEAD: `f8e3f5f05d1f576bd31aa1aedf603ba1550d6505`
-- Integration into the intended long-lived Platform lineage is pending an explicit publication task.
+- The corrected local commit is represented by the current local branch HEAD after the authorized amend.
+- Its exact Git identity is authoritative from Git and the amend handover report; it is not fabricated here.
+- The corrected local commit remains unpublished.
+- GitHub has not validated the corrected local commit.
+- PR #4 still remotely points to `0111d1eae3c588b2f1284cbdc7d65f4e4b432ef7`.
+- A separate authorization is required before publication.
 
-## Next Authorized Capability
+## Corrected Commit Metadata Contract
 
-### Platform Shell and Protected Routing
+Authorized subject:
 
-- Status: NOT STARTED
-- Authorization: NOT AUTHORIZED UNTIL GOVERNANCE RECONCILIATION AND STABLE PUBLICATION COMPLETE
+`fix(platform): make workspace ESM artifacts node-compatible`
+
+The corrected commit uses:
+
+- The authorized subject above.
+- The following first body paragraph:
+
+  `Repair workspace package contracts for standards-compliant plain Node ESM by introducing explicit relative runtime specifiers, strengthening package-entrypoint validation, correcting stale public-API assertions, and reconciling project governance.`
+
+- The following second body paragraph:
+
+  `Independent pre-publication review approved the exact technical correction set. Complete local and independent validation passed. Remote publication, PR update, merge, and stable tagging remain pending.`
+
+- No unauthorized `Co-authored-by` trailer or other unauthorized trailer.
+
+## Authorization Boundaries
+
+- Push: `NOT AUTHORIZED`
+- PR update: `NOT AUTHORIZED`
+- Merge: `NOT AUTHORIZED`
+- Stable integration: `PENDING`
+- Stable tag: `PENDING`
+
+### Platform Shell
+
+- Status: `NOT STARTED`
+- Authorization: `NOT AUTHORIZED`
+
+### Protected Routing
+
+- Status: `NOT STARTED`
+- Authorization: `NOT AUTHORIZED`
 
 No implementation work for Platform Shell or Protected Routing has begun.
+
+## Canonical Worktree
+
+- Branch: `product/noor-personal-mvp`
+- HEAD: `f8e3f5f05d1f576bd31aa1aedf603ba1550d6505`
+- Protected target tip: `5d29dedde1c43011d16e09243b457fb048f427df`
+- Stable integration and tagging remain pending.

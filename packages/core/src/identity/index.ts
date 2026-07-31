@@ -1,2 +1,2 @@
-export * from "./uuid-provider.interface";
-export * from "./user-id";
+export * from "./uuid-provider.interface.js";
+export * from "./user-id.js";

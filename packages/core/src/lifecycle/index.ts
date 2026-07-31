@@ -1,1 +1,1 @@
-export * from "./lifecycle.interface";
+export * from "./lifecycle.interface.js";

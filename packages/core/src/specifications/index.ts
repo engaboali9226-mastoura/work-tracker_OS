@@ -1,1 +1,1 @@
-export * from "./specification.interface";
+export * from "./specification.interface.js";
