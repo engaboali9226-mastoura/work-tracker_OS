@@ -1,2 +1,2 @@
-export * from "./domain-event";
-export * from "./event-publisher.interface";
+export * from "./domain-event.js";
+export * from "./event-publisher.interface.js";

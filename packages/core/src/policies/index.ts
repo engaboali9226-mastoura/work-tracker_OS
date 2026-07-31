@@ -1,1 +1,1 @@
-export * from "./policy.interface";
+export * from "./policy.interface.js";

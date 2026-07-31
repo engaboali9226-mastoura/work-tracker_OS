@@ -1,4 +1,4 @@
-import { Component } from "./component.interface";
+import { Component } from "./component.interface.js";
 
 export interface ComponentRegistry {
   register(

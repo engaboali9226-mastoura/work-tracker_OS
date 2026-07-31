@@ -1,6 +1,6 @@
 import type {
   VerifiedAuthentication,
-} from "./verified-authentication";
+} from "./verified-authentication.js";
 
 export interface AuthenticationVerifier<
   Proof

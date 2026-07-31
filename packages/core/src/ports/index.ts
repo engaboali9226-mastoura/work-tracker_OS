@@ -1,2 +1,2 @@
-export * from "./input-port.interface";
-export * from "./output-port.interface";
+export * from "./input-port.interface.js";
+export * from "./output-port.interface.js";

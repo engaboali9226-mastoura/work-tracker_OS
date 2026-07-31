@@ -1,1 +1,1 @@
-export * from "./clock.interface";
+export * from "./clock.interface.js";

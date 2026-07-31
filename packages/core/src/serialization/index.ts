@@ -1,1 +1,1 @@
-export * from "./serializer.interface";
+export * from "./serializer.interface.js";
