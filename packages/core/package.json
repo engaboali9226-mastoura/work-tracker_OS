@@ -3,6 +3,14 @@
   "private":true,
   "version":"0.0.1",
   "type":"module",
+  "main":"./dist/core/src/index.js",
+  "types":"./dist/core/src/index.d.ts",
+  "exports":{
+    ".":{
+      "types":"./dist/core/src/index.d.ts",
+      "import":"./dist/core/src/index.js"
+    }
+  },
   "scripts":{
     "build":"tsc",
     "test":"node --import tsx --test tests/**/*.spec.ts"
