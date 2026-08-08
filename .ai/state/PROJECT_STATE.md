@@ -12,65 +12,51 @@ This document is the authoritative project-state record for the Noor Personal Pl
 - Subject: `feat(platform): add application catalog foundation (#2)`
 - Status: Completed in the Platform lineage
 
-### Application Composition and Bootstrap Foundation
+### Canonical state
 
-- Baseline commit: `5d29dedde1c43011d16e09243b457fb048f427df`
-- Subject: `feat(platform): add application composition foundation (#3)`
-- Technical status: Accepted
-- Publication status: Included in the published repair candidate; protected-branch integration remains pending
+- branch:
+  product/noor-personal-mvp
+- canonical local and remote HEAD:
+  fd1de5259188104c321e29de59822939edeb7a6e
+- canonical tree:
+  9d25bd0db026e5ef7e8c2e7a4feee1ecdf6455f9
+- pre-merge base:
+  5d29dedde1c43011d16e09243b457fb048f427df
 
-### Original Package Entrypoint Repair History
+### PR #4
 
-- Commit: `0111d1eae3c588b2f1284cbdc7d65f4e4b432ef7`
-- Branch: `agents/workspace-package-entrypoint-contract-repair`
-- Remote feature branch: Initially published at `0111d1eae3c588b2f1284cbdc7d65f4e4b432ef7`; superseded by the corrected publication below
-- Pull Request: #4
+- state: MERGED
+- method: Rebase and merge
+- mergedAt: 2026-08-06T14:29:36Z
+- original source branch:
+  agents/workspace-package-entrypoint-contract-repair
+- original source HEAD:
+  7ab046ac2fe8fa89c4c1031bfead41dfa7aa4b6d
+- source branch was not deleted
+- no merge commit was created
+- auto-merge was not used
 
-## Remote Pull Request State
+### Rebase mapping
 
-- State: OPEN and non-draft
-- Remote head: `f3f210c584deac1686b770c8837db2d08bea004b`
-- Protected base: `5d29dedde1c43011d16e09243b457fb048f427df`
-- Merge status: Not merged
-- Auto-merge: Absent
-- The existing failed GitHub Architecture Validation check belongs only to the superseded remote head.
-- Architecture Validation for the corrected commit completed successfully.
+- 0111d1eae3c588b2f1284cbdc7d65f4e4b432ef7
+  -> 173c939383a6e5a51d5ba0c69d78743da8d682e1
 
-## Corrected Publication State
+- f3f210c584deac1686b770c8837db2d08bea004b
+  -> 3366a107fb2fa7d3ef3ed90e134bd2578ef25712
 
-- Published commit: `f3f210c584deac1686b770c8837db2d08bea004b`
-- Remote feature branch HEAD: `f3f210c584deac1686b770c8837db2d08bea004b`
-- Pull Request #4 head: `f3f210c584deac1686b770c8837db2d08bea004b`
-- Publication status: `COMPLETED`
-- Publication method: Direct HTTPS repository URL with one explicit feature-branch-to-feature-branch refspec
-- Previous remote object: `0111d1eae3c588b2f1284cbdc7d65f4e4b432ef7`
-- Force: Not used
-- Direct PR mutation: Not performed; the PR head updated automatically through publication of its source branch
-- Protected target remained unchanged at `5d29dedde1c43011d16e09243b457fb048f427df`
-- No local or remote tag was created
-- The exact publication authorization was used only for the publication command and is now inactive and unpersisted
-- The installed object-bound publication gate was exercised successfully and remained unchanged
-- Any future push requires separate explicit authorization and a newly applicable exact-scope gate
+- 7ab046ac2fe8fa89c4c1031bfead41dfa7aa4b6d
+  -> fd1de5259188104c321e29de59822939edeb7a6e
 
-## Historical Publication Event — Superseded Current-State Context
+Clearly distinguish:
 
-The following statements in the `Corrected Publication State` section describe a **prior publication event** and are retained only as historical record:
-
-- `Publication status: COMPLETED`
-- `The installed object-bound publication gate was exercised successfully and remained unchanged`
-
-These statements:
-
-- describe a prior publication event that has already occurred;
-- do **not** describe the current gate state;
-- do **not** imply a currently installed `active.gate`;
-- do **not** grant current publication authority.
-
-The current authoritative state is:
-
-- `active.gate`: **ABSENT**
-- Gate status: **INACTIVE**
-- No active publication authorization
+- original technical publication commit:
+  f3f210c584deac1686b770c8837db2d08bea004b
+- canonical rebased technical equivalent:
+  3366a107fb2fa7d3ef3ed90e134bd2578ef25712
+- original governance publication commit:
+  7ab046ac2fe8fa89c4c1031bfead41dfa7aa4b6d
+- canonical rebased governance equivalent/current tip:
+  fd1de5259188104c321e29de59822939edeb7a6e
 
 ## GitHub Validation State
 
@@ -133,7 +119,7 @@ Validation results:
 - These identities are the pre-repair baseline. They are NOT the identity of the future commit that will contain this exact document.
 - The corrected technical commit `f3f210c584deac1686b770c8837db2d08bea004b` was published to the remote feature branch through the authorized branch update.
 - GitHub Architecture Validation completed successfully for the published technical commit `f3f210c584deac1686b770c8837db2d08bea004b`; the baseline governance commit has not been GitHub-validated.
-- PR #4 points to `f3f210c584deac1686b770c8837db2d08bea004b`.
+- PR #4 originally pointed to `f3f210c584deac1686b770c8837db2d08bea004b` (original/superseded); the canonical rebased technical equivalent is `3366a107fb2fa7d3ef3ed90e134bd2578ef25712`.
 - No further publication is authorized without separate approval.
 
 ## Corrected Commit Metadata Contract
@@ -152,6 +138,8 @@ The corrected commit uses:
 - The following second body paragraph:
 
   `Independent pre-publication review approved the exact technical correction set. Complete local and independent validation passed. Remote publication completed and GitHub Architecture Validation succeeded; merge and stable tagging remain pending.`
+
+- Historical note: At the time this contract was recorded, merge and stable tagging remained pending. PR #4 has since been merged (Rebase and merge) and the canonical local fast-forward reconciliation is completed; stable milestone tagging remains PENDING.
 
 - No unauthorized `Co-authored-by` trailer or other unauthorized trailer.
 
@@ -178,20 +166,22 @@ No implementation work for Platform Shell or Protected Routing has begun.
 ## Canonical Worktree
 
 - Branch: `product/noor-personal-mvp`
-- HEAD: `f8e3f5f05d1f576bd31aa1aedf603ba1550d6505`
-- Protected target tip: `5d29dedde1c43011d16e09243b457fb048f427df`
-- Stable integration and tagging remain pending.
+- Canonical local and remote HEAD: `fd1de5259188104c321e29de59822939edeb7a6e`
+- Canonical tree: `9d25bd0db026e5ef7e8c2e7a4feee1ecdf6455f9`
+- Pre-merge base: `5d29dedde1c43011d16e09243b457fb048f427df`
+- PR #4: MERGED (Rebase and merge); canonical local fast-forward reconciliation completed.
+- Stable milestone tag: PENDING
 
 ## Local Governance Commit State
 
-- Exactly one local governance-only commit exists above the published technical commit `f3f210c584deac1686b770c8837db2d08bea004b`.
+- Original (pre-rebase): Exactly one local governance-only commit existed above the published technical commit `f3f210c584deac1686b770c8837db2d08bea004b`.
 - Baseline Governance Commit (the local governance commit at HEAD before the current documentation candidate is committed): `9fa1768567e5f0017c06f1e251dc03345fac741c`
 - Baseline subject: `docs(platform): reconcile post-publication governance`
 - Baseline parent: `f3f210c584deac1686b770c8837db2d08bea004b`
 - Baseline committed tree: `6810689c63ceff0998597d993955eae409331036`
 - This document does NOT record the identity of the commit that contains this exact document, the tree hash containing this exact document, or the blob hash of this exact document. Those identities are cryptographically determined only after Git creates the objects.
 - The baseline governance commit remains unpublished and has not been GitHub-validated.
-- The remote feature branch and PR #4 continue to point to the published technical commit `f3f210c584deac1686b770c8837db2d08bea004b`.
+- The remote feature branch and PR #4 originally pointed to the published technical commit `f3f210c584deac1686b770c8837db2d08bea004b` (original/superseded); canonical local and remote HEAD is now `fd1de5259188104c321e29de59822939edeb7a6e` (the canonical rebased governance equivalent).
 - No future replacement commit identity is fabricated or precomputed.
 
 ## Resulting Governance Commit and Publication Source Object
@@ -222,7 +212,7 @@ No implementation work for Platform Shell or Protected Routing has begun.
 - Phase 1 scope (COMPLETED): Implementation of the publication-control hook and common-git-directory foundation.
 - Phase 2 scope (COMPLETED): Independent acceptance of the reviewed hook and foundation. Phase 2 was the independent review phase, not the implementation phase.
 - Gate mechanism: **Atomic Single-Use Common-Git-Directory Publication Gate v1**
-- Pre-push hook: Installed at `.git/hooks/pre-push` (SHA-256 `b2232e529dd12c8daff875ce752f3235a5b9e090ed5c0c7030d91d07068c786b`)
+- Pre-push hook: Installed at `.git/hooks/pre-push` (current SHA-256 `4c6f4814fb1ad65558cac9d0d2304046b5429a849c47973c73c762cf4f4e9ddd`); `b2232e529dd12c8daff875ce752f3235a5b9e090ed5c0c7030d91d07068c786b` retained only as the historical pre-rebind hook identity
 - Original hook backup: Present at `.git/noor-publication-gate/backups/` (SHA-256 `26a2a514c7745983af7f7883d512f9b72ee5d4a76d293a6d4e794dea65b645d1`)
 - Gate directory: `.git/noor-publication-gate/` — foundation exists, mode `0700`
   - `consumed/` exists, empty
@@ -243,7 +233,7 @@ The publication-control lifecycle consists of exactly six separate phases. Each 
    - This phase was not the implementation phase.
 
 3. **Phase 3 — Install one exact active publication gate**
-   - Status: **NOT STARTED**
+   - Status: **COMPLETED** — gate was installed and consumed for PR #4 publication; a future publication requires a new gate through separate authorization
    - Requires separate explicit authorization.
    - Limited to installation of one exact `active.gate`.
 
@@ -265,9 +255,10 @@ Each phase is separate; no phase automatically authorizes the next. Gate install
 
 ### Current Gate State
 
-- `active.gate`: **ABSENT** — not yet installed
+- `active.gate`: **ABSENT** — consumed (installed and used for PR #4 publication)
 - Lock artifacts: None (`state.lock`, `consume.lock` all absent)
-- Gate status: **INACTIVE** — publication gate prepared but not activated
+- Temporary gate files: None remain
+- Gate status: **CONSUMED** — single-use gate was installed and exercised for the authorized rebase-merge publication; no active publication authority remains
 - The gate mechanism remains byte-identical to its Phase 2 installation; no hook, backup, or gate-directory content has been modified since installation.
 
 ### Phase 3 Exceptions
@@ -298,12 +289,53 @@ Phase 3 — `Install one exact active publication gate` — is strictly limited 
 - Protected Routing: **UNAUTHORIZED**
 - Only read-only qualification and documentation reconciliation authorized
 
-## Next Authorized Phase
+## Publication Governance
 
-**Phase 3 — Install one exact active publication gate**
+- Single-use publication gate: INSTALLED and CONSUMED
+- Publication: COMPLETED and ACCEPTED
+- PR #4: MERGED
+- Canonical local fast-forward reconciliation: COMPLETED
+- `active.gate`: ABSENT
+- `state.lock`: ABSENT
+- `consume.lock`: ABSENT
+- No temporary gate files remain
+- No active publication authority remains
+- Persistent push URL remains: `no_push://noor-personal-dev`
 
-- Requires separate authorization from ChatGPT (Lead Architect and Project Manager).
-- Gate activation creates exactly one `active.gate` in `.git/noor-publication-gate/`.
-- Phase 3 installs the gate only; it does not authorize push, push dry-run, fetch, pull, merge, tagging, commit, staging, PR mutation, or any repository file change.
-- The Phase 2 independent decision (`APPROVED_FOR_EXACT_GATE_INSTALLATION`) approved only the gate mechanism installation, which is complete; it does not extend to gate activation.
-- `active.gate` is **ABSENT** today; the gate is **INACTIVE** until Phase 3 authorization is granted.
+Consumed gate:
+
+dc14eb36845a7d8fa3ae242fcfda7ac3.gate
+
+Consumed gate SHA-256:
+
+80a2ff24833570761f46e376919bd8248193fb475450faebfb1ee45c0e1e2799
+
+Installed hook SHA-256:
+
+4c6f4814fb1ad65558cac9d0d2304046b5429a849c47973c73c762cf4f4e9ddd
+
+Installed hook binding:
+- SOURCE_OBJECT = 7ab046ac2fe8fa89c4c1031bfead41dfa7aa4b6d
+- REQUIRED_REMOTE_OBJECT = f3f210c584deac1686b770c8837db2d08bea004b
+
+The pre-push hook is retained only as the consumed publication mechanism. Because
+`active.gate` is absent, it grants no current publication authority.
+
+Permanent backup SHA-256:
+
+26a2a514c7745983af7f7883d512f9b72ee5d4a76d293a6d4e794dea65b645d1
+
+## Current Authorization Boundary
+
+- Platform Shell: UNAUTHORIZED
+- Protected Routing: UNAUTHORIZED
+- Stable milestone tag: PENDING
+- Do not approve or invent a final tag name.
+- Installing another active publication gate is not the current next phase.
+
+## Next Safe Action
+
+1. Independent review of this PROJECT_STATE edit.
+2. Separately authorized documentation commit.
+3. Controlled publication of that commit.
+4. Separately authorized annotated milestone tag.
