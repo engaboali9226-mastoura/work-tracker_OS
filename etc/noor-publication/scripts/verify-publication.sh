@@ -69,7 +69,7 @@ fi
 [ -n "$EXPECTED_OBJECT" ] || usage
 
 # Validate inputs
-git check-ref-format --refname "$DESTINATION_REF" || deny "invalid destination ref"
+git check-ref-format "$DESTINATION_REF" || deny "invalid destination ref"
 printf '%s' "$EXPECTED_OBJECT" | grep -Eq '^[0-9a-f]{40}$' || deny "invalid expected object"
 
 # Verify remote state
