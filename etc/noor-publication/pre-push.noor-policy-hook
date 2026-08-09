@@ -1,0 +1,307 @@
+#!/bin/sh
+set -eu
+set -f
+LC_ALL=C
+
+# Noor Personal publication-control v2 gate (permanent generic template).
+# Installed verbatim into .git/hooks/pre-push by install-hook.sh.
+# This template is the canonical hook policy for the publication-control
+# mechanism. It contains no per-publication commit hashes; all
+# per-publication values are read from active.gate.
+
+# Permanent constants (not per-publication):
+CANONICAL_URL='https://github.com/engaboali9226-mastoura/work-tracker_OS.git'
+PROTECTED_REF='refs/heads/product/noor-personal-mvp'
+ZERO_OBJECT='0000000000000000000000000000000000000000'
+HOOK_POLICY_VERSION='2'
+SCHEMA_VERSION='2'
+GATE_FILE_LINES=14
+PUB_RE='refs/heads/pub/[0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f]'
+GATE_DIR_NAME='noor-publication-gate'
+CONSUMED_DIR_NAME='consumed'
+BACKUP_DIR_NAME='backups'
+REVOKED_DIR_NAME='revoked'
+STATE_LOCK_NAME='state.lock'
+ACTIVE_GATE_NAME='active.gate'
+AUDIT_LOG_NAME='audit.log'
+SENTINEL_URL='no_push://noor-personal-dev'
+
+deny() {
+    echo "Push blocked: Noor Personal publication-control v2 gate." >&2
+    echo "Push denied: $1." >&2
+    exit 1
+}
+
+# SHA-256 utility with capability detection (macOS / GNU).
+# Accepts an optional file argument; with no argument, hashes stdin.
+compute_sha256() {
+    if [ "$#" -gt 0 ] && [ -n "$1" ]; then
+        if command -v sha256sum >/dev/null 2>&1; then
+            sha256sum "$1" | awk '{print $1}'
+        elif command -v shasum >/dev/null 2>&1; then
+            shasum -a 256 "$1" | awk '{print $1}'
+        else
+            return 127
+        fi
+    else
+        if command -v sha256sum >/dev/null 2>&1; then
+            sha256sum | awk '{print $1}'
+        elif command -v shasum >/dev/null 2>&1; then
+            shasum -a 256 | awk '{print $1}'
+        else
+            return 127
+        fi
+    fi
+}
+
+# POSIX-compatible first-12-char extraction (no Bash substring expansion)
+first12() {
+    printf '%s' "$1" | cut -c1-12
+}
+
+# Acquire common state lock (same lock used by generate-gate.sh,
+# publish-once.sh, and revoke-gate.sh).
+acquire_lock() {
+    LOCK_DIR="$GATE_DIR/$STATE_LOCK_NAME"
+    if ! mkdir "$LOCK_DIR" 2>/dev/null; then
+        deny "state lock is held; a concurrent operation is in progress or a previous lock was not recovered"
+    fi
+    trap 'rmdir "$LOCK_DIR" 2>/dev/null || true' 0 1 2 3 15
+}
+
+# Validate gate file bytes and schema.
+validate_gate() {
+    [ -f "$ACTIVE_GATE" ] || deny "active.gate is unavailable"
+    [ ! -L "$ACTIVE_GATE" ] || deny "active.gate is a symlink"
+    [ "$(stat -f '%u' "$ACTIVE_GATE")" = "$(id -u)" ] || deny "gate owner invalid"
+    [ "$(stat -f '%Lp' "$ACTIVE_GATE")" = 600 ] || deny "gate mode invalid"
+    [ "$(stat -f '%l' "$ACTIVE_GATE")" = 1 ] || deny "gate link count invalid"
+
+    # Line count: exactly 14 newlines
+    lc=$(wc -l < "$ACTIVE_GATE" | tr -d ' ')
+    [ "$lc" -eq "$GATE_FILE_LINES" ] || deny "gate line count is invalid"
+
+    # Final byte must be LF (0a)
+    fb=$(tail -c 1 "$ACTIVE_GATE" | od -An -t x1 | tr -d ' \n')
+    [ "$fb" = "0a" ] || deny "gate final LF missing"
+
+    # No non-printable-ASCII characters (catches NUL, CR, control chars, high bytes)
+    if LC_ALL=C grep -q '[^ -~]' "$ACTIVE_GATE"; then
+        deny "gate contains invalid control characters"
+    fi
+
+    # No CRLF (CR is caught above, but explicit check for clarity)
+    if grep -q "$(printf '\r')" "$ACTIVE_GATE"; then
+        deny "gate contains CRLF line endings"
+    fi
+
+    # Parse and validate each line in order
+    line_no=0
+    while IFS= read -r line || [ -n "$line" ]; do
+        line_no=$((line_no + 1))
+        [ "$line_no" -le 14 ] || deny "gate has extra fields"
+        case "$line_no" in
+            1)  [ "$line" = "SCHEMA_VERSION=2" ] || deny "schema version invalid" ;;
+            2)  v=${line#REPOSITORY_URL=}
+                [ "$line" = "REPOSITORY_URL=$v" ] || deny "field 2 malformed"
+                [ "$v" = "$CANONICAL_URL" ] || deny "repository URL mismatch" ;;
+            3)  v=${line#SOURCE_REF=}
+                [ "$line" = "SOURCE_REF=$v" ] || deny "field 3 malformed"
+                git check-ref-format "$v" || deny "source ref invalid"
+                SRC_REF_GATE="$v" ;;
+            4)  v=${line#SOURCE_OBJECT=}
+                [ "$line" = "SOURCE_OBJECT=$v" ] || deny "field 4 malformed"
+                printf '%s' "$v" | grep -Eq '^[0-9a-f]{40}$' || deny "source object format invalid"
+                SRC_OBJ_GATE="$v" ;;
+            5)  v=${line#DESTINATION_REF=}
+                [ "$line" = "DESTINATION_REF=$v" ] || deny "field 5 malformed"
+                git check-ref-format "$v" || deny "destination ref invalid"
+                # Must match pub/ namespace with 12-hex suffix
+                _suffix=$(printf '%s' "$v" | sed 's|^refs/heads/pub/||')
+                printf '%s' "$_suffix" | grep -Eq '^[0-9a-f]{12}$' || deny "destination not in pub namespace"
+                DST_REF_GATE="$v" ;;
+            6)  v=${line#REQUIRED_REMOTE_OBJECT=}
+                [ "$line" = "REQUIRED_REMOTE_OBJECT=$v" ] || deny "field 6 malformed"
+                printf '%s' "$v" | grep -Eq '^[0-9a-f]{40}$' || deny "required remote object format invalid"
+                REQ_REMOTE_OBJ_GATE="$v" ;;
+            7)  [ "$line" = "UPDATE_COUNT=1" ] || deny "update count invalid" ;;
+            8)  v=${line#OPERATION=}
+                [ "$line" = "OPERATION=$v" ] || deny "field 8 malformed"
+                [ "$v" = "CREATE_NON_PROTECTED_BRANCH_EXACT_OBJECT" ] || \
+                [ "$v" = "UPDATE_NON_PROTECTED_BRANCH_FAST_FORWARD" ] || \
+                    deny "operation invalid"
+                OP_GATE="$v" ;;
+            9)  v=${line#CREATED_AT=}
+                [ "$line" = "CREATED_AT=$v" ] || deny "field 9 malformed"
+                printf '%s' "$v" | grep -Eq '^[0-9]{10}$' || deny "created timestamp malformed"
+                CREATED_GATE="$v" ;;
+            10) v=${line#EXPIRES_AT=}
+                [ "$line" = "EXPIRES_AT=$v" ] || deny "field 10 malformed"
+                printf '%s' "$v" | grep -Eq '^[0-9]{10}$' || deny "expires timestamp malformed"
+                EXPIRES_GATE="$v" ;;
+            11) v=${line#NONCE=}
+                [ "$line" = "NONCE=$v" ] || deny "field 11 malformed"
+                printf '%s' "$v" | grep -Eq '^[0-9a-f]{32}$' || deny "nonce format invalid"
+                NONCE_GATE="$v" ;;
+            12) v=${line#AUTHORITY_ID=}
+                [ "$line" = "AUTHORITY_ID=$v" ] || deny "field 12 malformed"
+                printf '%s' "$v" | grep -Eq '^[A-Z0-9][A-Z0-9._-]{0,126}$' || deny "authority_id format invalid"
+                AUTH_GATE="$v" ;;
+            13) [ "$line" = "HOOK_POLICY_VERSION=2" ] || deny "hook policy version mismatch" ;;
+            14) v=${line#GATE_FILE_SHA256=}
+                [ "$line" = "GATE_FILE_SHA256=$v" ] || deny "field 14 malformed"
+                printf '%s' "$v" | grep -Eq '^[0-9a-f]{64}$' || deny "sha256 format invalid"
+                GATESHA_GATE="$v" ;;
+        esac
+    done < "$ACTIVE_GATE"
+    [ "$line_no" -eq 14 ] || deny "gate is incomplete"
+
+    # Integrity check: SHA-256 of lines 1-13 must equal field 14
+    computed=$(head -13 "$ACTIVE_GATE" | compute_sha256)
+    [ "$computed" = "$GATESHA_GATE" ] || deny "gate integrity check failed"
+
+    # Time window
+    now=$(date -u '+%s')
+    now_10=$(printf '%s' "$now" | grep -Eq '^[0-9]{10}$' && printf '%s' "$now" || printf '0000000000')
+    [ "$CREATED_GATE" -le "$now" ] || deny "gate not yet valid"
+    [ "$now" -lt "$EXPIRES_GATE" ] || deny "gate expired"
+    ttl=$((EXPIRES_GATE - CREATED_GATE))
+    [ "$ttl" -ge 1 ] || deny "gate TTL too short"
+    [ "$ttl" -le 86400 ] || deny "gate TTL exceeds maximum"
+}
+
+# Main hook entry
+[ "$#" -eq 2 ] || deny "remote arguments invalid"
+[ "$2" = "$CANONICAL_URL" ] || deny "remote URL is not authorized"
+[ "${GIT_PUSH_OPTION_COUNT-}" = "" ] || [ "${GIT_PUSH_OPTION_COUNT-}" = "0" ] ||
+    deny "push options not authorized"
+
+# Verify persistent push URL sentinel is intact (tamper detection)
+configured_pushurl=$(git config --get remote.origin.pushurl 2>/dev/null || git config --get remote.origin.url 2>/dev/null)
+[ "$configured_pushurl" = "$SENTINEL_URL" ] ||
+    deny "persistent push URL sentinel has been altered"
+
+# Resolve git paths
+REPO_ROOT=$(git rev-parse --show-toplevel 2>/dev/null) || deny "repository root unavailable"
+COMMON_DIR=$(git rev-parse --git-common-dir 2>/dev/null) || deny "common dir unavailable"
+case "$COMMON_DIR" in
+    /*) ;;
+    *) COMMON_DIR=$REPO_ROOT/$COMMON_DIR ;;
+esac
+COMMON_DIR=$(cd "$COMMON_DIR" 2>/dev/null && pwd -P) || deny "cannot canonicalize common dir"
+
+GATE_DIR=$COMMON_DIR/$GATE_DIR_NAME
+CONSUMED_DIR=$GATE_DIR/$CONSUMED_DIR_NAME
+REVOKED_DIR=$GATE_DIR/$REVOKED_DIR_NAME
+ACTIVE_GATE=$GATE_DIR/$ACTIVE_GATE_NAME
+
+# Directory validation
+[ -d "$GATE_DIR" ] && [ ! -L "$GATE_DIR" ] || deny "gate directory invalid"
+[ -d "$CONSUMED_DIR" ] && [ ! -L "$CONSUMED_DIR" ] || deny "consumed directory invalid"
+[ -d "$REVOKED_DIR" ] && [ ! -L "$REVOKED_DIR" ] || deny "revoked directory invalid"
+[ "$(stat -f '%u' "$GATE_DIR")" = "$(id -u)" ] || deny "gate dir owner invalid"
+[ "$(stat -f '%Lp' "$GATE_DIR")" = 700 ] || deny "gate dir mode invalid"
+
+# Acquire exclusive lock
+acquire_lock
+
+# Validate gate
+validate_gate
+
+# Read and validate stdin ref updates (exactly one)
+update_count=0
+while IFS= read -r line || [ -n "$line" ]; do
+    update_count=$((update_count + 1))
+    [ "$update_count" -eq 1 ] || deny "multiple ref updates not authorized"
+    [ -n "$line" ] || deny "ref update line empty"
+    set -- $line
+    [ "$#" -eq 4 ] || deny "ref update malformed"
+    local_ref=$1
+    local_object=$2
+    remote_ref=$3
+    remote_object=$4
+done
+[ "$update_count" -eq 1 ] || deny "exactly one ref update required"
+
+# Validate against gate
+[ "$local_ref" = "$SRC_REF_GATE" ] || deny "source ref mismatch"
+[ "$local_object" = "$SRC_OBJ_GATE" ] || deny "source object mismatch"
+[ "$remote_ref" = "$DST_REF_GATE" ] || deny "destination ref mismatch"
+[ "$remote_ref" != "$PROTECTED_REF" ] || deny "protected branch rejected"
+[ "${remote_ref#refs/tags/}" = "$remote_ref" ] || deny "tag updates rejected"
+[ "$local_object" != "$ZERO_OBJECT" ] || deny "deletion rejected"
+
+# Operation-specific checks
+case "$OP_GATE" in
+    CREATE_NON_PROTECTED_BRANCH_EXACT_OBJECT)
+        [ "$REQ_REMOTE_OBJ_GATE" = "$ZERO_OBJECT" ] || deny "CREATE requires zero remote object"
+        [ "$remote_object" = "$ZERO_OBJECT" ] || deny "CREATE requires remote object is zero"
+        ;;
+    UPDATE_NON_PROTECTED_BRANCH_FAST_FORWARD)
+        [ "$REQ_REMOTE_OBJ_GATE" != "$ZERO_OBJECT" ] || deny "UPDATE requires non-zero remote object"
+        [ "$remote_object" = "$REQ_REMOTE_OBJ_GATE" ] || deny "remote object mismatch"
+        git cat-file -e "$REQ_REMOTE_OBJ_GATE^{commit}" 2>/dev/null || deny "required remote object not a local commit"
+        git merge-base --is-ancestor "$REQ_REMOTE_OBJ_GATE" "$SRC_OBJ_GATE" 2>/dev/null ||
+            deny "update is not a fast-forward"
+        ;;
+    *)
+        deny "unknown operation"
+        ;;
+esac
+
+# Validate objects
+git cat-file -e "$SRC_OBJ_GATE^{commit}" 2>/dev/null || deny "source object is not a commit"
+resolved_src=$(git rev-parse "$SRC_REF_GATE^{commit}" 2>/dev/null) || deny "source ref unavailable"
+[ "$resolved_src" = "$SRC_OBJ_GATE" ] || deny "source ref does not resolve to source object"
+
+# Validate publication namespace suffix (POSIX: no Bash substring expansion)
+# For CREATE, suffix must match source object. For UPDATE, suffix is stable
+# from CREATE time and is validated by the gate schema.
+actual_suffix=$(printf '%s' "$DST_REF_GATE" | sed 's|^refs/heads/pub/||')
+printf '%s' "$actual_suffix" | grep -Eq '^[0-9a-f]{12}$' || deny "destination suffix format invalid"
+case "$OP_GATE" in
+    CREATE_NON_PROTECTED_BRANCH_EXACT_OBJECT)
+        expected_suffix=$(first12 "$SRC_OBJ_GATE")
+        [ "$actual_suffix" = "$expected_suffix" ] || deny "destination suffix does not match source object"
+        ;;
+esac
+
+# Live remote check
+remote_line=$(git ls-remote -- "$CANONICAL_URL" "$DST_REF_GATE" 2>/dev/null || deny "live remote check failed")
+
+case "$OP_GATE" in
+    CREATE_NON_PROTECTED_BRANCH_EXACT_OBJECT)
+        [ -z "$remote_line" ] || deny "destination unexpectedly exists on remote"
+        ;;
+    UPDATE_NON_PROTECTED_BRANCH_FAST_FORWARD)
+        set -- $remote_line
+        [ "$#" -eq 2 ] || deny "live remote state malformed"
+        [ "$1" = "$REQ_REMOTE_OBJ_GATE" ] || deny "live remote object mismatch"
+        [ "$2" = "$DST_REF_GATE" ] || deny "live remote ref mismatch"
+        ;;
+esac
+
+# Re-validate gate integrity (defense in depth)
+computed2=$(head -13 "$ACTIVE_GATE" | compute_sha256)
+[ "$computed2" = "$GATESHA_GATE" ] || deny "gate integrity changed during validation"
+
+# Consume the gate (fail-closed: only after ALL checks pass)
+CONSUMED_GATE=$CONSUMED_DIR/$NONCE_GATE.gate
+[ ! -e "$CONSUMED_GATE" ] && [ ! -L "$CONSUMED_GATE" ] || deny "nonce already consumed"
+
+mv "$ACTIVE_GATE" "$CONSUMED_GATE" || deny "gate consumption failed"
+
+# Verify consumed gate metadata
+[ -f "$CONSUMED_GATE" ] && [ ! -L "$CONSUMED_GATE" ] || deny "consumed artifact type invalid"
+[ "$(stat -f '%u' "$CONSUMED_GATE")" = "$(id -u)" ] || deny "consumed owner invalid"
+[ "$(stat -f '%Lp' "$CONSUMED_GATE")" = 600 ] || deny "consumed mode invalid"
+[ "$(stat -f '%l' "$CONSUMED_GATE")" = 1 ] || deny "consumed link count invalid"
+consumed_sha=$(head -13 "$CONSUMED_GATE" | compute_sha256)
+[ "$consumed_sha" = "$computed2" ] || deny "consumed artifact integrity changed"
+
+# Record consumption (not network outcome)
+echo "$(date -u '+%Y-%m-%dT%H:%M:%SZ') event=AUTHORITY_CONSUMED_PRE_PUSH nonce=$NONCE_GATE op=$OP_GATE src=$SRC_REF_GATE@$SRC_OBJ_GATE dst=$DST_REF_GATE remote_obj=$REQ_REMOTE_OBJ_GATE authority=$AUTH_GATE hook_policy=$HOOK_POLICY_VERSION" >> "$GATE_DIR/$AUDIT_LOG_NAME"
+chmod 0600 "$GATE_DIR/$AUDIT_LOG_NAME" 2>/dev/null || true
+
+echo "Noor publication gate consumed; Git may attempt the authorized push."
+exit 0
