@@ -137,13 +137,13 @@ done
     deny "unsupported operation: $OPERATION"
 
 # Validate source ref
-git check-ref-format --refname "$SOURCE_REF" || deny "invalid source ref"
+git check-ref-format "$SOURCE_REF" || deny "invalid source ref"
 
 # Validate source object format
 printf '%s' "$SOURCE_OBJECT" | grep -Eq '^[0-9a-f]{40}$' || deny "invalid source object"
 
 # Validate destination ref (must be in pub/ namespace with 12-hex suffix)
-git check-ref-format --refname "$DESTINATION_REF" || deny "invalid destination ref"
+git check-ref-format "$DESTINATION_REF" || deny "invalid destination ref"
 _suffix=$(printf '%s' "$DESTINATION_REF" | sed 's|^refs/heads/pub/||')
 printf '%s' "$_suffix" | grep -Eq '^[0-9a-f]{12}$' || deny "destination not in pub namespace"
 
