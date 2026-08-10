@@ -4,11 +4,14 @@
 
 - Repository: Noor Personal
 - Branch at reconciliation start: `product/noor-personal-mvp`
-- Committed product baseline before this acceptance-state reconciliation: `be400581b7f82d4d0cbd66875d1255aac7e3d693`
-- Committed baseline tree before this acceptance-state reconciliation: `5ec87ba30535fc6cb7d0ffbe13f196ebb974dc96`
-- Repository baseline observed when the reconciliation task began: `be400581b7f82d4d0cbd66875d1255aac7e3d693`
+- Prior historical Application Composition acceptance-state reconciliation baseline: `be400581b7f82d4d0cbd66875d1255aac7e3d693`
+- Prior historical Application Composition acceptance-state reconciliation tree: `5ec87ba30535fc6cb7d0ffbe13f196ebb974dc96`
+- Repository baseline observed when the earlier historical reconciliation task began: `be400581b7f82d4d0cbd66875d1255aac7e3d693`
+- Current committed baseline before this Platform Shell reconciliation candidate: `8d8cf2b455662738d674e6520fc22df834850edd`
+- Current committed baseline tree before this Platform Shell reconciliation candidate: `10a759844ef252b4f7fd426c681ac0b7534913b8`
+- Committed `PROJECT_STATE.md` blob before this working candidate: `a274cafb0322beee9e0858b608397dd6ad4b0495`
 - `.ai/state/PROJECT_STATE.md` is the authoritative state record for the Noor Personal Platform repository and its governed workflow. It must not be conflated with the separate canonical Prayer Engine worktree, its repository state, branch state, or authorization state. Facts or authorization from one worktree do not automatically transfer to the other. The repository and this state file remain the sole sources of truth for Noor Personal project sequencing.
-- This file is a working reconciliation document and does not claim any future reconciliation commit SHA, future committed tree SHA, or future PROJECT_STATE blob SHA.
+- This section records the governance reconciliation candidate and its accepted pre-commit review history. It does not claim any future reconciliation commit SHA, future committed tree SHA, or future PROJECT_STATE blob SHA.
 
 ## Historical Lineage
 
@@ -39,19 +42,41 @@
 - Auto-merge was not used.
 - Historical status: retained as a completed milestone and historical publication lineage, not as the current canonical publication state.
 
-## Current Baseline State Before Reconciliation
+## Historical pre-commit review evidence
+
+At the time of the accepted candidate and pre-commit reviews, the reviewed repository state was:
 
 - canonical branch at reconciliation start:
   `product/noor-personal-mvp`
-- committed product baseline before this acceptance-state reconciliation:
+- current committed product baseline before this Platform Shell reconciliation candidate:
+  `8d8cf2b455662738d674e6520fc22df834850edd`
+- current committed baseline tree before this Platform Shell reconciliation candidate:
+  `10a759844ef252b4f7fd426c681ac0b7534913b8`
+- committed `PROJECT_STATE.md` blob before this current working candidate:
+  `a274cafb0322beee9e0858b608397dd6ad4b0495`
+- prior historical Application Composition acceptance-state reconciliation baseline:
   `be400581b7f82d4d0cbd66875d1255aac7e3d693`
-- repository baseline observed when the reconciliation task began:
-  `be400581b7f82d4d0cbd66875d1255aac7e3d693`
-- committed baseline tree before this acceptance-state reconciliation:
+- prior historical Application Composition acceptance-state reconciliation tree:
   `5ec87ba30535fc6cb7d0ffbe13f196ebb974dc96`
-- committed baseline before reconciliation: no tracked modifications and no staged changes existed.
-- current reconciliation working state: exactly `.ai/state/PROJECT_STATE.md` is modified; nothing is staged.
-- exactly three Step 044 reports remain intentionally untracked and preserved.
+- `.ai/state/PROJECT_STATE.md` was the sole tracked modification; nothing was staged.
+- the contract candidate and the three preserved Step 044 reports were untracked and retained as candidate evidence.
+- these statements describe the reviewed pre-commit worktree and are not a permanent live claim about a later authorized documentation commit.
+
+## Current Baseline State Before This Platform Shell Reconciliation Candidate
+
+- canonical branch at reconciliation start:
+  `product/noor-personal-mvp`
+- current committed product baseline before this Platform Shell reconciliation candidate:
+  `8d8cf2b455662738d674e6520fc22df834850edd`
+- current committed baseline tree before this Platform Shell reconciliation candidate:
+  `10a759844ef252b4f7fd426c681ac0b7534913b8`
+- committed `PROJECT_STATE.md` blob before this current working candidate:
+  `a274cafb0322beee9e0858b608397dd6ad4b0495`
+- prior historical Application Composition acceptance-state reconciliation baseline:
+  `be400581b7f82d4d0cbd66875d1255aac7e3d693`
+- prior historical Application Composition acceptance-state reconciliation tree:
+  `5ec87ba30535fc6cb7d0ffbe13f196ebb974dc96`
+- current committed baseline identity remains a durable repository fact, not a claim that the contract or this state file are still in a pre-commit working state.
 
 ## Publication-Control State
 
@@ -193,8 +218,42 @@ The Application Composition / Bootstrap foundation is implemented, technically c
 
 - Status: NOT STARTED
 - Authorization: NOT AUTHORIZED
+- Current review status: `PLATFORM_SHELL_ELIGIBILITY_EVIDENCE_INSUFFICIENT`
+- Current governance status: `PLATFORM_SHELL_CONTRACT_CODEX_THIRD_FINAL_CANDIDATE_ACCEPTED`
+
+### Platform Shell Architecture Contract Candidate
+
+The read-only Platform Shell eligibility review completed with `PLATFORM_SHELL_ELIGIBILITY_EVIDENCE_INSUFFICIENT` and did not identify a defective Application Catalog or Application Composition / Bootstrap foundation. It identified missing Platform Shell ownership, mounting, bootstrap, route, rendering, path, and validation contracts. In response, a documentation-only candidate architecture contract was created and preserved as a candidate only.
+
+The independent review of the candidate architecture contract accepted the document as a valid candidate suitable for governance reconciliation without finally accepting the contract itself or authorizing implementation.
+
+- Review status: `INDEPENDENT CANDIDATE REVIEW ACCEPTED`
+- Contract status: `CANDIDATE / NOT YET ACCEPTED`
+- Implementation readiness: `NOT IMPLEMENTATION-READY`
+- Contract authority: `NON-AUTHORITATIVE CANDIDATE`
+- Implementation authorization: `NOT AUTHORIZED`
+- Candidate-review decision: `PLATFORM_SHELL_CONTRACT_CODEX_THIRD_FINAL_CANDIDATE_ACCEPTED`
+- Candidate review accepted the documentation as a valid candidate for governance reconciliation only.
+- Candidate review did not finally accept the architecture contract.
+- Candidate review did not close any blocking decision.
+- Candidate review did not authorize implementation, publication, PR creation, merge, tag, deployment, or branch mutation.
+
+### Contract identity
+
+- Path: `docs/03-architecture/PLATFORM_SHELL_CONTRACT.md`
+- Byte size: `45481`
+- Line count: `720`
+- SHA-256: `693ea1d1dac61303ab5a4748cb7898b40c57a29c09786a8e31d5c3a5ad1e27c5`
+- Status at this candidate stage: intentionally non-authoritative, and not yet finally accepted by governance. Git tracking state does not determine architecture authority.
+- A tracked or committed Platform Shell contract may remain `CANDIDATE / NOT YET ACCEPTED`, `NOT IMPLEMENTATION-READY`, and `NON-AUTHORITATIVE CANDIDATE` while the eleven decisions remain unresolved and blocking.
+- This file does not claim a future contract commit SHA, future tree SHA, or future state blob SHA.
 
 ### Protected Routing
+
+- Status: NOT STARTED
+- Authorization: NOT AUTHORIZED
+
+### App Launcher
 
 - Status: NOT STARTED
 - Authorization: NOT AUTHORIZED
@@ -203,36 +262,194 @@ The Application Composition / Bootstrap foundation is implemented, technically c
 
 - Authorization: NOT AUTHORIZED
 
-Authorization for one phase does not transfer automatically to another phase. Acceptance of Application Composition / Bootstrap does not authorize Platform Shell implementation, Protected Routing implementation, or Step 044 implementation.
+Authorization for one phase does not transfer automatically to another phase. Acceptance of Application Composition / Bootstrap does not authorize Platform Shell implementation, Protected Routing implementation, App Launcher implementation, or Step 044 implementation. Acceptance of the independent candidate review does not transfer authorization to any feature, contract, implementation, commit, publication, PR, merge, or deployment phase.
+
+## Review and Repair History
+
+The Platform Shell review and repair sequence was completed as a documentation-only governance process and must be recorded accurately as historical work.
+
+1. Platform Shell eligibility review completed with: `PLATFORM_SHELL_ELIGIBILITY_EVIDENCE_INSUFFICIENT`.
+2. The result identified missing shell ownership, mounting, bootstrap, route, rendering, affected-path, and validation contracts; it did not invalidate the Application Catalog or Application Composition / Bootstrap foundation.
+3. A documentation-only Platform Shell contract candidate was created and preserved as candidate-only evidence.
+4. Independent Codex review identified documentation defects and returned repair-required decisions, including `PLATFORM_SHELL_CONTRACT_REVIEW_STATE_CODEX_REPAIR_REQUIRED`.
+5. Multiple documentation-only repair passes were completed without code, test, contract-authority, implementation, publication, or repository-history authorization.
+6. The final independent review returned: `PLATFORM_SHELL_CONTRACT_CODEX_THIRD_FINAL_CANDIDATE_ACCEPTED`.
+7. A subsequent accepted review outcome for the governance-reconciliation candidate was recorded as: `PLATFORM_SHELL_CONTRACT_REVIEW_STATE_CODEX_FINAL_REPAIR_ACCEPTED`.
+   - This decision accepted only the `PROJECT_STATE` governance-reconciliation candidate, its review history, its eleven-decision register, its candidate-boundary preservation, its authorization boundaries, and its single current Next Safe Action.
+   - It did not finally accept the Platform Shell architecture contract, close any of the eleven decisions, make the contract implementation-ready, or authorize Platform Shell, Protected Routing, App Launcher, Step 044, Stage, Commit, Gate creation, Gate consumption, Push, publication, PR creation, Merge, Tag, or deployment.
+8. A later pre-commit scope review result was recorded as: `PLATFORM_SHELL_DOCUMENTATION_COMMIT_SCOPE_REPAIR_REQUIRED`.
+   - This review accepted the two-file atomic documentation purpose conceptually.
+   - It did not accept commit readiness.
+   - It required post-commit-truthfulness repair in `PROJECT_STATE`.
+   - It did not authorize Stage or Commit.
+
+This history records several review passes and several repair passes. The final candidate-review acceptance applies only to candidate validity for governance reconciliation. It does not constitute final contract acceptance, does not close the eleven open decisions, and does not authorize implementation.
+
+## Eleven-Decision Register
+
+The following Platform Shell contract decisions remain unresolved and blocking. This reconciliation does not resolve them.
+
+### 1. Default/root route behavior
+- Status: OPEN — REQUIRES GOVERNANCE DECISION
+- Blocking implementation authorization: YES
+- Unresolved question: Which canonical path is the default root for the Platform Shell?
+- Closing evidence required: accepted default route semantics or governance decision defining a default root.
+- Reconciliation status: This governance reconciliation does not resolve it.
+
+### 2. Unknown-route rendering or presentation
+- Status: OPEN — REQUIRES GOVERNANCE DECISION
+- Blocking implementation authorization: YES
+- Unresolved question: What presentation, if any, should the shell assign to an unknown route?
+- Closing evidence required: accepted shell presentation rule or governance decision for unknown-route behavior.
+- Reconciliation status: This governance reconciliation does not resolve it.
+
+### 3. Nested-route support
+- Status: OPEN — REQUIRES GOVERNANCE DECISION
+- Blocking implementation authorization: YES
+- Unresolved question: Does the shell support nested routes and sub-app mounts?
+- Closing evidence required: accepted subroute catalog metadata and view-registry semantics.
+- Reconciliation status: This governance reconciliation does not resolve it.
+
+### 4. Exact application-view factory shape
+- Status: CONDITIONAL — REQUIRES IMPLEMENTATION DESIGN EVIDENCE
+- Blocking implementation authorization: YES
+- Unresolved question: What is the exact TypeScript shape of a renderable application-view factory?
+- Closing evidence required: accepted browser-shell design evidence and public contract review proving the final factory shape.
+- Reconciliation status: This governance reconciliation does not resolve it.
+
+### 5. Browser-history ownership
+- Status: OPEN — REQUIRES GOVERNANCE DECISION
+- Blocking implementation authorization: YES
+- Unresolved question: Who owns browser history state and route-history logic?
+- Closing evidence required: accepted browser-history ownership and route-back semantics.
+- Reconciliation status: This governance reconciliation does not resolve it.
+
+### 6. Production lifecycle-adapter ownership
+- Status: OPEN — REQUIRES GOVERNANCE DECISION
+- Blocking implementation authorization: YES
+- Unresolved question: Which browser or integration layer owns the production authentication, session, and authorization adapters supplied to the accepted Platform composition root?
+- Closing evidence required: a governance decision establishing the definitive production owner; repository-supported integration responsibility; confirmation that the ownership does not move browser/UI concerns into `packages/platform`; confirmation that it does not introduce Protected Routing or authorization enforcement into Platform Shell; independent review of the resulting ownership decision.
+- Reconciliation status: This governance reconciliation does not resolve this decision.
+
+### 7. Whether a new packages/platform public API is required
+- Status: CONDITIONAL — REQUIRES IMPLEMENTATION DESIGN EVIDENCE
+- Blocking implementation authorization: YES
+- Unresolved question: Does the current public contract in `packages/platform` already satisfy shell composition needs or must a new API be introduced?
+- Closing evidence required: independent review showing public API sufficiency or deficiency and the accepted design result.
+- Reconciliation status: This governance reconciliation does not resolve it.
+
+### 8. Shared-shell language and directionality obligations
+- Status: OPEN — REQUIRES GOVERNANCE DECISION
+- Blocking implementation authorization: YES
+- Unresolved question: Does the shared shell require Arabic, RTL, or other language-specific behavior?
+- Closing evidence required: accepted language and directionality decisions for the shared shell.
+- Reconciliation status: This governance reconciliation does not resolve it.
+
+### 9. Exact accessibility standard or compliance target
+- Status: OPEN — REQUIRES GOVERNANCE DECISION
+- Blocking implementation authorization: YES
+- Unresolved question: Which accessibility standard or compliance target governs the shared shell?
+- Closing evidence required: accepted accessibility standard or legal/governance target.
+- Reconciliation status: This governance reconciliation does not resolve it.
+
+### 10. Final apps/web test path
+- Status: CONDITIONAL — REQUIRES IMPLEMENTATION DESIGN EVIDENCE
+- Blocking implementation authorization: YES
+- Unresolved question: Which exact apps/web test path and file pattern are valid for a later implementation task?
+- Closing evidence required: the final shell test path, repository convention consistency, and independent architecture review.
+- Reconciliation status: This governance reconciliation does not resolve it.
+
+### 11. Final allowed and prohibited implementation path set
+- Status: OPEN — REQUIRES GOVERNANCE DECISION
+- Blocking implementation authorization: YES
+- Unresolved question: Which path set is allowed and prohibited for the future implementation task?
+- Closing evidence required: explicit implementation authorization with a fixed path scope and accepted allowed/prohibited lists.
+- Reconciliation status: This governance reconciliation does not resolve it.
 
 ## One-Task Policy
 
 - One task at a time.
 - Application Composition / Bootstrap is accepted, and its technical prerequisite is satisfied.
 - No automatic progression follows from that acceptance.
+- The completed Platform Shell eligibility review remains historical evidence and does not compete with the current action.
 - Platform Shell remains NOT STARTED and NOT AUTHORIZED.
-- A separate read-only governance and eligibility review is required before any Platform Shell implementation decision.
+- The documentation-only candidate remains non-authoritative and not implementation-ready.
 - No implementation work may proceed without separate, explicit authorization.
 
 ## Authorization Boundary
 
-Platform Shell and Protected Routing remain not started and not authorized unless explicit, independent repository evidence proves otherwise.
+Platform Shell and Protected Routing remain not started and not authorized unless explicit, independent repository evidence proves otherwise. The reviewed candidate boundaries listed below are candidate-only and do not authorize implementation.
 
 - Platform Shell: NOT STARTED; NOT AUTHORIZED
 - Protected Routing: NOT STARTED; NOT AUTHORIZED
+- App Launcher: NOT STARTED; NOT AUTHORIZED
 - Step 044 implementation: NOT AUTHORIZED
 
-PR #5 and Publication Control v2 completion do not independently authorize Platform Shell, Protected Routing, or Step 044 implementation.
+These are reviewed candidate boundaries only. They are not finally accepted architecture and do not authorize implementation.
 
-## Current Reconciliation Working State
+- `apps/web` is the candidate browser and rendering edge;
+- `packages/platform` remains framework-neutral;
+- Platform Shell excludes authentication enforcement;
+- Platform Shell excludes session-policy enforcement;
+- Platform Shell excludes permission enforcement;
+- Platform Shell excludes entitlement enforcement;
+- Protected Routing is excluded and not authorized;
+- App Launcher is excluded and not authorized;
+- Step 044 is excluded and not authorized;
+- planned applications remain non-mountable;
+- an unknown route mounts no application view;
+- unknown-route visual presentation remains unresolved;
+- failed-closed remains irreversible through the current accepted Platform public API;
+- no current public reset operation exists;
+- Noor Personal feature implementation is excluded;
+- Noor Work feature implementation is excluded;
+- publication and repository mutation remain separately authorized.
 
-- committed baseline before this acceptance-state reconciliation: `be400581b7f82d4d0cbd66875d1255aac7e3d693`
-- committed baseline tree before this acceptance-state reconciliation: `5ec87ba30535fc6cb7d0ffbe13f196ebb974dc96`
-- `.ai/state/PROJECT_STATE.md` is the sole tracked modification.
-- nothing is staged.
-- exactly three Step 044 reports remain intentionally untracked.
-- no future reconciliation commit SHA, committed tree SHA, or PROJECT_STATE blob SHA is claimed or predicted by this document.
-- this file is a working-state reconciliation document and remains subject to the current repo state at the time of review.
+PR #5 and Publication Control v2 completion do not independently authorize Platform Shell, Protected Routing, App Launcher, or Step 044 implementation.
+
+## Separate Authorization Requirements
+
+The following later phases require their own explicit and separate authorization before any action is permitted:
+
+- any further contract modification;
+- final architecture-contract acceptance;
+- reconciliation of final acceptance into `.ai/state/PROJECT_STATE.md`;
+- Stage;
+- local Commit;
+- Gate creation requires separate explicit authorization;
+- Gate consumption requires separate explicit authorization;
+- Push;
+- publication;
+- PR creation;
+- Merge;
+- Tag;
+- deployment;
+- Platform Shell implementation;
+- Protected Routing;
+- App Launcher;
+- Step 044.
+
+Authorization to create a Gate does not authorize consuming it. Authorization to consume a Gate does not retroactively authorize its creation. Neither operation authorizes Push, publication, PR creation, Merge, Tag, deployment, or implementation. Candidate-review acceptance authorizes neither operation. Completion of the eleven-decision governance task authorizes neither operation.
+
+Final contract acceptance does not automatically authorize Commit. A Commit does not automatically authorize publication. Candidate-review acceptance does not authorize any of them. Completion of the eleven-decision governance task creates no automatic progression.
+
+## Historical pre-commit review evidence
+
+At the time of the accepted candidate and pre-commit reviews, the repository state was:
+
+- current committed baseline before this Platform Shell reconciliation candidate: `8d8cf2b455662738d674e6520fc22df834850edd`
+- current committed baseline tree before this Platform Shell reconciliation candidate: `10a759844ef252b4f7fd426c681ac0b7534913b8`
+- committed `PROJECT_STATE.md` blob before this current working candidate: `a274cafb0322beee9e0858b608397dd6ad4b0495`
+- `.ai/state/PROJECT_STATE.md` was the sole tracked modification.
+- nothing was staged.
+- exactly four files were untracked and preserved as candidate evidence:
+  - `docs/03-architecture/PLATFORM_SHELL_CONTRACT.md`
+  - the three preserved Step 044 reports
+- no future reconciliation commit SHA, committed tree SHA, or PROJECT_STATE blob SHA was claimed or predicted by this document.
+- this section records the governance reconciliation candidate and its accepted pre-commit review history before any separately authorized local documentation commit.
+- the contract candidate remained intentionally untracked and non-authoritative; it was not staged, committed, published, merged, or made authoritative by this state reconciliation.
+
+This historical pre-commit evidence remains accurate even if both documentation files are later tracked and committed under a separately authorized documentation commit, because it records the reviewed worktree at the time of candidate acceptance and pre-commit review, not a permanent live assertion about a later repository state.
 
 ## Separation of Review and Implementation
 
@@ -246,25 +463,40 @@ PR #5 and Publication Control v2 completion do not independently authorize Platf
 
 ## Next Safe Action
 
-Next Safe Action: Read-only governance and eligibility review for Platform Shell.
+Previous Next Safe Action completed: Read-only governance and eligibility review for Platform Shell.
 
-This review:
+Result: `PLATFORM_SHELL_ELIGIBILITY_EVIDENCE_INSUFFICIENT`.
 
-- is a review task only;
+This completed review identified missing Platform Shell ownership, mounting, bootstrap, route, rendering, path, and validation contracts and did not indicate a defective Application Catalog or Application Composition / Bootstrap foundation. The subsequent documentation-only candidate-contract review history is recorded as multiple independent review passes and multiple repair passes, ending with: `PLATFORM_SHELL_CONTRACT_CODEX_THIRD_FINAL_CANDIDATE_ACCEPTED`.
+
+Current Next Safe Action: Governance-only resolution of the eleven blocking Platform Shell contract decisions.
+
+This next action:
+
+- is a governance decision-resolution task;
 - is not Platform Shell implementation;
-- must determine the exact scope, prerequisites, boundaries, tests, and authorization conditions for Platform Shell;
-- does not authorize file modification;
+- does not authorize file modification automatically;
+- does not authorize accepting or committing the contract automatically;
+- does not authorize Platform Shell;
 - does not authorize Protected Routing;
+- does not authorize App Launcher;
 - does not authorize Step 044;
-- does not automatically progress to implementation after the review;
-- requires a separate explicit decision and authorization before any implementation task.
+- does not authorize Stage, Commit, Push, Gate, PR, Merge, Tag, publication, deployment, or remote mutation;
+- resolves or classifies all eleven blocking decisions using repository evidence and explicit governance choices;
+- may produce a reviewed decision package;
+- requires separate explicit authorization for any subsequent contract modification, final contract acceptance, or implementation;
+- does not automatically progress beyond governance reconciliation or review;
+- is the sole current Next Safe Action.
+
+This state does not authorize Platform Shell implementation, Protected Routing implementation, App Launcher implementation, Step 044 implementation, any contract acceptance, any local Commit, or any publication or repository mutation.
 
 ## Repository-Only Notes
 
 - Historical rebased PR #5 product result before the earlier PROJECT_STATE documentation-reconciliation commit: `37d965c51c6bf98447fed494f1e497eb8a0aafa1`
 - Corresponding historical PR #5 result tree before that earlier documentation reconciliation: `842b86bc875f5ca2858fadd159ef0d9a1df26785`
-- Committed baseline before this acceptance-state reconciliation candidate, and repository baseline observed when this task began: `be400581b7f82d4d0cbd66875d1255aac7e3d693`
-- Corresponding committed baseline tree before this acceptance-state reconciliation candidate: `5ec87ba30535fc6cb7d0ffbe13f196ebb974dc96`
+- Prior historical Application Composition acceptance-state reconciliation commit lineage: `be400581b7f82d4d0cbd66875d1255aac7e3d693`
+- Prior historical Application Composition acceptance-state reconciliation tree lineage: `5ec87ba30535fc6cb7d0ffbe13f196ebb974dc96`
+- Neither value is the baseline of the current Platform Shell reconciliation candidate, neither identifies the current working candidate, and neither predicts a future repository identity.
 - PR #4 remains part of the historical record, but it is not the current publication state.
 - Publication Control v2 is not future or incomplete work; it is part of the accepted current state.
 - The source-branch publication lineage has been rebased and resolved; the older PR #5 result and its tree remain historical publication and synchronization lineage, not the current committed product baseline.
