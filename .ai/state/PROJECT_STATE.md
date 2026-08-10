@@ -7,9 +7,10 @@
 - Prior historical Application Composition acceptance-state reconciliation baseline: `be400581b7f82d4d0cbd66875d1255aac7e3d693`
 - Prior historical Application Composition acceptance-state reconciliation tree: `5ec87ba30535fc6cb7d0ffbe13f196ebb974dc96`
 - Repository baseline observed when the earlier historical reconciliation task began: `be400581b7f82d4d0cbd66875d1255aac7e3d693`
-- Current committed baseline before this Platform Shell reconciliation candidate: `8d8cf2b455662738d674e6520fc22df834850edd`
-- Current committed baseline tree before this Platform Shell reconciliation candidate: `10a759844ef252b4f7fd426c681ac0b7534913b8`
-- Committed `PROJECT_STATE.md` blob before this working candidate: `a274cafb0322beee9e0858b608397dd6ad4b0495`
+- Current committed baseline before this Platform Shell reconciliation candidate: `16fa7f281c8bd01807bf89db1b499afea1ae84f4`
+- Current committed baseline tree before this Platform Shell reconciliation candidate: `0468925f3104cb0eb77eb1af7a81ec8965853be5`
+- Committed `PROJECT_STATE.md` blob before this working candidate: `70fd54339074e15524431405cdde14a17a16cb53`
+- Committed Platform Shell contract blob before this working candidate: `4d837e3056b05b88ec641bb209a1b4e979b8f45a`
 - `.ai/state/PROJECT_STATE.md` is the authoritative state record for the Noor Personal Platform repository and its governed workflow. It must not be conflated with the separate canonical Prayer Engine worktree, its repository state, branch state, or authorization state. Facts or authorization from one worktree do not automatically transfer to the other. The repository and this state file remain the sole sources of truth for Noor Personal project sequencing.
 - This section records the governance reconciliation candidate and its accepted pre-commit review history. It does not claim any future reconciliation commit SHA, future committed tree SHA, or future PROJECT_STATE blob SHA.
 
@@ -67,11 +68,13 @@ At the time of the accepted candidate and pre-commit reviews, the reviewed repos
 - canonical branch at reconciliation start:
   `product/noor-personal-mvp`
 - current committed product baseline before this Platform Shell reconciliation candidate:
-  `8d8cf2b455662738d674e6520fc22df834850edd`
+  `16fa7f281c8bd01807bf89db1b499afea1ae84f4`
 - current committed baseline tree before this Platform Shell reconciliation candidate:
-  `10a759844ef252b4f7fd426c681ac0b7534913b8`
+  `0468925f3104cb0eb77eb1af7a81ec8965853be5`
 - committed `PROJECT_STATE.md` blob before this current working candidate:
-  `a274cafb0322beee9e0858b608397dd6ad4b0495`
+  `70fd54339074e15524431405cdde14a17a16cb53`
+- committed Platform Shell contract blob before this current working candidate:
+  `4d837e3056b05b88ec641bb209a1b4e979b8f45a`
 - prior historical Application Composition acceptance-state reconciliation baseline:
   `be400581b7f82d4d0cbd66875d1255aac7e3d693`
 - prior historical Application Composition acceptance-state reconciliation tree:
@@ -214,281 +217,248 @@ The Application Composition / Bootstrap foundation is implemented, technically c
 - Status: ACCEPTED
 - Technical prerequisite: SATISFIED
 
-### Platform Shell
+## Platform Shell Governance Reconciliation — Current
 
-- Status: NOT STARTED
-- Authorization: NOT AUTHORIZED
-- Current review status: `PLATFORM_SHELL_ELIGIBILITY_EVIDENCE_INSUFFICIENT`
-- Current governance status: `PLATFORM_SHELL_CONTRACT_CODEX_THIRD_FINAL_CANDIDATE_ACCEPTED`
+### Current Reconciliation Status
 
-### Platform Shell Architecture Contract Candidate
+- Status: GOVERNANCE-RESOLVED RECONCILIATION CANDIDATE / INDEPENDENT-REVIEW-GATED.
+- Current marker: PLATFORM_SHELL_GOVERNANCE_RECONCILIATION_CANDIDATE_REVIEW_GATED.
+- Governance decisions: 11 / 11 RESOLVED.
+- Shell-foundation design boundary: RESOLVED.
+- Implementation: NOT AUTHORIZED.
+- Production-runnable Platform Shell: NOT YET AVAILABLE.
+- Current implementation model: SHELL FOUNDATION ONLY.
+- Decision-10 dependency reconciliation: SEPARATELY REQUIRED BEFORE TOOLCHAIN MANIFEST/LOCKFILE MUTATION.
 
-The read-only Platform Shell eligibility review completed with `PLATFORM_SHELL_ELIGIBILITY_EVIDENCE_INSUFFICIENT` and did not identify a defective Application Catalog or Application Composition / Bootstrap foundation. It identified missing Platform Shell ownership, mounting, bootstrap, route, rendering, path, and validation contracts. In response, a documentation-only candidate architecture contract was created and preserved as a candidate only.
+PM governance resolution records the adopted decisions but does not authorize implementation. This working reconciliation candidate remains review-gated and makes no live claim about whether an external review occurred or what result it produced.
 
-The independent review of the candidate architecture contract accepted the document as a valid candidate suitable for governance reconciliation without finally accepting the contract itself or authorizing implementation.
+### Current Committed Baseline
 
-- Review status: `INDEPENDENT CANDIDATE REVIEW ACCEPTED`
-- Contract status: `CANDIDATE / NOT YET ACCEPTED`
-- Implementation readiness: `NOT IMPLEMENTATION-READY`
-- Contract authority: `NON-AUTHORITATIVE CANDIDATE`
-- Implementation authorization: `NOT AUTHORIZED`
-- Candidate-review decision: `PLATFORM_SHELL_CONTRACT_CODEX_THIRD_FINAL_CANDIDATE_ACCEPTED`
-- Candidate review accepted the documentation as a valid candidate for governance reconciliation only.
-- Candidate review did not finally accept the architecture contract.
-- Candidate review did not close any blocking decision.
-- Candidate review did not authorize implementation, publication, PR creation, merge, tag, deployment, or branch mutation.
+- Branch: product/noor-personal-mvp
+- HEAD: 16fa7f281c8bd01807bf89db1b499afea1ae84f4
+- Tree: 0468925f3104cb0eb77eb1af7a81ec8965853be5
+- Committed PROJECT_STATE blob: 70fd54339074e15524431405cdde14a17a16cb53
+- Committed Platform Shell contract blob: 4d837e3056b05b88ec641bb209a1b4e979b8f45a
 
-### Contract identity
+These are committed baseline identities. They are separate from the working reconciliation candidate identities and do not predict a future Commit, tree, or blob.
 
-- Path: `docs/03-architecture/PLATFORM_SHELL_CONTRACT.md`
-- Byte size: `45481`
-- Line count: `720`
-- SHA-256: `693ea1d1dac61303ab5a4748cb7898b40c57a29c09786a8e31d5c3a5ad1e27c5`
-- Status at this candidate stage: intentionally non-authoritative, and not yet finally accepted by governance. Git tracking state does not determine architecture authority.
-- A tracked or committed Platform Shell contract may remain `CANDIDATE / NOT YET ACCEPTED`, `NOT IMPLEMENTATION-READY`, and `NON-AUTHORITATIVE CANDIDATE` while the eleven decisions remain unresolved and blocking.
-- This file does not claim a future contract commit SHA, future tree SHA, or future state blob SHA.
+### Authoritative Current Governance Decision Register
 
-### Protected Routing
+This is the only authoritative current Platform Shell governance decision register in PROJECT_STATE.
 
-- Status: NOT STARTED
-- Authorization: NOT AUTHORIZED
+| Decision | Current status | Governance blocker | Implementation authorization |
+| --- | --- | --- | --- |
+| 1 | RESOLVED — PM GOVERNANCE ADOPTED | CLOSED | NOT GRANTED |
+| 2 | RESOLVED — PM GOVERNANCE ADOPTED | CLOSED | NOT GRANTED |
+| 3 | RESOLVED — PM GOVERNANCE ADOPTED | CLOSED | NOT GRANTED |
+| 4 | RESOLVED — DESIGN EVIDENCE COMPLETE — PM GOVERNANCE ADOPTED | CLOSED | NOT GRANTED |
+| 5 | RESOLVED — PM GOVERNANCE ADOPTED | CLOSED | NOT GRANTED |
+| 6 | RESOLVED — PM GOVERNANCE ADOPTED | CLOSED | NOT GRANTED |
+| 7 | RESOLVED — DESIGN EVIDENCE COMPLETE — PM GOVERNANCE ADOPTED | CLOSED | NOT GRANTED |
+| 8 | RESOLVED — PM GOVERNANCE ADOPTED | CLOSED | NOT GRANTED |
+| 9 | RESOLVED — PM GOVERNANCE ADOPTED | CLOSED | NOT GRANTED |
+| 10 | RESOLVED — DESIGN EVIDENCE COMPLETE — TOOLCHAIN DEPENDENCY RECONCILIATION REMAINS SEPARATELY REQUIRED — PM GOVERNANCE ADOPTED | CLOSED | NOT GRANTED |
+| 11 | RESOLVED — SHELL-FOUNDATION BOUNDARY — PM GOVERNANCE ADOPTED | CLOSED | NOT GRANTED |
 
-### App Launcher
+### Concise Current Decision Boundaries
 
-- Status: NOT STARTED
-- Authorization: NOT AUTHORIZED
+#### D1 — Root route
 
-### Step 044 implementation
+The pathname / renders a neutral, Shell-owned no-application-selected state. It mounts no Application View, selects no default application, performs no redirect, implies no Noor Personal default, and provides neither App Launcher nor Protected Routing behavior.
 
-- Authorization: NOT AUTHORIZED
+#### D2 — Unknown route
 
-Authorization for one phase does not transfer automatically to another phase. Acceptance of Application Composition / Bootstrap does not authorize Platform Shell implementation, Protected Routing implementation, App Launcher implementation, or Step 044 implementation. Acceptance of the independent candidate review does not transfer authorization to any feature, contract, implementation, commit, publication, PR, merge, or deployment phase.
+An unknown pathname mounts no Application View, renders an accessible Shell-owned Not Found state, performs no automatic redirect, and provides deterministic recovery to /. Browser Back may be secondary recovery only. The state carries no authentication, authorization, permission, or entitlement-denial meaning and introduces no Protected Routing.
 
-## Review and Repair History
+#### D3 — Exact route matching
 
-The Platform Shell review and repair sequence was completed as a documentation-only governance process and must be recorded accurately as historical work.
+Shell application selection uses exact canonical Application Catalog pathname matches only. Prefix mounting, nested Shell registry routing, feature routing, and ownership of application-internal routing are excluded.
 
-1. Platform Shell eligibility review completed with: `PLATFORM_SHELL_ELIGIBILITY_EVIDENCE_INSUFFICIENT`.
-2. The result identified missing shell ownership, mounting, bootstrap, route, rendering, affected-path, and validation contracts; it did not invalidate the Application Catalog or Application Composition / Bootstrap foundation.
-3. A documentation-only Platform Shell contract candidate was created and preserved as candidate-only evidence.
-4. Independent Codex review identified documentation defects and returned repair-required decisions, including `PLATFORM_SHELL_CONTRACT_REVIEW_STATE_CODEX_REPAIR_REQUIRED`.
-5. Multiple documentation-only repair passes were completed without code, test, contract-authority, implementation, publication, or repository-history authorization.
-6. The final independent review returned: `PLATFORM_SHELL_CONTRACT_CODEX_THIRD_FINAL_CANDIDATE_ACCEPTED`.
-7. A subsequent accepted review outcome for the governance-reconciliation candidate was recorded as: `PLATFORM_SHELL_CONTRACT_REVIEW_STATE_CODEX_FINAL_REPAIR_ACCEPTED`.
-   - This decision accepted only the `PROJECT_STATE` governance-reconciliation candidate, its review history, its eleven-decision register, its candidate-boundary preservation, its authorization boundaries, and its single current Next Safe Action.
-   - It did not finally accept the Platform Shell architecture contract, close any of the eleven decisions, make the contract implementation-ready, or authorize Platform Shell, Protected Routing, App Launcher, Step 044, Stage, Commit, Gate creation, Gate consumption, Push, publication, PR creation, Merge, Tag, or deployment.
-8. A later pre-commit scope review result was recorded as: `PLATFORM_SHELL_DOCUMENTATION_COMMIT_SCOPE_REPAIR_REQUIRED`.
-   - This review accepted the two-file atomic documentation purpose conceptually.
-   - It did not accept commit readiness.
-   - It required post-commit-truthfulness repair in `PROJECT_STATE`.
-   - It did not authorize Stage or Commit.
+#### D4 — Application View factory and registry
 
-This history records several review passes and several repair passes. The final candidate-review acceptance applies only to candidate validity for governance reconciliation. It does not constitute final contract acceptance, does not close the eleven open decisions, and does not authorize implementation.
+The exact factory shape is:
 
-## Eleven-Decision Register
+    type ApplicationViewFactory<View> = () => View
 
-The following Platform Shell contract decisions remain unresolved and blocking. This reconciliation does not resolve them.
+The React binding is ApplicationViewFactory<ReactElement>, owned by apps/web. The registry uses canonical Application Keys and is assembled statically, explicitly, and immutably. Factory dependencies are captured through immutable closures before registration.
 
-### 1. Default/root route behavior
-- Status: OPEN — REQUIRES GOVERNANCE DECISION
-- Blocking implementation authorization: YES
-- Unresolved question: Which canonical path is the default root for the Platform Shell?
-- Closing evidence required: accepted default route semantics or governance decision defining a default root.
-- Reconciliation status: This governance reconciliation does not resolve it.
+Service location, dynamic scanning or discovery, mutable global registration, and runtime route, History, browser-global, raw Platform-services, authentication, session, authorization, permission, or entitlement arguments are forbidden. Duplicate, unknown, and planned registrations reject. A missing experimental registration produces the valid known view-unavailable state.
 
-### 2. Unknown-route rendering or presentation
-- Status: OPEN — REQUIRES GOVERNANCE DECISION
-- Blocking implementation authorization: YES
-- Unresolved question: What presentation, if any, should the shell assign to an unknown route?
-- Closing evidence required: accepted shell presentation rule or governance decision for unknown-route behavior.
-- Reconciliation status: This governance reconciliation does not resolve it.
+A factory runs only when the Platform lifecycle is running, the pathname is an exact canonical match, catalog status is experimental, and a valid registration exists. It never runs for /, unknown, nested or noncanonical, planned, missing-view, idle, bootstrapping, shutting-down, failed-closed, shutdown, or other non-running states. Factory or render exceptions remain Shell rendering or view failures unless independent Platform lifecycle evidence proves failed-closed. React owns reconciliation and cleanup. packages/platform does not own or export the factory or registry contract.
 
-### 3. Nested-route support
-- Status: OPEN — REQUIRES GOVERNANCE DECISION
-- Blocking implementation authorization: YES
-- Unresolved question: Does the shell support nested routes and sub-app mounts?
-- Closing evidence required: accepted subroute catalog metadata and view-registry semantics.
-- Reconciliation status: This governance reconciliation does not resolve it.
+#### D5 — Browser History ownership
 
-### 4. Exact application-view factory shape
-- Status: CONDITIONAL — REQUIRES IMPLEMENTATION DESIGN EVIDENCE
-- Blocking implementation authorization: YES
-- Unresolved question: What is the exact TypeScript shape of a renderable application-view factory?
-- Closing evidence required: accepted browser-shell design evidence and public contract review proving the final factory shape.
-- Reconciliation status: This governance reconciliation does not resolve it.
+apps/web owns pathname reading, push, replace, popstate observation, listener and subscription cleanup, browser-location to Shell-route synchronization, native browser Back and Forward observation, and any future programmatic Shell-owned Back and Forward behavior.
 
-### 5. Browser-history ownership
-- Status: OPEN — REQUIRES GOVERNANCE DECISION
-- Blocking implementation authorization: YES
-- Unresolved question: Who owns browser history state and route-history logic?
-- Closing evidence required: accepted browser-history ownership and route-back semantics.
-- Reconciliation status: This governance reconciliation does not resolve it.
+The minimum HistoryPort is equivalent to:
 
-### 6. Production lifecycle-adapter ownership
-- Status: OPEN — REQUIRES GOVERNANCE DECISION
-- Blocking implementation authorization: YES
-- Unresolved question: Which browser or integration layer owns the production authentication, session, and authorization adapters supplied to the accepted Platform composition root?
-- Closing evidence required: a governance decision establishing the definitive production owner; repository-supported integration responsibility; confirmation that the ownership does not move browser/UI concerns into `packages/platform`; confirmation that it does not introduce Protected Routing or authorization enforcement into Platform Shell; independent review of the resulting ownership decision.
-- Reconciliation status: This governance reconciliation does not resolve this decision.
+    pathname(): string
+    push(pathname: string): void
+    replace(pathname: string): void
+    subscribe(listener): unsubscribe
 
-### 7. Whether a new packages/platform public API is required
-- Status: CONDITIONAL — REQUIRES IMPLEMENTATION DESIGN EVIDENCE
-- Blocking implementation authorization: YES
-- Unresolved question: Does the current public contract in `packages/platform` already satisfy shell composition needs or must a new API be introduced?
-- Closing evidence required: independent review showing public API sufficiency or deficiency and the accepted design result.
-- Reconciliation status: This governance reconciliation does not resolve it.
+back() and forward() are not required by the minimum port; their omission transfers no ownership. The real apps/web browser edge observes native Back and Forward through popstate. History grants or denies no access, performs no authentication or authorization redirect, filters no permission or entitlement, and cannot reset failed-closed.
 
-### 8. Shared-shell language and directionality obligations
-- Status: OPEN — REQUIRES GOVERNANCE DECISION
-- Blocking implementation authorization: YES
-- Unresolved question: Does the shared shell require Arabic, RTL, or other language-specific behavior?
-- Closing evidence required: accepted language and directionality decisions for the shared shell.
-- Reconciliation status: This governance reconciliation does not resolve it.
+#### D6 — Production adapter ownership
 
-### 9. Exact accessibility standard or compliance target
-- Status: OPEN — REQUIRES GOVERNANCE DECISION
-- Blocking implementation authorization: YES
-- Unresolved question: Which accessibility standard or compliance target governs the shared shell?
-- Closing evidence required: accepted accessibility standard or legal/governance target.
-- Reconciliation status: This governance reconciliation does not resolve it.
+The Shell presentation, router, and history layers do not construct or own concrete production authentication, session, or authorization implementations. A future separately authorized apps/web production integration or bootstrap layer performs explicit wiring into the existing Platform composition root.
 
-### 10. Final apps/web test path
-- Status: CONDITIONAL — REQUIRES IMPLEMENTATION DESIGN EVIDENCE
-- Blocking implementation authorization: YES
-- Unresolved question: Which exact apps/web test path and file pattern are valid for a later implementation task?
-- Closing evidence required: the final shell test path, repository convention consistency, and independent architecture review.
-- Reconciliation status: This governance reconciliation does not resolve it.
+Concrete authentication, session, authorization, clock, runtime configuration, and runtime-plan implementations remain separately governed infrastructure or integration concerns and do not currently exist as complete production implementations. Their absence is predecessor availability for future production-runnable integration, not an unresolved governance question. The Shell foundation implements no access policy and accepts no fake, no-op, or permissive production adapter.
 
-### 11. Final allowed and prohibited implementation path set
-- Status: OPEN — REQUIRES GOVERNANCE DECISION
-- Blocking implementation authorization: YES
-- Unresolved question: Which path set is allowed and prohibited for the future implementation task?
-- Closing evidence required: explicit implementation authorization with a fixed path scope and accepted allowed/prohibited lists.
-- Reconciliation status: This governance reconciliation does not resolve it.
+#### D7 — Existing Platform public API
 
-## One-Task Policy
+CURRENT_PLATFORM_PUBLIC_API_IS_SUFFICIENT.
 
-- One task at a time.
-- Application Composition / Bootstrap is accepted, and its technical prerequisite is satisfied.
-- No automatic progression follows from that acceptance.
-- The completed Platform Shell eligibility review remains historical evidence and does not compete with the current action.
-- Platform Shell remains NOT STARTED and NOT AUTHORIZED.
-- The documentation-only candidate remains non-authoritative and not implementation-ready.
-- No implementation work may proceed without separate, explicit authorization.
+No Platform Shell-specific public API is required. Platform source, Platform tests, and the Platform manifest are outside the Shell-foundation modification scope. packages/platform owns no Shell browser, DOM, React, route, History, Application View factory or registry, localization, presentation, access-enforcement, or failed-closed-reset API. The Shell foundation does not need @worktracker/platform.
 
-## Authorization Boundary
+#### D8 — Language and directionality
 
-Platform Shell and Protected Routing remain not started and not authorized unless explicit, independent repository evidence proves otherwise. The reviewed candidate boundaries listed below are candidate-only and do not authorize implementation.
+apps/web owns document-global language and direction. The Shell supports en / ltr and ar / rtl with technical fallback en / ltr. The fallback does not declare application content English. Shell text remains Shell-owned; application text remains application-owned.
 
-- Platform Shell: NOT STARTED; NOT AUTHORIZED
-- Protected Routing: NOT STARTED; NOT AUTHORIZED
-- App Launcher: NOT STARTED; NOT AUTHORIZED
-- Step 044 implementation: NOT AUTHORIZED
+#### D9 — Accessibility target
 
-These are reviewed candidate boundaries only. They are not finally accepted architecture and do not authorize implementation.
+Shell-owned UI and the Shell/application composition boundary target WCAG 2.2 Level AA without a certification claim. Evidence requires automated and manual review. Manual review includes keyboard-only operation, visible focus, focus order and transfer, screen-reader announcement quality, contrast, non-color-only communication, zoom, reflow, text spacing, real-browser behavior, Arabic and RTL, and bidirectional content.
 
-- `apps/web` is the candidate browser and rendering edge;
-- `packages/platform` remains framework-neutral;
-- Platform Shell excludes authentication enforcement;
-- Platform Shell excludes session-policy enforcement;
-- Platform Shell excludes permission enforcement;
-- Platform Shell excludes entitlement enforcement;
-- Protected Routing is excluded and not authorized;
-- App Launcher is excluded and not authorized;
-- Step 044 is excluded and not authorized;
-- planned applications remain non-mountable;
-- an unknown route mounts no application view;
-- unknown-route visual presentation remains unresolved;
-- failed-closed remains irreversible through the current accepted Platform public API;
-- no current public reset operation exists;
-- Noor Personal feature implementation is excluded;
-- Noor Work feature implementation is excluded;
-- publication and repository mutation remain separately authorized.
+#### D10 — Behavioral-test path and toolchain design
 
-PR #5 and Publication Control v2 completion do not independently authorize Platform Shell, Protected Routing, App Launcher, or Step 044 implementation.
+The only behavioral-test path is apps/web/tests/*.spec.ts, outside apps/web/src. The accepted runner is node:test; the accepted command is node --import tsx --test tests/*.spec.ts; the transformer is tsx; and repository evidence establishes exact version 4.22.4.
 
-## Separate Authorization Requirements
+tsx is not currently an apps/web dependency. Future direct apps/web development dependencies are jsdom and axe-core, whose exact versions are NOT YET SELECTED. This documentation reconciliation changes neither apps/web/package.json nor package-lock.json.
 
-The following later phases require their own explicit and separate authorization before any action is permitted:
+A separately authorized dependency reconciliation must prove Node 24 compatibility; JSDOM DOM, location, pushState, replaceState, and explicit PopStateEvent behavior; React 19 createRoot, render, act, and unmount interoperability; axe-core and JSDOM interoperability; a deterministic lockfile-v3 graph; and no unrelated lockfile churn. Pending evidence does not reopen Decision 10; it blocks manifest mutation, lockfile mutation, and accepted toolchain execution.
 
-- any further contract modification;
-- final architecture-contract acceptance;
-- reconciliation of final acceptance into `.ai/state/PROJECT_STATE.md`;
-- Stage;
-- local Commit;
-- Gate creation requires separate explicit authorization;
-- Gate consumption requires separate explicit authorization;
-- Push;
-- publication;
-- PR creation;
-- Merge;
-- Tag;
-- deployment;
-- Platform Shell implementation;
-- Protected Routing;
-- App Launcher;
-- Step 044.
+History tests use the minimum production HistoryPort. A pure in-memory model owns stack, cursor, push, replace, back, forward, boundaries, and subscription. JSDOM evidence is limited to DOM, location, pushState, replaceState, and explicit PopStateEvent dispatch; it does not establish native asynchronous back or forward fidelity. Native browser Back and Forward require manual real-browser review unless later automation is separately governed. The zero-test exemption is removed atomically with the first meaningful discovered apps/web behavioral tests. Architecture tests remain separate.
 
-Authorization to create a Gate does not authorize consuming it. Authorization to consume a Gate does not retroactively authorize its creation. Neither operation authorizes Push, publication, PR creation, Merge, Tag, deployment, or implementation. Candidate-review acceptance authorizes neither operation. Completion of the eleven-decision governance task authorizes neither operation.
+#### D11 — Shell-foundation boundary
 
-Final contract acceptance does not automatically authorize Commit. A Commit does not automatically authorize publication. Candidate-review acceptance does not authorize any of them. Completion of the eleven-decision governance task creates no automatic progression.
+The selected model is SHELL FOUNDATION ONLY, not a production-runnable Platform Shell. The exact current lists and responsibilities below govern scope. A governance allowlist is not file-modification authorization.
 
-## Historical pre-commit review evidence
+### Current Shell-Foundation Scope Boundary
 
-At the time of the accepted candidate and pre-commit reviews, the repository state was:
+#### Exact unconditional Shell-foundation allowlist — exactly nine paths
 
-- current committed baseline before this Platform Shell reconciliation candidate: `8d8cf2b455662738d674e6520fc22df834850edd`
-- current committed baseline tree before this Platform Shell reconciliation candidate: `10a759844ef252b4f7fd426c681ac0b7534913b8`
-- committed `PROJECT_STATE.md` blob before this current working candidate: `a274cafb0322beee9e0858b608397dd6ad4b0495`
-- `.ai/state/PROJECT_STATE.md` was the sole tracked modification.
-- nothing was staged.
-- exactly four files were untracked and preserved as candidate evidence:
-  - `docs/03-architecture/PLATFORM_SHELL_CONTRACT.md`
-  - the three preserved Step 044 reports
-- no future reconciliation commit SHA, committed tree SHA, or PROJECT_STATE blob SHA was claimed or predicted by this document.
-- this section records the governance reconciliation candidate and its accepted pre-commit review history before any separately authorized local documentation commit.
-- the contract candidate remained intentionally untracked and non-authoritative; it was not staged, committed, published, merged, or made authoritative by this state reconciliation.
+1. apps/web/package.json
+2. apps/web/tsconfig.json
+3. apps/web/src/main.tsx
+4. apps/web/src/application-view-registry.ts
+5. apps/web/src/browser-history.ts
+6. apps/web/src/document-localization.ts
+7. apps/web/src/platform-shell-model.ts
+8. apps/web/src/platform-shell.tsx
+9. packages/architecture/tests/application-composition-boundary.spec.ts
 
-This historical pre-commit evidence remains accurate even if both documentation files are later tracked and committed under a separately authorized documentation commit, because it records the reviewed worktree at the time of candidate acceptance and pre-commit review, not a permanent live assertion about a later repository state.
+No tenth path is included.
 
-## Separation of Review and Implementation
+#### Exact Decision-10 conditional list — exactly four paths
 
-- Review is distinct from implementation.
-- Implementation is distinct from local commit.
-- Local commit is distinct from publication.
-- Publication is distinct from PR.
-- PR is distinct from merge.
-- Merge is distinct from local synchronization.
-- No Push, Merge, Commit, or Gate is authorized without separate explicit approval.
+1. apps/web/package.json
+2. apps/web/tests/*.spec.ts
+3. architecture/zero-test-workspace-policy.json
+4. package-lock.json
 
-## Next Safe Action
+package-lock.json may change only through a separately authorized dependency reconciliation corresponding to an approved manifest dependency graph, and only for deterministic lockfile reconciliation.
 
-Previous Next Safe Action completed: Read-only governance and eligibility review for Platform Shell.
+#### Foundation production dependency boundary
 
-Result: `PLATFORM_SHELL_ELIGIBILITY_EVIDENCE_INSUFFICIENT`.
+@worktracker/core is the only currently evidenced new production workspace dependency and supplies the canonical Application Catalog. @worktracker/platform is NOT REQUIRED BY CURRENT SHELL FOUNDATION. This does not reopen D7 or authorize dependency mutation.
 
-This completed review identified missing Platform Shell ownership, mounting, bootstrap, route, rendering, path, and validation contracts and did not indicate a defective Application Catalog or Application Composition / Bootstrap foundation. The subsequent documentation-only candidate-contract review history is recorded as multiple independent review passes and multiple repair passes, ending with: `PLATFORM_SHELL_CONTRACT_CODEX_THIRD_FINAL_CANDIDATE_ACCEPTED`.
+#### FOUNDATION-CORE-DEPENDENCY-RECONCILIATION
 
-Current Next Safe Action: Governance-only resolution of the eleven blocking Platform Shell contract decisions.
+- Status: NOT AUTHORIZED.
+- Meaning: a future separately authorized addition of @worktracker/core to apps/web/package.json plus only the deterministic package-lock workspace-edge reconciliation required by that manifest change.
 
-This next action:
+#### DECISION-10-TEST-TOOLCHAIN-RECONCILIATION
 
-- is a governance decision-resolution task;
-- is not Platform Shell implementation;
-- does not authorize file modification automatically;
-- does not authorize accepting or committing the contract automatically;
-- does not authorize Platform Shell;
-- does not authorize Protected Routing;
-- does not authorize App Launcher;
-- does not authorize Step 044;
-- does not authorize Stage, Commit, Push, Gate, PR, Merge, Tag, publication, deployment, or remote mutation;
-- resolves or classifies all eleven blocking decisions using repository evidence and explicit governance choices;
-- may produce a reviewed decision package;
-- requires separate explicit authorization for any subsequent contract modification, final contract acceptance, or implementation;
-- does not automatically progress beyond governance reconciliation or review;
-- is the sole current Next Safe Action.
+- Status: NOT AUTHORIZED.
+- Meaning: after exact dependency evidence, a separately authorized change may add tsx 4.22.4, an exact selected jsdom version, and an exact selected axe-core version to apps/web development dependencies plus only the corresponding deterministic package-lock graph reconciliation.
 
-This state does not authorize Platform Shell implementation, Protected Routing implementation, App Launcher implementation, Step 044 implementation, any contract acceptance, any local Commit, or any publication or repository mutation.
+#### Exact path responsibilities
+
+apps/web/tsconfig.json may change only in a future separately authorized foundation implementation to add required browser and DOM type-library support, preserve current production rootDir and include semantics, and keep behavioral tests outside production source inclusion. No unrelated compiler change is allowed.
+
+packages/architecture/tests/application-composition-boundary.spec.ts may verify only that packages/platform remains free of Shell-specific React imports, browser modules, DOM or UI concerns, Window, Document, History, PopStateEvent, and Shell presentation concerns. No broad architecture refactor is included.
+
+packages/architecture/tests/workspace-package-entrypoint-contract.spec.ts is NOT REQUIRED BY CURRENT SHELL FOUNDATION EVIDENCE, is outside both allowlists, and is not permanently prohibited.
+
+#### Explicit paths outside the selected current Shell-foundation scope
+
+- apps/web/index.html
+- apps/web/vite.config.ts
+- apps/web/tests/test-support.ts
+- apps/web/src/platform-composition.ts
+- packages/architecture/tests/workspace-package-entrypoint-contract.spec.ts
+
+No packages/platform path belongs to the current foundation.
+
+#### main.tsx boundary
+
+A future separately authorized Shell-foundation implementation may allow apps/web/src/main.tsx to initialize apps/web browser history, apply document language and direction, project canonical routes, assemble an empty production Application View registry, and render truthful accessible foundation states.
+
+It must not construct the production Platform composition root, call production bootstrap, fabricate production adapters, mount Noor Personal, mount Noor Work, or claim production-runnable Platform behavior.
+
+### Production-Runnable Predecessor Boundary
+
+Production-runnable Platform integration is a separate future task. It requires separately governed real production dependencies, including where applicable an authentication verifier, session ID generation, session lifetime policy, session repository, entitlement and authorization dependencies, clock, runtime configuration, runtime plan, and a production Application View.
+
+No fake, no-op, or permissive placeholder satisfies this boundary. A production Application View is a separate product and path task. Optional browser automation is separate; no Playwright, Puppeteer, or other browser-runner dependency is authorized.
+
+### Current governance-reconciliation candidate contract identity
+
+WORKING RECONCILIATION CANDIDATE IDENTITY — NOT COMMITTED IDENTITY
+
+This is the identity measured for the working candidate before any possible future Commit. If a separately authorized Commit later records the same bytes, this section remains the reviewed candidate identity and does not assert that the file is still uncommitted.
+
+- Path: docs/03-architecture/PLATFORM_SHELL_CONTRACT.md
+- Bytes: 20836
+- Lines: 467
+- SHA-256: 105067a5dac2d6ef359bbe4f4d9cb72e21e69bfc6476c093d244c625a9b00fd4
+- Git blob: 20a77205fbb92a3fc3d883353ccbdb7c4fb29244
+
+### Explicit Excluded and Unauthorized Work
+
+- Protected Routing: NOT STARTED / NOT AUTHORIZED.
+- App Launcher: NOT STARTED / NOT AUTHORIZED.
+- Step 044: NOT AUTHORIZED.
+- Noor Personal implementation: NOT AUTHORIZED BY THIS RECONCILIATION.
+- Noor Work implementation: NOT AUTHORIZED BY THIS RECONCILIATION.
+- Platform Shell implementation: NOT AUTHORIZED.
+- Dependency reconciliation: NOT AUTHORIZED.
+- Documentation repair, Stage, Commit, Gate creation, Gate consumption, Push or publication, PR, Merge, Tag, and deployment: NOT AUTHORIZED without a new phase-appropriate authorization.
+
+### Review Gate and Authorization Non-Transfer
+
+- PM governance resolution does not equal implementation authorization.
+- A governance allowlist does not equal file-modification authorization.
+- Independent review does not equal implementation authorization.
+- Independent review acceptance does not equal Commit authorization.
+- Dependency design does not equal dependency, manifest, or lockfile authorization.
+- Commit does not equal Push.
+- Gate creation does not equal Gate consumption.
+- Push or publication does not equal Merge.
+- Merge does not equal Tag or deployment.
+- No authorization transfers automatically.
+
+The candidate remains GOVERNANCE-RESOLVED RECONCILIATION CANDIDATE / INDEPENDENT-REVIEW-GATED. This is a durable authority state, not a claim about review chronology or outcome.
+
+### Current Next Safe Action Boundary
+
+Read-only independent review and review-result handling only.
+
+No repository mutation is authorized by this reconciliation candidate.
+
+Any documentation repair, local Commit, dependency reconciliation, implementation, Gate creation, Gate consumption, Push or publication, PR, Merge, Tag, or deployment requires a NEW explicit authorization appropriate to that distinct phase.
+
+This boundary remains true before or after any external review result. It neither authorizes Commit nor predicts a future review or repository identity.
+
+### Historical Review Record — Non-Current
+
+Everything in this subsection is historical and has no present authority.
+
+- Historical eligibility outcome: PLATFORM_SHELL_ELIGIBILITY_EVIDENCE_INSUFFICIENT.
+- Historical independent review outcome: PLATFORM_SHELL_GOVERNANCE_RECONCILIATION_CODEX_REPAIR_REQUIRED.
+- That historical review found Decisions 4, 5, 6, 7, 10, and 11 incomplete; no single authoritative contract register; stale review self-reference; and inconsistent candidate and baseline identities.
+- Historical repair passes were documentation-only and authorized no code, test, manifest, lockfile, dependency, implementation, Stage, Commit, Gate, publication, PR, Merge, Tag, or deployment.
+- No later acceptance result is invented here.
 
 ## Repository-Only Notes
 
@@ -521,7 +491,7 @@ This state does not authorize Platform Shell implementation, Protected Routing i
 - Platform Shell: UNAUTHORIZED
 - Protected Routing: UNAUTHORIZED
 - Step 044 implementation: UNAUTHORIZED
-- Only read-only documentation reconciliation and review are authorized
+- Only read-only independent review and review-result handling are authorized by this candidate
 
 ## Publication Governance
 
