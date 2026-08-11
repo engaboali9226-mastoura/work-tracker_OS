@@ -14,6 +14,53 @@
 - `.ai/state/PROJECT_STATE.md` is the authoritative state record for the Noor Personal Platform repository and its governed workflow. It must not be conflated with the separate canonical Prayer Engine worktree, its repository state, branch state, or authorization state. Facts or authorization from one worktree do not automatically transfer to the other. The repository and this state file remain the sole sources of truth for Noor Personal project sequencing.
 - This section records the current post-dependency documentation reconciliation candidate and preserves the accepted pre-commit review history of the prior governance reconciliation. It does not claim any future reconciliation commit SHA, future committed tree SHA, or future PROJECT_STATE blob SHA.
 
+## Current Truth — Post-Shell Foundation Reconciliation
+
+This section is authoritative for the current repository state. Older
+implementation-unauthorized statements below are historical unless explicitly
+restated here.
+
+- Shell Foundation implementation: `IMPLEMENTED / STATIC-ACCEPTED / RUNTIME-ACCEPTED / LOCAL-COMMIT-ACCEPTED`.
+- Accepted state: `SHELL_FOUNDATION_IMPLEMENTATION_CANDIDATE_FULLY_ACCEPTED_STATIC_AND_RUNTIME`.
+- Accepted state: `SHELL_FOUNDATION_IMPLEMENTATION_LOCAL_COMMIT_ACCEPTED`.
+- Scope: `SHELL FOUNDATION ONLY`; this is not production-runnable Platform integration.
+- Current candidate: `POST-SHELL PROJECT_STATE TRUTH RECONCILIATION CANDIDATE / INDEPENDENT-REVIEW-GATED`.
+- Current implementation commit: `f3f1eaf78a9c2b7eedda8e8f4f498762e3ddccf0`.
+- Parent: `bc25b83b74c6c1994966d46a54e1b451116c5896`.
+- Tree: `402294e66193a2c70fb0059d83d0395e8ef1c336`.
+- Subject: `feat(platform): add shell foundation`.
+- Committed paths: `15`.
+- The implementation commit is local only. No Push or publication occurred;
+  no publication Gate was created or consumed for this commit; no active Gate
+  exists for this publication, and no PR, Merge, or Tag occurred for it.
+- Working `PROJECT_STATE.md` is a documentation candidate and has no commit
+  identity, future tree identity, or future blob identity.
+
+### Accepted Static and Runtime Evidence
+
+- Repository TypeScript used for runtime validation: `5.9.3`.
+- Root workspace build: `PASS`.
+- `apps/web` runtime suite: `15 / 15 PASS`.
+- Targeted zero-test governance suite: `13 / 13 PASS`.
+- Complete packages/architecture suite: `144 / 144 PASS`.
+- Official zero-test validator: 28 workspaces; 3 zero-test workspaces; 3
+  valid exemptions; 0 governance issues; `PASS`.
+- Official architecture structural / CLI validation: `PASS`; 11 components;
+  0 issues.
+- Application Catalog validation: 2 applications; `PASS`.
+- Contracts boundary validation: 412 production source files; 0 findings;
+  `PASS`.
+- Accepted D7 final identity:
+  `packages/architecture/tests/application-composition-boundary.spec.ts`,
+  Git blob `e5415f308b01c1902dfb4133247633889684bda4`.
+- Accepted Shell rendering test identity: `apps/web/tests/platform-shell.spec.ts`,
+  Git blob `2bc19b71a247852a0a09a60d35fd55ea91c11f13`.
+- Accepted zero-test repository-truth reconciliation:
+  `packages/architecture/tests/zero-test-workspace-governance.spec.ts`,
+  Git blob `1e6c00379d3e22ac4f872db50555c1450c4439ea`.
+- No manual WCAG certification is claimed. Automated axe/JSDOM evidence does
+  not replace the governed manual accessibility evidence requirement.
+
 ## Historical Lineage
 
 ### Application Catalog Foundation
@@ -170,7 +217,10 @@ The persistent hook mechanism remains installed and current even while a single-
 
 ## Step 044 Reports
 
-The three Step 044 reports remain intentionally untracked, excluded from PR #5, preserved byte-for-byte, and not authorized for implementation merely because they exist.
+The three Step 044 reports remain intentionally untracked, excluded from PR #5,
+and were also excluded from Shell Foundation implementation commit
+`f3f1eaf78a9c2b7eedda8e8f4f498762e3ddccf0`. They remain preserved byte-for-byte,
+were not implementation authorization, and were not publication authorization.
 
 - Decision register:
   `905ac629d602fb2395aa8ae7a57fd0e2d46b0b4e373921554737e17e6520be77`
@@ -217,26 +267,29 @@ The Application Composition / Bootstrap foundation is implemented, technically c
 - Status: ACCEPTED
 - Technical prerequisite: SATISFIED
 
-## Platform Shell Post-Dependency Documentation Reconciliation — Current
+## Platform Shell Post-Dependency Documentation Reconciliation — Historical Candidate
 
-### Current Reconciliation Status
+### Historical Reconciliation Status
 
-- Status: GOVERNANCE-RESOLVED / DEPENDENCY-PRECONDITIONS-COMPLETE / POST-DEPENDENCY DOCUMENTATION RECONCILIATION CANDIDATE / INDEPENDENT-REVIEW-GATED.
-- Current marker: PLATFORM_SHELL_POST_DEPENDENCY_DOCUMENTATION_RECONCILIATION_CANDIDATE_REVIEW_GATED.
+- Status at that time: GOVERNANCE-RESOLVED / DEPENDENCY-PRECONDITIONS-COMPLETE / POST-DEPENDENCY DOCUMENTATION RECONCILIATION CANDIDATE / INDEPENDENT-REVIEW-GATED.
+- Historical marker: PLATFORM_SHELL_POST_DEPENDENCY_DOCUMENTATION_RECONCILIATION_CANDIDATE_REVIEW_GATED.
 - Governance decisions: 11 / 11 RESOLVED.
 - Shell-foundation design boundary: RESOLVED.
-- Implementation: NOT AUTHORIZED.
-- Production-runnable Platform Shell: NOT YET AVAILABLE.
-- Current implementation model: SHELL FOUNDATION ONLY.
+- Historical implementation status: NOT AUTHORIZED before the Shell Foundation phase.
+- Production-runnable Platform integration: NOT STARTED / NOT AUTHORIZED.
+- Implementation model at that time: SHELL FOUNDATION ONLY.
 - Foundation Core dependency reconciliation: CLOSED.
 - Decision-10 test-toolchain reconciliation: CLOSED.
 - Overall dependency readiness: DEPENDENCY_PRECONDITIONS_COMPLETE.
 - Remaining dependency-specific blocker before a separately authorized Shell Foundation implementation: NONE.
-- SHELL_FOUNDATION_IMPLEMENTATION_AUTHORIZED: NOT AUTHORIZED.
+- Historical marker: SHELL_FOUNDATION_IMPLEMENTATION_AUTHORIZED: NOT AUTHORIZED.
 
-PM governance resolution and dependency closure record completed governance and dependency preconditions but do not authorize implementation. This working post-dependency documentation reconciliation candidate remains review-gated and makes no live claim about whether an external review occurred or what result it produced.
+At that time, PM governance resolution and dependency closure completed
+governance and dependency preconditions but did not authorize implementation.
+That working candidate was review-gated and made no live claim about external
+review chronology or outcome.
 
-### Current Committed Baseline
+### Historical Committed Baseline Before Shell Foundation
 
 - Branch: product/noor-personal-mvp
 - HEAD: 2316b712b6b5ae343783dfe41dca42017249ba4a
@@ -246,11 +299,13 @@ PM governance resolution and dependency closure record completed governance and 
 
 These are committed baseline identities. They are separate from the working reconciliation candidate identities and do not predict a future Commit, tree, or blob.
 
-### Authoritative Current Governance Decision Register
+### Historical Governance Decision Register — Pre-Implementation State
 
-This is the only authoritative current Platform Shell governance decision register in PROJECT_STATE.
+This is the historical Platform Shell governance decision register for the
+pre-implementation reconciliation point; it is not the current authorization
+state after Shell Foundation implementation.
 
-| Decision | Current status | Governance blocker | Implementation authorization |
+| Decision | Status at pre-implementation reconciliation | Governance blocker | Implementation authorization at that historical reconciliation point |
 | --- | --- | --- | --- |
 | 1 | RESOLVED — PM GOVERNANCE ADOPTED | CLOSED | NOT GRANTED |
 | 2 | RESOLVED — PM GOVERNANCE ADOPTED | CLOSED | NOT GRANTED |
@@ -384,7 +439,7 @@ package-lock.json may change only through a separately authorized dependency rec
 
 - DEPENDENCY_PRECONDITIONS_COMPLETE.
 - Remaining dependency-specific blocker before a separately authorized Shell Foundation implementation: NONE.
-- SHELL_FOUNDATION_IMPLEMENTATION_AUTHORIZED: NOT AUTHORIZED.
+- Historical marker: SHELL_FOUNDATION_IMPLEMENTATION_AUTHORIZED: NOT AUTHORIZED.
 - Dependency closure, documentation reconciliation, and review acceptance do not transfer implementation authorization. Separate explicit mutation authorization remains required.
 
 #### Exact path responsibilities
@@ -436,7 +491,7 @@ This is the identity that was measured for the prior governance-reconciliation c
 - Step 044: NOT AUTHORIZED.
 - Noor Personal implementation: NOT AUTHORIZED BY THIS RECONCILIATION.
 - Noor Work implementation: NOT AUTHORIZED BY THIS RECONCILIATION.
-- Platform Shell implementation: NOT AUTHORIZED.
+- Production-runnable Platform integration: NOT STARTED / NOT AUTHORIZED.
 - Further dependency mutation: NOT AUTHORIZED.
 - Documentation repair, Stage, Commit, Gate creation, Gate consumption, Push or publication, PR, Merge, Tag, and deployment: NOT AUTHORIZED without a new phase-appropriate authorization.
 
@@ -453,11 +508,12 @@ This is the identity that was measured for the prior governance-reconciliation c
 - Merge does not equal Tag or deployment.
 - No authorization transfers automatically.
 
-The candidate remains GOVERNANCE-RESOLVED / DEPENDENCY-PRECONDITIONS-COMPLETE / POST-DEPENDENCY DOCUMENTATION RECONCILIATION CANDIDATE / INDEPENDENT-REVIEW-GATED. This is a durable authority state, not a claim about review chronology or outcome.
+That historical candidate was GOVERNANCE-RESOLVED / DEPENDENCY-PRECONDITIONS-COMPLETE / POST-DEPENDENCY DOCUMENTATION RECONCILIATION CANDIDATE / INDEPENDENT-REVIEW-GATED. It is not the current implementation state.
 
 ### Current Next Safe Action Boundary
 
-Read-only independent review and review-result handling only.
+The current next safe action is independent read-only review of this
+PROJECT_STATE reconciliation candidate.
 
 No repository mutation is authorized by this reconciliation candidate.
 
@@ -503,10 +559,10 @@ Everything in this subsection is historical and has no present authority.
 - Hook-backup modification: UNAUTHORIZED
 - Gate-foundation modification: UNAUTHORIZED
 - Remote or push-URL modification: UNAUTHORIZED
-- Platform Shell: UNAUTHORIZED
+- Production-runnable Platform integration: NOT AUTHORIZED
 - Protected Routing: UNAUTHORIZED
 - Step 044 implementation: UNAUTHORIZED
-- Only read-only independent review and review-result handling are authorized by this candidate
+- Only independent read-only review of this PROJECT_STATE reconciliation candidate is the current next safe action. A later documentation Commit requires separate explicit authorization.
 
 ## Publication Governance
 
@@ -528,8 +584,16 @@ Everything in this subsection is historical and has no present authority.
 
 ## Current Authorization Boundary
 
-- Platform Shell: UNAUTHORIZED
-- Protected Routing: UNAUTHORIZED
+- Shell Foundation: IMPLEMENTED / ACCEPTED / LOCAL-COMMIT-ACCEPTED
+- Production-runnable Platform integration: NOT AUTHORIZED
+- Production authentication/session/authorization integration: NOT AUTHORIZED
+- Noor Personal production Application View mounting: NOT AUTHORIZED BY THE SHELL FOUNDATION PHASE
+- Noor Work production Application View mounting: NOT AUTHORIZED BY THE SHELL FOUNDATION PHASE
+- Protected Routing: NOT STARTED / NOT AUTHORIZED
+- App Launcher: NOT STARTED / NOT AUTHORIZED
+- Step 044 implementation: NOT AUTHORIZED
+- Further dependency mutation: NOT AUTHORIZED unless separately authorized
+- Push/publication, Gate creation/consumption, PR, Merge, Tag, and deployment: NOT AUTHORIZED by this reconciliation
 - Stable milestone tag: PENDING
 - Do not approve or invent a final tag name.
 - Installing another active publication gate is not the current next phase.
