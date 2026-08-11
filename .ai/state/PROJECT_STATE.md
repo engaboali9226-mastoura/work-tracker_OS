@@ -14,18 +14,96 @@
 - `.ai/state/PROJECT_STATE.md` is the authoritative state record for the Noor Personal Platform repository and its governed workflow. It must not be conflated with the separate canonical Prayer Engine worktree, its repository state, branch state, or authorization state. Facts or authorization from one worktree do not automatically transfer to the other. The repository and this state file remain the sole sources of truth for Noor Personal project sequencing.
 - This section records the current post-dependency documentation reconciliation candidate and preserves the accepted pre-commit review history of the prior governance reconciliation. It does not claim any future reconciliation commit SHA, future committed tree SHA, or future PROJECT_STATE blob SHA.
 
-## Current Truth — Post-Shell Foundation Reconciliation
+## Current Truth — Post-PR6 Canonical State
 
-This section is authoritative for the current repository state. Older
-implementation-unauthorized statements below are historical unless explicitly
-restated here.
+This section is the single authoritative current-state reconciliation after
+PR #6. It describes the accepted Shell Foundation boundary and does not claim
+production-runnable Platform integration. This working file is only a
+reconciliation candidate; it has no future commit, tree, or blob identity.
+
+- Canonical branch: `product/noor-personal-mvp`.
+- Canonical local and protected-remote HEAD: `b4e6924620071af4f1c7905f2cebbf7142516934`.
+- Canonical protected-branch tree: `87e95b134f774b8726201c9981f376559ceae3f7`.
+- Shell Foundation: `IMPLEMENTED / ACCEPTED / STABLY-PUBLISHED-TO-PROTECTED-BRANCH`.
+- Accepted scope: `SHELL FOUNDATION ONLY`; this is not production-runnable Platform integration.
+- Accepted publication source object: `bdb906451f2d94d30fbea37c6f1e984d82a48d1e`.
+- Publication source ref: `refs/heads/product/noor-personal-mvp`.
+- Retained publication destination ref: `refs/heads/pub/bdb906451f2d`, still pointing to the source object above. It is not the final protected-branch commit after rebase merge.
+- Publication Control v2 operation: `CREATE_NON_PROTECTED_BRANCH_EXACT_OBJECT`; authority: `NOOR`; outcome: `SUCCESS`.
+- Consumed gate SHA-256: `17b9a1ede344f77870a86e8a217101731a9669e950cada251941351594780242`.
+- The verifier confirmed `refs/heads/pub/bdb906451f2d = bdb906451f2d94d30fbea37c6f1e984d82a48d1e`; the audit sequence was `PUSH_ATTEMPT -> AUTHORITY_CONSUMED_PRE_PUSH -> PUSH_SUCCEEDED`.
+- Current Publication Control v2 runtime: `active.gate`, `state.lock`, and `consume.lock` are absent; the persistent hook remains installed/current; the push URL sentinel remains `no_push://noor-personal-dev`.
+- PR #6 final state: `MERGED` by `REBASE` at `2026-08-11T18:42:51Z`; its retained publication head branch and object are `pub/bdb906451f2d` and `bdb906451f2d94d30fbea37c6f1e984d82a48d1e`.
+- Protected branch old base: `37d965c51c6bf98447fed494f1e497eb8a0aafa1`; the final protected product-branch HEAD is `b4e6924620071af4f1c7905f2cebbf7142516934`.
+- The canonical local branch was rebound to the protected remote HEAD after verifying no content delta; the rebind changed reference identity only.
+
+### PR #6 Pre-Merge Eligibility and Readiness — Historical
+
+Immediately before the authorized merge, PR #6 was historical pre-merge
+readiness evidence, not current PR state:
+
+- Number/title: `6` / `feat(platform): add shell foundation`.
+- Head: `pub/bdb906451f2d` / `bdb906451f2d94d30fbea37c6f1e984d82a48d1e`; base: `product/noor-personal-mvp` / `37d965c51c6bf98447fed494f1e497eb8a0aafa1`.
+- State: `OPEN`; draft: `false` (non-draft); mergeable: `MERGEABLE`; merge state status: `CLEAN`.
+- Required `Architecture Validation`: `completed / success`; final readiness checks: `0` failing, `0` pending, `1` successful.
+- Review threads: `0` total; unresolved review threads: `0`.
+- Strict base/head relationship: `ahead_by = 9`; `behind_by = 0`; merge base: `37d965c51c6bf98447fed494f1e497eb8a0aafa1`.
+- Step 044 files in the PR: `0`.
+
+### Verified PR #6 Rebase Replay
+
+The protected-branch replay was verified as exactly these nine commits, in
+order:
+
+1. `27fb54d4378e6cbc62f791b1d512901a8f48c09e` — `Reconcile Noor Personal project state`
+2. `65f776cc7cd58ccbb7852a589dc14a4fc2040b97` — `Record application composition acceptance`
+3. `ccf638872ee13d2b2be94ab144457a43a125b899` — `docs(platform): record Platform Shell contract candidate and reconcile state`
+4. `7a5ffcdc2deb260a336d1dcf98d895e0cd058189` — `docs(platform): reconcile Platform Shell governance decisions`
+5. `06e8ed25e223ced7921f82e3d2907f2c43d6af16` — `build(web): add core workspace dependency`
+6. `cc3876c3118fc3c6b3c0492ec26aba55e325dafe` — `build(web): add decision-10 test toolchain`
+7. `0cfea462db4865d5141b86b1ce681330557abbf0` — `docs(platform): reconcile post-dependency shell state`
+8. `9fd4eb91faf0b9af4a900ebd055d7034c2be71fa` — `feat(platform): add shell foundation`
+9. `b4e6924620071af4f1c7905f2cebbf7142516934` — `docs(platform): reconcile post-shell project state`
+
+- Verified replay count: `9`; old protected base: `37d965c51c6bf98447fed494f1e497eb8a0aafa1`; new protected canonical HEAD: `b4e6924620071af4f1c7905f2cebbf7142516934`.
+- Accepted pre-rebase source tree: `87e95b134f774b8726201c9981f376559ceae3f7`; final protected-branch tree: `87e95b134f774b8726201c9981f376559ceae3f7`; tree equivalence: `EXACTLY VERIFIED`.
+- The pre-rebase and post-rebase commits are not claimed to share SHA identity; only their accepted final trees are identical.
+
+### Current Authorization Boundary — Post-PR6
+
+- Production-runnable Platform integration: `NOT STARTED / NOT AUTHORIZED`.
+- Production authentication/session/authorization integration: `NOT STARTED / NOT AUTHORIZED`.
+- Protected Routing: `NOT STARTED / NOT AUTHORIZED`.
+- App Launcher: `NOT STARTED / NOT AUTHORIZED`.
+- Noor Personal production Application View mounting beyond the accepted Shell Foundation boundary: `NOT AUTHORIZED`.
+- Noor Work production Application View mounting beyond the accepted Shell Foundation boundary: `NOT AUTHORIZED`.
+- Step 044 implementation: `NOT AUTHORIZED`.
+- Further dependency mutation: `NOT AUTHORIZED` unless separately authorized.
+- Stable milestone tag: `NOT CREATED / NOT AUTHORIZED BY THIS TASK`.
+- No authorization transfers automatically from implementation to publication, publication to PR, PR to merge, merge to Protected Routing, or documentation reconciliation to implementation.
+
+### Current Next Safe Action — Post-PR6
+
+The next safe action is independent read-only review of this Post-PR6
+`PROJECT_STATE.md` reconciliation candidate. This candidate does not authorize
+its own Stage or Commit and does not authorize Protected Routing.
+
+## Historical Current Truth — Pre-PR6 Shell Foundation Reconciliation
+
+The following section preserves the prior pre-publication/pre-merge state as
+historical evidence. Its local-only, publication-pending, PR-pending, and
+merge-pending statements are not current facts.
+
+This historical section records the pre-PR6 repository state. Its older
+implementation-unauthorized statements are historical unless explicitly
+restated in the authoritative Post-PR6 section above.
 
 - Shell Foundation implementation: `IMPLEMENTED / STATIC-ACCEPTED / RUNTIME-ACCEPTED / LOCAL-COMMIT-ACCEPTED`.
 - Accepted state: `SHELL_FOUNDATION_IMPLEMENTATION_CANDIDATE_FULLY_ACCEPTED_STATIC_AND_RUNTIME`.
 - Accepted state: `SHELL_FOUNDATION_IMPLEMENTATION_LOCAL_COMMIT_ACCEPTED`.
 - Scope: `SHELL FOUNDATION ONLY`; this is not production-runnable Platform integration.
-- Current candidate: `POST-SHELL PROJECT_STATE TRUTH RECONCILIATION CANDIDATE / INDEPENDENT-REVIEW-GATED`.
-- Current implementation commit: `f3f1eaf78a9c2b7eedda8e8f4f498762e3ddccf0`.
+- Candidate at that historical pre-PR6 point: `POST-SHELL PROJECT_STATE TRUTH RECONCILIATION CANDIDATE / INDEPENDENT-REVIEW-GATED`.
+- Implementation commit at that historical pre-PR6 point: `f3f1eaf78a9c2b7eedda8e8f4f498762e3ddccf0`.
 - Parent: `bc25b83b74c6c1994966d46a54e1b451116c5896`.
 - Tree: `402294e66193a2c70fb0059d83d0395e8ef1c336`.
 - Subject: `feat(platform): add shell foundation`.
@@ -110,7 +188,7 @@ At the time of the accepted candidate and pre-commit reviews, the reviewed repos
 - the contract candidate and the three preserved Step 044 reports were untracked and retained as candidate evidence.
 - these statements describe the reviewed pre-commit worktree and are not a permanent live claim about a later authorized documentation commit.
 
-## Current Baseline State Before This Post-Dependency Documentation Reconciliation Candidate
+## Historical Baseline State Before This Post-Dependency Documentation Reconciliation Candidate
 
 - canonical branch at reconciliation start:
   `product/noor-personal-mvp`
@@ -281,7 +359,7 @@ The Application Composition / Bootstrap foundation is implemented, technically c
 - Foundation Core dependency reconciliation: CLOSED.
 - Decision-10 test-toolchain reconciliation: CLOSED.
 - Overall dependency readiness: DEPENDENCY_PRECONDITIONS_COMPLETE.
-- Remaining dependency-specific blocker before a separately authorized Shell Foundation implementation: NONE.
+- Historical pre-implementation dependency-specific blocker before a separately authorized Shell Foundation implementation: NONE.
 - Historical marker: SHELL_FOUNDATION_IMPLEMENTATION_AUTHORIZED: NOT AUTHORIZED.
 
 At that time, PM governance resolution and dependency closure completed
@@ -319,7 +397,7 @@ state after Shell Foundation implementation.
 | 10 | RESOLVED — DESIGN EVIDENCE COMPLETE — TOOLCHAIN DEPENDENCY RECONCILIATION CLOSED — PM GOVERNANCE ADOPTED | CLOSED | NOT GRANTED |
 | 11 | RESOLVED — SHELL-FOUNDATION BOUNDARY — PM GOVERNANCE ADOPTED | CLOSED | NOT GRANTED |
 
-### Concise Current Decision Boundaries
+### Historical Decision Boundaries — Pre-Implementation
 
 #### D1 — Root route
 
@@ -390,9 +468,9 @@ History tests use the minimum production HistoryPort. A pure in-memory model own
 
 #### D11 — Shell-foundation boundary
 
-The selected model is SHELL FOUNDATION ONLY, not a production-runnable Platform Shell. The exact current lists and responsibilities below govern scope. A governance allowlist is not file-modification authorization.
+The selected historical pre-implementation model was SHELL FOUNDATION ONLY, not a production-runnable Platform Shell. The exact lists and responsibilities below governed that historical scope. A governance allowlist was not file-modification authorization.
 
-### Current Shell-Foundation Scope Boundary
+### Historical Shell-Foundation Scope Boundary — Pre-Implementation
 
 #### Exact unconditional Shell-foundation allowlist — exactly nine paths
 
@@ -419,7 +497,7 @@ package-lock.json may change only through a separately authorized dependency rec
 
 #### Foundation production dependency boundary
 
-@worktracker/core 0.0.1 is the committed direct apps/web production workspace dependency that supplies the canonical Application Catalog. apps/web has no direct @worktracker/platform dependency, and @worktracker/platform is NOT REQUIRED BY CURRENT SHELL FOUNDATION. This does not reopen D7 or authorize further dependency mutation.
+@worktracker/core 0.0.1 is the committed direct apps/web production workspace dependency that supplies the canonical Application Catalog. apps/web has no direct @worktracker/platform dependency, and @worktracker/platform was not required by the historical pre-implementation Shell Foundation evidence. This does not reopen D7 or authorize further dependency mutation.
 
 #### FOUNDATION-CORE-DEPENDENCY-RECONCILIATION
 
@@ -438,19 +516,19 @@ package-lock.json may change only through a separately authorized dependency rec
 #### Dependency readiness and implementation authority
 
 - DEPENDENCY_PRECONDITIONS_COMPLETE.
-- Remaining dependency-specific blocker before a separately authorized Shell Foundation implementation: NONE.
+- Historical pre-implementation dependency-specific blocker before a separately authorized Shell Foundation implementation: NONE.
 - Historical marker: SHELL_FOUNDATION_IMPLEMENTATION_AUTHORIZED: NOT AUTHORIZED.
 - Dependency closure, documentation reconciliation, and review acceptance do not transfer implementation authorization. Separate explicit mutation authorization remains required.
 
 #### Exact path responsibilities
 
-apps/web/tsconfig.json may change only in a future separately authorized foundation implementation to add required browser and DOM type-library support, preserve current production rootDir and include semantics, and keep behavioral tests outside production source inclusion. No unrelated compiler change is allowed.
+Before Shell Foundation implementation, apps/web/tsconfig.json could change only in a separately authorized foundation implementation to add required browser and DOM type-library support, preserve current production rootDir and include semantics, and keep behavioral tests outside production source inclusion. No unrelated compiler change was allowed.
 
 packages/architecture/tests/application-composition-boundary.spec.ts may verify only that packages/platform remains free of Shell-specific React imports, browser modules, DOM or UI concerns, Window, Document, History, PopStateEvent, and Shell presentation concerns. No broad architecture refactor is included.
 
-packages/architecture/tests/workspace-package-entrypoint-contract.spec.ts is NOT REQUIRED BY CURRENT SHELL FOUNDATION EVIDENCE, is outside both allowlists, and is not permanently prohibited.
+packages/architecture/tests/workspace-package-entrypoint-contract.spec.ts was not required by the historical pre-implementation Shell Foundation evidence, was outside both allowlists, and was not permanently prohibited.
 
-#### Explicit paths outside the selected current Shell-foundation scope
+#### Historical explicit paths outside the selected pre-implementation Shell-foundation scope
 
 - apps/web/index.html
 - apps/web/vite.config.ts
@@ -458,11 +536,11 @@ packages/architecture/tests/workspace-package-entrypoint-contract.spec.ts is NOT
 - apps/web/src/platform-composition.ts
 - packages/architecture/tests/workspace-package-entrypoint-contract.spec.ts
 
-No packages/platform path belongs to the current foundation.
+No packages/platform path belonged to that historical pre-implementation foundation scope.
 
 #### main.tsx boundary
 
-A future separately authorized Shell-foundation implementation may allow apps/web/src/main.tsx to initialize apps/web browser history, apply document language and direction, project canonical routes, assemble an empty production Application View registry, and render truthful accessible foundation states.
+Before implementation, a future separately authorized Shell-foundation implementation could allow apps/web/src/main.tsx to initialize apps/web browser history, apply document language and direction, project canonical routes, assemble an empty production Application View registry, and render truthful accessible foundation states.
 
 It must not construct the production Platform composition root, call production bootstrap, fabricate production adapters, mount Noor Personal, mount Noor Work, or claim production-runnable Platform behavior.
 
@@ -510,10 +588,10 @@ This is the identity that was measured for the prior governance-reconciliation c
 
 That historical candidate was GOVERNANCE-RESOLVED / DEPENDENCY-PRECONDITIONS-COMPLETE / POST-DEPENDENCY DOCUMENTATION RECONCILIATION CANDIDATE / INDEPENDENT-REVIEW-GATED. It is not the current implementation state.
 
-### Current Next Safe Action Boundary
+### Historical Next Safe Action Boundary — Pre-PR6
 
-The current next safe action is independent read-only review of this
-PROJECT_STATE reconciliation candidate.
+The next safe action at that historical pre-PR6 point was independent
+read-only review of that PROJECT_STATE reconciliation candidate.
 
 No repository mutation is authorized by this reconciliation candidate.
 
@@ -582,9 +660,9 @@ Everything in this subsection is historical and has no present authority.
   - `PR_5_REBASE_MERGE_ACCEPTED`
   - `LOCAL_PRODUCT_BRANCH_SYNCHRONIZED_ACCEPTED`
 
-## Current Authorization Boundary
+## Historical Authorization Boundary — Pre-PR6
 
-- Shell Foundation: IMPLEMENTED / ACCEPTED / LOCAL-COMMIT-ACCEPTED
+- Shell Foundation: IMPLEMENTED / ACCEPTED / LOCAL-COMMIT-ACCEPTED (historical pre-PR6 wording)
 - Production-runnable Platform integration: NOT AUTHORIZED
 - Production authentication/session/authorization integration: NOT AUTHORIZED
 - Noor Personal production Application View mounting: NOT AUTHORIZED BY THE SHELL FOUNDATION PHASE
@@ -594,6 +672,6 @@ Everything in this subsection is historical and has no present authority.
 - Step 044 implementation: NOT AUTHORIZED
 - Further dependency mutation: NOT AUTHORIZED unless separately authorized
 - Push/publication, Gate creation/consumption, PR, Merge, Tag, and deployment: NOT AUTHORIZED by this reconciliation
-- Stable milestone tag: PENDING
+- Stable milestone tag: PENDING (historical pre-PR6 wording; current Post-PR6 status is NOT CREATED / NOT AUTHORIZED BY THIS TASK)
 - Do not approve or invent a final tag name.
 - Installing another active publication gate is not the current next phase.
