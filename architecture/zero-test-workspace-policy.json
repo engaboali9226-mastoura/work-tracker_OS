@@ -1,11 +1,6 @@
 {
   "version": 1,
   "exemptions": {
-    "apps/web": {
-      "category": "minimal-bootstrap",
-      "rationale": "The workspace currently contains only minimal React bootstrap behavior and static heading rendering, so dedicated behavioral tests would be artificial at this stage.",
-      "sourceFingerprint": "91be116790b3a32fc4c1cfb1dfa322284f72d95d02ee8c3405837ac6ac85e21a"
-    },
     "apps/workos-cli": {
       "category": "pre-implementation-placeholder",
       "rationale": "The workspace is currently a pre-implementation placeholder with no meaningful application behavior to protect through dedicated tests.",
