@@ -7,12 +7,12 @@
 - Prior historical Application Composition acceptance-state reconciliation baseline: `be400581b7f82d4d0cbd66875d1255aac7e3d693`
 - Prior historical Application Composition acceptance-state reconciliation tree: `5ec87ba30535fc6cb7d0ffbe13f196ebb974dc96`
 - Repository baseline observed when the earlier historical reconciliation task began: `be400581b7f82d4d0cbd66875d1255aac7e3d693`
-- Current committed baseline before this Platform Shell reconciliation candidate: `16fa7f281c8bd01807bf89db1b499afea1ae84f4`
-- Current committed baseline tree before this Platform Shell reconciliation candidate: `0468925f3104cb0eb77eb1af7a81ec8965853be5`
-- Committed `PROJECT_STATE.md` blob before this working candidate: `70fd54339074e15524431405cdde14a17a16cb53`
-- Committed Platform Shell contract blob before this working candidate: `4d837e3056b05b88ec641bb209a1b4e979b8f45a`
+- Current committed baseline before this post-dependency documentation reconciliation candidate: `2316b712b6b5ae343783dfe41dca42017249ba4a`
+- Current committed baseline tree before this post-dependency documentation reconciliation candidate: `abdf62c0dc17c464d88ecf7b2f2183fd645232fb`
+- Committed `PROJECT_STATE.md` blob before this working candidate: `07e001a1f7e6a6cf670ba465091328264c924c50`
+- Committed Platform Shell contract blob before this working candidate: `20a77205fbb92a3fc3d883353ccbdb7c4fb29244`
 - `.ai/state/PROJECT_STATE.md` is the authoritative state record for the Noor Personal Platform repository and its governed workflow. It must not be conflated with the separate canonical Prayer Engine worktree, its repository state, branch state, or authorization state. Facts or authorization from one worktree do not automatically transfer to the other. The repository and this state file remain the sole sources of truth for Noor Personal project sequencing.
-- This section records the governance reconciliation candidate and its accepted pre-commit review history. It does not claim any future reconciliation commit SHA, future committed tree SHA, or future PROJECT_STATE blob SHA.
+- This section records the current post-dependency documentation reconciliation candidate and preserves the accepted pre-commit review history of the prior governance reconciliation. It does not claim any future reconciliation commit SHA, future committed tree SHA, or future PROJECT_STATE blob SHA.
 
 ## Historical Lineage
 
@@ -63,18 +63,18 @@ At the time of the accepted candidate and pre-commit reviews, the reviewed repos
 - the contract candidate and the three preserved Step 044 reports were untracked and retained as candidate evidence.
 - these statements describe the reviewed pre-commit worktree and are not a permanent live claim about a later authorized documentation commit.
 
-## Current Baseline State Before This Platform Shell Reconciliation Candidate
+## Current Baseline State Before This Post-Dependency Documentation Reconciliation Candidate
 
 - canonical branch at reconciliation start:
   `product/noor-personal-mvp`
-- current committed product baseline before this Platform Shell reconciliation candidate:
-  `16fa7f281c8bd01807bf89db1b499afea1ae84f4`
-- current committed baseline tree before this Platform Shell reconciliation candidate:
-  `0468925f3104cb0eb77eb1af7a81ec8965853be5`
+- current committed product baseline before this post-dependency documentation reconciliation candidate:
+  `2316b712b6b5ae343783dfe41dca42017249ba4a`
+- current committed baseline tree before this post-dependency documentation reconciliation candidate:
+  `abdf62c0dc17c464d88ecf7b2f2183fd645232fb`
 - committed `PROJECT_STATE.md` blob before this current working candidate:
-  `70fd54339074e15524431405cdde14a17a16cb53`
+  `07e001a1f7e6a6cf670ba465091328264c924c50`
 - committed Platform Shell contract blob before this current working candidate:
-  `4d837e3056b05b88ec641bb209a1b4e979b8f45a`
+  `20a77205fbb92a3fc3d883353ccbdb7c4fb29244`
 - prior historical Application Composition acceptance-state reconciliation baseline:
   `be400581b7f82d4d0cbd66875d1255aac7e3d693`
 - prior historical Application Composition acceptance-state reconciliation tree:
@@ -217,28 +217,32 @@ The Application Composition / Bootstrap foundation is implemented, technically c
 - Status: ACCEPTED
 - Technical prerequisite: SATISFIED
 
-## Platform Shell Governance Reconciliation — Current
+## Platform Shell Post-Dependency Documentation Reconciliation — Current
 
 ### Current Reconciliation Status
 
-- Status: GOVERNANCE-RESOLVED RECONCILIATION CANDIDATE / INDEPENDENT-REVIEW-GATED.
-- Current marker: PLATFORM_SHELL_GOVERNANCE_RECONCILIATION_CANDIDATE_REVIEW_GATED.
+- Status: GOVERNANCE-RESOLVED / DEPENDENCY-PRECONDITIONS-COMPLETE / POST-DEPENDENCY DOCUMENTATION RECONCILIATION CANDIDATE / INDEPENDENT-REVIEW-GATED.
+- Current marker: PLATFORM_SHELL_POST_DEPENDENCY_DOCUMENTATION_RECONCILIATION_CANDIDATE_REVIEW_GATED.
 - Governance decisions: 11 / 11 RESOLVED.
 - Shell-foundation design boundary: RESOLVED.
 - Implementation: NOT AUTHORIZED.
 - Production-runnable Platform Shell: NOT YET AVAILABLE.
 - Current implementation model: SHELL FOUNDATION ONLY.
-- Decision-10 dependency reconciliation: SEPARATELY REQUIRED BEFORE TOOLCHAIN MANIFEST/LOCKFILE MUTATION.
+- Foundation Core dependency reconciliation: CLOSED.
+- Decision-10 test-toolchain reconciliation: CLOSED.
+- Overall dependency readiness: DEPENDENCY_PRECONDITIONS_COMPLETE.
+- Remaining dependency-specific blocker before a separately authorized Shell Foundation implementation: NONE.
+- SHELL_FOUNDATION_IMPLEMENTATION_AUTHORIZED: NOT AUTHORIZED.
 
-PM governance resolution records the adopted decisions but does not authorize implementation. This working reconciliation candidate remains review-gated and makes no live claim about whether an external review occurred or what result it produced.
+PM governance resolution and dependency closure record completed governance and dependency preconditions but do not authorize implementation. This working post-dependency documentation reconciliation candidate remains review-gated and makes no live claim about whether an external review occurred or what result it produced.
 
 ### Current Committed Baseline
 
 - Branch: product/noor-personal-mvp
-- HEAD: 16fa7f281c8bd01807bf89db1b499afea1ae84f4
-- Tree: 0468925f3104cb0eb77eb1af7a81ec8965853be5
-- Committed PROJECT_STATE blob: 70fd54339074e15524431405cdde14a17a16cb53
-- Committed Platform Shell contract blob: 4d837e3056b05b88ec641bb209a1b4e979b8f45a
+- HEAD: 2316b712b6b5ae343783dfe41dca42017249ba4a
+- Tree: abdf62c0dc17c464d88ecf7b2f2183fd645232fb
+- Committed PROJECT_STATE blob: 07e001a1f7e6a6cf670ba465091328264c924c50
+- Committed Platform Shell contract blob: 20a77205fbb92a3fc3d883353ccbdb7c4fb29244
 
 These are committed baseline identities. They are separate from the working reconciliation candidate identities and do not predict a future Commit, tree, or blob.
 
@@ -257,7 +261,7 @@ This is the only authoritative current Platform Shell governance decision regist
 | 7 | RESOLVED — DESIGN EVIDENCE COMPLETE — PM GOVERNANCE ADOPTED | CLOSED | NOT GRANTED |
 | 8 | RESOLVED — PM GOVERNANCE ADOPTED | CLOSED | NOT GRANTED |
 | 9 | RESOLVED — PM GOVERNANCE ADOPTED | CLOSED | NOT GRANTED |
-| 10 | RESOLVED — DESIGN EVIDENCE COMPLETE — TOOLCHAIN DEPENDENCY RECONCILIATION REMAINS SEPARATELY REQUIRED — PM GOVERNANCE ADOPTED | CLOSED | NOT GRANTED |
+| 10 | RESOLVED — DESIGN EVIDENCE COMPLETE — TOOLCHAIN DEPENDENCY RECONCILIATION CLOSED — PM GOVERNANCE ADOPTED | CLOSED | NOT GRANTED |
 | 11 | RESOLVED — SHELL-FOUNDATION BOUNDARY — PM GOVERNANCE ADOPTED | CLOSED | NOT GRANTED |
 
 ### Concise Current Decision Boundaries
@@ -321,11 +325,11 @@ Shell-owned UI and the Shell/application composition boundary target WCAG 2.2 Le
 
 #### D10 — Behavioral-test path and toolchain design
 
-The only behavioral-test path is apps/web/tests/*.spec.ts, outside apps/web/src. The accepted runner is node:test; the accepted command is node --import tsx --test tests/*.spec.ts; the transformer is tsx; and repository evidence establishes exact version 4.22.4.
+The only behavioral-test path is apps/web/tests/*.spec.ts, outside apps/web/src. The accepted runner is node:test; the accepted command is node --import tsx --test tests/*.spec.ts; and the transformer is tsx.
 
-tsx is not currently an apps/web dependency. Future direct apps/web development dependencies are jsdom and axe-core, whose exact versions are NOT YET SELECTED. This documentation reconciliation changes neither apps/web/package.json nor package-lock.json.
+The current committed direct apps/web development dependencies are tsx 4.22.4, jsdom 29.1.1, and axe-core 4.12.1. DECISION-10-TEST-TOOLCHAIN-RECONCILIATION is CLOSED by commit `2316b712b6b5ae343783dfe41dca42017249ba4a` (`build(web): add decision-10 test toolchain`). This documentation reconciliation changes neither apps/web/package.json nor package-lock.json.
 
-A separately authorized dependency reconciliation must prove Node 24 compatibility; JSDOM DOM, location, pushState, replaceState, and explicit PopStateEvent behavior; React 19 createRoot, render, act, and unmount interoperability; axe-core and JSDOM interoperability; a deterministic lockfile-v3 graph; and no unrelated lockfile churn. Pending evidence does not reopen Decision 10; it blocks manifest mutation, lockfile mutation, and accepted toolchain execution.
+The closed dependency reconciliation addressed the dependency-specific evidence requirements for Node 24 compatibility; JSDOM DOM, location, pushState, replaceState, and explicit PopStateEvent behavior; React 19 createRoot, render, act, and unmount interoperability; axe-core and JSDOM interoperability; a deterministic lockfile-v3 graph; and no unrelated lockfile churn. Its closure does not reopen Decision 10, authorize implementation, prove that behavioral tests have been implemented or run, or broaden JSDOM fidelity.
 
 History tests use the minimum production HistoryPort. A pure in-memory model owns stack, cursor, push, replace, back, forward, boundaries, and subscription. JSDOM evidence is limited to DOM, location, pushState, replaceState, and explicit PopStateEvent dispatch; it does not establish native asynchronous back or forward fidelity. Native browser Back and Forward require manual real-browser review unless later automation is separately governed. The zero-test exemption is removed atomically with the first meaningful discovered apps/web behavioral tests. Architecture tests remain separate.
 
@@ -360,17 +364,28 @@ package-lock.json may change only through a separately authorized dependency rec
 
 #### Foundation production dependency boundary
 
-@worktracker/core is the only currently evidenced new production workspace dependency and supplies the canonical Application Catalog. @worktracker/platform is NOT REQUIRED BY CURRENT SHELL FOUNDATION. This does not reopen D7 or authorize dependency mutation.
+@worktracker/core 0.0.1 is the committed direct apps/web production workspace dependency that supplies the canonical Application Catalog. apps/web has no direct @worktracker/platform dependency, and @worktracker/platform is NOT REQUIRED BY CURRENT SHELL FOUNDATION. This does not reopen D7 or authorize further dependency mutation.
 
 #### FOUNDATION-CORE-DEPENDENCY-RECONCILIATION
 
-- Status: NOT AUTHORIZED.
-- Meaning: a future separately authorized addition of @worktracker/core to apps/web/package.json plus only the deterministic package-lock workspace-edge reconciliation required by that manifest change.
+- Status: CLOSED.
+- Commit: `42d172e711c8c73e82e6a695ee16790aed6a2086`.
+- Subject: `build(web): add core workspace dependency`.
+- Evidence: apps/web directly depends on `@worktracker/core` `0.0.1`; the corresponding deterministic package-lock workspace edge is committed.
 
 #### DECISION-10-TEST-TOOLCHAIN-RECONCILIATION
 
-- Status: NOT AUTHORIZED.
-- Meaning: after exact dependency evidence, a separately authorized change may add tsx 4.22.4, an exact selected jsdom version, and an exact selected axe-core version to apps/web development dependencies plus only the corresponding deterministic package-lock graph reconciliation.
+- Status: CLOSED.
+- Commit: `2316b712b6b5ae343783dfe41dca42017249ba4a`.
+- Subject: `build(web): add decision-10 test toolchain`.
+- Evidence: apps/web directly declares development dependencies `tsx` `4.22.4`, `jsdom` `29.1.1`, and `axe-core` `4.12.1`; the corresponding deterministic package-lock graph is committed.
+
+#### Dependency readiness and implementation authority
+
+- DEPENDENCY_PRECONDITIONS_COMPLETE.
+- Remaining dependency-specific blocker before a separately authorized Shell Foundation implementation: NONE.
+- SHELL_FOUNDATION_IMPLEMENTATION_AUTHORIZED: NOT AUTHORIZED.
+- Dependency closure, documentation reconciliation, and review acceptance do not transfer implementation authorization. Separate explicit mutation authorization remains required.
 
 #### Exact path responsibilities
 
@@ -402,11 +417,11 @@ Production-runnable Platform integration is a separate future task. It requires 
 
 No fake, no-op, or permissive placeholder satisfies this boundary. A production Application View is a separate product and path task. Optional browser automation is separate; no Playwright, Puppeteer, or other browser-runner dependency is authorized.
 
-### Current governance-reconciliation candidate contract identity
+### Prior governance-reconciliation candidate contract identity — historical lineage
 
-WORKING RECONCILIATION CANDIDATE IDENTITY — NOT COMMITTED IDENTITY
+REVIEWED GOVERNANCE RECONCILIATION CANDIDATE IDENTITY — COMMITTED LINEAGE
 
-This is the identity measured for the working candidate before any possible future Commit. If a separately authorized Commit later records the same bytes, this section remains the reviewed candidate identity and does not assert that the file is still uncommitted.
+This is the identity that was measured for the prior governance-reconciliation candidate and later committed by `3e1ce98cab6f768878d6ee159c2e957b67447d7b`. It remains useful historical lineage and is not the identity of this post-dependency documentation reconciliation candidate.
 
 - Path: docs/03-architecture/PLATFORM_SHELL_CONTRACT.md
 - Bytes: 20836
@@ -422,7 +437,7 @@ This is the identity measured for the working candidate before any possible futu
 - Noor Personal implementation: NOT AUTHORIZED BY THIS RECONCILIATION.
 - Noor Work implementation: NOT AUTHORIZED BY THIS RECONCILIATION.
 - Platform Shell implementation: NOT AUTHORIZED.
-- Dependency reconciliation: NOT AUTHORIZED.
+- Further dependency mutation: NOT AUTHORIZED.
 - Documentation repair, Stage, Commit, Gate creation, Gate consumption, Push or publication, PR, Merge, Tag, and deployment: NOT AUTHORIZED without a new phase-appropriate authorization.
 
 ### Review Gate and Authorization Non-Transfer
@@ -438,7 +453,7 @@ This is the identity measured for the working candidate before any possible futu
 - Merge does not equal Tag or deployment.
 - No authorization transfers automatically.
 
-The candidate remains GOVERNANCE-RESOLVED RECONCILIATION CANDIDATE / INDEPENDENT-REVIEW-GATED. This is a durable authority state, not a claim about review chronology or outcome.
+The candidate remains GOVERNANCE-RESOLVED / DEPENDENCY-PRECONDITIONS-COMPLETE / POST-DEPENDENCY DOCUMENTATION RECONCILIATION CANDIDATE / INDEPENDENT-REVIEW-GATED. This is a durable authority state, not a claim about review chronology or outcome.
 
 ### Current Next Safe Action Boundary
 
@@ -466,7 +481,7 @@ Everything in this subsection is historical and has no present authority.
 - Corresponding historical PR #5 result tree before that earlier documentation reconciliation: `842b86bc875f5ca2858fadd159ef0d9a1df26785`
 - Prior historical Application Composition acceptance-state reconciliation commit lineage: `be400581b7f82d4d0cbd66875d1255aac7e3d693`
 - Prior historical Application Composition acceptance-state reconciliation tree lineage: `5ec87ba30535fc6cb7d0ffbe13f196ebb974dc96`
-- Neither value is the baseline of the current Platform Shell reconciliation candidate, neither identifies the current working candidate, and neither predicts a future repository identity.
+- Neither value is the baseline of the current post-dependency documentation reconciliation candidate, neither identifies the current working candidate, and neither predicts a future repository identity.
 - PR #4 remains part of the historical record, but it is not the current publication state.
 - Publication Control v2 is not future or incomplete work; it is part of the accepted current state.
 - The source-branch publication lineage has been rebased and resolved; the older PR #5 result and its tree remain historical publication and synchronization lineage, not the current committed product baseline.

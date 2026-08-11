@@ -3,26 +3,30 @@
 ## 1. Current Contract Status
 
 - Document type: Platform Shell architecture contract.
-- Status: GOVERNANCE-RESOLVED RECONCILIATION CANDIDATE / INDEPENDENT-REVIEW-GATED.
+- Status: GOVERNANCE-RESOLVED / DEPENDENCY-PRECONDITIONS-COMPLETE / POST-DEPENDENCY DOCUMENTATION RECONCILIATION CANDIDATE / INDEPENDENT-REVIEW-GATED.
 - Governance decisions: 11 / 11 RESOLVED.
 - Shell-foundation design boundary: RESOLVED.
 - Implementation: NOT AUTHORIZED.
 - Production-runnable Platform Shell: NOT YET AVAILABLE.
 - Current implementation model: SHELL FOUNDATION ONLY.
-- Decision-10 dependency reconciliation: SEPARATELY REQUIRED BEFORE TOOLCHAIN MANIFEST/LOCKFILE MUTATION.
-- Review-gate marker: PLATFORM_SHELL_GOVERNANCE_RECONCILIATION_CANDIDATE_REVIEW_GATED.
+- Foundation Core dependency reconciliation: CLOSED.
+- Decision-10 test-toolchain reconciliation: CLOSED.
+- Overall dependency readiness: DEPENDENCY_PRECONDITIONS_COMPLETE.
+- Remaining dependency-specific blocker before a separately authorized Shell Foundation implementation: NONE.
+- SHELL_FOUNDATION_IMPLEMENTATION_AUTHORIZED: NOT AUTHORIZED.
+- Review-gate marker: PLATFORM_SHELL_POST_DEPENDENCY_DOCUMENTATION_RECONCILIATION_CANDIDATE_REVIEW_GATED.
 
-PM governance has resolved all eleven decisions. This document remains a governance-reconciliation candidate under a durable independent-review gate. It makes no claim about the occurrence or result of any external review. Independent review acceptance is required before a separate local documentation Commit may be considered, and neither this document nor an independent review authorizes implementation.
+PM governance has resolved all eleven decisions, and both dependency-reconciliation triggers are closed. This document remains a post-dependency documentation reconciliation candidate under a durable independent-review gate. It makes no claim about the occurrence or result of any external review. Independent review acceptance is required before a separate local documentation Commit may be considered, and neither dependency closure, this document, nor an independent review authorizes implementation.
 
 ### Current committed baseline before this working candidate
 
 - Branch: product/noor-personal-mvp
-- HEAD: 16fa7f281c8bd01807bf89db1b499afea1ae84f4
-- Tree: 0468925f3104cb0eb77eb1af7a81ec8965853be5
-- Committed PROJECT_STATE blob: 70fd54339074e15524431405cdde14a17a16cb53
-- Committed Platform Shell contract blob: 4d837e3056b05b88ec641bb209a1b4e979b8f45a
+- HEAD: 2316b712b6b5ae343783dfe41dca42017249ba4a
+- Tree: abdf62c0dc17c464d88ecf7b2f2183fd645232fb
+- Committed PROJECT_STATE blob: 07e001a1f7e6a6cf670ba465091328264c924c50
+- Committed Platform Shell contract blob: 20a77205fbb92a3fc3d883353ccbdb7c4fb29244
 
-Repository evidence includes the accepted Application Catalog and Application Composition / Bootstrap foundations, the framework-neutral Platform lifecycle contracts, apps/web as the browser rendering edge, the workspace lockfile evidence for tsx, and architecture governance. Evidence or an allowlist does not grant authority to mutate any file.
+Repository evidence includes the accepted Application Catalog and Application Composition / Bootstrap foundations, the framework-neutral Platform lifecycle contracts, apps/web as the browser rendering edge, the committed direct apps/web dependency on @worktracker/core 0.0.1, the committed direct apps/web development dependencies tsx 4.22.4, jsdom 29.1.1, and axe-core 4.12.1, and architecture governance. Evidence or an allowlist does not grant authority to mutate any file.
 
 ## 2. Current Authority Boundary
 
@@ -56,7 +60,7 @@ This is the only authoritative current Platform Shell governance decision regist
 | 7 | RESOLVED — DESIGN EVIDENCE COMPLETE — PM GOVERNANCE ADOPTED | CLOSED | NOT GRANTED |
 | 8 | RESOLVED — PM GOVERNANCE ADOPTED | CLOSED | NOT GRANTED |
 | 9 | RESOLVED — PM GOVERNANCE ADOPTED | CLOSED | NOT GRANTED |
-| 10 | RESOLVED — DESIGN EVIDENCE COMPLETE — TOOLCHAIN DEPENDENCY RECONCILIATION REMAINS SEPARATELY REQUIRED — PM GOVERNANCE ADOPTED | CLOSED | NOT GRANTED |
+| 10 | RESOLVED — DESIGN EVIDENCE COMPLETE — TOOLCHAIN DEPENDENCY RECONCILIATION CLOSED — PM GOVERNANCE ADOPTED | CLOSED | NOT GRANTED |
 | 11 | RESOLVED — SHELL-FOUNDATION BOUNDARY — PM GOVERNANCE ADOPTED | CLOSED | NOT GRANTED |
 
 ## 4. Detailed Current Normative Decisions
@@ -263,16 +267,17 @@ Behavioral tests remain outside apps/web/src. The accepted runner, command, and 
 - Runner: node:test
 - Command: node --import tsx --test tests/*.spec.ts
 - Transformer: tsx
-- Repository-evidenced exact tsx version: 4.22.4
+- Committed direct apps/web development dependency: tsx 4.22.4
 
-tsx 4.22.4 is existing repository evidence. tsx is not currently an apps/web dependency. This documentation reconciliation does not modify apps/web/package.json or package-lock.json.
+The current committed direct apps/web development dependencies are:
 
-The accepted design requires these future direct apps/web development dependencies:
+- tsx 4.22.4;
+- jsdom 29.1.1;
+- axe-core 4.12.1.
 
-- jsdom;
-- axe-core.
+DECISION-10-TEST-TOOLCHAIN-RECONCILIATION is CLOSED by commit `2316b712b6b5ae343783dfe41dca42017249ba4a` (`build(web): add decision-10 test toolchain`). This documentation reconciliation does not modify apps/web/package.json or package-lock.json.
 
-Their exact versions are NOT YET SELECTED. No version or range is inferred by this contract. Pending dependency evidence DOES NOT REOPEN DECISION 10. It blocks manifest mutation, lockfile mutation, and accepted toolchain execution until a separately authorized dependency reconciliation proves:
+The closed dependency reconciliation addressed the dependency-specific evidence requirements for:
 
 - Node 24 compatibility;
 - JSDOM DOM and location behavior;
@@ -283,6 +288,8 @@ Their exact versions are NOT YET SELECTED. No version or range is inferred by th
 - axe-core and JSDOM interoperability;
 - a deterministic lockfile-v3 graph;
 - no unrelated lockfile churn.
+
+Its closure does not reopen Decision 10, authorize implementation, prove that behavioral tests have been implemented or run, or broaden JSDOM fidelity.
 
 History testing uses the minimum production port from Decision 5. A pure in-memory History model owns:
 
@@ -340,17 +347,28 @@ package-lock.json may change only under a separately authorized dependency recon
 
 ### Foundation production dependency boundary
 
-The only currently evidenced new production workspace dependency is @worktracker/core, used for the canonical Application Catalog. @worktracker/platform is NOT REQUIRED BY CURRENT SHELL FOUNDATION. This does not reopen Decision 7 and does not authorize a dependency mutation.
+@worktracker/core 0.0.1 is the committed direct apps/web production workspace dependency used for the canonical Application Catalog. apps/web has no direct @worktracker/platform dependency, and @worktracker/platform is NOT REQUIRED BY CURRENT SHELL FOUNDATION. This does not reopen Decision 7 and does not authorize further dependency mutation.
 
 ### FOUNDATION-CORE-DEPENDENCY-RECONCILIATION
 
-- Status: NOT AUTHORIZED.
-- Meaning: a future separately authorized addition of @worktracker/core to apps/web/package.json, plus only the deterministic package-lock workspace-edge reconciliation required by that manifest change.
+- Status: CLOSED.
+- Commit: `42d172e711c8c73e82e6a695ee16790aed6a2086`.
+- Subject: `build(web): add core workspace dependency`.
+- Evidence: apps/web directly depends on `@worktracker/core` `0.0.1`; the corresponding deterministic package-lock workspace edge is committed.
 
 ### DECISION-10-TEST-TOOLCHAIN-RECONCILIATION
 
-- Status: NOT AUTHORIZED.
-- Meaning: after exact dependency evidence, a separately authorized change may add tsx 4.22.4, an exact selected jsdom version, and an exact selected axe-core version to apps/web development dependencies, plus only the corresponding deterministic package-lock graph reconciliation.
+- Status: CLOSED.
+- Commit: `2316b712b6b5ae343783dfe41dca42017249ba4a`.
+- Subject: `build(web): add decision-10 test toolchain`.
+- Evidence: apps/web directly declares development dependencies `tsx` `4.22.4`, `jsdom` `29.1.1`, and `axe-core` `4.12.1`; the corresponding deterministic package-lock graph is committed.
+
+### Dependency readiness and implementation authority
+
+- DEPENDENCY_PRECONDITIONS_COMPLETE.
+- Remaining dependency-specific blocker before a separately authorized Shell Foundation implementation: NONE.
+- SHELL_FOUNDATION_IMPLEMENTATION_AUTHORIZED: NOT AUTHORIZED.
+- Dependency closure, documentation reconciliation, and review acceptance do not transfer implementation authorization. Separate explicit mutation authorization remains required.
 
 ### apps/web/tsconfig.json responsibility
 
@@ -434,7 +452,7 @@ Optional browser automation is separate. No Playwright, Puppeteer, or other brow
 - Noor Personal implementation: NOT AUTHORIZED BY THIS RECONCILIATION.
 - Noor Work implementation: NOT AUTHORIZED BY THIS RECONCILIATION.
 - Platform Shell implementation: NOT AUTHORIZED.
-- Dependency reconciliation: NOT AUTHORIZED.
+- Further dependency mutation: NOT AUTHORIZED.
 - Source, test, manifest, lockfile, tsconfig, Vite, architecture-policy, report, hook, Gate, or generated-artifact mutation: NOT AUTHORIZED by this reconciliation.
 - Stage, Commit, Push, publication, PR, Merge, Tag, and deployment: NOT AUTHORIZED by this reconciliation.
 
@@ -442,7 +460,7 @@ Catalog entitlement descriptors remain metadata. The Shell MUST NOT interpret th
 
 ## 8. Review Gate and Authorization Non-Transfer
 
-The candidate remains GOVERNANCE-RESOLVED RECONCILIATION CANDIDATE / INDEPENDENT-REVIEW-GATED. This durable state is true before or after any external review result because it records the document’s authority boundary rather than asserting review chronology.
+The candidate remains GOVERNANCE-RESOLVED / DEPENDENCY-PRECONDITIONS-COMPLETE / POST-DEPENDENCY DOCUMENTATION RECONCILIATION CANDIDATE / INDEPENDENT-REVIEW-GATED. This durable state is true before or after any external review result because it records the document’s authority boundary rather than asserting review chronology.
 
 Read-only independent review and review-result handling are permitted. No repository mutation follows automatically from review handling. A separate explicit authorization is required for every later repair, documentation Commit, dependency reconciliation, implementation, Gate, publication, or release phase.
 
