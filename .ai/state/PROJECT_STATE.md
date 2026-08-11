@@ -7,35 +7,35 @@
 - Prior historical Application Composition acceptance-state reconciliation baseline: `be400581b7f82d4d0cbd66875d1255aac7e3d693`
 - Prior historical Application Composition acceptance-state reconciliation tree: `5ec87ba30535fc6cb7d0ffbe13f196ebb974dc96`
 - Repository baseline observed when the earlier historical reconciliation task began: `be400581b7f82d4d0cbd66875d1255aac7e3d693`
-- Current committed baseline before this post-dependency documentation reconciliation candidate: `2316b712b6b5ae343783dfe41dca42017249ba4a`
-- Current committed baseline tree before this post-dependency documentation reconciliation candidate: `abdf62c0dc17c464d88ecf7b2f2183fd645232fb`
-- Committed `PROJECT_STATE.md` blob before this working candidate: `07e001a1f7e6a6cf670ba465091328264c924c50`
-- Committed Platform Shell contract blob before this working candidate: `20a77205fbb92a3fc3d883353ccbdb7c4fb29244`
+- Historical committed baseline before the post-dependency documentation reconciliation candidate: `2316b712b6b5ae343783dfe41dca42017249ba4a`
+- Historical committed baseline tree before that candidate: `abdf62c0dc17c464d88ecf7b2f2183fd645232fb`
+- Historical committed `PROJECT_STATE.md` blob before that candidate: `07e001a1f7e6a6cf670ba465091328264c924c50`
+- Historical committed Platform Shell contract blob before that candidate: `20a77205fbb92a3fc3d883353ccbdb7c4fb29244`
 - `.ai/state/PROJECT_STATE.md` is the authoritative state record for the Noor Personal Platform repository and its governed workflow. It must not be conflated with the separate canonical Prayer Engine worktree, its repository state, branch state, or authorization state. Facts or authorization from one worktree do not automatically transfer to the other. The repository and this state file remain the sole sources of truth for Noor Personal project sequencing.
-- This section records the current post-dependency documentation reconciliation candidate and preserves the accepted pre-commit review history of the prior governance reconciliation. It does not claim any future reconciliation commit SHA, future committed tree SHA, or future PROJECT_STATE blob SHA.
+- This record preserves historical milestones and defines the durable current governance and feature-state contract. It does not claim any future reconciliation commit SHA, future committed tree SHA, or future PROJECT_STATE blob SHA.
 
-## Current Truth — Post-PR6 Canonical State
+## Current Truth — Durable Governance and Feature State
 
-This section is the single authoritative current-state reconciliation after
-PR #6. It describes the accepted Shell Foundation boundary and does not claim
-production-runnable Platform integration. This working file is only a
-reconciliation candidate; it has no future commit, tree, or blob identity.
+This is the single authoritative current-state contract. It describes the
+accepted Shell Foundation boundary and does not claim production-runnable
+Platform integration. Exact live repository identity is derived from the
+canonical branch at inspection time; no fixed commit or tree SHA in this
+section is a timeless assertion of the live repository identity.
 
 - Canonical branch: `product/noor-personal-mvp`.
-- Canonical local and protected-remote HEAD: `b4e6924620071af4f1c7905f2cebbf7142516934`.
-- Canonical protected-branch tree: `87e95b134f774b8726201c9981f376559ceae3f7`.
+- Live canonical HEAD and tree: repository-derived at inspection time from `product/noor-personal-mvp` and its protected remote; not recorded here as permanent fixed SHA claims.
 - Shell Foundation: `IMPLEMENTED / ACCEPTED / STABLY-PUBLISHED-TO-PROTECTED-BRANCH`.
 - Accepted scope: `SHELL FOUNDATION ONLY`; this is not production-runnable Platform integration.
-- Accepted publication source object: `bdb906451f2d94d30fbea37c6f1e984d82a48d1e`.
-- Publication source ref: `refs/heads/product/noor-personal-mvp`.
-- Retained publication destination ref: `refs/heads/pub/bdb906451f2d`, still pointing to the source object above. It is not the final protected-branch commit after rebase merge.
-- Publication Control v2 operation: `CREATE_NON_PROTECTED_BRANCH_EXACT_OBJECT`; authority: `NOOR`; outcome: `SUCCESS`.
-- Consumed gate SHA-256: `17b9a1ede344f77870a86e8a217101731a9669e950cada251941351594780242`.
-- The verifier confirmed `refs/heads/pub/bdb906451f2d = bdb906451f2d94d30fbea37c6f1e984d82a48d1e`; the audit sequence was `PUSH_ATTEMPT -> AUTHORITY_CONSUMED_PRE_PUSH -> PUSH_SUCCEEDED`.
 - Current Publication Control v2 runtime: `active.gate`, `state.lock`, and `consume.lock` are absent; the persistent hook remains installed/current; the push URL sentinel remains `no_push://noor-personal-dev`.
-- PR #6 final state: `MERGED` by `REBASE` at `2026-08-11T18:42:51Z`; its retained publication head branch and object are `pub/bdb906451f2d` and `bdb906451f2d94d30fbea37c6f1e984d82a48d1e`.
-- Protected branch old base: `37d965c51c6bf98447fed494f1e497eb8a0aafa1`; the final protected product-branch HEAD is `b4e6924620071af4f1c7905f2cebbf7142516934`.
-- The canonical local branch was rebound to the protected remote HEAD after verifying no content delta; the rebind changed reference identity only.
+
+### Historical PR #6 Shell Foundation Publication Milestone
+
+- Historical accepted publication source object: `bdb906451f2d94d30fbea37c6f1e984d82a48d1e`; historical source ref: `refs/heads/product/noor-personal-mvp`.
+- Historical retained publication destination ref: `refs/heads/pub/bdb906451f2d`, which remains at the source object above and is not the protected rebase result.
+- Historical Publication Control v2 operation: `CREATE_NON_PROTECTED_BRANCH_EXACT_OBJECT`; authority: `NOOR`; outcome: `SUCCESS`; consumed gate SHA-256: `17b9a1ede344f77870a86e8a217101731a9669e950cada251941351594780242`.
+- The historical verifier confirmed `refs/heads/pub/bdb906451f2d = bdb906451f2d94d30fbea37c6f1e984d82a48d1e`; audit sequence: `PUSH_ATTEMPT -> AUTHORITY_CONSUMED_PRE_PUSH -> PUSH_SUCCEEDED`.
+- PR #6 was historically `MERGED` by `REBASE` at `2026-08-11T18:42:51Z`; its resulting protected Shell Foundation milestone commit was `b4e6924620071af4f1c7905f2cebbf7142516934`, with tree `87e95b134f774b8726201c9981f376559ceae3f7` and old base `37d965c51c6bf98447fed494f1e497eb8a0aafa1`.
+- At that PR #6 closure event, the canonical local branch was rebound to the protected result after exact zero-content-delta verification; this historical rebind changed reference identity only.
 
 ### PR #6 Pre-Merge Eligibility and Readiness — Historical
 
@@ -50,7 +50,7 @@ readiness evidence, not current PR state:
 - Strict base/head relationship: `ahead_by = 9`; `behind_by = 0`; merge base: `37d965c51c6bf98447fed494f1e497eb8a0aafa1`.
 - Step 044 files in the PR: `0`.
 
-### Verified PR #6 Rebase Replay
+### Verified Historical PR #6 Rebase Replay
 
 The protected-branch replay was verified as exactly these nine commits, in
 order:
@@ -65,11 +65,20 @@ order:
 8. `9fd4eb91faf0b9af4a900ebd055d7034c2be71fa` — `feat(platform): add shell foundation`
 9. `b4e6924620071af4f1c7905f2cebbf7142516934` — `docs(platform): reconcile post-shell project state`
 
-- Verified replay count: `9`; old protected base: `37d965c51c6bf98447fed494f1e497eb8a0aafa1`; new protected canonical HEAD: `b4e6924620071af4f1c7905f2cebbf7142516934`.
+- Verified historical replay count: `9`; old protected base: `37d965c51c6bf98447fed494f1e497eb8a0aafa1`; PR #6 resulting protected milestone commit: `b4e6924620071af4f1c7905f2cebbf7142516934`.
 - Accepted pre-rebase source tree: `87e95b134f774b8726201c9981f376559ceae3f7`; final protected-branch tree: `87e95b134f774b8726201c9981f376559ceae3f7`; tree equivalence: `EXACTLY VERIFIED`.
 - The pre-rebase and post-rebase commits are not claimed to share SHA identity; only their accepted final trees are identical.
 
-### Current Authorization Boundary — Post-PR6
+### Historical PR #7 Documentation-Closure Milestone
+
+- PR #7 was documentation-only: `docs(platform): reconcile post-pr6 project state`.
+- Historical source object: `da11a5bc1c62b12488c799da73151b6fbad1ad32`; retained publication ref: `refs/heads/pub/da11a5bc1c62`, which remains at that pre-rebase source object.
+- Historical publication operation: `CREATE_NON_PROTECTED_BRANCH_EXACT_OBJECT`; consumed Gate SHA-256: `22f0afcfa042612ad61f42269218bd7d0b4dd9150f367cd804bef8a05cd78c29`; exact publication verification: `PASS`.
+- PR #7 Architecture Validation: `completed / success`; review threads: `0` total / `0` unresolved; pre-merge relationship: ahead `1` / behind `0`; mergeability: `MERGEABLE / CLEAN`.
+- PR #7 was historically merged by `REBASE` at `2026-08-11T19:48:35Z`; its resulting protected documentation-closure commit was `73dc1295b7bf57ea4688cad1dc153c74cc17f066`, with tree `329abf238ab04a710513ba4101f7bd56876f8fda` and parent `b4e6924620071af4f1c7905f2cebbf7142516934`.
+- At PR #7 closure, the canonical local branch was rebound to that protected result after exact zero-content-delta verification. This is historical closure evidence, not a permanent assertion of the live canonical HEAD.
+
+### Current Authorization Boundary
 
 - Production-runnable Platform integration: `NOT STARTED / NOT AUTHORIZED`.
 - Production authentication/session/authorization integration: `NOT STARTED / NOT AUTHORIZED`.
@@ -79,14 +88,17 @@ order:
 - Noor Work production Application View mounting beyond the accepted Shell Foundation boundary: `NOT AUTHORIZED`.
 - Step 044 implementation: `NOT AUTHORIZED`.
 - Further dependency mutation: `NOT AUTHORIZED` unless separately authorized.
-- Stable milestone tag: `NOT CREATED / NOT AUTHORIZED BY THIS TASK`.
+- Stable milestone tag: `NOT CREATED / NOT AUTHORIZED` unless separately authorized.
 - No authorization transfers automatically from implementation to publication, publication to PR, PR to merge, merge to Protected Routing, or documentation reconciliation to implementation.
 
-### Current Next Safe Action — Post-PR6
+### Current Next Safe Action
 
-The next safe action is independent read-only review of this Post-PR6
-`PROJECT_STATE.md` reconciliation candidate. This candidate does not authorize
-its own Stage or Commit and does not authorize Protected Routing.
+This documentation repair authorizes no mutation beyond the explicitly
+authorized working-file repair being performed. After this candidate is
+independently accepted, any Stage, Commit, publication, PR, or Merge remains
+separately authorized. Protected Routing remains `NOT STARTED / NOT AUTHORIZED`
+until later explicit phase-entry authorization; no implementation phase is
+auto-authorized by documentation closure.
 
 ## Historical Current Truth — Pre-PR6 Shell Foundation Reconciliation
 
@@ -96,7 +108,7 @@ merge-pending statements are not current facts.
 
 This historical section records the pre-PR6 repository state. Its older
 implementation-unauthorized statements are historical unless explicitly
-restated in the authoritative Post-PR6 section above.
+restated in the authoritative current section above.
 
 - Shell Foundation implementation: `IMPLEMENTED / STATIC-ACCEPTED / RUNTIME-ACCEPTED / LOCAL-COMMIT-ACCEPTED`.
 - Accepted state: `SHELL_FOUNDATION_IMPLEMENTATION_CANDIDATE_FULLY_ACCEPTED_STATIC_AND_RUNTIME`.
@@ -615,7 +627,7 @@ Everything in this subsection is historical and has no present authority.
 - Corresponding historical PR #5 result tree before that earlier documentation reconciliation: `842b86bc875f5ca2858fadd159ef0d9a1df26785`
 - Prior historical Application Composition acceptance-state reconciliation commit lineage: `be400581b7f82d4d0cbd66875d1255aac7e3d693`
 - Prior historical Application Composition acceptance-state reconciliation tree lineage: `5ec87ba30535fc6cb7d0ffbe13f196ebb974dc96`
-- Neither value is the baseline of the current post-dependency documentation reconciliation candidate, neither identifies the current working candidate, and neither predicts a future repository identity.
+- Neither value is the live repository identity, and neither predicts a future repository identity.
 - PR #4 remains part of the historical record, but it is not the current publication state.
 - Publication Control v2 is not future or incomplete work; it is part of the accepted current state.
 - The source-branch publication lineage has been rebased and resolved; the older PR #5 result and its tree remain historical publication and synchronization lineage, not the current committed product baseline.
@@ -638,9 +650,15 @@ Everything in this subsection is historical and has no present authority.
 - Gate-foundation modification: UNAUTHORIZED
 - Remote or push-URL modification: UNAUTHORIZED
 - Production-runnable Platform integration: NOT AUTHORIZED
-- Protected Routing: UNAUTHORIZED
+- Production authentication/session/authorization integration: NOT AUTHORIZED
+- Protected Routing: NOT STARTED / NOT AUTHORIZED
+- App Launcher: NOT STARTED / NOT AUTHORIZED
+- Noor Personal production Application View mounting beyond the accepted Shell Foundation boundary: NOT AUTHORIZED
+- Noor Work production Application View mounting beyond the accepted Shell Foundation boundary: NOT AUTHORIZED
 - Step 044 implementation: UNAUTHORIZED
-- Only independent read-only review of this PROJECT_STATE reconciliation candidate is the current next safe action. A later documentation Commit requires separate explicit authorization.
+- Further dependency mutation: NOT AUTHORIZED unless separately authorized
+- Stable milestone tag: NOT CREATED / NOT AUTHORIZED unless separately authorized
+- This repair authorizes only its explicitly authorized working-file change. After independent acceptance, Stage, Commit, publication, PR, Merge, and Tag each remain separately authorized; no implementation phase is auto-authorized.
 
 ## Publication Governance
 
@@ -649,6 +667,8 @@ Everything in this subsection is historical and has no present authority.
 - Publication: completed and accepted
 - PR #4: merged
 - PR #5: merged
+- PR #6: merged (historical Shell Foundation milestone)
+- PR #7: merged (historical documentation-closure milestone)
 - `active.gate`: absent
 - `state.lock`: absent
 - `consume.lock`: absent
@@ -659,6 +679,8 @@ Everything in this subsection is historical and has no present authority.
   - `PR_5_CREATED_SCOPE_VERIFIED_REQUIRED_CHECKS_PASSED`
   - `PR_5_REBASE_MERGE_ACCEPTED`
   - `LOCAL_PRODUCT_BRANCH_SYNCHRONIZED_ACCEPTED`
+  - Shell Foundation: `IMPLEMENTED / ACCEPTED / STABLY-PUBLISHED-TO-PROTECTED-BRANCH`
+  - PR #7 documentation closure: historical rebase-merge milestone accepted
 
 ## Historical Authorization Boundary — Pre-PR6
 
