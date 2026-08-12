@@ -3,7 +3,7 @@ set -eu
 set -f
 LC_ALL=C
 
-# T11-T20 test bodies for the Noor Personal publication-control v2 acceptance suite.
+# T11-T20 test bodies for the Noor Personal publication-control v3 acceptance suite.
 
 # ---------------------------------------------------------------------------
 # T11: Rejection of wrong repository
@@ -65,7 +65,7 @@ test_t12() {
         "$now" \
         "$GATE_NONCE" \
         "TEST_AUTHORITY" \
-        2
+        3
 
     # Attempt push - should fail because gate is expired
     run_push "refs/heads/product/noor-personal-mvp:refs/heads/pub/$suffix" 1
@@ -131,7 +131,7 @@ test_t14() {
         echo "EXPIRES_AT=$expires"
         echo "NONCE=$GATE_NONCE"
         echo "AUTHORITY_ID=TEST_AUTHORITY"
-        echo "HOOK_POLICY_VERSION=2"
+        echo "HOOK_POLICY_VERSION=3"
     } > "$TMP_FILE"
     mv "$TMP_FILE" "$GATE_DIR/active.gate"
     chmod 0600 "$GATE_DIR/active.gate"
@@ -249,7 +249,7 @@ test_t16() {
 }
 
 # ---------------------------------------------------------------------------
-# T17: Failed-network-push consumption behavior
+# T17: Gate consumption remains irreversible when the remote rejects the push
 # ---------------------------------------------------------------------------
 test_t17() {
     begin_test "T17"
@@ -260,34 +260,33 @@ test_t17() {
     suffix=$(printf '%s' "$TEST_COMMIT_IMPL" | cut -c1-12)
     dest_ref="refs/heads/pub/$suffix"
 
-    # Simulate network failure by making the mock remote reject the push
-    # (e.g., by making the destination ref exist with a different object)
-    # First, create the ref on the remote with a different object
-    printf 'other\n' > "$TEST_REPO/other.txt"
-    git -C "$TEST_REPO" add other.txt
-    git -C "$TEST_REPO" commit -m "other" >/dev/null 2>&1
-    other_commit=$(git -C "$TEST_REPO" rev-parse HEAD)
-    # Bypass hook for remote setup
-    HOOK_BAK="$TEST_REPO/.git/hooks/pre-push.t17setup"
-    if [ -f "$TEST_REPO/.git/hooks/pre-push" ]; then
-        mv "$TEST_REPO/.git/hooks/pre-push" "$HOOK_BAK"
-    fi
-    git -C "$TEST_REPO" push "$MOCK_REMOTE" "$other_commit:$dest_ref" >/dev/null 2>&1
-    if [ -f "$HOOK_BAK" ]; then
-        mv "$HOOK_BAK" "$TEST_REPO/.git/hooks/pre-push"
-        chmod 0755 "$TEST_REPO/.git/hooks/pre-push"
-    fi
+    # A temporary remote-side pre-receive hook rejects after the local
+    # candidate hook has authorized and consumed the gate. The canonical URL
+    # is rewritten by setup_test_env to this isolated bare remote.
+    printf '%s\n' '#!/bin/sh' 'exit 1' > "$MOCK_REMOTE/hooks/pre-receive"
+    chmod 0755 "$MOCK_REMOTE/hooks/pre-receive"
 
-    # Reset product branch back to impl
-    git -C "$TEST_REPO" reset --hard "$TEST_COMMIT_IMPL" >/dev/null 2>&1
+    run_publish_once_with_candidate_hook "$WORKSPACE/.t17.publish.out"
+    assert_exit 1 "$PUBLISH_ONCE_EXIT" "remote rejection after gate consumption"
 
-    # Note: The hook validates remote state BEFORE consuming the gate.
-    # If the remote doesn't match, the hook denies and does NOT consume.
-    # This is the fail-closed design. The test verifies that a gate is NOT
-    # consumed when the remote state is wrong.
-    
-    # Gate must still be present (NOT consumed due to remote mismatch)
-    assert_file_exists "$GATE_DIR/active.gate"
+    assert_file_absent "$GATE_DIR/active.gate"
+    assert_file_exists "$GATE_DIR/consumed/$GATE_NONCE.gate"
+    consumed_count=$(find "$GATE_DIR/consumed" -maxdepth 1 -name '*.gate' -type f | wc -l | tr -d ' ')
+    assert_eq "1" "$consumed_count" "exactly one consumed gate"
+
+    remote_line=$(git ls-remote --refs -- "$MOCK_REMOTE" "$dest_ref")
+    assert_eq "" "$remote_line" "pre-receive rejection did not advance destination"
+
+    # The consumed authority cannot be reused and no retry attempt is made.
+    set +e
+    (cd "$TEST_REPO" && etc/noor-publication/scripts/publish-once.sh > "$WORKSPACE/.t17.retry.out" 2>&1)
+    retry_rc=$?
+    set -e
+    assert_exit 1 "$retry_rc" "consumed gate cannot be reused"
+    attempt_count=$(grep -c 'event=PUSH_ATTEMPT' "$GATE_DIR/audit.log" || true)
+    assert_eq "1" "$attempt_count" "no automatic or repeated push attempt"
+    assert_file_absent "$GATE_DIR/active.gate"
+    assert_file_exists "$GATE_DIR/consumed/$GATE_NONCE.gate"
 
     pass
     cleanup_test_env

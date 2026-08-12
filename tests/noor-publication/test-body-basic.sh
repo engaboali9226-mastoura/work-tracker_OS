@@ -3,7 +3,7 @@ set -eu
 set -f
 LC_ALL=C
 
-# T01-T10 test bodies for the Noor Personal publication-control v2 acceptance suite.
+# T01-T10 test bodies for the Noor Personal publication-control v3 acceptance suite.
 # These functions are sourced by run-tests.sh.
 
 # ---------------------------------------------------------------------------
@@ -73,7 +73,7 @@ test_t02() {
         "$expires" \
         "$GATE_NONCE" \
         "TEST_AUTHORITY" \
-        2
+        3
 
     # Attempt the update push
     run_push "refs/heads/product/noor-personal-mvp:$dest_ref" 0
@@ -257,7 +257,7 @@ test_t07() {
         "$expires" \
         "$GATE_NONCE" \
         "TEST_AUTHORITY" \
-        2
+        3
 
     # Reset product branch to diverged
     git -C "$TEST_REPO" reset --hard "$diverged_commit" >/dev/null 2>&1

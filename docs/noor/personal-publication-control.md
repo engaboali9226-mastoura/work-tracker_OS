@@ -1,4 +1,6 @@
-# Noor Personal — Publication-Control v2
+# Noor Personal Publication Control
+
+Gate Schema v2 / Hook Policy v3
 
 ## Purpose and Non-Goals
 
@@ -51,7 +53,7 @@ on the canonical remote repository.
 | `etc/noor-publication/scripts/revoke-gate.sh` | Gate revoker and lock recoverer |
 | `etc/noor-publication/POLICY.md` | Policy version manifest |
 | `docs/noor/personal-publication-control.md` | This document |
-| `tests/noor-publication/` | Acceptance-test suite (T01–T29) |
+| `tests/noor-publication/` | Acceptance-test suite (T01–T34) |
 
 ## Runtime `.git` Layout
 
@@ -65,12 +67,15 @@ on the canonical remote repository.
 │   └── pre-push.26a2a514…                  (historical pre-rebind backup, pre-existing)
 ├── consumed/                               (mode 0700)
 │   ├── dc14eb36845….gate                    (v1 consumed gate, pre-existing)
-│   └── <NONCE>.gate                         (v2 consumed gates, future)
+│   └── <NONCE>.gate                         (consumed Gate Schema v2 / Hook Policy v3 gate, or historical policy-v2 record)
 └── revoked/                                (mode 0700, created at bootstrap)
-    └── <NONCE>.gate                         (revoked or expired v2 gates, future)
+    └── <NONCE>.gate                         (revoked/expired Gate Schema v2 / Hook Policy v3 gate, or historical policy-v2 record)
 ```
 
 ## Gate Schema v2
+
+The gate schema remains v2. Schema version and hook-policy version are
+separate: the current hook policy is v3 only.
 
 The gate file is exactly 14 lines, each terminated by LF. The exact field
 order is:
@@ -81,15 +86,15 @@ order is:
 | 2 | `REPOSITORY_URL` | Must equal `https://github.com/engaboali9226-mastoura/work-tracker_OS.git` |
 | 3 | `SOURCE_REF` | Must pass `git check-ref-format --refname` |
 | 4 | `SOURCE_OBJECT` | 40 lowercase hex chars |
-| 5 | `DESTINATION_REF` | Must match `refs/heads/pub/[0-9a-f]{12}` |
+| 5 | `DESTINATION_REF` | Operation-specific: publication branch or exact tag ref |
 | 6 | `REQUIRED_REMOTE_OBJECT` | 40 lowercase hex or `ZERO_OBJECT` |
 | 7 | `UPDATE_COUNT` | Literal `1` |
-| 8 | `OPERATION` | `CREATE_NON_PROTECTED_BRANCH_EXACT_OBJECT` or `UPDATE_NON_PROTECTED_BRANCH_FAST_FORWARD` |
+| 8 | `OPERATION` | One of the two branch operations or `CREATE_ANNOTATED_TAG_EXACT_OBJECT` |
 | 9 | `CREATED_AT` | 10-digit epoch seconds |
 | 10 | `EXPIRES_AT` | 10-digit epoch seconds |
 | 11 | `NONCE` | 32 lowercase hex chars |
 | 12 | `AUTHORITY_ID` | `^[A-Z0-9][A-Z0-9._-]{0,126}$` |
-| 13 | `HOOK_POLICY_VERSION` | Literal `2` |
+| 13 | `HOOK_POLICY_VERSION` | Literal `3` |
 | 14 | `GATE_FILE_SHA256` | 64 lowercase hex chars |
 
 `GATE_FILE_SHA256` (line 14) = SHA-256 of bytes of lines 1–13, each terminated
@@ -181,6 +186,29 @@ new `SOURCE_OBJECT`.
 22. `rmdir state.lock`
 23. **Exit 0** → Git proceeds with network push
 
+## Annotated Tag Create State Machine
+
+**Operation:** `CREATE_ANNOTATED_TAG_EXACT_OBJECT`
+
+This authorizes exactly one new annotated tag. `SOURCE_REF` and
+`DESTINATION_REF` must be byte-identical `refs/tags/<name>` refs,
+`SOURCE_OBJECT` must be the direct annotated-tag object, and
+`REQUIRED_REMOTE_OBJECT` must be zero. Lightweight tags and tag-of-tag chains
+are rejected: the direct tag target must exist and be a commit.
+
+The hook accepts one exact update only, with a nonzero local object and a zero
+remote old object. Before consuming the gate, it re-resolves the local tag
+directly (without `^{commit}`), verifies that object identity and its peeled
+commit, and proves the remote tag is absent. The explicit refspec remains:
+
+```
+refs/tags/<name>:refs/tags/<name>
+```
+
+After a successful push, verification proves both the remote direct tag object
+and `refs/tags/<name>^{}` equal the expected local identities. It never treats
+matching peeled commits as sufficient.
+
 ## Common Locking Model
 
 - **Lock primitive:** directory-based exclusive lock via `mkdir "$GATE_DIR/state.lock"`.
@@ -258,7 +286,8 @@ independent post-commit review. The installer:
 
 ## Bootstrap Sequence
 
-1. **Implementation:** Create all tracked v2 artifacts in the working tree.
+1. **Implementation:** Create all tracked Gate Schema v2 / Hook Policy v3
+   artifacts in the working tree.
    No staging, no committing.
 2. **Review:** Independent review of working-tree artifacts (read-only).
 3. **Commit:** A separately authorized local commit records the accepted
@@ -299,8 +328,11 @@ succeeds or fails.
 - `PUSH_DENIED` — gate not consumed (hook denied the push).
 
 `publish-once.sh` executes exactly one explicit source-to-destination push.
-A failed push never reactivates a gate. A successful push invokes remote
-verification via `verify-publication.sh`.
+A failed push never reactivates a gate. A push accepted by the remote is not a
+successful publication until mandatory `verify-publication.sh` verification
+passes. If the verifier is unavailable, cannot be invoked, or fails, the
+command reports an unverified publication outcome and exits nonzero; it never
+recreates authority or retries automatically.
 
 ## GitHub Ruleset Dependency
 
@@ -326,18 +358,21 @@ the direct push regardless of client-side hook status.
 
 The design does not falsely claim that a local hook can prevent `--no-verify`.
 
-## Migration and Preservation of v1 Artifacts
+## Migration and Preservation of Historical Artifacts
 
-| Artifact | v1 Identity | Location After Bootstrap | v2 Treatment |
+| Artifact | Historical identity | Location After Bootstrap | Current treatment |
 |---|---|---|---|
-| v1 hook (PR #4) | SHA `4c6f4814…` | `backups/pre-push.4c6f4814…` | Backed up on install; v2 hook replaces it |
+| v1 hook (PR #4) | SHA `4c6f4814…` | `backups/pre-push.4c6f4814…` | Backed up on install; v3 hook replaces it |
 | Pre-rebind backup | SHA `26a2a514…` | `backups/pre-push.26a2a514…` | Pre-existing; untouched |
 | v1 consumed gate | SHA `80a2ff24…`, nonce `dc14eb36845…` | `consumed/dc14eb36845…` | Pre-existing; untouched |
-| v2 consumed gates | SHA varies | `consumed/<NONCE>.gate` | Future v2 publications |
-| v2 revoked gates | SHA varies | `revoked/<NONCE>.gate` | Future revocations |
+| Historical consumed policy-v2 gates | SHA varies | `consumed/<NONCE>.gate` | Preserved records only; not reusable authority |
+| Historical revoked policy-v2 gates | SHA varies | `revoked/<NONCE>.gate` | Preserved records only; not reusable authority |
 
-The v2 hook only accepts `SCHEMA_VERSION=2`. Any gate with `SCHEMA_VERSION=1`
-is denied with "schema version invalid."
+Newly generated and accepted Gates use `SCHEMA_VERSION=2` and
+`HOOK_POLICY_VERSION=3` only. There is no future policy-v2 publication
+authorization: a gate carrying policy v2 cannot pass the current policy-v3
+hook. Historical consumed policy-v2 Gates remain preserved records only and
+cannot be reused as authority.
 
 ## Operator Procedure
 
@@ -359,15 +394,25 @@ is denied with "schema version invalid."
 4. **Verify the publication:**
    ```sh
    etc/noor-publication/scripts/verify-publication.sh \
+       --operation CREATE_NON_PROTECTED_BRANCH_EXACT_OBJECT \
        --destination-ref refs/heads/pub/<COMMIT_IMPL[0:12]> \
        --expected-object <COMMIT_IMPL>
+   ```
+   For an annotated tag, verification requires both the direct remote
+   annotated-tag object and its peeled commit:
+   ```sh
+   etc/noor-publication/scripts/verify-publication.sh \
+       --operation CREATE_ANNOTATED_TAG_EXACT_OBJECT \
+       --destination-ref refs/tags/<TAG_NAME> \
+       --expected-object <ANNOTATED_TAG_OBJECT> \
+       --expected-peeled-object <PEELED_COMMIT>
    ```
 5. **Create a PR** from `pub/<COMMIT_IMPL[0:12]>` → `product/noor-personal-mvp`.
 
 ## Acceptance-Test Coverage
 
 The acceptance-test suite (`tests/noor-publication/`) implements the complete
-T01–T29 matrix covering:
+T01–T34 matrix covering:
 
 - Successful CREATE and UPDATE
 - Protected-product-branch rejection
@@ -379,7 +424,8 @@ T01–T29 matrix covering:
 - Malformed byte and schema cases
 - Hook drift detection
 - Common-lock concurrency
-- Failed network push after gate consumption
+- T17: gate consumption remains irreversible when an isolated remote-side
+  pre-receive hook rejects the subsequent push; no retry authority is recreated
 - Step 044 preservation
 - Push-sentinel preservation
 - No tag creation

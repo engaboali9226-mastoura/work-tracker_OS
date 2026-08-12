@@ -3,7 +3,7 @@ set -eu
 set -f
 LC_ALL=C
 
-# Noor Personal publication-control v2 hook installer.
+# Noor Personal Publication Control — Gate Schema v2 / Hook Policy v3 hook installer.
 # Installs the canonical pre-push hook from an exact reviewed commit.
 #
 # Modes:

@@ -85,6 +85,9 @@ MOCK_REMOTE=''
 TEST_REPO=''
 TEST_COMMIT_IMPL=''
 TEST_CHILD_COMMIT=''
+TEST_TAG_NAME=''
+TEST_TAG_OBJECT=''
+TEST_TAG_PEELED=''
 GATE_DIR=''
 SOURCE_REPO=''
 TARGET_REPO=''
@@ -98,6 +101,9 @@ copy_publication_control_artifacts() {
     mkdir -p "$repo_dir/etc/noor-publication/scripts" "$repo_dir/docs/noor" "$repo_dir/tests"
 
     cp "$REPO_ROOT/etc/noor-publication/scripts/install-hook.sh" "$repo_dir/etc/noor-publication/scripts/install-hook.sh"
+    cp "$REPO_ROOT/etc/noor-publication/scripts/generate-gate.sh" "$repo_dir/etc/noor-publication/scripts/generate-gate.sh"
+    cp "$REPO_ROOT/etc/noor-publication/scripts/publish-once.sh" "$repo_dir/etc/noor-publication/scripts/publish-once.sh"
+    cp "$REPO_ROOT/etc/noor-publication/scripts/verify-publication.sh" "$repo_dir/etc/noor-publication/scripts/verify-publication.sh"
     cp "$REPO_ROOT/etc/noor-publication/POLICY.md" "$repo_dir/etc/noor-publication/POLICY.md" 2>/dev/null || true
 
     if [ "$include_hook" -eq 1 ]; then
@@ -112,7 +118,7 @@ copy_publication_control_artifacts() {
         cp -R "$REPO_ROOT/tests/noor-publication" "$repo_dir/tests/"
     fi
 
-    chmod 0755 "$repo_dir/etc/noor-publication/scripts/install-hook.sh"
+    chmod 0755 "$repo_dir/etc/noor-publication/scripts/install-hook.sh" "$repo_dir/etc/noor-publication/scripts/generate-gate.sh" "$repo_dir/etc/noor-publication/scripts/publish-once.sh" "$repo_dir/etc/noor-publication/scripts/verify-publication.sh"
     if [ "$include_hook" -eq 1 ]; then
         chmod 0755 "$repo_dir/etc/noor-publication/pre-push.noor-policy-hook"
     fi
@@ -207,6 +213,13 @@ setup_test_env() {
     GATE_DIR="$TEST_REPO/.git/noor-publication-gate"
     mkdir -p "$GATE_DIR/consumed" "$GATE_DIR/backups" "$GATE_DIR/revoked"
     chmod 0700 "$GATE_DIR" "$GATE_DIR/consumed" "$GATE_DIR/backups" "$GATE_DIR/revoked"
+
+    # publish-once resolves its verifier relative to the repository root.
+    mkdir -p "$TEST_REPO/etc/noor-publication/scripts"
+    cp "$REPO_ROOT/etc/noor-publication/scripts/generate-gate.sh" "$TEST_REPO/etc/noor-publication/scripts/generate-gate.sh"
+    cp "$REPO_ROOT/etc/noor-publication/scripts/publish-once.sh" "$TEST_REPO/etc/noor-publication/scripts/publish-once.sh"
+    cp "$REPO_ROOT/etc/noor-publication/scripts/verify-publication.sh" "$TEST_REPO/etc/noor-publication/scripts/verify-publication.sh"
+    chmod 0755 "$TEST_REPO/etc/noor-publication/scripts/generate-gate.sh" "$TEST_REPO/etc/noor-publication/scripts/publish-once.sh" "$TEST_REPO/etc/noor-publication/scripts/verify-publication.sh"
 }
 
 # Install the canonical hook into the test repository's hooks path.
@@ -268,7 +281,7 @@ make_create_gate() {
         "$expires" \
         "$GATE_NONCE" \
         "TEST_AUTHORITY" \
-        2
+        3
 }
 
 # Generate a valid UPDATE gate. Sets GATE_NONCE.
@@ -289,7 +302,33 @@ make_update_gate() {
         "$expires" \
         "$GATE_NONCE" \
         "TEST_AUTHORITY" \
-        2
+        3
+}
+
+make_annotated_tag() {
+    TEST_TAG_NAME=${1:-release-test}
+    git -C "$TEST_REPO" tag -a "$TEST_TAG_NAME" -m "test annotated tag" "$TEST_COMMIT_IMPL"
+    TEST_TAG_OBJECT=$(git -C "$TEST_REPO" rev-parse "refs/tags/$TEST_TAG_NAME")
+    TEST_TAG_PEELED=$(git -C "$TEST_REPO" rev-parse "refs/tags/$TEST_TAG_NAME^{}")
+}
+
+make_tag_gate() {
+    GATE_NONCE=$(head -c 16 /dev/urandom | od -An -tx1 | tr -d ' \n')
+    now=$(date -u '+%s')
+    expires=$((now + 3600))
+    write_gate_file \
+        2 \
+        "$CANONICAL_URL" \
+        "refs/tags/$TEST_TAG_NAME" \
+        "$TEST_TAG_OBJECT" \
+        "refs/tags/$TEST_TAG_NAME" \
+        "$ZERO_OBJECT" \
+        "CREATE_ANNOTATED_TAG_EXACT_OBJECT" \
+        "$now" \
+        "$expires" \
+        "$GATE_NONCE" \
+        "TEST_AUTHORITY" \
+        3
 }
 
 # ---------------------------------------------------------------------------
@@ -314,16 +353,12 @@ run_simulated_push() {
     force_flag=${3:-0}
     expected_exit=${4:-0}
 
-    # Determine the local object (what the source ref resolves to)
-    if [ "$local_ref" = "refs/heads/product/noor-personal-mvp" ]; then
-        local_object=$(git -C "$TEST_REPO" rev-parse "$local_ref^{commit}" 2>/dev/null || echo "$ZERO_OBJECT")
-    else
-        local_object=$(git -C "$TEST_REPO" rev-parse "$local_ref^{commit}" 2>/dev/null || echo "$ZERO_OBJECT")
-    fi
+    # Use the direct ref object. Annotated tags must not be peeled here.
+    local_object=$(git -C "$TEST_REPO" rev-parse --verify "$local_ref" 2>/dev/null || echo "$ZERO_OBJECT")
 
     # Determine what the remote has for dest_ref
     set +e
-    remote_line=$(git ls-remote -- "$MOCK_REMOTE" "$dest_ref" 2>/dev/null)
+    remote_line=$(git ls-remote --refs -- "$MOCK_REMOTE" "$dest_ref" 2>/dev/null)
     set -e
     if [ -z "$remote_line" ]; then
         remote_object="$ZERO_OBJECT"
@@ -404,6 +439,45 @@ run_push() {
     local_ref=$(printf '%s' "$refspec" | cut -d: -f1)
     dest_ref=$(printf '%s' "$refspec" | cut -d: -f2)
     run_simulated_push "$local_ref" "$dest_ref" 0 "$expected_exit"
+}
+
+# Run publish-once through the tracked hook candidate and one real local push.
+# The test URL rewrite maps CANONICAL_URL to MOCK_REMOTE, which makes Git pass
+# the rewritten local URL to a normal pre-push hook. The wrapper dispatches the
+# same candidate once with the canonical URL argument, then uses --no-verify
+# only to prevent Git from running that already-dispatched hook a second time.
+PUBLISH_ONCE_EXIT=99
+
+run_publish_once_with_candidate_hook() {
+    publish_output=$1
+    shift
+    wrapper_dir="$WORKSPACE/publish-once-git-wrapper"
+    mkdir -p "$wrapper_dir"
+    export NOOR_TEST_REAL_GIT="$(command -v git)"
+    export NOOR_TEST_CANONICAL_URL="$CANONICAL_URL"
+
+    {
+        printf '%s\n' '#!/bin/sh'
+        printf '%s\n' 'set -eu'
+        printf '%s\n' 'if [ "$#" -eq 3 ] && [ "$1" = "push" ]; then'
+        printf '%s\n' '    remote_url=$2'
+        printf '%s\n' '    refspec=$3'
+        printf '%s\n' '    source_ref=${refspec%%:*}'
+        printf '%s\n' '    destination_ref=${refspec#*:}'
+        printf '%s\n' '    source_object=$("$NOOR_TEST_REAL_GIT" rev-parse --verify "$source_ref")'
+        printf '%s\n' '    remote_object=$("$NOOR_TEST_REAL_GIT" ls-remote --refs -- "$remote_url" "$destination_ref" | awk "NR == 1 { print \$1 }")'
+        printf '%s\n' '    [ -n "$remote_object" ] || remote_object=0000000000000000000000000000000000000000'
+        printf '%s\n' '    printf "%s %s %s %s\\n" "$source_ref" "$source_object" "$destination_ref" "$remote_object" | .git/hooks/pre-push "$remote_url" "$NOOR_TEST_CANONICAL_URL"'
+        printf '%s\n' '    exec "$NOOR_TEST_REAL_GIT" push --no-verify "$remote_url" "$refspec"'
+        printf '%s\n' 'fi'
+        printf '%s\n' 'exec "$NOOR_TEST_REAL_GIT" "$@"'
+    } > "$wrapper_dir/git"
+    chmod 0755 "$wrapper_dir/git"
+
+    set +e
+    (cd "$TEST_REPO" && PATH="$wrapper_dir:$PATH" etc/noor-publication/scripts/publish-once.sh "$@" > "$publish_output" 2>&1)
+    PUBLISH_ONCE_EXIT=$?
+    set -e
 }
 
 # ---------------------------------------------------------------------------

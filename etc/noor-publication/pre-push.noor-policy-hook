@@ -3,7 +3,7 @@ set -eu
 set -f
 LC_ALL=C
 
-# Noor Personal publication-control v2 gate (permanent generic template).
+# Noor Personal publication-control v3 gate (permanent generic template).
 # Installed verbatim into .git/hooks/pre-push by install-hook.sh.
 # This template is the canonical hook policy for the publication-control
 # mechanism. It contains no per-publication commit hashes; all
@@ -13,7 +13,7 @@ LC_ALL=C
 CANONICAL_URL='https://github.com/engaboali9226-mastoura/work-tracker_OS.git'
 PROTECTED_REF='refs/heads/product/noor-personal-mvp'
 ZERO_OBJECT='0000000000000000000000000000000000000000'
-HOOK_POLICY_VERSION='2'
+HOOK_POLICY_VERSION='3'
 SCHEMA_VERSION='2'
 GATE_FILE_LINES=14
 PUB_RE='refs/heads/pub/[0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f]'
@@ -27,7 +27,7 @@ AUDIT_LOG_NAME='audit.log'
 SENTINEL_URL='no_push://noor-personal-dev'
 
 deny() {
-    echo "Push blocked: Noor Personal publication-control v2 gate." >&2
+    echo "Push blocked: Noor Personal publication-control v3 gate." >&2
     echo "Push denied: $1." >&2
     exit 1
 }
@@ -116,9 +116,6 @@ validate_gate() {
             5)  v=${line#DESTINATION_REF=}
                 [ "$line" = "DESTINATION_REF=$v" ] || deny "field 5 malformed"
                 git check-ref-format "$v" || deny "destination ref invalid"
-                # Must match pub/ namespace with 12-hex suffix
-                _suffix=$(printf '%s' "$v" | sed 's|^refs/heads/pub/||')
-                printf '%s' "$_suffix" | grep -Eq '^[0-9a-f]{12}$' || deny "destination not in pub namespace"
                 DST_REF_GATE="$v" ;;
             6)  v=${line#REQUIRED_REMOTE_OBJECT=}
                 [ "$line" = "REQUIRED_REMOTE_OBJECT=$v" ] || deny "field 6 malformed"
@@ -129,6 +126,7 @@ validate_gate() {
                 [ "$line" = "OPERATION=$v" ] || deny "field 8 malformed"
                 [ "$v" = "CREATE_NON_PROTECTED_BRANCH_EXACT_OBJECT" ] || \
                 [ "$v" = "UPDATE_NON_PROTECTED_BRANCH_FAST_FORWARD" ] || \
+                [ "$v" = "CREATE_ANNOTATED_TAG_EXACT_OBJECT" ] || \
                     deny "operation invalid"
                 OP_GATE="$v" ;;
             9)  v=${line#CREATED_AT=}
@@ -147,7 +145,7 @@ validate_gate() {
                 [ "$line" = "AUTHORITY_ID=$v" ] || deny "field 12 malformed"
                 printf '%s' "$v" | grep -Eq '^[A-Z0-9][A-Z0-9._-]{0,126}$' || deny "authority_id format invalid"
                 AUTH_GATE="$v" ;;
-            13) [ "$line" = "HOOK_POLICY_VERSION=2" ] || deny "hook policy version mismatch" ;;
+            13) [ "$line" = "HOOK_POLICY_VERSION=3" ] || deny "hook policy version mismatch" ;;
             14) v=${line#GATE_FILE_SHA256=}
                 [ "$line" = "GATE_FILE_SHA256=$v" ] || deny "field 14 malformed"
                 printf '%s' "$v" | grep -Eq '^[0-9a-f]{64}$' || deny "sha256 format invalid"
@@ -227,8 +225,6 @@ done
 [ "$local_ref" = "$SRC_REF_GATE" ] || deny "source ref mismatch"
 [ "$local_object" = "$SRC_OBJ_GATE" ] || deny "source object mismatch"
 [ "$remote_ref" = "$DST_REF_GATE" ] || deny "destination ref mismatch"
-[ "$remote_ref" != "$PROTECTED_REF" ] || deny "protected branch rejected"
-[ "${remote_ref#refs/tags/}" = "$remote_ref" ] || deny "tag updates rejected"
 [ "$local_object" != "$ZERO_OBJECT" ] || deny "deletion rejected"
 
 # Operation-specific checks
@@ -244,25 +240,41 @@ case "$OP_GATE" in
         git merge-base --is-ancestor "$REQ_REMOTE_OBJ_GATE" "$SRC_OBJ_GATE" 2>/dev/null ||
             deny "update is not a fast-forward"
         ;;
+    CREATE_ANNOTATED_TAG_EXACT_OBJECT)
+        [ "$SRC_REF_GATE" = "$DST_REF_GATE" ] || deny "tag source and destination differ"
+        case "$SRC_REF_GATE" in refs/tags/*) ;; *) deny "tag operation source is not a tag ref" ;; esac
+        case "$DST_REF_GATE" in refs/tags/*) ;; *) deny "tag operation destination is not a tag ref" ;; esac
+        [ "$REQ_REMOTE_OBJ_GATE" = "$ZERO_OBJECT" ] || deny "tag CREATE requires zero remote object"
+        [ "$remote_object" = "$ZERO_OBJECT" ] || deny "tag CREATE requires remote object is zero"
+        [ "$(git cat-file -t "$SRC_OBJ_GATE" 2>/dev/null || true)" = "tag" ] ||
+            deny "source object is not an annotated tag"
+        resolved_src=$(git rev-parse --verify "$SRC_REF_GATE" 2>/dev/null) || deny "source ref unavailable"
+        [ "$resolved_src" = "$SRC_OBJ_GATE" ] || deny "source ref does not directly resolve to source object"
+        tag_target=$(git cat-file -p "$SRC_OBJ_GATE" | sed -n '1s/^object //p')
+        printf '%s' "$tag_target" | grep -Eq '^[0-9a-f]{40}$' || deny "annotated tag target is invalid"
+        [ "$(git cat-file -t "$tag_target" 2>/dev/null || true)" = "commit" ] ||
+            deny "annotated tag must directly target a commit"
+        peeled_target=$(git rev-parse "$SRC_OBJ_GATE^{}" 2>/dev/null) || deny "annotated tag cannot be peeled"
+        [ "$peeled_target" = "$tag_target" ] || deny "annotated tag peel does not match direct target"
+        ;;
     *)
         deny "unknown operation"
         ;;
 esac
 
-# Validate objects
-git cat-file -e "$SRC_OBJ_GATE^{commit}" 2>/dev/null || deny "source object is not a commit"
-resolved_src=$(git rev-parse "$SRC_REF_GATE^{commit}" 2>/dev/null) || deny "source ref unavailable"
-[ "$resolved_src" = "$SRC_OBJ_GATE" ] || deny "source ref does not resolve to source object"
-
-# Validate publication namespace suffix (POSIX: no Bash substring expansion)
-# For CREATE, suffix must match source object. For UPDATE, suffix is stable
-# from CREATE time and is validated by the gate schema.
-actual_suffix=$(printf '%s' "$DST_REF_GATE" | sed 's|^refs/heads/pub/||')
-printf '%s' "$actual_suffix" | grep -Eq '^[0-9a-f]{12}$' || deny "destination suffix format invalid"
 case "$OP_GATE" in
-    CREATE_NON_PROTECTED_BRANCH_EXACT_OBJECT)
-        expected_suffix=$(first12 "$SRC_OBJ_GATE")
-        [ "$actual_suffix" = "$expected_suffix" ] || deny "destination suffix does not match source object"
+    CREATE_NON_PROTECTED_BRANCH_EXACT_OBJECT|UPDATE_NON_PROTECTED_BRANCH_FAST_FORWARD)
+        [ "$remote_ref" != "$PROTECTED_REF" ] || deny "protected branch rejected"
+        case "$SRC_REF_GATE" in refs/heads/*) ;; *) deny "branch operation source is not a branch ref" ;; esac
+        actual_suffix=$(printf '%s' "$DST_REF_GATE" | sed 's|^refs/heads/pub/||')
+        printf '%s' "$actual_suffix" | grep -Eq '^[0-9a-f]{12}$' || deny "destination suffix format invalid"
+        git cat-file -e "$SRC_OBJ_GATE^{commit}" 2>/dev/null || deny "source object is not a commit"
+        resolved_src=$(git rev-parse "$SRC_REF_GATE^{commit}" 2>/dev/null) || deny "source ref unavailable"
+        [ "$resolved_src" = "$SRC_OBJ_GATE" ] || deny "source ref does not resolve to source object"
+        if [ "$OP_GATE" = "CREATE_NON_PROTECTED_BRANCH_EXACT_OBJECT" ]; then
+            expected_suffix=$(first12 "$SRC_OBJ_GATE")
+            [ "$actual_suffix" = "$expected_suffix" ] || deny "destination suffix does not match source object"
+        fi
         ;;
 esac
 
@@ -278,6 +290,9 @@ case "$OP_GATE" in
         [ "$#" -eq 2 ] || deny "live remote state malformed"
         [ "$1" = "$REQ_REMOTE_OBJ_GATE" ] || deny "live remote object mismatch"
         [ "$2" = "$DST_REF_GATE" ] || deny "live remote ref mismatch"
+        ;;
+    CREATE_ANNOTATED_TAG_EXACT_OBJECT)
+        [ -z "$remote_line" ] || deny "destination unexpectedly exists on remote"
         ;;
 esac
 

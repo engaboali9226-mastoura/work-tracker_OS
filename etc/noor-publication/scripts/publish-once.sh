@@ -3,7 +3,7 @@ set -eu
 set -f
 LC_ALL=C
 
-# Noor Personal publication-control v2 network-outcome executor.
+# Noor Personal publication-control v3 network-outcome executor.
 # Runs exactly one explicit source-to-destination git push against the
 # canonical URL. Records PUSH_ATTEMPT, PUSH_SUCCEEDED, PUSH_FAILED, or
 # PUSH_DENIED in the audit log. Never reactivates a consumed gate.
@@ -98,6 +98,7 @@ trap 'rmdir "$STATE_LOCK" 2>/dev/null || true' 0 1 2 3 15
 SOURCE_REF=''
 DESTINATION_REF=''
 OPERATION=''
+SOURCE_OBJECT=''
 NONCE=''
 
 line_no=0
@@ -105,6 +106,7 @@ while IFS= read -r line || [ -n "$line" ]; do
     line_no=$((line_no + 1))
     case "$line_no" in
         3)  SOURCE_REF=${line#SOURCE_REF=} ;;
+        4)  SOURCE_OBJECT=${line#SOURCE_OBJECT=} ;;
         5)  DESTINATION_REF=${line#DESTINATION_REF=} ;;
         8)  OPERATION=${line#OPERATION=} ;;
         11) NONCE=${line#NONCE=} ;;
@@ -114,6 +116,7 @@ done < "$ACTIVE_GATE"
 [ -n "$SOURCE_REF" ] || deny "gate missing source ref"
 [ -n "$DESTINATION_REF" ] || deny "gate missing destination ref"
 [ -n "$OPERATION" ] || deny "gate missing operation"
+[ -n "$SOURCE_OBJECT" ] || deny "gate missing source object"
 [ -n "$NONCE" ] || deny "gate missing nonce"
 
 # Release the lock (so the hook can acquire it during git push)
@@ -154,17 +157,40 @@ fi
 if [ "$push_exit" -eq 0 ]; then
     outcome="PUSH_SUCCEEDED"
     echo "$(date -u '+%Y-%m-%dT%H:%M:%SZ') event=$outcome nonce=$NONCE exit_code=0" >> "$AUDIT_LOG"
-    echo "publish-once: push succeeded; running remote verification..."
+    echo "publish-once: push accepted by remote; mandatory verification is running..."
     # Release lock before running publication verifier
     rmdir "$STATE_LOCK" 2>/dev/null || true
     trap - 0 1 2 3 15
     # Run verify-publication.sh
     verify_script="$REPO_ROOT/$VERIFY_SCRIPT_DIR/verify-publication.sh"
-    if [ -x "$verify_script" ]; then
-        "$verify_script" --destination-ref "$DESTINATION_REF" --expected-object "$(git rev-parse "$SOURCE_REF^{commit}" 2>/dev/null || echo '')" --remote-url "$REMOTE_URL"
-    else
-        echo "publish-once: verify-publication.sh not found or not executable; skipping verification" >&2
+    if [ ! -f "$verify_script" ] || [ -L "$verify_script" ] || [ ! -x "$verify_script" ]; then
+        echo "publish-once: mandatory verifier is unavailable; publication outcome is unverified. Gate remains consumed; do not retry automatically." >&2
+        exit 1
     fi
+
+    set +e
+    case "$OPERATION" in
+        CREATE_ANNOTATED_TAG_EXACT_OBJECT)
+            "$verify_script" --operation "$OPERATION" --destination-ref "$DESTINATION_REF" --expected-object "$SOURCE_OBJECT" --expected-peeled-object "$(git rev-parse "$SOURCE_OBJECT^{}" 2>/dev/null || echo '')" --remote-url "$REMOTE_URL"
+            verify_exit=$?
+            ;;
+        CREATE_NON_PROTECTED_BRANCH_EXACT_OBJECT|UPDATE_NON_PROTECTED_BRANCH_FAST_FORWARD)
+            "$verify_script" --operation "$OPERATION" --destination-ref "$DESTINATION_REF" --expected-object "$(git rev-parse "$SOURCE_REF^{commit}" 2>/dev/null || echo '')" --remote-url "$REMOTE_URL"
+            verify_exit=$?
+            ;;
+        *)
+            set -e
+            deny "unknown operation"
+            ;;
+    esac
+    set -e
+
+    if [ "$verify_exit" -ne 0 ]; then
+        echo "publish-once: mandatory verification failed; publication outcome is unverified. Gate remains consumed; do not retry automatically." >&2
+        exit 1
+    fi
+
+    echo "publish-once: publication verified and completed successfully."
     exit 0
 else
     outcome="PUSH_FAILED"

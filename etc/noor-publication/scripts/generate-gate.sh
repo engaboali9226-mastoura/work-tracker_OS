@@ -3,7 +3,7 @@ set -eu
 set -f
 LC_ALL=C
 
-# Noor Personal publication-control v2 gate generator.
+# Noor Personal publication-control v3 gate generator.
 # Creates a single-use active.gate for an authorized publication.
 #
 # Usage:
@@ -134,6 +134,7 @@ done
 # Validate operation
 [ "$OPERATION" = "CREATE_NON_PROTECTED_BRANCH_EXACT_OBJECT" ] || \
 [ "$OPERATION" = "UPDATE_NON_PROTECTED_BRANCH_FAST_FORWARD" ] || \
+[ "$OPERATION" = "CREATE_ANNOTATED_TAG_EXACT_OBJECT" ] || \
     deny "unsupported operation: $OPERATION"
 
 # Validate source ref
@@ -142,10 +143,8 @@ git check-ref-format "$SOURCE_REF" || deny "invalid source ref"
 # Validate source object format
 printf '%s' "$SOURCE_OBJECT" | grep -Eq '^[0-9a-f]{40}$' || deny "invalid source object"
 
-# Validate destination ref (must be in pub/ namespace with 12-hex suffix)
+# Validate destination ref. Operation-specific namespace checks follow.
 git check-ref-format "$DESTINATION_REF" || deny "invalid destination ref"
-_suffix=$(printf '%s' "$DESTINATION_REF" | sed 's|^refs/heads/pub/||')
-printf '%s' "$_suffix" | grep -Eq '^[0-9a-f]{12}$' || deny "destination not in pub namespace"
 
 # Validate required remote object format
 printf '%s' "$REQUIRED_REMOTE_OBJECT" | grep -Eq '^[0-9a-f]{40}$' || deny "invalid required remote object"
@@ -157,6 +156,9 @@ if [ "$OPERATION" = "CREATE_NON_PROTECTED_BRANCH_EXACT_OBJECT" ]; then
 elif [ "$OPERATION" = "UPDATE_NON_PROTECTED_BRANCH_FAST_FORWARD" ]; then
     [ "$REQUIRED_REMOTE_OBJECT" != "$ZERO_OBJECT" ] ||
         deny "UPDATE requires REQUIRED_REMOTE_OBJECT to be non-zero"
+else
+    [ "$REQUIRED_REMOTE_OBJECT" = "$ZERO_OBJECT" ] ||
+        deny "tag CREATE requires REQUIRED_REMOTE_OBJECT to be zero"
 fi
 
 # Validate authority ID
@@ -216,18 +218,36 @@ else
     expires=$((now_10 + TTL))
 fi
 
-# Validate the source object exists as a commit
-git cat-file -e "$SOURCE_OBJECT^{commit}" 2>/dev/null || deny "source object is not a commit"
-
-# Validate the source ref resolves to the source object
-resolved_src=$(git rev-parse "$SOURCE_REF^{commit}" 2>/dev/null) || deny "source ref unavailable"
-[ "$resolved_src" = "$SOURCE_OBJECT" ] || deny "source ref does not resolve to source object"
-
-# Validate destination suffix matches source object (CREATE only)
-if [ "$OPERATION" = "CREATE_NON_PROTECTED_BRANCH_EXACT_OBJECT" ]; then
-    expected_suffix=$(printf '%s' "$SOURCE_OBJECT" | cut -c1-12)
-    [ "$_suffix" = "$expected_suffix" ] || deny "destination suffix does not match source object"
-fi
+# Validate operation-specific source, destination, and object invariants.
+case "$OPERATION" in
+    CREATE_NON_PROTECTED_BRANCH_EXACT_OBJECT|UPDATE_NON_PROTECTED_BRANCH_FAST_FORWARD)
+        case "$SOURCE_REF" in refs/heads/*) ;; *) deny "branch operation source is not a branch ref" ;; esac
+        _suffix=$(printf '%s' "$DESTINATION_REF" | sed 's|^refs/heads/pub/||')
+        printf '%s' "$_suffix" | grep -Eq '^[0-9a-f]{12}$' || deny "destination not in pub namespace"
+        git cat-file -e "$SOURCE_OBJECT^{commit}" 2>/dev/null || deny "source object is not a commit"
+        resolved_src=$(git rev-parse "$SOURCE_REF^{commit}" 2>/dev/null) || deny "source ref unavailable"
+        [ "$resolved_src" = "$SOURCE_OBJECT" ] || deny "source ref does not resolve to source object"
+        if [ "$OPERATION" = "CREATE_NON_PROTECTED_BRANCH_EXACT_OBJECT" ]; then
+            expected_suffix=$(printf '%s' "$SOURCE_OBJECT" | cut -c1-12)
+            [ "$_suffix" = "$expected_suffix" ] || deny "destination suffix does not match source object"
+        fi
+        ;;
+    CREATE_ANNOTATED_TAG_EXACT_OBJECT)
+        case "$SOURCE_REF" in refs/tags/*) ;; *) deny "tag operation source is not a tag ref" ;; esac
+        case "$DESTINATION_REF" in refs/tags/*) ;; *) deny "tag operation destination is not a tag ref" ;; esac
+        [ "$SOURCE_REF" = "$DESTINATION_REF" ] || deny "tag source and destination differ"
+        [ "$(git cat-file -t "$SOURCE_OBJECT" 2>/dev/null || true)" = "tag" ] ||
+            deny "source object is not an annotated tag"
+        resolved_src=$(git rev-parse --verify "$SOURCE_REF" 2>/dev/null) || deny "source ref unavailable"
+        [ "$resolved_src" = "$SOURCE_OBJECT" ] || deny "source ref does not directly resolve to source object"
+        tag_target=$(git cat-file -p "$SOURCE_OBJECT" | sed -n '1s/^object //p')
+        printf '%s' "$tag_target" | grep -Eq '^[0-9a-f]{40}$' || deny "annotated tag target is invalid"
+        [ "$(git cat-file -t "$tag_target" 2>/dev/null || true)" = "commit" ] ||
+            deny "annotated tag must directly target a commit"
+        peeled_target=$(git rev-parse "$SOURCE_OBJECT^{}" 2>/dev/null) || deny "annotated tag cannot be peeled"
+        [ "$peeled_target" = "$tag_target" ] || deny "annotated tag peel does not match direct target"
+        ;;
+esac
 
 # Build the gate file (lines 1-13 first)
 TMP_GATE="$GATE_DIR/.gate.tmp.$$"
@@ -245,7 +265,7 @@ CREATED_AT=$now_10
 EXPIRES_AT=$expires
 NONCE=$NONCE
 AUTHORITY_ID=$AUTHORITY_ID
-HOOK_POLICY_VERSION=2
+HOOK_POLICY_VERSION=3
 EOF
 
 # Compute GATE_FILE_SHA256 = sha256(lines 1-13)

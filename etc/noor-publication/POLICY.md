@@ -3,7 +3,7 @@
 ## Schema Version
 
 - **Gate Schema Version:** `2`
-- **Hook Policy Version:** `2`
+- **Hook Policy Version:** `3`
 
 ## Canonical Protected Ref
 
@@ -17,6 +17,7 @@
 
 - `CREATE_NON_PROTECTED_BRANCH_EXACT_OBJECT`
 - `UPDATE_NON_PROTECTED_BRANCH_FAST_FORWARD`
+- `CREATE_ANNOTATED_TAG_EXACT_OBJECT`
 
 ## Installation Model
 
@@ -33,7 +34,7 @@ The canonical pre-push hook is installed from an exact reviewed commit via
 ## Canonical Hook Template SHA-256
 
 ```
-d3af0d831b4424436a7e458da64ec8cf07b9904a6fb398d0dde891196ad88dac
+80bff5d11a5bc6290f3299b4b18b47715bb5297a5b7f883499112f91641e871e
 ```
 
 ## Design Candidate SHA-256
@@ -63,5 +64,6 @@ d3af0d831b4424436a7e458da64ec8cf07b9904a6fb398d0dde891196ad88dac
 
 - v1 hook (SHA `4c6f4814fb1ad65558cac9d0d2304046b5429a849c47973c73c762cf4f4e9ddd`) is backed up to `backups/pre-push.4c6f4814…` at bootstrap.
 - v1 consumed gate (`consumed/dc14eb36845a7d8fa3ae242fcfda7ac3.gate`) is preserved and untouched.
-- v2 hook rejects `SCHEMA_VERSION=1` gates.
+- v3 hook accepts only `HOOK_POLICY_VERSION=3`; consumed v2 gates are records,
+  not reusable authority.
 - No implementation commit SHA is recorded because no implementation commit exists yet.
