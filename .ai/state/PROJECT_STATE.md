@@ -17,8 +17,8 @@
 ## Current Truth — Durable Governance and Feature State
 
 This is the single authoritative current-state contract. It describes the
-accepted Shell Foundation boundary and does not claim production-runnable
-Platform integration. Exact live repository identity is derived from the
+accepted Shell Foundation and Protected Routing Foundation boundaries and does
+not claim production-runnable Platform integration. Exact live repository identity is derived from the
 canonical branch at inspection time; no fixed commit or tree SHA in this
 section is a timeless assertion of the live repository identity.
 
@@ -26,7 +26,32 @@ section is a timeless assertion of the live repository identity.
 - Live canonical HEAD and tree: repository-derived at inspection time from `product/noor-personal-mvp` and its protected remote; not recorded here as permanent fixed SHA claims.
 - Shell Foundation: `IMPLEMENTED / ACCEPTED / STABLY-PUBLISHED-TO-PROTECTED-BRANCH`.
 - Accepted scope: `SHELL FOUNDATION ONLY`; this is not production-runnable Platform integration.
+- Protected Routing Foundation: `IMPLEMENTED / SECURITY-REVIEWED / LOCALLY-COMMITTED / ACCEPTED`.
+- Protected Routing Foundation scope: `FOUNDATION ONLY`; it is not production-runnable Platform integration and does not provide production authentication, session, or authorization wiring.
 - Current Publication Control v2 runtime: `active.gate`, `state.lock`, and `consume.lock` are absent; the persistent hook remains installed/current; the push URL sentinel remains `no_push://noor-personal-dev`.
+
+### Protected Routing Foundation — Current Local Acceptance Record
+
+The following exact identities record the Protected Routing Foundation
+implementation event; they are not timeless claims about the live repository
+HEAD, tree, or future PROJECT_STATE blob.
+
+- Implementation commit: `6d613bdbfada98dfad762184f9c168cc537436ef` — `feat(platform): add protected routing foundation`.
+- Implementation tree: `5a0954cb7cb16818e6167189aea37abfd64b87cb`; implementation parent: `3daa6896b97b13eefdfb5e8647fc33e8c41bcd4c`.
+- Acceptance status: `IMPLEMENTED / SECURITY-REVIEWED / LOCALLY-COMMITTED / ACCEPTED` as a working-tree reconciliation candidate.
+- Publication status: `LOCAL COMMIT ONLY`. No Push, publication Gate, protected-branch publication, PR, Merge, Tag, or deployment has occurred for this implementation commit.
+- Foundation behavior includes exact canonical route handling; fail-closed route-access projection; immutable route/app-bound normalized access decisions; and distinct authentication-required, session/access-unavailable, authorization-denied, authorization-unavailable, platform-failed-closed, and lifecycle-unavailable outcomes.
+- Registered-view lookup occurs only after positive normalized authorization. Application View factory invocation additionally requires an exact route, mountable catalog state, running lifecycle, non-failed-closed Platform state, and registered-view availability.
+- Unknown or noncanonical routes remain Not Found rather than authentication or authorization oracles; planned applications remain non-mountable; browser history grants no access; there are no automatic access redirects; and catalog entitlement metadata is not authorization proof.
+
+### Protected Routing Foundation — Security Review History and Accepted Evidence
+
+- The initial candidate passed self-verification, then independent review found a `MAJOR` runtime fail-open: repeated reads of externally supplied route-access evidence allowed a hostile Proxy/getter to change an observed denial into later authorization.
+- The repair takes one defensive snapshot and normalization of external route-bound access evidence; all later routing consumes the normalized internal decision. The original fail-open reproduction is closed.
+- Fresh independent review accepted the repaired candidate with no remaining `BLOCKER`, `MAJOR`, or `MINOR`. `DENY`, `UNAVAILABLE`, malformed, mismatched, or throwing evidence cannot reach registry lookup or Application View factory invocation; only positive normalized route/app-bound authorization may reach lookup and then the factory.
+- Accepted implementation evidence: `apps/web` tests `21/21` passed; focused Protected Routing tests `17/17` passed during repair review; repository-compatible TypeScript no-emit passed; and `git diff --check` passed.
+- In the repaired hostile `DENY` to `AUTHORIZED` reproduction, the result was `authorization-denied`, `kindReads=1`, `registryLookups=0`, and `factoryCalls=0`. Stable authorized evidence produced exactly one registry lookup and one factory invocation.
+- This is accepted Foundation-level implementation and security-review evidence, not production security certification.
 
 ### Historical PR #6 Shell Foundation Publication Milestone
 
@@ -80,25 +105,27 @@ order:
 
 ### Current Authorization Boundary
 
+- Protected Routing Foundation: `IMPLEMENTED / SECURITY-REVIEWED / LOCALLY-COMMITTED / ACCEPTED`.
+- Protected Routing production wiring: `NOT STARTED / NOT AUTHORIZED`.
 - Production-runnable Platform integration: `NOT STARTED / NOT AUTHORIZED`.
 - Production authentication/session/authorization integration: `NOT STARTED / NOT AUTHORIZED`.
-- Protected Routing: `NOT STARTED / NOT AUTHORIZED`.
+- Concrete production authentication/session/authorization infrastructure remains `NOT AUTHORIZED`, including AuthenticationVerifier, SessionRepository, EntitlementRepository, clock/runtime dependencies, session creation/sign-in, and production bootstrap/access-coordinator wiring.
 - App Launcher: `NOT STARTED / NOT AUTHORIZED`.
-- Noor Personal production Application View mounting beyond the accepted Shell Foundation boundary: `NOT AUTHORIZED`.
-- Noor Work production Application View mounting beyond the accepted Shell Foundation boundary: `NOT AUTHORIZED`.
+- Noor Personal production Application View mounting: `NOT AUTHORIZED`.
+- Noor Work production Application View mounting: `NOT AUTHORIZED`.
 - Step 044 implementation: `NOT AUTHORIZED`.
 - Further dependency mutation: `NOT AUTHORIZED` unless separately authorized.
 - Stable milestone tag: `NOT CREATED / NOT AUTHORIZED` unless separately authorized.
-- No authorization transfers automatically from implementation to publication, publication to PR, PR to merge, merge to Protected Routing, or documentation reconciliation to implementation.
+- No authorization transfers automatically from implementation to publication, publication to PR, PR to merge, merge to production wiring, governance reconciliation to publication, or governance reconciliation to Tag.
 
 ### Current Next Safe Action
 
 This documentation repair authorizes no mutation beyond the explicitly
 authorized working-file repair being performed. After this candidate is
-independently accepted, any Stage, Commit, publication, PR, or Merge remains
-separately authorized. Protected Routing remains `NOT STARTED / NOT AUTHORIZED`
-until later explicit phase-entry authorization; no implementation phase is
-auto-authorized by documentation closure.
+independently accepted, any Stage, Commit, publication, PR, Merge, or Tag
+remains separately authorized. Publication actions for the Protected Routing
+Foundation implementation remain `NOT YET AUTHORIZED` by this reconciliation,
+and no production-wiring phase is auto-authorized by documentation closure.
 
 ## Historical Current Truth — Pre-PR6 Shell Foundation Reconciliation
 
@@ -651,10 +678,11 @@ Everything in this subsection is historical and has no present authority.
 - Remote or push-URL modification: UNAUTHORIZED
 - Production-runnable Platform integration: NOT AUTHORIZED
 - Production authentication/session/authorization integration: NOT AUTHORIZED
-- Protected Routing: NOT STARTED / NOT AUTHORIZED
+- Protected Routing Foundation: IMPLEMENTED / SECURITY-REVIEWED / LOCALLY-COMMITTED / ACCEPTED
+- Protected Routing production wiring: NOT STARTED / NOT AUTHORIZED
 - App Launcher: NOT STARTED / NOT AUTHORIZED
-- Noor Personal production Application View mounting beyond the accepted Shell Foundation boundary: NOT AUTHORIZED
-- Noor Work production Application View mounting beyond the accepted Shell Foundation boundary: NOT AUTHORIZED
+- Noor Personal production Application View mounting: NOT AUTHORIZED
+- Noor Work production Application View mounting: NOT AUTHORIZED
 - Step 044 implementation: UNAUTHORIZED
 - Further dependency mutation: NOT AUTHORIZED unless separately authorized
 - Stable milestone tag: NOT CREATED / NOT AUTHORIZED unless separately authorized
@@ -669,6 +697,7 @@ Everything in this subsection is historical and has no present authority.
 - PR #5: merged
 - PR #6: merged (historical Shell Foundation milestone)
 - PR #7: merged (historical documentation-closure milestone)
+- Protected Routing Foundation implementation commit: `LOCAL COMMIT ONLY`; no Push, publication Gate, PR, Merge, protected-branch publication, Tag, or deployment.
 - `active.gate`: absent
 - `state.lock`: absent
 - `consume.lock`: absent
@@ -681,6 +710,7 @@ Everything in this subsection is historical and has no present authority.
   - `LOCAL_PRODUCT_BRANCH_SYNCHRONIZED_ACCEPTED`
   - Shell Foundation: `IMPLEMENTED / ACCEPTED / STABLY-PUBLISHED-TO-PROTECTED-BRANCH`
   - PR #7 documentation closure: historical rebase-merge milestone accepted
+  - Protected Routing Foundation: `IMPLEMENTED / SECURITY-REVIEWED / LOCALLY-COMMITTED / ACCEPTED`
 
 ## Historical Authorization Boundary — Pre-PR6
 
