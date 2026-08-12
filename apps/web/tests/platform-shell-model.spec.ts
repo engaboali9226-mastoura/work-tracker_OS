@@ -20,6 +20,7 @@ import {
 } from "../src/application-view-registry.js";
 import type {
   ApplicationViewRegistration,
+  ApplicationViewRegistry,
 } from "../src/application-view-registry.js";
 import {
   projectPlatformShell,
@@ -27,6 +28,10 @@ import {
 import type {
   PlatformLifecycleState,
 } from "../src/platform-shell-model.js";
+import type {
+  RouteAccessEvidence,
+  RouteAccessEvidenceKind,
+} from "../src/route-access-evidence.js";
 
 const personal =
   applicationCatalog.findByKey(
@@ -47,8 +52,45 @@ const emptyRegistry =
     [],
   );
 
+function accessEvidence(
+  kind: RouteAccessEvidenceKind,
+  application = personal,
+): RouteAccessEvidence {
+  return Object.freeze({
+    kind,
+    appKey:
+      application.appKey,
+    pathname:
+      application.route,
+  });
+}
+
+function mountedRegistry(
+  onFactory: () => void = () => {},
+) {
+  return createApplicationViewRegistry(
+    applicationCatalog,
+    [
+      {
+        appKey:
+          personal.appKey,
+        factory:
+          () => {
+            onFactory();
+
+            return createElement(
+              "p",
+              null,
+              "Mounted view",
+            );
+          },
+      },
+    ],
+  );
+}
+
 test(
-  "root is neutral and unknown or nested paths do not select applications",
+  "root and noncanonical routes retain route semantics regardless of access evidence",
   () => {
     assert.equal(
       projectPlatformShell({
@@ -58,6 +100,12 @@ test(
           applicationCatalog,
         applicationViews:
           emptyRegistry,
+        lifecycleState:
+          "running",
+        accessEvidence:
+          accessEvidence(
+            "authenticated-authorized",
+          ),
       }).kind,
       "no-application-selected",
     );
@@ -70,17 +118,20 @@ test(
         "/work/settings",
       ]
     ) {
-      const state =
+      assert.equal(
         projectPlatformShell({
           pathname,
           catalog:
             applicationCatalog,
           applicationViews:
             emptyRegistry,
-        });
-
-      assert.equal(
-        state.kind,
+          lifecycleState:
+            "running",
+          accessEvidence:
+            accessEvidence(
+              "authenticated-authorized",
+            ),
+        }).kind,
         "not-found",
       );
     }
@@ -88,36 +139,43 @@ test(
 );
 
 test(
-  "exact canonical routes retain catalog status without mounting unavailable views",
+  "planned applications remain non-mountable before lifecycle or access evaluation",
   () => {
-    const personalState =
-      projectPlatformShell({
-        pathname:
-          personal.route,
-        catalog:
-          applicationCatalog,
-        applicationViews:
-          emptyRegistry,
+    let lookups =
+      0;
+
+    const registry: ApplicationViewRegistry<ReactElement> =
+      Object.freeze({
+        find: () => {
+          lookups +=
+            1;
+
+          return undefined;
+        },
       });
 
     assert.equal(
-      personalState.kind,
-      "known-view-unavailable",
-    );
-
-    const workState =
       projectPlatformShell({
         pathname:
           work.route,
         catalog:
           applicationCatalog,
         applicationViews:
-          emptyRegistry,
-      });
+          registry,
+        lifecycleState:
+          "failed-closed",
+        accessEvidence:
+          accessEvidence(
+            "authenticated-authorized",
+            work,
+          ),
+      }).kind,
+      "planned-application",
+    );
 
     assert.equal(
-      workState.kind,
-      "planned-application",
+      lookups,
+      0,
     );
   },
 );
@@ -253,88 +311,490 @@ test(
 );
 
 test(
-  "factory invocation requires an exact experimental route and running lifecycle",
+  "failed or non-running lifecycle prevents access and view registry evaluation",
   () => {
-    let invocations =
+    let lookups =
       0;
 
-    const registry =
-      createApplicationViewRegistry(
-        applicationCatalog,
-        [
-          {
-            appKey:
-              personal.appKey,
-            factory:
-              () => {
-                invocations +=
-                  1;
+    const registry: ApplicationViewRegistry<ReactElement> =
+      Object.freeze({
+        find: () => {
+          lookups +=
+            1;
 
-                return createElement(
-                  "p",
-                  null,
-                  "Mounted view",
-                );
-              },
-          },
-        ],
-      );
+          throw new Error(
+            "registry must not be consulted",
+          );
+        },
+      });
 
-    const nonRunningStates:
+    const unavailableStates:
     readonly (PlatformLifecycleState | undefined)[] = [
       undefined,
       "idle",
       "bootstrapping",
       "shutting-down",
-      "failed-closed",
     ];
 
-    for (const lifecycleState of nonRunningStates) {
-      const input = {
+    for (const lifecycleState of unavailableStates) {
+      const state =
+        projectPlatformShell({
+          pathname:
+            personal.route,
+          catalog:
+            applicationCatalog,
+          applicationViews:
+            registry,
+          ...(lifecycleState
+            ? {
+                lifecycleState,
+              }
+            : {}),
+          accessEvidence:
+            accessEvidence(
+              "authenticated-authorized",
+            ),
+        });
+
+      assert.equal(
+        state.kind,
+        "platform-lifecycle-unavailable",
+      );
+    }
+
+    assert.equal(
+      projectPlatformShell({
         pathname:
           personal.route,
         catalog:
           applicationCatalog,
         applicationViews:
           registry,
-        ...(lifecycleState
-          ? {
-              lifecycleState,
-            }
-          : {}),
-      };
+        lifecycleState:
+          "failed-closed",
+        accessEvidence:
+          accessEvidence(
+            "authenticated-authorized",
+          ),
+      }).kind,
+      "platform-failed-closed",
+    );
 
+    assert.equal(
+      lookups,
+      0,
+    );
+  },
+);
+
+test(
+  "missing, malformed, and mismatched access evidence fails closed before view availability",
+  () => {
+    let lookups =
+      0;
+
+    const registry: ApplicationViewRegistry<ReactElement> =
+      Object.freeze({
+        find: () => {
+          lookups +=
+            1;
+
+          return undefined;
+        },
+      });
+
+    const unusableEvidence: readonly unknown[] = [
+      undefined,
+      Object.freeze({
+        kind:
+          "authenticated-authorized",
+      }),
+      Object.freeze({
+        kind:
+          "unrecognized",
+        appKey:
+          personal.appKey,
+        pathname:
+          personal.route,
+      }),
+      accessEvidence(
+        "authenticated-authorized",
+        work,
+      ),
+      Object.freeze({
+        kind:
+          "authenticated-authorized",
+        appKey:
+          personal.appKey,
+        pathname:
+          "/personal/nested",
+      }),
+    ];
+
+    for (const evidence of unusableEvidence) {
       assert.equal(
-        projectPlatformShell(
-          input,
-        ).kind,
-        "platform-lifecycle-unavailable",
+        projectPlatformShell({
+          pathname:
+            personal.route,
+          catalog:
+            applicationCatalog,
+          applicationViews:
+            registry,
+          lifecycleState:
+            "running",
+          accessEvidence:
+            evidence as RouteAccessEvidence,
+        }).kind,
+        "session-access-unavailable",
       );
     }
 
-    for (
-      const pathname
-      of [
-        "/",
-        "/unknown",
-        "/personal/nested",
-        work.route,
-      ]
-    ) {
+    assert.equal(
+      lookups,
+      0,
+    );
+  },
+);
+
+test(
+  "hostile runtime evidence is normalized once and fails closed before view lookup",
+  () => {
+    let lookups =
+      0;
+    let invocations =
+      0;
+
+    const registry: ApplicationViewRegistry<ReactElement> =
+      Object.freeze({
+        find: () => {
+          lookups +=
+            1;
+
+          return () => {
+            invocations +=
+              1;
+
+            return createElement(
+              "p",
+              null,
+              "Mounted view",
+            );
+          };
+        },
+      });
+
+    const project =
+      (evidence: unknown) =>
+        projectPlatformShell({
+          pathname:
+            personal.route,
+          catalog:
+            applicationCatalog,
+          applicationViews:
+            registry,
+          lifecycleState:
+            "running",
+          accessEvidence:
+            evidence,
+        });
+
+    let changingKindReads =
+      0;
+
+    const changingKindEvidence = {
+      get kind() {
+        changingKindReads +=
+          1;
+
+        return changingKindReads === 1
+          ? "authorization-denied"
+          : "authenticated-authorized";
+      },
+      appKey:
+        personal.appKey,
+      pathname:
+        personal.route,
+    };
+
+    assert.equal(
+      project(changingKindEvidence).kind,
+      "authorization-denied",
+    );
+    assert.equal(changingKindReads, 1);
+
+    assert.equal(
+      project({
+        kind:
+          "something-unrecognized",
+        appKey:
+          personal.appKey,
+        pathname:
+          personal.route,
+      }).kind,
+      "session-access-unavailable",
+    );
+
+    for (const property of [
+      "kind",
+      "appKey",
+      "pathname",
+    ] as const) {
+      const evidence = {
+        kind:
+          "authenticated-authorized",
+        appKey:
+          personal.appKey,
+        pathname:
+          personal.route,
+      };
+
+      Object.defineProperty(
+        evidence,
+        property,
+        {
+          get: () => {
+            throw new Error(
+              `${property} unavailable`,
+            );
+          },
+        },
+      );
+
+      assert.equal(
+        project(evidence).kind,
+        "session-access-unavailable",
+      );
+    }
+
+    assert.equal(lookups, 0);
+    assert.equal(invocations, 0);
+  },
+);
+
+test(
+  "stable normalized bindings ignore later external mutation and authorize exactly once",
+  () => {
+    let lookups =
+      0;
+    let invocations =
+      0;
+    let appKeyReads =
+      0;
+    let pathnameReads =
+      0;
+
+    const registry: ApplicationViewRegistry<ReactElement> =
+      Object.freeze({
+        find: () => {
+          lookups +=
+            1;
+
+          return () => {
+            invocations +=
+              1;
+
+            return createElement(
+              "p",
+              null,
+              "Mounted view",
+            );
+          };
+        },
+      });
+
+    const evidence = {
+      kind:
+        "authenticated-authorized",
+      get appKey() {
+        appKeyReads +=
+          1;
+
+        return appKeyReads === 1
+          ? personal.appKey
+          : work.appKey;
+      },
+      get pathname() {
+        pathnameReads +=
+          1;
+
+        return pathnameReads === 1
+          ? personal.route
+          : "/personal/other";
+      },
+    };
+
+    assert.equal(
       projectPlatformShell({
-        pathname,
+        pathname:
+          personal.route,
         catalog:
           applicationCatalog,
         applicationViews:
           registry,
         lifecycleState:
           "running",
+        accessEvidence:
+          evidence,
+      }).kind,
+      "application-view",
+    );
+    assert.equal(appKeyReads, 1);
+    assert.equal(pathnameReads, 1);
+    assert.equal(lookups, 1);
+    assert.equal(invocations, 1);
+  },
+);
+
+test(
+  "resolved negative access outcomes are distinct and do not reveal view availability",
+  () => {
+    let lookups =
+      0;
+
+    const registry: ApplicationViewRegistry<ReactElement> =
+      Object.freeze({
+        find: () => {
+          lookups +=
+            1;
+
+          return undefined;
+        },
       });
+
+    const outcomes:
+    readonly [
+      RouteAccessEvidenceKind,
+      string,
+    ][] = [
+      [
+        "authentication-required",
+        "authentication-required",
+      ],
+      [
+        "session-access-unavailable",
+        "session-access-unavailable",
+      ],
+      [
+        "authorization-denied",
+        "authorization-denied",
+      ],
+      [
+        "authorization-unavailable",
+        "authorization-unavailable",
+      ],
+    ];
+
+    for (const [evidenceKind, stateKind] of outcomes) {
+      assert.equal(
+        projectPlatformShell({
+          pathname:
+            personal.route,
+          catalog:
+            applicationCatalog,
+          applicationViews:
+            registry,
+          lifecycleState:
+            "running",
+          accessEvidence:
+            accessEvidence(
+              evidenceKind,
+            ),
+        }).kind,
+        stateKind,
+      );
+    }
+
+    assert.equal(
+      lookups,
+      0,
+    );
+  },
+);
+
+test(
+  "only exact positively authorized evidence can reach a registered view factory",
+  () => {
+    let invocations =
+      0;
+
+    const registry =
+      mountedRegistry(
+        () => {
+          invocations +=
+            1;
+        },
+      );
+
+    const nonPositiveEvidence:
+    readonly (RouteAccessEvidence | undefined)[] = [
+      undefined,
+      accessEvidence(
+        "authentication-required",
+      ),
+      accessEvidence(
+        "session-access-unavailable",
+      ),
+      accessEvidence(
+        "authorization-denied",
+      ),
+      accessEvidence(
+        "authorization-unavailable",
+      ),
+      accessEvidence(
+        "authenticated-authorized",
+        work,
+      ),
+    ];
+
+    for (const evidence of nonPositiveEvidence) {
+      const state =
+        projectPlatformShell({
+          pathname:
+            personal.route,
+          catalog:
+            applicationCatalog,
+          applicationViews:
+            registry,
+          lifecycleState:
+            "running",
+          ...(evidence
+            ? {
+                accessEvidence:
+                  evidence,
+              }
+            : {}),
+        });
+
+      assert.notEqual(
+        state.kind,
+        "application-view",
+      );
     }
 
     assert.equal(
       invocations,
       0,
+    );
+
+    const missingView =
+      projectPlatformShell({
+        pathname:
+          personal.route,
+        catalog:
+          applicationCatalog,
+        applicationViews:
+          emptyRegistry,
+        lifecycleState:
+          "running",
+        accessEvidence:
+          accessEvidence(
+            "authenticated-authorized",
+          ),
+      });
+
+    assert.equal(
+      missingView.kind,
+      "known-view-unavailable",
     );
 
     const mounted =
@@ -347,6 +807,10 @@ test(
           registry,
         lifecycleState:
           "running",
+        accessEvidence:
+          accessEvidence(
+            "authenticated-authorized",
+          ),
       });
 
     assert.equal(
@@ -362,7 +826,7 @@ test(
 );
 
 test(
-  "factory creation exceptions remain Shell view failures",
+  "factory creation exceptions remain Shell view failures after positive access",
   () => {
     const registry =
       createApplicationViewRegistry<ReactElement>(
@@ -391,6 +855,10 @@ test(
           registry,
         lifecycleState:
           "running",
+        accessEvidence:
+          accessEvidence(
+            "authenticated-authorized",
+          ),
       }).kind,
       "application-view-failure",
     );

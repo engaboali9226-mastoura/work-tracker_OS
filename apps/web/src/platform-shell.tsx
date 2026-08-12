@@ -152,6 +152,71 @@ export function PlatformShell(
         </main>
       );
 
+    case "platform-failed-closed":
+      return (
+        <main id="main-content">
+          <h1>
+            Application unavailable
+          </h1>
+          <p>
+            The platform is unavailable for this request.
+          </p>
+          <HomeLink navigate={navigate} />
+        </main>
+      );
+
+    case "authentication-required":
+      return (
+        <main id="main-content">
+          <h1>
+            Sign-in required
+          </h1>
+          <p>
+            Sign in is required before this application can be opened.
+          </p>
+          <HomeLink navigate={navigate} />
+        </main>
+      );
+
+    case "session-access-unavailable":
+      return (
+        <main id="main-content">
+          <h1>
+            Access unavailable
+          </h1>
+          <p>
+            Access status is currently unavailable. Please try again later.
+          </p>
+          <HomeLink navigate={navigate} />
+        </main>
+      );
+
+    case "authorization-denied":
+      return (
+        <main id="main-content">
+          <h1>
+            Access denied
+          </h1>
+          <p>
+            You do not have access to this application.
+          </p>
+          <HomeLink navigate={navigate} />
+        </main>
+      );
+
+    case "authorization-unavailable":
+      return (
+        <main id="main-content">
+          <h1>
+            Access unavailable
+          </h1>
+          <p>
+            Authorization status is currently unavailable. Please try again later.
+          </p>
+          <HomeLink navigate={navigate} />
+        </main>
+      );
+
     case "known-view-unavailable":
       return (
         <main id="main-content">
@@ -172,7 +237,7 @@ export function PlatformShell(
             Application unavailable
           </h1>
           <p>
-            {state.application.name} cannot be mounted without running Platform lifecycle evidence.
+            The application cannot be opened while the platform is unavailable.
           </p>
           <HomeLink navigate={navigate} />
         </main>

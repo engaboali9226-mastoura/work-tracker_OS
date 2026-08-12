@@ -6,6 +6,9 @@ import type {
 import type {
   ApplicationViewRegistry,
 } from "./application-view-registry.js";
+import {
+  normalizeRouteAccessEvidence,
+} from "./route-access-evidence.js";
 
 export type PlatformLifecycleState =
   | "idle"
@@ -28,6 +31,36 @@ export type PlatformShellState<View> =
   | Readonly<{
       kind:
         "planned-application";
+      application:
+        ApplicationCatalogEntry;
+    }>
+  | Readonly<{
+      kind:
+        "platform-failed-closed";
+      application:
+        ApplicationCatalogEntry;
+    }>
+  | Readonly<{
+      kind:
+        "authentication-required";
+      application:
+        ApplicationCatalogEntry;
+    }>
+  | Readonly<{
+      kind:
+        "session-access-unavailable";
+      application:
+        ApplicationCatalogEntry;
+    }>
+  | Readonly<{
+      kind:
+        "authorization-denied";
+      application:
+        ApplicationCatalogEntry;
+    }>
+  | Readonly<{
+      kind:
+        "authorization-unavailable";
       application:
         ApplicationCatalogEntry;
     }>
@@ -70,6 +103,8 @@ Readonly<{
     ApplicationViewRegistry<View>;
   lifecycleState?:
     PlatformLifecycleState;
+  accessEvidence?:
+    unknown;
 }>;
 
 function findApplicationByExactPathname(
@@ -117,15 +152,10 @@ export function projectPlatformShell<View>(
     });
   }
 
-  const factory =
-    input.applicationViews.find(
-      application.appKey,
-    );
-
-  if (!factory) {
+  if (input.lifecycleState === "failed-closed") {
     return Object.freeze({
       kind:
-        "known-view-unavailable",
+        "platform-failed-closed",
       application,
     });
   }
@@ -137,6 +167,74 @@ export function projectPlatformShell<View>(
       application,
       lifecycleState:
         input.lifecycleState,
+    });
+  }
+
+  const accessDecision =
+    normalizeRouteAccessEvidence(
+      input.accessEvidence,
+      application.appKey,
+      application.route,
+    );
+
+  if (!accessDecision) {
+    return Object.freeze({
+      kind:
+        "session-access-unavailable",
+      application,
+    });
+  }
+
+  switch (accessDecision.kind) {
+    case "authentication-required":
+      return Object.freeze({
+        kind:
+          "authentication-required",
+        application,
+      });
+
+    case "session-access-unavailable":
+      return Object.freeze({
+        kind:
+          "session-access-unavailable",
+        application,
+      });
+
+    case "authorization-denied":
+      return Object.freeze({
+        kind:
+          "authorization-denied",
+        application,
+      });
+
+    case "authorization-unavailable":
+      return Object.freeze({
+        kind:
+          "authorization-unavailable",
+        application,
+      });
+
+    case "authenticated-authorized":
+      break;
+
+    default:
+      return Object.freeze({
+        kind:
+          "session-access-unavailable",
+        application,
+      });
+  }
+
+  const factory =
+    input.applicationViews.find(
+      application.appKey,
+    );
+
+  if (!factory) {
+    return Object.freeze({
+      kind:
+        "known-view-unavailable",
+      application,
     });
   }
 
