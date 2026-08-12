@@ -3,7 +3,7 @@ set -eu
 set -f
 LC_ALL=C
 
-# Noor Personal publication-control v2 acceptance-test runner.
+# Noor Personal publication-control v3 acceptance-test runner.
 # Runs the complete T01-T29 matrix against task-created temporary
 # repositories and mock remotes under /tmp.
 #
@@ -17,6 +17,7 @@ LC_ALL=C
 . "$(dirname "$0")/test-body-basic.sh"
 . "$(dirname "$0")/test-body-rejections.sh"
 . "$(dirname "$0")/test-body-lifecycle.sh"
+. "$(dirname "$0")/test-body-tags.sh"
 
 # Run all tests
 test_t01
@@ -48,6 +49,11 @@ test_t26
 test_t27
 test_t28
 test_t29
+test_t30
+test_t31
+test_t32
+test_t33
+test_t34
 
 # Final summary
 echo ""
@@ -58,8 +64,8 @@ echo "Total tests: $TOTAL_TEST_COUNT"
 echo "Passed: $PASS_COUNT"
 echo "Failed: $FAIL_COUNT"
 
-if [ "$FAIL_COUNT" -eq 0 ] && [ "$TOTAL_TEST_COUNT" -eq 29 ]; then
-    echo "Passed: 29"
+if [ "$FAIL_COUNT" -eq 0 ] && [ "$TOTAL_TEST_COUNT" -eq 34 ]; then
+    echo "Passed: 34"
     echo "Failed: 0"
     echo "ALL TESTS PASSED"
     teardown_all

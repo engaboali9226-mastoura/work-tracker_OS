@@ -3,7 +3,50 @@ set -eu
 set -f
 LC_ALL=C
 
-# T21-T29 test bodies for the Noor Personal publication-control v2 acceptance suite.
+# T21-T29 test bodies for the Noor Personal publication-control v3 acceptance suite.
+
+# ---------------------------------------------------------------------------
+# T34: publish-once fails closed when its mandatory verifier is unavailable
+# ---------------------------------------------------------------------------
+test_t34() {
+    begin_test "T34"
+    setup_test_env
+    install_hook_in_test_repo
+    make_create_gate
+
+    suffix=$(printf '%s' "$TEST_COMMIT_IMPL" | cut -c1-12)
+    dest_ref="refs/heads/pub/$suffix"
+    rm -f "$TEST_REPO/etc/noor-publication/scripts/verify-publication.sh"
+
+    run_publish_once_with_candidate_hook "$WORKSPACE/.t34.publish.out"
+    assert_exit 1 "$PUBLISH_ONCE_EXIT" "missing post-push verifier fails closed"
+
+    assert_file_absent "$GATE_DIR/active.gate"
+    assert_file_exists "$GATE_DIR/consumed/$GATE_NONCE.gate"
+    consumed_count=$(find "$GATE_DIR/consumed" -maxdepth 1 -name '*.gate' -type f | wc -l | tr -d ' ')
+    assert_eq "1" "$consumed_count" "exactly one consumed gate"
+    remote_has_ref "$dest_ref" "$TEST_COMMIT_IMPL" || fail "push did not reach isolated remote"
+    if grep -Fq 'publication verified and completed successfully' "$WORKSPACE/.t34.publish.out"; then
+        fail "unverified publication reported successful completion"
+    fi
+    if ! grep -Fq 'publication outcome is unverified' "$WORKSPACE/.t34.publish.out"; then
+        fail "unverified publication outcome was not reported"
+    fi
+
+    # A consumed gate is not recreated and publish-once does not retry.
+    set +e
+    (cd "$TEST_REPO" && etc/noor-publication/scripts/publish-once.sh > "$WORKSPACE/.t34.retry.out" 2>&1)
+    retry_rc=$?
+    set -e
+    assert_exit 1 "$retry_rc" "consumed gate cannot be reused"
+    attempt_count=$(grep -c 'event=PUSH_ATTEMPT' "$GATE_DIR/audit.log" || true)
+    assert_eq "1" "$attempt_count" "no automatic or repeated push attempt"
+    assert_file_absent "$GATE_DIR/active.gate"
+    assert_file_exists "$GATE_DIR/consumed/$GATE_NONCE.gate"
+
+    pass
+    cleanup_test_env
+}
 
 # ---------------------------------------------------------------------------
 # T21: Generator/hook lock race
@@ -119,7 +162,7 @@ test_t24() {
         "$now" \
         "$GATE_NONCE" \
         "TEST_AUTHORITY" \
-        2
+        3
 
     # Verify the gate is expired by attempting a push
     run_push "refs/heads/product/noor-personal-mvp:refs/heads/pub/$suffix" 1
