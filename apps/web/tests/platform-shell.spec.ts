@@ -31,6 +31,9 @@ import {
 import type {
   PlatformShellState,
 } from "../src/platform-shell-model.js";
+import type {
+  RouteAccessEvidence,
+} from "../src/route-access-evidence.js";
 
 type TestDom =
 Readonly<{
@@ -324,6 +327,119 @@ test(
 );
 
 test(
+  "protected-routing states present meaningful generic accessible content",
+  async () => {
+    const personal =
+      applicationCatalog.findByKey(
+        "noor-personal",
+      );
+
+    assert.ok(personal);
+
+    const states: readonly [
+      PlatformShellState<ReactElement>,
+      string,
+      RegExp,
+    ][] = [
+      [
+        {
+          kind:
+            "platform-failed-closed",
+          application:
+            personal,
+        },
+        "Application unavailable",
+        /platform is unavailable/iu,
+      ],
+      [
+        {
+          kind:
+            "platform-lifecycle-unavailable",
+          application:
+            personal,
+          lifecycleState:
+            "idle",
+        },
+        "Application unavailable",
+        /cannot be opened while the platform is unavailable/iu,
+      ],
+      [
+        {
+          kind:
+            "authentication-required",
+          application:
+            personal,
+        },
+        "Sign-in required",
+        /sign in is required/iu,
+      ],
+      [
+        {
+          kind:
+            "session-access-unavailable",
+          application:
+            personal,
+        },
+        "Access unavailable",
+        /access status is currently unavailable/iu,
+      ],
+      [
+        {
+          kind:
+            "authorization-denied",
+          application:
+            personal,
+        },
+        "Access denied",
+        /do not have access/iu,
+      ],
+      [
+        {
+          kind:
+            "authorization-unavailable",
+          application:
+            personal,
+        },
+        "Access unavailable",
+        /authorization status is currently unavailable/iu,
+      ],
+    ];
+
+    for (const [state, heading, message] of states) {
+      const rendered =
+        await renderState(
+          state,
+        );
+
+      try {
+        const text =
+          rendered.container.textContent
+            ?? "";
+
+        assert.equal(
+          rendered.container.querySelector(
+            "main h1",
+          )?.textContent?.trim(),
+          heading,
+        );
+
+        assert.match(
+          text,
+          message,
+        );
+
+        assert.doesNotMatch(
+          text,
+          /Noor Personal|registered view/iu,
+        );
+      } finally {
+        await rendered.cleanup();
+      }
+    }
+  },
+);
+
+test(
   "render-time Application View failure presents a Shell-owned page-level heading",
   async () => {
     const personal =
@@ -387,6 +503,15 @@ test(
           registry,
         lifecycleState:
           "running",
+        accessEvidence:
+          Object.freeze({
+            kind:
+              "authenticated-authorized",
+            appKey:
+              personal.appKey,
+            pathname:
+              personal.route,
+          }) as RouteAccessEvidence,
       });
 
     assert.equal(
