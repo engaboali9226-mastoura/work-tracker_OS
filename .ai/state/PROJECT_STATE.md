@@ -18,28 +18,62 @@
 
 This is the single authoritative current-state contract. It describes the
 accepted Shell Foundation and Protected Routing Foundation boundaries and does
-not claim production-runnable Platform integration. Exact live repository identity is derived from the
-canonical branch at inspection time; no fixed commit or tree SHA in this
-section is a timeless assertion of the live repository identity.
+not claim production-runnable Platform integration. Exact live repository
+identity is derived from the canonical branch at inspection time; fixed
+commit/tree/parent identities recorded below are time-bounded provenance and
+are not timeless assertions of live repository identity.
 
 - Canonical branch: `product/noor-personal-mvp`.
-- Live canonical HEAD and tree: repository-derived at inspection time from `product/noor-personal-mvp` and its protected remote; not recorded here as permanent fixed SHA claims.
+- Live canonical HEAD, tree, and parent: repository-derived at inspection time
+  from `product/noor-personal-mvp`; they are not frozen here as permanent live
+  identity claims.
+- PR #10 / pre-documentation-update canonical baseline commit:
+  `2147305264a42cd2067207912f8fa2ec15e9bd53`.
+- PR #10 / pre-documentation-update baseline tree:
+  `5e4f148936d07b1de7ac56bc7ae22a04a2dc3d7c`.
+- PR #10 resulting canonical commit parent/base:
+  `ae5cfc1a44c969682893036bc2c09c6f6223f0dd`.
 - Shell Foundation: `IMPLEMENTED / ACCEPTED / STABLY-PUBLISHED-TO-PROTECTED-BRANCH`.
 - Accepted scope: `SHELL FOUNDATION ONLY`; this is not production-runnable Platform integration.
-- Protected Routing Foundation: `IMPLEMENTED / SECURITY-REVIEWED / LOCALLY-COMMITTED / ACCEPTED`.
+- Protected Routing Foundation: `IMPLEMENTED / SECURITY-REVIEWED / ACCEPTED / represented in the accepted canonical merged state`.
 - Protected Routing Foundation scope: `FOUNDATION ONLY`; it is not production-runnable Platform integration and does not provide production authentication, session, or authorization wiring.
-- Current Publication Control v2 runtime: `active.gate`, `state.lock`, and `consume.lock` are absent; the persistent hook remains installed/current; the push URL sentinel remains `no_push://noor-personal-dev`.
+- Current publication runtime: `Policy v3`; hook SHA-256: `80bff5d11a5bc6290f3299b4b18b47715bb5297a5b7f883499112f91641e871e`; `active.gate`, `state.lock`, and `consume.lock` are absent.
 
-### Protected Routing Foundation — Current Local Acceptance Record
+### Annotated Tag Publication Control Extension — Closed
 
-The following exact identities record the Protected Routing Foundation
-implementation event; they are not timeless claims about the live repository
-HEAD, tree, or future PROJECT_STATE blob.
+- PR #10 closed and merged via Rebase-and-Merge.
+- Historical source branch: `pub/31e174f2da46`.
+- Historical source object: `31e174f2da467a2babb3ad7dee3f85c04498d2cd`.
+- Resulting canonical commit: `2147305264a42cd2067207912f8fa2ec15e9bd53`.
+- Published annotated tag: `platform-annotated-tag-publication-control-v1.0.0`.
+- Tag object: `d6606650840a8434bcf490c032e74c4331fce52a`.
+- Peeled target: `2147305264a42cd2067207912f8fa2ec15e9bd53`.
+- The consumed tag publication gate is preserved; the historical consumed branch-publication gate is preserved; active gate is absent; locks are absent; the publication branch is absent locally and remotely; the publication milestone is fully closed; post-publication cleanup is fully closed; and the extension is fully closed.
 
-- Implementation commit: `6d613bdbfada98dfad762184f9c168cc537436ef` — `feat(platform): add protected routing foundation`.
-- Implementation tree: `5a0954cb7cb16818e6167189aea37abfd64b87cb`; implementation parent: `3daa6896b97b13eefdfb5e8647fc33e8c41bcd4c`.
-- Acceptance status: `IMPLEMENTED / SECURITY-REVIEWED / LOCALLY-COMMITTED / ACCEPTED` as a working-tree reconciliation candidate.
-- Publication status: `LOCAL COMMIT ONLY`. No Push, publication Gate, protected-branch publication, PR, Merge, Tag, or deployment has occurred for this implementation commit.
+### Protected Routing Foundation — Accepted Canonical Merged-State Record
+
+The following identities distinguish the equivalent non-canonical local
+implementation event from the canonical Protected Routing implementation in the
+current branch ancestry; they do not claim production authentication, session,
+or authorization wiring.
+
+- Equivalent non-canonical local implementation event:
+  `6d613bdbfada98dfad762184f9c168cc537436ef` —
+  `feat(platform): add protected routing foundation`.
+- Local event tree: `5a0954cb7cb16818e6167189aea37abfd64b87cb`;
+  local event parent: `3daa6896b97b13eefdfb5e8647fc33e8c41bcd4c`.
+- Canonical Protected Routing implementation/integration commit:
+  `f891b5b55a7b30da6d5d880c1a117f9555043f4e` —
+  `feat(platform): add protected routing foundation`.
+- Canonical ancestry status: `f891b5b55a7b30da6d5d880c1a117f9555043f4e` is an ancestor of
+  `ae5cfc1a44c969682893036bc2c09c6f6223f0dd` and of the
+  PR #10 / pre-documentation-update baseline
+  `2147305264a42cd2067207912f8fa2ec15e9bd53`; Protected Routing was already
+  present in canonical ancestry before PR #10.
+- PR #10 provenance: PR #10 is the later Annotated Tag Publication Control
+  extension and is not the Protected Routing integration vehicle.
+- Acceptance status: `IMPLEMENTED / SECURITY-REVIEWED / ACCEPTED / represented
+  in the accepted canonical state`.
 - Foundation behavior includes exact canonical route handling; fail-closed route-access projection; immutable route/app-bound normalized access decisions; and distinct authentication-required, session/access-unavailable, authorization-denied, authorization-unavailable, platform-failed-closed, and lifecycle-unavailable outcomes.
 - Registered-view lookup occurs only after positive normalized authorization. Application View factory invocation additionally requires an exact route, mountable catalog state, running lifecycle, non-failed-closed Platform state, and registered-view availability.
 - Unknown or noncanonical routes remain Not Found rather than authentication or authorization oracles; planned applications remain non-mountable; browser history grants no access; there are no automatic access redirects; and catalog entitlement metadata is not authorization proof.
@@ -105,7 +139,7 @@ order:
 
 ### Current Authorization Boundary
 
-- Protected Routing Foundation: `IMPLEMENTED / SECURITY-REVIEWED / LOCALLY-COMMITTED / ACCEPTED`.
+- Protected Routing Foundation: `IMPLEMENTED / SECURITY-REVIEWED / ACCEPTED / represented in the accepted canonical merged state`.
 - Protected Routing production wiring: `NOT STARTED / NOT AUTHORIZED`.
 - Production-runnable Platform integration: `NOT STARTED / NOT AUTHORIZED`.
 - Production authentication/session/authorization integration: `NOT STARTED / NOT AUTHORIZED`.
@@ -115,17 +149,15 @@ order:
 - Noor Work production Application View mounting: `NOT AUTHORIZED`.
 - Step 044 implementation: `NOT AUTHORIZED`.
 - Further dependency mutation: `NOT AUTHORIZED` unless separately authorized.
-- Stable milestone tag: `NOT CREATED / NOT AUTHORIZED` unless separately authorized.
+- Stable milestone tag: `platform-annotated-tag-publication-control-v1.0.0` is published and fully closed; no further tag action is current.
 - No authorization transfers automatically from implementation to publication, publication to PR, PR to merge, merge to production wiring, governance reconciliation to publication, or governance reconciliation to Tag.
 
 ### Current Next Safe Action
 
-This documentation repair authorizes no mutation beyond the explicitly
-authorized working-file repair being performed. After this candidate is
-independently accepted, any Stage, Commit, publication, PR, Merge, or Tag
-remains separately authorized. Publication actions for the Protected Routing
-Foundation implementation remain `NOT YET AUTHORIZED` by this reconciliation,
-and no production-wiring phase is auto-authorized by documentation closure.
+No further project action is authorized by this documentation closure.
+Stage, Commit, publication, PR, Merge, Tag, and other project mutation remain
+separately authorized as applicable. The current next safe action is to await
+separately authorized next project decision.
 
 ## Historical Current Truth — Pre-PR6 Shell Foundation Reconciliation
 
