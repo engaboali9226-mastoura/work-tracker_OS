@@ -21,6 +21,82 @@ deny() {
     exit 1
 }
 
+# Fail-closed check for Git URL rewrite rules (insteadOf / pushInsteadOf).
+# If any configured rewrite rule could match the canonical URL, deny immediately.
+# Checks local, global, and system Git config.
+check_canonical_url_rewrite() {
+    if [ -n "${GIT_CONFIG_COUNT-}" ]; then
+        _env_index=1
+        while [ "$_env_index" -le "${GIT_CONFIG_COUNT}" ]; do
+            _diag_index=$_env_index
+            eval "__env_key=\${GIT_CONFIG_KEY_$_env_index-}"
+            eval "__env_value=\${GIT_CONFIG_VALUE_$_env_index-}"
+            _env_index=$((_env_index + 1))
+            [ -n "${__env_key:-}" ] || continue
+            __env_key_norm=$(printf '%s' "$__env_key" | tr '[:upper:]' '[:lower:]')
+            case "$__env_key_norm" in
+                url.*.insteadof|url.*.pushinsteadof)
+                    case "$CANONICAL_URL" in
+                        "$__env_value"*)
+                            echo "PUBLICATION_CONTROL_URL_REWRITE_DETECTED" >&2
+                            deny "Git URL rewrite [GIT_CONFIG_KEY_${_diag_index}] targets canonical URL: $__env_key=$__env_value"
+                            ;;
+                    esac
+                    ;;
+            esac
+        done
+    fi
+
+    if [ -n "${GIT_CONFIG_PARAMETERS-}" ]; then
+        for _param in ${GIT_CONFIG_PARAMETERS}; do
+            case "$_param" in
+                *=*)
+                    _param_key=${_param%%=*}
+                    _param_value=${_param#*=}
+                    _param_key_norm=$(printf '%s' "$_param_key" | tr '[:upper:]' '[:lower:]')
+                    case "$_param_key_norm" in
+                        url.*.insteadof|url.*.pushinsteadof)
+                            case "$CANONICAL_URL" in
+                                "$_param_value"*)
+                                    echo "PUBLICATION_CONTROL_URL_REWRITE_DETECTED" >&2
+                                    deny "Git URL rewrite [GIT_CONFIG_PARAMETERS] targets canonical URL: $_param_key=$_param_value"
+                                    ;;
+                            esac
+                            ;;
+                    esac
+                    ;;
+            esac
+        done
+    fi
+
+    for _scope_args in "" "--global" "--system"; do
+        set +e
+        _config_output=$(git config $_scope_args --get-regexp 'url\.' 2>/dev/null)
+        _rc=$?
+        set -e
+        [ "$_rc" -ne 0 ] && continue
+        [ -z "$_config_output" ] && continue
+        while IFS= read -r _line; do
+            [ -n "$_line" ] || continue
+            _key=$(echo "$_line" | awk '{print $1}')
+            _value=$(echo "$_line" | awk '{print $2}')
+            _key_norm=$(printf '%s' "$_key" | tr '[:upper:]' '[:lower:]')
+            case "$_key_norm" in
+                url.*.insteadof|url.*.pushinsteadof)
+                    case "$CANONICAL_URL" in
+                        "$_value"*)
+                            echo "PUBLICATION_CONTROL_URL_REWRITE_DETECTED" >&2
+                            deny "Git URL rewrite [$_scope_args] targets canonical URL: $_key=$_value"
+                            ;;
+                    esac
+                    ;;
+            esac
+        done <<EOF
+$_config_output
+EOF
+    done
+}
+
 # SHA-256 utility with capability detection (macOS / GNU).
 compute_sha256() {
     if [ "$#" -gt 0 ] && [ -n "$1" ]; then
@@ -52,6 +128,7 @@ SENTINEL_URL='no_push://noor-personal-dev'
 VERIFY_SCRIPT_DIR='etc/noor-publication/scripts'
 
 REMOTE_URL="$CANONICAL_URL"
+PROTECTED_REF='refs/heads/product/noor-personal-mvp'
 
 while [ "$#" -gt 0 ]; do
     case "$1" in
@@ -119,6 +196,9 @@ done < "$ACTIVE_GATE"
 [ -n "$SOURCE_OBJECT" ] || deny "gate missing source object"
 [ -n "$NONCE" ] || deny "gate missing nonce"
 
+# Fail-closed: reject any Git URL rewrite rule that could redirect canonical URL
+check_canonical_url_rewrite
+
 # Release the lock (so the hook can acquire it during git push)
 rmdir "$STATE_LOCK" 2>/dev/null || true
 trap - 0 1 2 3 15
@@ -128,11 +208,34 @@ audit_line="$(date -u '+%Y-%m-%dT%H:%M:%SZ') event=PUSH_ATTEMPT nonce=$NONCE op=
 echo "$audit_line" >> "$AUDIT_LOG"
 chmod 0600 "$AUDIT_LOG" 2>/dev/null || true
 
+# Capture the protected canonical remote object BEFORE the DELETE push.
+# This is verification context ONLY: it is NOT gate authority and is NOT stored
+# in any Gate field. It is used post-push to prove the canonical ref was
+# preserved exactly across the deletion operation. Failing to snapshot (or a
+# query failure) is a hard failure, never treated as "absence".
+CANONICAL_PRE_PUSH_OBJECT=''
+if [ "$OPERATION" = "DELETE_NON_PROTECTED_BRANCH_EXACT_OBJECT" ]; then
+    set +e
+    CANONICAL_PRE_PUSH_OBJECT=$(git ls-remote --refs -- "$CANONICAL_URL" "$PROTECTED_REF" 2>/dev/null | awk 'NR == 1 { print $1 }')
+    canonical_rc=$?
+    set -e
+    [ "$canonical_rc" -eq 0 ] || deny "cannot snapshot protected canonical object before delete"
+    [ -n "$CANONICAL_PRE_PUSH_OBJECT" ] || deny "protected canonical ref absent before delete"
+fi
+
 # Execute exactly one explicit source-to-destination push
-set +e
-git push "$REMOTE_URL" "$SOURCE_REF:$DESTINATION_REF" 2>"$GATE_DIR/.push.err.$$"
-push_exit=$?
-set -e
+# For deletion, use the delete refspec; for others, use source:destination
+if [ "$OPERATION" = "DELETE_NON_PROTECTED_BRANCH_EXACT_OBJECT" ]; then
+    set +e
+    git push "$REMOTE_URL" ":$DESTINATION_REF" 2>"$GATE_DIR/.push.err.$$"
+    push_exit=$?
+    set -e
+else
+    set +e
+    git push "$REMOTE_URL" "$SOURCE_REF:$DESTINATION_REF" 2>"$GATE_DIR/.push.err.$$"
+    push_exit=$?
+    set -e
+fi
 detail=$(head -n 1 "$GATE_DIR/.push.err.$$" 2>/dev/null || echo "")
 rm -f "$GATE_DIR/.push.err.$$"
 
@@ -176,6 +279,16 @@ if [ "$push_exit" -eq 0 ]; then
             ;;
         CREATE_NON_PROTECTED_BRANCH_EXACT_OBJECT|UPDATE_NON_PROTECTED_BRANCH_FAST_FORWARD)
             "$verify_script" --operation "$OPERATION" --destination-ref "$DESTINATION_REF" --expected-object "$(git rev-parse "$SOURCE_REF^{commit}" 2>/dev/null || echo '')" --remote-url "$REMOTE_URL"
+            verify_exit=$?
+            ;;
+        DELETE_NON_PROTECTED_BRANCH_EXACT_OBJECT)
+            # Pass the exact pre-push canonical snapshot captured before the
+            # deletion push. The verifier independently re-observes the canonical
+            # ref AFTER the push and requires exact equality, proving preservation
+            # across the deletion. This value is verification context only and is
+            # not gate authority.
+            [ -n "$CANONICAL_PRE_PUSH_OBJECT" ] || deny "missing pre-push canonical snapshot"
+            "$verify_script" --operation "$OPERATION" --destination-ref "$DESTINATION_REF" --remote-url "$REMOTE_URL" --protected-ref "$PROTECTED_REF" --protected-canonical-object "$CANONICAL_PRE_PUSH_OBJECT"
             verify_exit=$?
             ;;
         *)

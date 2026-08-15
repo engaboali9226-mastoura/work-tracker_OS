@@ -1,6 +1,6 @@
 # Noor Personal Publication Control
 
-Gate Schema v2 / Hook Policy v3
+Gate Schema v3 / Hook Policy v4
 
 ## Purpose and Non-Goals
 
@@ -72,29 +72,32 @@ on the canonical remote repository.
     └── <NONCE>.gate                         (revoked/expired Gate Schema v2 / Hook Policy v3 gate, or historical policy-v2 record)
 ```
 
-## Gate Schema v2
+## Gate Schema v3
 
-The gate schema remains v2. Schema version and hook-policy version are
-separate: the current hook policy is v3 only.
+The current active gate schema is v3 and the active hook policy version is v4.
+All newly generated gates, regardless of operation, use schema version 3 and
+hook policy version 4. Historical records with schema version 2 / hook policy
+version 3 remain readable as immutable historical evidence only; they are not
+reusable active authority.
 
 The gate file is exactly 14 lines, each terminated by LF. The exact field
 order is:
 
 | Line | Field | Value |
 |---|---|---|
-| 1 | `SCHEMA_VERSION` | Literal `2` |
+| 1 | `SCHEMA_VERSION` | Literal `3` |
 | 2 | `REPOSITORY_URL` | Must equal `https://github.com/engaboali9226-mastoura/work-tracker_OS.git` |
-| 3 | `SOURCE_REF` | Must pass `git check-ref-format --refname` |
-| 4 | `SOURCE_OBJECT` | 40 lowercase hex chars |
+| 3 | `SOURCE_REF` | Operation-specific: `git check-ref-format` for non-DELETE; `(delete)` sentinel for DELETE |
+| 4 | `SOURCE_OBJECT` | Operation-specific: 40 lowercase hex chars for non-DELETE; `0000000000000000000000000000000000000000` for DELETE |
 | 5 | `DESTINATION_REF` | Operation-specific: publication branch or exact tag ref |
-| 6 | `REQUIRED_REMOTE_OBJECT` | 40 lowercase hex or `ZERO_OBJECT` |
+| 6 | `REQUIRED_REMOTE_OBJECT` | 40 lowercase hex only (never zero for DELETE; zero only for CREATE branch/tag) |
 | 7 | `UPDATE_COUNT` | Literal `1` |
-| 8 | `OPERATION` | One of the two branch operations or `CREATE_ANNOTATED_TAG_EXACT_OBJECT` |
+| 8 | `OPERATION` | One of: `CREATE_NON_PROTECTED_BRANCH_EXACT_OBJECT`, `UPDATE_NON_PROTECTED_BRANCH_FAST_FORWARD`, `CREATE_ANNOTATED_TAG_EXACT_OBJECT`, `DELETE_NON_PROTECTED_BRANCH_EXACT_OBJECT` |
 | 9 | `CREATED_AT` | 10-digit epoch seconds |
 | 10 | `EXPIRES_AT` | 10-digit epoch seconds |
 | 11 | `NONCE` | 32 lowercase hex chars |
 | 12 | `AUTHORITY_ID` | `^[A-Z0-9][A-Z0-9._-]{0,126}$` |
-| 13 | `HOOK_POLICY_VERSION` | Literal `3` |
+| 13 | `HOOK_POLICY_VERSION` | Literal `4` |
 | 14 | `GATE_FILE_SHA256` | 64 lowercase hex chars |
 
 `GATE_FILE_SHA256` (line 14) = SHA-256 of bytes of lines 1–13, each terminated
@@ -209,6 +212,63 @@ After a successful push, verification proves both the remote direct tag object
 and `refs/tags/<name>^{}` equal the expected local identities. It never treats
 matching peeled commits as sufficient.
 
+## Delete Publication Branch State Machine
+
+**Operation:** `DELETE_NON_PROTECTED_BRANCH_EXACT_OBJECT`
+
+**Semantics:** Authorize deletion of an existing publication branch at exactly
+`DESTINATION_REF`, but only if the remote currently points to exactly
+`REQUIRED_REMOTE_OBJECT`. This provides fail-closed protection: the branch is
+deleted only if the remote object matches the expected value at authorization
+time. If the remote has drifted (e.g., due to concurrent push or remote
+manipulation), deletion is rejected.
+
+**Push refspec:**
+`:refs/heads/pub/<publication-id>`
+
+The leading colon with no source ref indicates a Git delete operation. The
+`(delete)` sentinel used internally during pre-push protocol validation is NOT
+a valid Git refspec — the actual push uses the `:` notation.
+
+**Validation steps (in order):**
+
+1. `$# == 2`, and `$1` or `$2` == `CANONICAL_URL` (exact canonical identity; remote URL is fail-closed — no `url.*.insteadOf` mapping, local path, alias, or config-controlled replacement is treated as equivalent to the canonical repository URL)
+2. No push options
+3. Persistent pushurl == `no_push://noor-personal-dev`
+4. Acquire `state.lock` (mkdir, fail-closed)
+5. Validate `active.gate` bytes
+6. Validate schema: 14 lines, correct field order, `GATE_FILE_SHA256` integrity
+7. Validate time window: `CREATED_AT ≤ NOW < EXPIRES_AT`
+8. Validate `OPERATION == DELETE_NON_PROTECTED_BRANCH_EXACT_OBJECT`
+9. Parse stdin: exactly 1 ref update
+10. `local_ref == (delete)` (literal pre-push protocol sentinel)
+11. `local_object == 0000000000000000000000000000000000000000` (ZERO_OBJECT)
+12. `remote_ref == DESTINATION_REF`
+13. `remote_ref != PROTECTED_REF` (protected canonical branch deletion rejected)
+14. `remote_ref` is a branch (not a tag)
+15. `REQUIRED_REMOTE_OBJECT != ZERO_OBJECT` (must specify exact remote object to delete)
+16. `DESTINATION_REF` matches `refs/heads/pub/[0-9a-f]{12}` (pub namespace only)
+17. `git ls-remote -- CANONICAL_URL DESTINATION_REF` returns `(REQUIRED_REMOTE_OBJECT, DESTINATION_REF)`
+18. Re-validate `GATE_FILE_SHA256`
+19. `consumed/<NONCE>.gate` does not exist
+20. **Consume:** `mv active.gate → consumed/<NONCE>.gate`
+21. Verify consumed gate metadata
+22. Append audit log: `event=AUTHORITY_CONSUMED_PRE_PUSH`
+23. `rmdir state.lock`
+24. **Exit 0** → Git proceeds with network push using `:refs/heads/pub/<id>` refspec
+
+**Post-push verification:** `publish-once.sh` captures the protected canonical
+remote object **before** invoking the DELETE push. This pre-push snapshot is
+verification context only — it is **not** gate authority and is **not** stored in
+any Gate field. After the DELETE push succeeds, the exact pre-push snapshot is
+passed to `verify-publication.sh`, which independently re-observes the remote:
+`DESTINATION_REF` must be **absent**, and the protected canonical ref must remain
+**exactly equal** to the pre-delete snapshot. The presence of the ref after
+deletion indicates publication failure. Remote query failure is never treated as
+absence — it is a hard failure. The verifier reports success only when both the
+destination ref is confirmed deleted and the protected canonical ref is preserved
+exactly.
+
 ## Common Locking Model
 
 - **Lock primitive:** directory-based exclusive lock via `mkdir "$GATE_DIR/state.lock"`.
@@ -286,7 +346,7 @@ independent post-commit review. The installer:
 
 ## Bootstrap Sequence
 
-1. **Implementation:** Create all tracked Gate Schema v2 / Hook Policy v3
+1. **Implementation:** Create all tracked Gate Schema v3 / Hook Policy v4
    artifacts in the working tree.
    No staging, no committing.
 2. **Review:** Independent review of working-tree artifacts (read-only).
@@ -297,7 +357,8 @@ independent post-commit review. The installer:
 5. **Bootstrap install:** `install-hook.sh --from-commit "$COMMIT_IMPL"`
    extracts the hook via `git show`.
 6. **Bootstrap gate:** `generate-gate.sh` creates a `CREATE` gate with
-   `SOURCE_OBJECT=<COMMIT_IMPL>`, `DESTINATION_REF=refs/heads/pub/<COMMIT_IMPL[0:12]>`.
+   `SCHEMA_VERSION=3`, `HOOK_POLICY_VERSION=4`, `SOURCE_OBJECT=<COMMIT_IMPL>`,
+   `DESTINATION_REF=refs/heads/pub/<COMMIT_IMPL[0:12]>`.
 7. **Gate review:** Independent read-only review of `active.gate`.
 8. **Push authorization:** Separate Phase 5 authorization.
 9. **Execute:** `publish-once.sh` runs the explicit push.
@@ -334,6 +395,15 @@ passes. If the verifier is unavailable, cannot be invoked, or fails, the
 command reports an unverified publication outcome and exits nonzero; it never
 recreates authority or retries automatically.
 
+For DELETE operations only, `publish-once.sh` captures the protected canonical
+remote object **before** the push and passes that exact pre-push snapshot to
+the verifier after the push. This snapshot is verification context only — it
+does not grant authority, is not stored in any Gate field, and does not broaden
+deletion authority. Possessing the implementation capability to delete a
+remote branch does not, by itself, authorize any live deletion: authority
+always originates from a separately generated and reviewed Gate plus the
+server-side protected-branch ruleset.
+
 ## GitHub Ruleset Dependency
 
 GitHub's server-side ruleset `protect-noor-long-lived-branches`
@@ -362,17 +432,21 @@ The design does not falsely claim that a local hook can prevent `--no-verify`.
 
 | Artifact | Historical identity | Location After Bootstrap | Current treatment |
 |---|---|---|---|
-| v1 hook (PR #4) | SHA `4c6f4814…` | `backups/pre-push.4c6f4814…` | Backed up on install; v3 hook replaces it |
+| v1 hook (PR #4) | SHA `4c6f4814…` | `backups/pre-push.4c6f4814…` | Backed up on install; v4 hook replaces it |
 | Pre-rebind backup | SHA `26a2a514…` | `backups/pre-push.26a2a514…` | Pre-existing; untouched |
 | v1 consumed gate | SHA `80a2ff24…`, nonce `dc14eb36845…` | `consumed/dc14eb36845…` | Pre-existing; untouched |
 | Historical consumed policy-v2 gates | SHA varies | `consumed/<NONCE>.gate` | Preserved records only; not reusable authority |
-| Historical revoked policy-v2 gates | SHA varies | `revoked/<NONCE>.gate` | Preserved records only; not reusable authority |
+| Historical consumed policy-v3 gates | SHA varies | `consumed/<NONCE>.gate` | Preserved records only; not reusable authority |
+| Historical revoked gates | SHA varies | `revoked/<NONCE>.gate` | Preserved records only; not reusable authority |
 
-Newly generated and accepted Gates use `SCHEMA_VERSION=2` and
-`HOOK_POLICY_VERSION=3` only. There is no future policy-v2 publication
-authorization: a gate carrying policy v2 cannot pass the current policy-v3
-hook. Historical consumed policy-v2 Gates remain preserved records only and
-cannot be reused as authority.
+Newly generated Gates use `SCHEMA_VERSION=3` and `HOOK_POLICY_VERSION=4` for
+all operations: CREATE, UPDATE, TAG, and DELETE. The runtime hook is v4 and
+accepts both v2/v3 historical gates (read-only records only) and v3/v4 new
+gates (authority).
+
+Historical consumed gates with policy v2 or v3 remain preserved records only
+and cannot be reused as authority. All new authorization uses v3/v4 gates
+only.
 
 ## Operator Procedure
 

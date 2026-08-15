@@ -62,7 +62,7 @@ test_t02() {
     now=$(date -u '+%s')
     expires=$((now + 3600))
     write_gate_file \
-        2 \
+        3 \
         "$CANONICAL_URL" \
         "refs/heads/product/noor-personal-mvp" \
         "$TEST_CHILD_COMMIT" \
@@ -73,7 +73,7 @@ test_t02() {
         "$expires" \
         "$GATE_NONCE" \
         "TEST_AUTHORITY" \
-        3
+        4
 
     # Attempt the update push
     run_push "refs/heads/product/noor-personal-mvp:$dest_ref" 0
@@ -286,11 +286,13 @@ test_t08() {
     dest_ref="refs/heads/pub/$suffix"
     run_push "refs/heads/product/noor-personal-mvp:$dest_ref" 0
 
-    # Create a new gate for the deletion attempt
+    # Create a real delete tuple but with incompatible operation (CREATE gate for deletion)
+    # This creates a gate that can only authorize CREATE, not DELETE
     make_create_gate
 
-    # Attempt deletion (local object is zero)
-    run_simulated_push "refs/heads/product/noor-personal-mvp" "$dest_ref" 0 1
+    # Attempt real deletion (local_ref=(delete), local_object=ZERO)
+    # The hook will reject because the gate operation is CREATE, not DELETE
+    run_simulated_push "(delete)" "$dest_ref" 0 1
 
     # Gate must still be present
     assert_file_exists "$GATE_DIR/active.gate"
