@@ -3,7 +3,7 @@ set -eu
 set -f
 LC_ALL=C
 
-# Noor Personal publication-control v3 gate (permanent generic template).
+# Noor Personal publication-control v4 gate (permanent generic template).
 # Installed verbatim into .git/hooks/pre-push by install-hook.sh.
 # This template is the canonical hook policy for the publication-control
 # mechanism. It contains no per-publication commit hashes; all
@@ -13,8 +13,8 @@ LC_ALL=C
 CANONICAL_URL='https://github.com/engaboali9226-mastoura/work-tracker_OS.git'
 PROTECTED_REF='refs/heads/product/noor-personal-mvp'
 ZERO_OBJECT='0000000000000000000000000000000000000000'
-HOOK_POLICY_VERSION='3'
-SCHEMA_VERSION='2'
+HOOK_POLICY_VERSION='4'
+SCHEMA_VERSION='3'
 GATE_FILE_LINES=14
 PUB_RE='refs/heads/pub/[0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f]'
 GATE_DIR_NAME='noor-publication-gate'
@@ -27,9 +27,85 @@ AUDIT_LOG_NAME='audit.log'
 SENTINEL_URL='no_push://noor-personal-dev'
 
 deny() {
-    echo "Push blocked: Noor Personal publication-control v3 gate." >&2
+    echo "Push blocked: Noor Personal publication-control v4 gate." >&2
     echo "Push denied: $1." >&2
     exit 1
+}
+
+# Fail-closed check for Git URL rewrite rules (insteadOf / pushInsteadOf).
+# If any configured rewrite rule could match CANONICAL_URL, deny immediately.
+# Checks local, global, and system Git config.
+check_canonical_url_rewrite() {
+    if [ -n "${GIT_CONFIG_COUNT-}" ]; then
+        _env_index=1
+        while [ "$_env_index" -le "${GIT_CONFIG_COUNT}" ]; do
+            _diag_index=$_env_index
+            eval "__env_key=\${GIT_CONFIG_KEY_$_env_index-}"
+            eval "__env_value=\${GIT_CONFIG_VALUE_$_env_index-}"
+            _env_index=$((_env_index + 1))
+            [ -n "${__env_key:-}" ] || continue
+            __env_key_norm=$(printf '%s' "$__env_key" | tr '[:upper:]' '[:lower:]')
+            case "$__env_key_norm" in
+                url.*.insteadof|url.*.pushinsteadof)
+                    case "$CANONICAL_URL" in
+                        "$__env_value"*)
+                            echo "PUBLICATION_CONTROL_URL_REWRITE_DETECTED" >&2
+                            deny "Git URL rewrite [GIT_CONFIG_KEY_${_diag_index}] targets canonical URL: $__env_key=$__env_value"
+                            ;;
+                    esac
+                    ;;
+            esac
+        done
+    fi
+
+    if [ -n "${GIT_CONFIG_PARAMETERS-}" ]; then
+        for _param in ${GIT_CONFIG_PARAMETERS}; do
+            case "$_param" in
+                *=*)
+                    _param_key=${_param%%=*}
+                    _param_value=${_param#*=}
+                    _param_key_norm=$(printf '%s' "$_param_key" | tr '[:upper:]' '[:lower:]')
+                    case "$_param_key_norm" in
+                        url.*.insteadof|url.*.pushinsteadof)
+                            case "$CANONICAL_URL" in
+                                "$_param_value"*)
+                                    echo "PUBLICATION_CONTROL_URL_REWRITE_DETECTED" >&2
+                                    deny "Git URL rewrite [GIT_CONFIG_PARAMETERS] targets canonical URL: $_param_key=$_param_value"
+                                    ;;
+                            esac
+                            ;;
+                    esac
+                    ;;
+            esac
+        done
+    fi
+
+    for _scope_args in "" "--global" "--system"; do
+        set +e
+        _config_output=$(git config $_scope_args --get-regexp 'url\.' 2>/dev/null)
+        _rc=$?
+        set -e
+        [ "$_rc" -ne 0 ] && continue
+        [ -z "$_config_output" ] && continue
+        while IFS= read -r _line; do
+            [ -n "$_line" ] || continue
+            _key=$(echo "$_line" | awk '{print $1}')
+            _value=$(echo "$_line" | awk '{print $2}')
+            _key_norm=$(printf '%s' "$_key" | tr '[:upper:]' '[:lower:]')
+            case "$_key_norm" in
+                url.*.insteadof|url.*.pushinsteadof)
+                    case "$CANONICAL_URL" in
+                        "$_value"*)
+                            echo "PUBLICATION_CONTROL_URL_REWRITE_DETECTED" >&2
+                            deny "Git URL rewrite [$_scope_args] targets canonical URL: $_key=$_value"
+                            ;;
+                    esac
+                    ;;
+            esac
+        done <<EOF
+$_config_output
+EOF
+    done
 }
 
 # SHA-256 utility with capability detection (macOS / GNU).
@@ -101,13 +177,15 @@ validate_gate() {
         line_no=$((line_no + 1))
         [ "$line_no" -le 14 ] || deny "gate has extra fields"
         case "$line_no" in
-            1)  [ "$line" = "SCHEMA_VERSION=2" ] || deny "schema version invalid" ;;
+            1)  [ "$line" = "SCHEMA_VERSION=3" ] || deny "schema version invalid" ;;
             2)  v=${line#REPOSITORY_URL=}
                 [ "$line" = "REPOSITORY_URL=$v" ] || deny "field 2 malformed"
                 [ "$v" = "$CANONICAL_URL" ] || deny "repository URL mismatch" ;;
             3)  v=${line#SOURCE_REF=}
                 [ "$line" = "SOURCE_REF=$v" ] || deny "field 3 malformed"
-                git check-ref-format "$v" || deny "source ref invalid"
+                if [ "$v" != "(delete)" ]; then
+                    git check-ref-format "$v" || deny "source ref invalid"
+                fi
                 SRC_REF_GATE="$v" ;;
             4)  v=${line#SOURCE_OBJECT=}
                 [ "$line" = "SOURCE_OBJECT=$v" ] || deny "field 4 malformed"
@@ -127,6 +205,7 @@ validate_gate() {
                 [ "$v" = "CREATE_NON_PROTECTED_BRANCH_EXACT_OBJECT" ] || \
                 [ "$v" = "UPDATE_NON_PROTECTED_BRANCH_FAST_FORWARD" ] || \
                 [ "$v" = "CREATE_ANNOTATED_TAG_EXACT_OBJECT" ] || \
+                [ "$v" = "DELETE_NON_PROTECTED_BRANCH_EXACT_OBJECT" ] || \
                     deny "operation invalid"
                 OP_GATE="$v" ;;
             9)  v=${line#CREATED_AT=}
@@ -145,7 +224,7 @@ validate_gate() {
                 [ "$line" = "AUTHORITY_ID=$v" ] || deny "field 12 malformed"
                 printf '%s' "$v" | grep -Eq '^[A-Z0-9][A-Z0-9._-]{0,126}$' || deny "authority_id format invalid"
                 AUTH_GATE="$v" ;;
-            13) [ "$line" = "HOOK_POLICY_VERSION=3" ] || deny "hook policy version mismatch" ;;
+            13) [ "$line" = "HOOK_POLICY_VERSION=4" ] || deny "hook policy version mismatch" ;;
             14) v=${line#GATE_FILE_SHA256=}
                 [ "$line" = "GATE_FILE_SHA256=$v" ] || deny "field 14 malformed"
                 printf '%s' "$v" | grep -Eq '^[0-9a-f]{64}$' || deny "sha256 format invalid"
@@ -169,8 +248,16 @@ validate_gate() {
 }
 
 # Main hook entry
+# Canonical remote identity is enforced fail-closed: ONLY the exact canonical
+# repository URL grants publication authority. No url.*.insteadOf mapping, local
+# path, alias, or config-controlled replacement is ever treated as an equivalent
+# to the canonical repository URL. The canonical URL is a compile-time constant.
 [ "$#" -eq 2 ] || deny "remote arguments invalid"
-[ "$2" = "$CANONICAL_URL" ] || deny "remote URL is not authorized"
+authorized_remote=0
+for candidate in "$1" "$2"; do
+    [ "$candidate" = "$CANONICAL_URL" ] && authorized_remote=1 && break
+done
+[ "$authorized_remote" -eq 1 ] || deny "remote URL is not authorized: publishing requires the exact canonical repository URL"
 [ "${GIT_PUSH_OPTION_COUNT-}" = "" ] || [ "${GIT_PUSH_OPTION_COUNT-}" = "0" ] ||
     deny "push options not authorized"
 
@@ -178,6 +265,9 @@ validate_gate() {
 configured_pushurl=$(git config --get remote.origin.pushurl 2>/dev/null || git config --get remote.origin.url 2>/dev/null)
 [ "$configured_pushurl" = "$SENTINEL_URL" ] ||
     deny "persistent push URL sentinel has been altered"
+
+# Fail-closed: reject any Git URL rewrite rule that could redirect CANONICAL_URL
+check_canonical_url_rewrite
 
 # Resolve git paths
 REPO_ROOT=$(git rev-parse --show-toplevel 2>/dev/null) || deny "repository root unavailable"
@@ -225,7 +315,11 @@ done
 [ "$local_ref" = "$SRC_REF_GATE" ] || deny "source ref mismatch"
 [ "$local_object" = "$SRC_OBJ_GATE" ] || deny "source object mismatch"
 [ "$remote_ref" = "$DST_REF_GATE" ] || deny "destination ref mismatch"
-[ "$local_object" != "$ZERO_OBJECT" ] || deny "deletion rejected"
+
+# Reject zero local object for non-delete operations
+if [ "$OP_GATE" != "DELETE_NON_PROTECTED_BRANCH_EXACT_OBJECT" ]; then
+    [ "$local_object" != "$ZERO_OBJECT" ] || deny "deletion rejected"
+fi
 
 # Operation-specific checks
 case "$OP_GATE" in
@@ -257,20 +351,29 @@ case "$OP_GATE" in
         peeled_target=$(git rev-parse "$SRC_OBJ_GATE^{}" 2>/dev/null) || deny "annotated tag cannot be peeled"
         [ "$peeled_target" = "$tag_target" ] || deny "annotated tag peel does not match direct target"
         ;;
+    DELETE_NON_PROTECTED_BRANCH_EXACT_OBJECT)
+        [ "$SRC_REF_GATE" = "(delete)" ] || deny "delete operation source must be (delete)"
+        [ "$SRC_OBJ_GATE" = "$ZERO_OBJECT" ] || deny "delete operation source object must be zero"
+        [ "$REQ_REMOTE_OBJ_GATE" != "$ZERO_OBJECT" ] || deny "DELETE requires non-zero required remote object"
+        case "$DST_REF_GATE" in refs/tags/*) deny "tag deletion not authorized by branch-delete operation" ;; esac
+        case "$DST_REF_GATE" in refs/heads/*) ;; *) deny "delete operation destination is not a branch ref" ;; esac
+        ;;
     *)
         deny "unknown operation"
         ;;
 esac
 
 case "$OP_GATE" in
-    CREATE_NON_PROTECTED_BRANCH_EXACT_OBJECT|UPDATE_NON_PROTECTED_BRANCH_FAST_FORWARD)
+    CREATE_NON_PROTECTED_BRANCH_EXACT_OBJECT|UPDATE_NON_PROTECTED_BRANCH_FAST_FORWARD|DELETE_NON_PROTECTED_BRANCH_EXACT_OBJECT)
         [ "$remote_ref" != "$PROTECTED_REF" ] || deny "protected branch rejected"
-        case "$SRC_REF_GATE" in refs/heads/*) ;; *) deny "branch operation source is not a branch ref" ;; esac
+        case "$DST_REF_GATE" in refs/heads/pub/*) ;; *) deny "branch operation destination not in pub namespace" ;; esac
         actual_suffix=$(printf '%s' "$DST_REF_GATE" | sed 's|^refs/heads/pub/||')
         printf '%s' "$actual_suffix" | grep -Eq '^[0-9a-f]{12}$' || deny "destination suffix format invalid"
-        git cat-file -e "$SRC_OBJ_GATE^{commit}" 2>/dev/null || deny "source object is not a commit"
-        resolved_src=$(git rev-parse "$SRC_REF_GATE^{commit}" 2>/dev/null) || deny "source ref unavailable"
-        [ "$resolved_src" = "$SRC_OBJ_GATE" ] || deny "source ref does not resolve to source object"
+        if [ "$OP_GATE" != "DELETE_NON_PROTECTED_BRANCH_EXACT_OBJECT" ]; then
+            git cat-file -e "$SRC_OBJ_GATE^{commit}" 2>/dev/null || deny "source object is not a commit"
+            resolved_src=$(git rev-parse "$SRC_REF_GATE^{commit}" 2>/dev/null) || deny "source ref unavailable"
+            [ "$resolved_src" = "$SRC_OBJ_GATE" ] || deny "source ref does not resolve to source object"
+        fi
         if [ "$OP_GATE" = "CREATE_NON_PROTECTED_BRANCH_EXACT_OBJECT" ]; then
             expected_suffix=$(first12 "$SRC_OBJ_GATE")
             [ "$actual_suffix" = "$expected_suffix" ] || deny "destination suffix does not match source object"
@@ -293,6 +396,13 @@ case "$OP_GATE" in
         ;;
     CREATE_ANNOTATED_TAG_EXACT_OBJECT)
         [ -z "$remote_line" ] || deny "destination unexpectedly exists on remote"
+        ;;
+    DELETE_NON_PROTECTED_BRANCH_EXACT_OBJECT)
+        set -- $remote_line
+        [ -n "$remote_line" ] || deny "remote branch already absent"
+        [ "$#" -eq 2 ] || deny "live remote state malformed"
+        [ "$1" = "$REQ_REMOTE_OBJ_GATE" ] || deny "live remote object mismatch"
+        [ "$2" = "$DST_REF_GATE" ] || deny "live remote ref mismatch"
         ;;
 esac
 

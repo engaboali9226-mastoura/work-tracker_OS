@@ -2,8 +2,8 @@
 
 ## Schema Version
 
-- **Gate Schema Version:** `2`
-- **Hook Policy Version:** `3`
+- **Gate Schema Version:** `3`
+- **Hook Policy Version:** `4`
 
 ## Canonical Protected Ref
 
@@ -18,6 +18,7 @@
 - `CREATE_NON_PROTECTED_BRANCH_EXACT_OBJECT`
 - `UPDATE_NON_PROTECTED_BRANCH_FAST_FORWARD`
 - `CREATE_ANNOTATED_TAG_EXACT_OBJECT`
+- `DELETE_NON_PROTECTED_BRANCH_EXACT_OBJECT`
 
 ## Installation Model
 
@@ -30,6 +31,12 @@ The canonical pre-push hook is installed from an exact reviewed commit via
 4. Backs up the existing hook without overwrite.
 5. Is idempotent.
 6. Never changes the persistent push URL (`no_push://noor-personal-dev`).
+
+The canonical hook enforces fail-closed remote identity: only the exact
+canonical repository URL grants publication authority. No `url.*.insteadOf`
+mapping, local path, alias, or config-controlled replacement is treated as
+equivalent to the canonical repository URL. Implementation capability to issue
+a delete refspec does not, by itself, authorize any live deletion.
 
 ## Canonical Hook Template SHA-256
 
@@ -64,6 +71,9 @@ The canonical pre-push hook is installed from an exact reviewed commit via
 
 - v1 hook (SHA `4c6f4814fb1ad65558cac9d0d2304046b5429a849c47973c73c762cf4f4e9ddd`) is backed up to `backups/pre-push.4c6f4814…` at bootstrap.
 - v1 consumed gate (`consumed/dc14eb36845a7d8fa3ae242fcfda7ac3.gate`) is preserved and untouched.
-- v3 hook accepts only `HOOK_POLICY_VERSION=3`; consumed v2 gates are records,
-  not reusable authority.
+- Active authority requires `SCHEMA_VERSION=3` and `HOOK_POLICY_VERSION=4` for all four operations.
+- Historical consumed v2/p3 gates remain immutable historical evidence only; they are not reusable active authority.
+- Deletion semantics: SOURCE_REF=(delete), SOURCE_OBJECT=0000..., REQUIRED_REMOTE_OBJECT=<exact nonzero>, remote drift is fail-closed.
+- Protected branch (product/noor-personal-mvp) deletion is always rejected.
+- DELETE verification requires remote query success, exact destination absence, and exact protected-canonical preservation. The canonical pre-push snapshot is captured before the push as verification context only (not authority) and the post-delete canonical must equal the pre-delete snapshot exactly.
 - No implementation commit SHA is recorded because no implementation commit exists yet.

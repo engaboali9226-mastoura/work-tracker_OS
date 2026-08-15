@@ -14,8 +14,20 @@ CANONICAL_URL='https://github.com/engaboali9226-mastoura/work-tracker_OS.git'
 ZERO_OBJECT='0000000000000000000000000000000000000000'
 SENTINEL_URL='no_push://noor-personal-dev'
 
-# Root of this repository (used for locating tracked artifacts)
-REPO_ROOT=$(cd "$(dirname "$0")/../.." && pwd -P)
+# Root of this repository (used for locating tracked artifacts).
+# Resolve from the live working tree rather than the shell invocation so source
+# and direct execution both work reliably from inside the workspace root or a
+# subdirectory of the repo.
+REPO_ROOT=$(pwd -P)
+while [ "$REPO_ROOT" != "/" ]; do
+    if [ -d "$REPO_ROOT/etc/noor-publication" ] && [ -d "$REPO_ROOT/.git" ]; then
+        break
+    fi
+    REPO_ROOT=$(dirname "$REPO_ROOT")
+done
+if [ ! -d "$REPO_ROOT/etc/noor-publication" ] || [ ! -d "$REPO_ROOT/.git" ]; then
+    REPO_ROOT=$(cd "$(dirname "$0")/../.." 2>/dev/null && pwd -P)
+fi
 SCRIPTS_DIR="$REPO_ROOT/etc/noor-publication/scripts"
 HOOK_TEMPLATE="$REPO_ROOT/etc/noor-publication/pre-push.noor-policy-hook"
 
@@ -80,6 +92,7 @@ assert_file_absent() {
 # Test environment setup
 # ---------------------------------------------------------------------------
 TEST_BASE="${TMPDIR:-/tmp}/noor-pub-tests-$$"
+ORIGINAL_PATH="${PATH:-}"
 WORKSPACE=''
 MOCK_REMOTE=''
 TEST_REPO=''
@@ -203,11 +216,84 @@ setup_test_env() {
     git -C "$TEST_REPO" config remote.origin.pushurl "$SENTINEL_URL"
     git -C "$TEST_REPO" config push.default nothing
 
-    # Set up URL rewriting: canonical URL -> local mock remote.
-    # This lets the hook's internal `git ls-remote "$CANONICAL_URL"` reach the
-    # mock remote. The hook is invoked directly by run_simulated_push with the
-    # canonical URL as its second argument, so $2 still matches.
-    git -C "$TEST_REPO" config --add "url.$MOCK_REMOTE.insteadOf" "$CANONICAL_URL"
+# Set up test-only PATH-scoped Git transport shim.
+    # This wrapper intercepts git commands that reference the canonical URL
+    # and transparently redirects them to the mock remote. It is never
+    # installed globally and never modifies real repository config.
+    # The shim is scoped through the test PATH; it only affects git invocations
+    # from the test process and its child processes.
+    NOOR_TEST_GIT_SHIM="$WORKSPACE/git-shim"
+    mkdir -p "$NOOR_TEST_GIT_SHIM"
+    cat > "$NOOR_TEST_GIT_SHIM/git" << 'GIT_SHIM_EOF'
+#!/bin/sh
+set -eu
+MOCK_REMOTE='__MOCK_REMOTE__'
+CANONICAL_URL='__CANONICAL_URL__'
+# Test-only transport shim: intercept git commands that reference the
+# canonical URL and redirect them to the mock remote. Only affects
+# ls-remote, push, and fetch. This shim does NOT use url.*.insteadOf or
+# url.*.pushInsteadOf Git config. It manually substitutes the canonical
+# URL with the mock remote in the argument list.
+# Test-only transport shim: intercept git commands that reference the
+# canonical URL and redirect them to the mock remote. Only affects
+# ls-remote, push, and fetch. This shim does NOT use url.*.insteadOf or
+# url.*.pushInsteadOf Git config. It manually substitutes the canonical
+# URL with the mock remote in the argument list using positional
+# argument preservation. The REAL_GIT path is captured from the environment
+# before the shim directory is prepended to PATH, ensuring no recursion.
+REAL_GIT="$NOOR_TEST_REAL_GIT"
+
+if [ "$#" -ge 3 ] && { [ "$1" = "ls-remote" ] || [ "$1" = "push" ] || [ "$1" = "fetch" ]; } then
+    # Build a new argument list with the canonical URL replaced by the
+    # mock remote, preserving all other arguments exactly (count, order,
+    # spaces inside arguments, literal glob characters).
+    _new_args=()
+    _found=0
+    for _arg in "$@"; do
+        if [ "$_arg" = "$CANONICAL_URL" ]; then
+            _new_args+=("$MOCK_REMOTE")
+            _found=1
+        else
+            _new_args+=("$_arg")
+        fi
+    done
+
+    if [ "$_found" -eq 1 ]; then
+        exec "$REAL_GIT" "${_new_args[@]}"
+    fi
+fi
+
+# Pass through to real git with all arguments preserved unchanged
+exec "$REAL_GIT" "$@"
+GIT_SHIM_EOF
+    sed -i '' "s|__MOCK_REMOTE__|$MOCK_REMOTE|g; s|__CANONICAL_URL__|$CANONICAL_URL|g" "$NOOR_TEST_GIT_SHIM/git"
+    chmod 0755 "$NOOR_TEST_GIT_SHIM/git"
+    # Capture the REAL git binary path BEFORE prepending the shim to PATH,
+    # so that 'command -v git' resolves to the real git, not the shim.
+    # This value is exported so the shim and wrapper scripts can invoke the
+    # real git directly without recursion.
+    export NOOR_TEST_REAL_GIT="$(command -v git)"
+    # Remove any stale shim path entries from previous test runs before adding
+    # the current per-test shim. This keeps all git invocations within the suite
+    # isolated to the active temporary workspace and prevents inherited PATH
+    # pollution from deleted test workspaces while preserving the real system
+    # PATH entries required for git, shell tools, and permissions.
+    _clean_path=''
+    old_ifs=$IFS
+    IFS=:
+    for _entry in $PATH; do
+        case "$_entry" in
+            "")
+                ;;
+            */git-shim)
+                ;;
+            *)
+                _clean_path="${_clean_path:+$_clean_path:}$_entry"
+                ;;
+        esac
+    done
+    IFS=$old_ifs
+    export PATH="$NOOR_TEST_GIT_SHIM:$_clean_path"
 
     # Create the publication gate runtime directory
     GATE_DIR="$TEST_REPO/.git/noor-publication-gate"
@@ -270,7 +356,7 @@ make_create_gate() {
     expires=$((now + 3600))
     suffix=$(printf '%s' "$TEST_COMMIT_IMPL" | cut -c1-12)
     write_gate_file \
-        2 \
+        3 \
         "$CANONICAL_URL" \
         "refs/heads/product/noor-personal-mvp" \
         "$TEST_COMMIT_IMPL" \
@@ -281,7 +367,7 @@ make_create_gate() {
         "$expires" \
         "$GATE_NONCE" \
         "TEST_AUTHORITY" \
-        3
+        4
 }
 
 # Generate a valid UPDATE gate. Sets GATE_NONCE.
@@ -291,7 +377,7 @@ make_update_gate() {
     expires=$((now + 3600))
     suffix=$(printf '%s' "$TEST_CHILD_COMMIT" | cut -c1-12)
     write_gate_file \
-        2 \
+        3 \
         "$CANONICAL_URL" \
         "refs/heads/product/noor-personal-mvp" \
         "$TEST_CHILD_COMMIT" \
@@ -302,7 +388,7 @@ make_update_gate() {
         "$expires" \
         "$GATE_NONCE" \
         "TEST_AUTHORITY" \
-        3
+        4
 }
 
 make_annotated_tag() {
@@ -317,7 +403,7 @@ make_tag_gate() {
     now=$(date -u '+%s')
     expires=$((now + 3600))
     write_gate_file \
-        2 \
+        3 \
         "$CANONICAL_URL" \
         "refs/tags/$TEST_TAG_NAME" \
         "$TEST_TAG_OBJECT" \
@@ -328,7 +414,7 @@ make_tag_gate() {
         "$expires" \
         "$GATE_NONCE" \
         "TEST_AUTHORITY" \
-        3
+        4
 }
 
 # ---------------------------------------------------------------------------
@@ -431,6 +517,53 @@ run_simulated_push() {
     assert_exit "$expected_exit" "$total_exit" "simulated push"
 }
 
+# Centralized deterministic per-test execution.
+# Runs the test function in a controlled subshell that safely captures the exit
+# code without allowing set -e to terminate the parent runner.
+# The test function performs its own accounting via begin_test/pass/fail.
+# If the test exits before completing its accounting (set -e triggered before
+# pass/fail), this function handles the missing accounting so the runner
+# always reaches the final summary.
+run_test_case() {
+    test_id=$1
+    test_func=$2
+
+    # Run test in a subshell to isolate set -e, but capture accounting
+    _acct_file="$TEST_BASE/.acct-${test_id}-$$"
+    mkdir -p "$TEST_BASE" 2>/dev/null || true
+
+    set +e
+    (
+        set -e
+        $test_func
+        # Ensure accounting directory exists after test cleanup
+        mkdir -p "$TEST_BASE" 2>/dev/null || true
+        printf '%s %s %s\n' "$PASS_COUNT" "$FAIL_COUNT" "$TOTAL_TEST_COUNT" > "$_acct_file"
+    )
+    rc=$?
+    set -e
+
+    # Read accounting from the file
+    if [ -f "$_acct_file" ]; then
+        read _new_pass _new_fail _new_total < "$_acct_file"
+        rm -f "$_acct_file"
+        PASS_COUNT=$_new_pass
+        FAIL_COUNT=$_new_fail
+        TOTAL_TEST_COUNT=$_new_total
+    else
+        # Test didn't create accounting file - assume accounting not completed
+        if [ "$rc" -eq 0 ]; then
+            PASS_COUNT=$((PASS_COUNT + 1))
+            TOTAL_TEST_COUNT=$((TOTAL_TEST_COUNT + 1))
+            echo "PASS: $test_id (no accounting output from test)"
+        else
+            FAIL_COUNT=$((FAIL_COUNT + 1))
+            TOTAL_TEST_COUNT=$((TOTAL_TEST_COUNT + 1))
+            echo "FAIL: $test_id (exited $rc; no accounting from test)"
+        fi
+    fi
+}
+
 # Backward-compatible wrapper for run_push used by older tests
 run_push() {
     refspec=$1
@@ -453,8 +586,12 @@ run_publish_once_with_candidate_hook() {
     shift
     wrapper_dir="$WORKSPACE/publish-once-git-wrapper"
     mkdir -p "$wrapper_dir"
-    export NOOR_TEST_REAL_GIT="$(command -v git)"
+    # NOOR_TEST_REAL_GIT is captured before shim PATH injection in
+    # copy_publication_control_artifacts(). Do not re-resolve 'git' here
+    # because at this point 'git' resolves to the shim, not the real git.
+    export NOOR_TEST_REAL_GIT="${NOOR_TEST_REAL_GIT:-}"
     export NOOR_TEST_CANONICAL_URL="$CANONICAL_URL"
+    export NOOR_TEST_SHIM_GIT="${NOOR_TEST_GIT_SHIM:-$WORKSPACE/git-shim}/git"
 
     {
         printf '%s\n' '#!/bin/sh'
@@ -464,11 +601,21 @@ run_publish_once_with_candidate_hook() {
         printf '%s\n' '    refspec=$3'
         printf '%s\n' '    source_ref=${refspec%%:*}'
         printf '%s\n' '    destination_ref=${refspec#*:}'
-        printf '%s\n' '    source_object=$("$NOOR_TEST_REAL_GIT" rev-parse --verify "$source_ref")'
-        printf '%s\n' '    remote_object=$("$NOOR_TEST_REAL_GIT" ls-remote --refs -- "$remote_url" "$destination_ref" | awk "NR == 1 { print \$1 }")'
+        printf '%s\n' '    if [ -z "$source_ref" ]; then'
+        printf '%s\n' '        source_ref='"'"'(delete)'"'"''
+        printf '%s\n' '        source_object=0000000000000000000000000000000000000000'
+        printf '%s\n' '        remote_object=$("$NOOR_TEST_SHIM_GIT" ls-remote --refs -- "$remote_url" "$destination_ref" | awk "NR == 1 { print \$1 }")'
+        printf '%s\n' '    else'
+        printf '%s\n' '        source_object=$("$NOOR_TEST_REAL_GIT" rev-parse --verify "$source_ref")'
+        printf '%s\n' '        remote_object=$("$NOOR_TEST_REAL_GIT" ls-remote --refs -- "$remote_url" "$destination_ref" | awk "NR == 1 { print \$1 }")'
+        printf '%s\n' '    fi'
         printf '%s\n' '    [ -n "$remote_object" ] || remote_object=0000000000000000000000000000000000000000'
         printf '%s\n' '    printf "%s %s %s %s\\n" "$source_ref" "$source_object" "$destination_ref" "$remote_object" | .git/hooks/pre-push "$remote_url" "$NOOR_TEST_CANONICAL_URL"'
-        printf '%s\n' '    exec "$NOOR_TEST_REAL_GIT" push --no-verify "$remote_url" "$refspec"'
+        printf '%s\n' '    exec "$NOOR_TEST_SHIM_GIT" push --no-verify "$remote_url" "$refspec"'
+        printf '%s\n' 'fi'
+        printf '%s\n' '# Chain non-push calls through the test transport shim'
+        printf '%s\n' 'if [ -n "${NOOR_TEST_SHIM_GIT-}" ] && [ -x "$NOOR_TEST_SHIM_GIT" ]; then'
+        printf '%s\n' '    exec "$NOOR_TEST_SHIM_GIT" "$@"'
         printf '%s\n' 'fi'
         printf '%s\n' 'exec "$NOOR_TEST_REAL_GIT" "$@"'
     } > "$wrapper_dir/git"
@@ -479,6 +626,7 @@ run_publish_once_with_candidate_hook() {
     PUBLISH_ONCE_EXIT=$?
     set -e
 }
+
 
 # ---------------------------------------------------------------------------
 # State helpers
@@ -522,9 +670,12 @@ remote_ref_count() {
 # ---------------------------------------------------------------------------
 cleanup_test_env() {
     rm -rf "$WORKSPACE"
-    rm -rf "$TEST_BASE" 2>/dev/null || true
+    export PATH="$ORIGINAL_PATH"
+    unset NOOR_TEST_REAL_GIT NOOR_TEST_GIT_SHIM NOOR_TEST_CANONICAL_URL NOOR_TEST_SHIM_GIT
 }
 
 teardown_all() {
+    export PATH="$ORIGINAL_PATH"
+    unset NOOR_TEST_REAL_GIT NOOR_TEST_GIT_SHIM NOOR_TEST_CANONICAL_URL NOOR_TEST_SHIM_GIT
     rm -rf "$TEST_BASE" 2>/dev/null || true
 }
