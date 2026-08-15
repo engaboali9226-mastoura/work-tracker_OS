@@ -3,22 +3,22 @@
 ## 1. Current Contract Status
 
 - Document type: Platform Shell architecture contract.
-- Status: GOVERNANCE-RESOLVED / DEPENDENCY-PRECONDITIONS-COMPLETE / POST-DEPENDENCY DOCUMENTATION RECONCILIATION CANDIDATE / INDEPENDENT-REVIEW-GATED.
+- Status: SHELL FOUNDATION IMPLEMENTED / ACCEPTED; PROTECTED ROUTING FOUNDATION IMPLEMENTED / SECURITY-REVIEWED / ACCEPTED.
 - Governance decisions: 11 / 11 RESOLVED.
 - Shell-foundation design boundary: RESOLVED.
-- Implementation: NOT AUTHORIZED.
+- Shell Foundation implementation: IMPLEMENTED / ACCEPTED.
 - Production-runnable Platform Shell: NOT YET AVAILABLE.
-- Current implementation model: SHELL FOUNDATION ONLY.
+- Current implementation model: ACCEPTED SHELL FOUNDATION + ACCEPTED PROTECTED ROUTING FOUNDATION; FOUNDATION-ONLY / NOT PRODUCTION-RUNNABLE.
 - Foundation Core dependency reconciliation: CLOSED.
 - Decision-10 test-toolchain reconciliation: CLOSED.
 - Overall dependency readiness: DEPENDENCY_PRECONDITIONS_COMPLETE.
-- Remaining dependency-specific blocker before a separately authorized Shell Foundation implementation: NONE.
-- SHELL_FOUNDATION_IMPLEMENTATION_AUTHORIZED: NOT AUTHORIZED.
-- Review-gate marker: PLATFORM_SHELL_POST_DEPENDENCY_DOCUMENTATION_RECONCILIATION_CANDIDATE_REVIEW_GATED.
+- Shell Foundation implementation status: IMPLEMENTED / ACCEPTED.
+- Protected Routing Foundation: IMPLEMENTED / SECURITY-REVIEWED / ACCEPTED.
+- Protected Routing Production Wiring: NOT STARTED / NOT AUTHORIZED.
 
-PM governance has resolved all eleven decisions, and both dependency-reconciliation triggers are closed. This document remains a post-dependency documentation reconciliation candidate under a durable independent-review gate. It makes no claim about the occurrence or result of any external review. Independent review acceptance is required before a separate local documentation Commit may be considered, and neither dependency closure, this document, nor an independent review authorizes implementation.
+PM governance has resolved all eleven decisions, and both dependency-reconciliation triggers are closed. The Shell Foundation was subsequently implemented and accepted. The Protected Routing Foundation was subsequently implemented, security-reviewed, and accepted. These accepted foundation states do not make the Platform Shell production-runnable and do not authorize Protected Routing Production Wiring. Production-runnable Platform integration remains a separately governed future task.
 
-### Current committed baseline before this working candidate
+### Historical committed baseline before the original reconciliation candidate
 
 - Branch: product/noor-personal-mvp
 - HEAD: 2316b712b6b5ae343783dfe41dca42017249ba4a
@@ -367,7 +367,7 @@ package-lock.json may change only under a separately authorized dependency recon
 
 - DEPENDENCY_PRECONDITIONS_COMPLETE.
 - Remaining dependency-specific blocker before a separately authorized Shell Foundation implementation: NONE.
-- SHELL_FOUNDATION_IMPLEMENTATION_AUTHORIZED: NOT AUTHORIZED.
+- SHELL_FOUNDATION_IMPLEMENTATION_STATUS: IMPLEMENTED / ACCEPTED; NO NEW IMPLEMENTATION AUTHORITY IS GRANTED BY THIS CONTRACT.
 - Dependency closure, documentation reconciliation, and review acceptance do not transfer implementation authorization. Separate explicit mutation authorization remains required.
 
 ### apps/web/tsconfig.json responsibility
@@ -446,7 +446,7 @@ Optional browser automation is separate. No Playwright, Puppeteer, or other brow
 
 ## 7. Explicit Excluded and Unauthorized Work
 
-- Protected Routing: NOT STARTED / NOT AUTHORIZED.
+- Protected Routing Foundation: IMPLEMENTED / SECURITY-REVIEWED / ACCEPTED. Protected Routing Production Wiring: NOT STARTED / NOT AUTHORIZED.
 - App Launcher: NOT STARTED / NOT AUTHORIZED.
 - Step 044: NOT AUTHORIZED.
 - Noor Personal implementation: NOT AUTHORIZED BY THIS RECONCILIATION.
