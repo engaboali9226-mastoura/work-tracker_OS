@@ -10,3 +10,4 @@ export * from "./repository/in-memory-repository.js";
 export * from "./repository/in-memory-user-scoped-repository.js";
 export * from "./session/cryptographic-session-id-generator.js";
 export * from "./session/fixed-session-lifetime-policy.js";
+export * from "./session/supabase-postgres-session-repository.js";
