@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@worktracker/core": "0.0.1",
-    "@worktracker/shared": "0.0.1"
+    "@worktracker/shared": "0.0.1",
+    "jose": "6.2.9"
   }
 }
