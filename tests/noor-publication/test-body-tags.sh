@@ -3,7 +3,7 @@ set -eu
 set -f
 LC_ALL=C
 
-# T30-T33 cover the policy-v3 annotated-tag authority path in isolated repos.
+# T30-T33 cover the current Policy-v5 annotated-tag authority path in isolated repos.
 
 test_t30() {
     begin_test "T30"

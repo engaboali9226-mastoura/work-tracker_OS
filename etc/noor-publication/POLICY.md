@@ -3,7 +3,7 @@
 ## Schema Version
 
 - **Gate Schema Version:** `3`
-- **Hook Policy Version:** `4`
+- **Hook Policy Version:** `5`
 
 ## Canonical Protected Ref
 
@@ -12,6 +12,24 @@
 ## Publication Namespace
 
 - `refs/heads/pub/<12-lowercase-hex>`
+
+## Legacy Non-Publication Delete Allowlist
+
+Hook Policy v5 preserves the existing `refs/heads/pub/<12-lowercase-hex>`
+publication namespace and does not authorize general deletion of non-publication
+branches.
+
+`DELETE_NON_PROTECTED_BRANCH_EXACT_OBJECT` may additionally target only one of
+the following exact legacy ref/object pairs:
+
+- `refs/heads/codex/noor-ci-workspace-integration` -> `9427b2574488a3a3b3144d7da63332cdabb9d0aa`
+- `refs/heads/codex/platform-app-catalog-foundation` -> `3097814d5f2195c35d3308ff96c90abd149c1bd9`
+- `refs/heads/codex/platform-application-composition-foundation` -> `68fa2995c5be8193a269edc45117d1adc6f6dcba`
+- `refs/heads/agents/workspace-package-entrypoint-contract-repair` -> `7ab046ac2fe8fa89c4c1031bfead41dfa7aa4b6d`
+
+The ref and `REQUIRED_REMOTE_OBJECT` must match the same allowlisted pair
+exactly. Wildcard authorization for `codex/*`, `agents/*`, or arbitrary
+`refs/heads/*` is forbidden. Remote drift remains fail-closed.
 
 ## Supported Operations
 
@@ -41,7 +59,7 @@ a delete refspec does not, by itself, authorize any live deletion.
 ## Canonical Hook Template SHA-256
 
 ```
-80bff5d11a5bc6290f3299b4b18b47715bb5297a5b7f883499112f91641e871e
+1f0154b7b59e22619487b6d00f652532f7d7a55d4e1aab4067e6bf64cb676e2c
 ```
 
 ## Design Candidate SHA-256
@@ -54,9 +72,13 @@ a delete refspec does not, by itself, authorize any live deletion.
 
 `PUBLICATION_CONTROL_DESIGN_CORRECTED`
 
-## Accepted Review Decision
+## Historical Accepted Review Decision — Policy-v4 Baseline
 
 `PUBLICATION_CONTROL_CANDIDATE_ACCEPTED`
+
+This decision records acceptance of the previously reviewed Policy-v4 baseline only.
+It does not constitute acceptance of the current Policy-v5 candidate. The Policy-v5
+candidate requires a fresh independent adversarial re-review after the current local repair.
 
 ## Raw Ruleset-Evidence Hashes
 
@@ -71,7 +93,7 @@ a delete refspec does not, by itself, authorize any live deletion.
 
 - v1 hook (SHA `4c6f4814fb1ad65558cac9d0d2304046b5429a849c47973c73c762cf4f4e9ddd`) is backed up to `backups/pre-push.4c6f4814…` at bootstrap.
 - v1 consumed gate (`consumed/dc14eb36845a7d8fa3ae242fcfda7ac3.gate`) is preserved and untouched.
-- Active authority requires `SCHEMA_VERSION=3` and `HOOK_POLICY_VERSION=4` for all four operations.
+- Active authority requires `SCHEMA_VERSION=3` and `HOOK_POLICY_VERSION=5` for all four operations.
 - Historical consumed v2/p3 gates remain immutable historical evidence only; they are not reusable active authority.
 - Deletion semantics: SOURCE_REF=(delete), SOURCE_OBJECT=0000..., REQUIRED_REMOTE_OBJECT=<exact nonzero>, remote drift is fail-closed.
 - Protected branch (product/noor-personal-mvp) deletion is always rejected.

@@ -3,8 +3,8 @@ set -eu
 set -f
 LC_ALL=C
 
-# Noor Personal publication-control v3 acceptance-test runner.
-# Runs the complete T01-T29 matrix against task-created temporary
+# Noor Personal publication-control Policy-v5 acceptance-test runner.
+# Runs the complete T01-T53 matrix against task-created temporary
 # repositories and mock remotes under /tmp.
 #
 # Usage:

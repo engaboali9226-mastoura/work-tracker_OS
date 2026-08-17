@@ -3,17 +3,17 @@ set -eu
 set -f
 LC_ALL=C
 
-# Noor Personal publication-control v3 gate generator.
+# Noor Personal publication-control Policy-v5 gate generator.
 # Creates a single-use active.gate for an authorized publication.
 #
 # Usage:
-#   generate-gate.sh --operation CREATE|UPDATE --source-ref <REF> \
+#   generate-gate.sh --operation CREATE_NON_PROTECTED_BRANCH_EXACT_OBJECT|UPDATE_NON_PROTECTED_BRANCH_FAST_FORWARD|CREATE_ANNOTATED_TAG_EXACT_OBJECT|DELETE_NON_PROTECTED_BRANCH_EXACT_OBJECT --source-ref <REF> \
 #       --source-object <COMMIT> --destination-ref <REF> \
 #       --required-remote-object <OBJECT> [--authority-id <ID>] \
 #       [--nonce <NONCE>] [--ttl <SECONDS>] [--expires-at <EPOCH>] [--dry-run]
 
 usage() {
-    echo "Usage: generate-gate.sh --operation CREATE|UPDATE --source-ref <REF> --source-object <COMMIT> --destination-ref <REF> --required-remote-object <OBJECT> [--authority-id <ID>] [--nonce <NONCE>] [--ttl <SECONDS>] [--expires-at <EPOCH>] [--dry-run]" >&2
+    echo "Usage: generate-gate.sh --operation CREATE_NON_PROTECTED_BRANCH_EXACT_OBJECT|UPDATE_NON_PROTECTED_BRANCH_FAST_FORWARD|CREATE_ANNOTATED_TAG_EXACT_OBJECT|DELETE_NON_PROTECTED_BRANCH_EXACT_OBJECT --source-ref <REF> --source-object <COMMIT> --destination-ref <REF> --required-remote-object <OBJECT> [--authority-id <ID>] [--nonce <NONCE>] [--ttl <SECONDS>] [--expires-at <EPOCH>] [--dry-run]" >&2
     exit 2
 }
 
@@ -207,6 +207,16 @@ done
 [ -n "$DESTINATION_REF" ] || usage
 [ -n "$REQUIRED_REMOTE_OBJECT" ] || usage
 
+legacy_nonpub_delete_pair_allowed() {
+    case "$1|$2" in
+        "refs/heads/codex/noor-ci-workspace-integration|9427b2574488a3a3b3144d7da63332cdabb9d0aa") return 0 ;;
+        "refs/heads/codex/platform-app-catalog-foundation|3097814d5f2195c35d3308ff96c90abd149c1bd9") return 0 ;;
+        "refs/heads/codex/platform-application-composition-foundation|68fa2995c5be8193a269edc45117d1adc6f6dcba") return 0 ;;
+        "refs/heads/agents/workspace-package-entrypoint-contract-repair|7ab046ac2fe8fa89c4c1031bfead41dfa7aa4b6d") return 0 ;;
+    esac
+    return 1
+}
+
 # Validate operation
 [ "$OPERATION" = "CREATE_NON_PROTECTED_BRANCH_EXACT_OBJECT" ] || \
 [ "$OPERATION" = "UPDATE_NON_PROTECTED_BRANCH_FAST_FORWARD" ] || \
@@ -339,11 +349,20 @@ case "$OPERATION" in
         [ "$peeled_target" = "$tag_target" ] || deny "annotated tag peel does not match direct target"
         ;;
     DELETE_NON_PROTECTED_BRANCH_EXACT_OBJECT)
-        case "$DESTINATION_REF" in refs/heads/pub/*) ;; *) deny "delete operation destination not in pub namespace" ;; esac
         case "$DESTINATION_REF" in refs/tags/*) deny "tag deletion not authorized by branch-delete operation" ;; esac
-        _suffix=$(printf '%s' "$DESTINATION_REF" | sed 's|^refs/heads/pub/||')
-        printf '%s' "$_suffix" | grep -Eq '^[0-9a-f]{12}$' || deny "destination suffix format invalid"
-        # Verify destination ref exists on remote
+        case "$DESTINATION_REF" in
+            refs/heads/pub/*)
+                _suffix=$(printf '%s' "$DESTINATION_REF" | sed 's|^refs/heads/pub/||')
+                printf '%s' "$_suffix" | grep -Eq '^[0-9a-f]{12}$' || deny "destination suffix format invalid"
+                ;;
+            refs/heads/*)
+                legacy_nonpub_delete_pair_allowed "$DESTINATION_REF" "$REQUIRED_REMOTE_OBJECT" ||
+                    deny "delete operation destination not authorized by pub namespace or legacy exact allowlist"
+                ;;
+            *)
+                deny "delete operation destination is not a branch ref"
+                ;;
+        esac
         remote_line=$(git ls-remote -- "$CANONICAL_URL" "$DESTINATION_REF" 2>/dev/null || deny "cannot verify remote state")
         [ -n "$remote_line" ] || deny "destination ref not found on remote"
         set -- $remote_line
@@ -356,9 +375,9 @@ esac
 # Build the gate file (lines 1-13 first)
 TMP_GATE="$GATE_DIR/.gate.tmp.$$"
 
-# All new gates use schema v3 and policy v4
+# All new gates use schema v3 and policy v5
 GATE_SCHEMA_VERSION=3
-GATE_POLICY_VERSION=4
+GATE_POLICY_VERSION=5
 
 cat > "$TMP_GATE" <<EOF
 SCHEMA_VERSION=$GATE_SCHEMA_VERSION

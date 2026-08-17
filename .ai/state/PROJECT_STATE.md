@@ -37,7 +37,8 @@ are not timeless assertions of live repository identity.
 - Accepted scope: `SHELL FOUNDATION ONLY`; this is not production-runnable Platform integration.
 - Protected Routing Foundation: `IMPLEMENTED / SECURITY-REVIEWED / ACCEPTED / represented in the accepted canonical merged state`.
 - Protected Routing Foundation scope: `FOUNDATION ONLY`; it is not production-runnable Platform integration and does not provide production authentication, session, or authorization wiring.
-- Current publication runtime: `Policy v3`; hook SHA-256: `80bff5d11a5bc6290f3299b4b18b47715bb5297a5b7f883499112f91641e871e`; `active.gate`, `state.lock`, and `consume.lock` are absent.
+- Current publication-control tracked candidate: Gate Schema v3 / Hook Policy v5; it is pending independent re-review and is not installed runtime authority.
+- Installed authoritative publication runtime remains accepted Hook Policy v4; installed hook SHA-256: `6e4dd829556584e964c4334bf2027ad4a38de0a23b869d37edc41645501cd84e`; `active.gate`, `state.lock`, and `consume.lock` are absent.
 
 ### Annotated Tag Publication Control Extension — Closed
 
@@ -281,7 +282,7 @@ At the time of the accepted candidate and pre-commit reviews, the reviewed repos
 
 ### Publication Control v1
 
-Publication Control v1 remains historical context only when relevant to earlier governance. The current authoritative publication-control state is Publication Control v2.
+Publication Control v1 and Publication Control v2 remain historical governance lineage. The current tracked publication-control candidate is Gate Schema v3 / Hook Policy v5; the accepted installed authoritative runtime remains Hook Policy v4 until a separately authorized Policy-v5 hook installation.
 
 ### Publication Control v2
 
@@ -337,17 +338,21 @@ No active publication operation remains.
 - latest consumed update Gate nonce:
   `20d96dd5a712a34974b87f6d82816154`
 
-Persistent Publication Control v2 mechanism:
+Persistent installed publication-control runtime:
 
-- tracked canonical hook template:
+- tracked Policy-v5 candidate hook template:
   `etc/noor-publication/pre-push.noor-policy-hook`
-- installed local hook:
+- installed authoritative local hook:
   `.git/hooks/pre-push`
-- the installed hook is byte-identical to the tracked canonical template;
-- accepted SHA-256:
-  `d3af0d831b4424436a7e458da64ec8cf07b9904a6fb398d0dde891196ad88dac`
-- the Publication Control v2 hook mechanism remains installed and current;
-- consumption or revocation of an individual Gate does not remove, consume, supersede, or deactivate the persistent hook mechanism.
+- the installed accepted Hook Policy v4 intentionally differs from the tracked
+  Policy-v5 candidate template during this pre-installation lifecycle;
+- installed Hook Policy v4 SHA-256:
+  `6e4dd829556584e964c4334bf2027ad4a38de0a23b869d37edc41645501cd84e`
+- tracked Policy-v5 candidate hook SHA-256:
+  `1f0154b7b59e22619487b6d00f652532f7d7a55d4e1aab4067e6bf64cb676e2c`
+- the accepted Hook Policy v4 runtime remains installed and authoritative;
+- consumption or revocation of an individual Gate does not remove, consume,
+  supersede, or deactivate the persistent hook mechanism.
 
 One-time publication authorities remain historical evidence:
 
@@ -362,7 +367,7 @@ One-time publication authorities remain historical evidence:
 - latest consumed UPDATE Gate nonce:
   `20d96dd5a712a34974b87f6d82816154`
 
-The persistent hook mechanism remains installed and current even while a single-use Gate has been consumed. The one-time Gate is not the Publication Control v2 mechanism itself.
+The accepted persistent Hook Policy v4 runtime remains installed and authoritative even while a single-use Gate has been consumed. A one-time Gate is not the persistent publication-control runtime itself.
 
 ## Step 044 Reports
 
@@ -688,7 +693,7 @@ Everything in this subsection is historical and has no present authority.
 - Prior historical Application Composition acceptance-state reconciliation tree lineage: `5ec87ba30535fc6cb7d0ffbe13f196ebb974dc96`
 - Neither value is the live repository identity, and neither predicts a future repository identity.
 - PR #4 remains part of the historical record, but it is not the current publication state.
-- Publication Control v2 is not future or incomplete work; it is part of the accepted current state.
+- Publication Control v2 remains accepted historical publication-control lineage; it is not the current installed runtime policy.
 - The source-branch publication lineage has been rebased and resolved; the older PR #5 result and its tree remain historical publication and synchronization lineage, not the current committed product baseline.
 - Single-use publication gate: consumed and no longer active.
 - No active publication authority remains.
@@ -710,26 +715,26 @@ Everything in this subsection is historical and has no present authority.
 - Remote or push-URL modification: UNAUTHORIZED
 - Production-runnable Platform integration: NOT AUTHORIZED
 - Production authentication/session/authorization integration: NOT AUTHORIZED
-- Protected Routing Foundation: IMPLEMENTED / SECURITY-REVIEWED / LOCALLY-COMMITTED / ACCEPTED
+- Protected Routing Foundation: IMPLEMENTED / SECURITY-REVIEWED / ACCEPTED / REPRESENTED-IN-ACCEPTED-CANONICAL-MERGED-STATE
 - Protected Routing production wiring: NOT STARTED / NOT AUTHORIZED
 - App Launcher: NOT STARTED / NOT AUTHORIZED
 - Noor Personal production Application View mounting: NOT AUTHORIZED
 - Noor Work production Application View mounting: NOT AUTHORIZED
 - Step 044 implementation: UNAUTHORIZED
 - Further dependency mutation: NOT AUTHORIZED unless separately authorized
-- Stable milestone tag: NOT CREATED / NOT AUTHORIZED unless separately authorized
+- Stable milestone tag: `platform-annotated-tag-publication-control-v1.0.0` is published and fully closed; no further tag action is current.
 - This repair authorizes only its explicitly authorized working-file change. After independent acceptance, Stage, Commit, publication, PR, Merge, and Tag each remain separately authorized; no implementation phase is auto-authorized.
 
 ## Publication Governance
 
-- Persistent Publication Control v2 hook mechanism: installed and current
+- Persistent publication-control runtime: accepted installed Hook Policy v4 remains authoritative; the tracked Policy-v5 candidate is uninstalled and pending independent re-review
 - Single-use publication gate: consumed and no longer active
 - Publication: completed and accepted
 - PR #4: merged
 - PR #5: merged
 - PR #6: merged (historical Shell Foundation milestone)
 - PR #7: merged (historical documentation-closure milestone)
-- Protected Routing Foundation implementation commit: `LOCAL COMMIT ONLY`; no Push, publication Gate, PR, Merge, protected-branch publication, Tag, or deployment.
+- Protected Routing Foundation: represented in the accepted canonical merged state; production wiring and deployment remain `NOT STARTED / NOT AUTHORIZED`.
 - `active.gate`: absent
 - `state.lock`: absent
 - `consume.lock`: absent
@@ -742,7 +747,7 @@ Everything in this subsection is historical and has no present authority.
   - `LOCAL_PRODUCT_BRANCH_SYNCHRONIZED_ACCEPTED`
   - Shell Foundation: `IMPLEMENTED / ACCEPTED / STABLY-PUBLISHED-TO-PROTECTED-BRANCH`
   - PR #7 documentation closure: historical rebase-merge milestone accepted
-  - Protected Routing Foundation: `IMPLEMENTED / SECURITY-REVIEWED / LOCALLY-COMMITTED / ACCEPTED`
+  - Protected Routing Foundation: `IMPLEMENTED / SECURITY-REVIEWED / ACCEPTED / represented in the accepted canonical merged state`
 
 ## Historical Authorization Boundary — Pre-PR6
 
@@ -756,6 +761,6 @@ Everything in this subsection is historical and has no present authority.
 - Step 044 implementation: NOT AUTHORIZED
 - Further dependency mutation: NOT AUTHORIZED unless separately authorized
 - Push/publication, Gate creation/consumption, PR, Merge, Tag, and deployment: NOT AUTHORIZED by this reconciliation
-- Stable milestone tag: PENDING (historical pre-PR6 wording; current Post-PR6 status is NOT CREATED / NOT AUTHORIZED BY THIS TASK)
+- Stable milestone tag: `PENDING` is preserved only as historical pre-PR6 wording; current status is `platform-annotated-tag-publication-control-v1.0.0` published and fully closed.
 - Do not approve or invent a final tag name.
 - Installing another active publication gate is not the current next phase.

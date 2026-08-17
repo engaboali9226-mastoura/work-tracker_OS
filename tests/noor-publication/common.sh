@@ -13,6 +13,7 @@ LC_ALL=C
 CANONICAL_URL='https://github.com/engaboali9226-mastoura/work-tracker_OS.git'
 ZERO_OBJECT='0000000000000000000000000000000000000000'
 SENTINEL_URL='no_push://noor-personal-dev'
+ACTIVE_HOOK_POLICY_VERSION=5
 
 # Root of this repository (used for locating tracked artifacts).
 # Resolve from the live working tree rather than the shell invocation so source
@@ -367,7 +368,7 @@ make_create_gate() {
         "$expires" \
         "$GATE_NONCE" \
         "TEST_AUTHORITY" \
-        4
+        "$ACTIVE_HOOK_POLICY_VERSION"
 }
 
 # Generate a valid UPDATE gate. Sets GATE_NONCE.
@@ -388,7 +389,7 @@ make_update_gate() {
         "$expires" \
         "$GATE_NONCE" \
         "TEST_AUTHORITY" \
-        4
+        "$ACTIVE_HOOK_POLICY_VERSION"
 }
 
 make_annotated_tag() {
@@ -414,7 +415,7 @@ make_tag_gate() {
         "$expires" \
         "$GATE_NONCE" \
         "TEST_AUTHORITY" \
-        4
+        "$ACTIVE_HOOK_POLICY_VERSION"
 }
 
 # ---------------------------------------------------------------------------
