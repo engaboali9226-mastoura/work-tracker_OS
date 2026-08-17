@@ -1,4 +1,5 @@
 export * from "./configuration/configuration-provider.js";
+export * from "./configuration/noor-production-runtime-configuration.js";
 export * from "./storage/storage-provider.js";
 export * from "./database/database-provider.js";
 export * from "./http/http-client.js";
