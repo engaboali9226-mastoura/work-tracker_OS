@@ -3,8 +3,8 @@ set -eu
 set -f
 LC_ALL=C
 
-# T35-T44 test bodies for DELETE_NON_PROTECTED_BRANCH_EXACT_OBJECT operations
-# in the Noor Personal publication-control v4 acceptance suite.
+# T35-T53 test bodies for DELETE_NON_PROTECTED_BRANCH_EXACT_OBJECT operations
+# in the Noor Personal publication-control Policy-v5 acceptance suite.
 # These functions are sourced by run-tests.sh.
 
 # ---------------------------------------------------------------------------
@@ -37,7 +37,7 @@ test_t35() {
         "$expires" \
         "$GATE_NONCE" \
         "TEST_AUTHORITY" \
-        4
+        "$ACTIVE_HOOK_POLICY_VERSION"
 
     # Attempt the deletion push using real delete tuple
     run_simulated_push "(delete)" "$dest_ref" 0 0
@@ -80,7 +80,7 @@ test_t36() {
         "$expires" \
         "$GATE_NONCE" \
         "TEST_AUTHORITY" \
-        4
+        "$ACTIVE_HOOK_POLICY_VERSION"
 
     # Attempt to push with (delete) local_ref
     run_simulated_push "(delete)" "refs/heads/product/noor-personal-mvp" 0 1
@@ -119,7 +119,7 @@ test_t37() {
         "$expires" \
         "$GATE_NONCE" \
         "TEST_AUTHORITY" \
-        4
+        "$ACTIVE_HOOK_POLICY_VERSION"
 
     # Attempt deletion when remote ref doesn't exist
     run_simulated_push "(delete)" "$dest_ref" 0 1
@@ -169,7 +169,7 @@ test_t38() {
         "$expires" \
         "$GATE_NONCE" \
         "TEST_AUTHORITY" \
-        4
+        "$ACTIVE_HOOK_POLICY_VERSION"
 
     # Attempt deletion - should fail because remote object doesn't match
     run_simulated_push "(delete)" "$dest_ref" 0 1
@@ -208,7 +208,7 @@ test_t39() {
         "$expires" \
         "$GATE_NONCE" \
         "TEST_AUTHORITY" \
-        4
+        "$ACTIVE_HOOK_POLICY_VERSION"
 
     # Attempt to delete a tag with branch-delete operation
     run_simulated_push "(delete)" "$tag_ref" 0 1
@@ -250,7 +250,7 @@ test_t40() {
         "$expires" \
         "$GATE_NONCE" \
         "TEST_AUTHORITY" \
-        4
+        "$ACTIVE_HOOK_POLICY_VERSION"
 
     # First deletion succeeds
     run_simulated_push "(delete)" "$dest_ref" 0 0
@@ -321,7 +321,7 @@ test_t41() {
         "$expires" \
         "$GATE_NONCE" \
         "TEST_AUTHORITY" \
-        4
+        "$ACTIVE_HOOK_POLICY_VERSION"
 
     # Supply multiple valid pre-push stdin update lines, each a valid DELETE
     # tuple matching the gate. The hook must reject specifically because the
@@ -405,7 +405,7 @@ test_t43() {
         "$expires" \
         "$GATE_NONCE" \
         "TEST_AUTHORITY" \
-        4
+        "$ACTIVE_HOOK_POLICY_VERSION"
 
     # Run the actual candidate publisher and verifier path through the existing
     # helper so authorization uses canonical hook identity and transport remains
@@ -462,7 +462,7 @@ test_t46() {
     now=$(date -u '+%s')
     expires=$((now + 3600))
     write_gate_file \
-        3 "$CANONICAL_URL" "refs/heads/product/noor-personal-mvp" "$TEST_CHILD_COMMIT" "$dest_ref" "$TEST_COMMIT_IMPL" "UPDATE_NON_PROTECTED_BRANCH_FAST_FORWARD" "$now" "$expires" "$GATE_NONCE" "TEST_AUTHORITY" 4
+        3 "$CANONICAL_URL" "refs/heads/product/noor-personal-mvp" "$TEST_CHILD_COMMIT" "$dest_ref" "$TEST_COMMIT_IMPL" "UPDATE_NON_PROTECTED_BRANCH_FAST_FORWARD" "$now" "$expires" "$GATE_NONCE" "TEST_AUTHORITY" "$ACTIVE_HOOK_POLICY_VERSION"
 
     printf '%s %s %s %s\n' "(delete)" "$ZERO_OBJECT" "$dest_ref" "$TEST_COMMIT_IMPL" > "$WORKSPACE/update-delete.stdin"
     set +e
@@ -487,7 +487,7 @@ test_t47() {
     now=$(date -u '+%s')
     expires=$((now + 3600))
     write_gate_file \
-        3 "$CANONICAL_URL" "$tag_ref" "$TEST_TAG_OBJECT" "$tag_ref" "$ZERO_OBJECT" "CREATE_ANNOTATED_TAG_EXACT_OBJECT" "$now" "$expires" "$GATE_NONCE" "TEST_AUTHORITY" 4
+        3 "$CANONICAL_URL" "$tag_ref" "$TEST_TAG_OBJECT" "$tag_ref" "$ZERO_OBJECT" "CREATE_ANNOTATED_TAG_EXACT_OBJECT" "$now" "$expires" "$GATE_NONCE" "TEST_AUTHORITY" "$ACTIVE_HOOK_POLICY_VERSION"
 
     printf '%s %s %s %s\n' "(delete)" "$ZERO_OBJECT" "$tag_ref" "$TEST_TAG_OBJECT" > "$WORKSPACE/tag-delete.stdin"
     set +e
@@ -513,7 +513,7 @@ test_t48() {
     now=$(date -u '+%s')
     expires=$((now + 3600))
     write_gate_file \
-        3 "$CANONICAL_URL" "(delete)" "$ZERO_OBJECT" "$dest_ref" "$TEST_COMMIT_IMPL" "DELETE_NON_PROTECTED_BRANCH_EXACT_OBJECT" "$now" "$expires" "$GATE_NONCE" "TEST_AUTHORITY" 4
+        3 "$CANONICAL_URL" "(delete)" "$ZERO_OBJECT" "$dest_ref" "$TEST_COMMIT_IMPL" "DELETE_NON_PROTECTED_BRANCH_EXACT_OBJECT" "$now" "$expires" "$GATE_NONCE" "TEST_AUTHORITY" "$ACTIVE_HOOK_POLICY_VERSION"
 
     printf '%s %s %s %s\n' "refs/heads/product/noor-personal-mvp" "$TEST_COMMIT_IMPL" "$dest_ref" "$ZERO_OBJECT" > "$WORKSPACE/delete-create.stdin"
     set +e
@@ -540,7 +540,7 @@ test_t49() {
     now=$(date -u '+%s')
     expires=$((now + 3600))
     write_gate_file \
-        3 "$CANONICAL_URL" "(delete)" "$ZERO_OBJECT" "$dest_ref" "$TEST_COMMIT_IMPL" "DELETE_NON_PROTECTED_BRANCH_EXACT_OBJECT" "$now" "$expires" "$GATE_NONCE" "TEST_AUTHORITY" 4
+        3 "$CANONICAL_URL" "(delete)" "$ZERO_OBJECT" "$dest_ref" "$TEST_COMMIT_IMPL" "DELETE_NON_PROTECTED_BRANCH_EXACT_OBJECT" "$now" "$expires" "$GATE_NONCE" "TEST_AUTHORITY" "$ACTIVE_HOOK_POLICY_VERSION"
 
     printf '%s %s %s %s\n' "refs/heads/product/noor-personal-mvp" "$TEST_CHILD_COMMIT" "$dest_ref" "$TEST_COMMIT_IMPL" > "$WORKSPACE/delete-update.stdin"
     set +e
@@ -565,7 +565,7 @@ test_t50() {
     now=$(date -u '+%s')
     expires=$((now + 3600))
     write_gate_file \
-        3 "$CANONICAL_URL" "(delete)" "$ZERO_OBJECT" "$tag_ref" "$TEST_TAG_OBJECT" "DELETE_NON_PROTECTED_BRANCH_EXACT_OBJECT" "$now" "$expires" "$GATE_NONCE" "TEST_AUTHORITY" 4
+        3 "$CANONICAL_URL" "(delete)" "$ZERO_OBJECT" "$tag_ref" "$TEST_TAG_OBJECT" "DELETE_NON_PROTECTED_BRANCH_EXACT_OBJECT" "$now" "$expires" "$GATE_NONCE" "TEST_AUTHORITY" "$ACTIVE_HOOK_POLICY_VERSION"
 
     printf '%s %s %s %s\n' "refs/tags/delete-tag-create" "$TEST_TAG_OBJECT" "$tag_ref" "$ZERO_OBJECT" > "$WORKSPACE/delete-tag-create.stdin"
     set +e
@@ -590,7 +590,7 @@ test_t51() {
     now=$(date -u '+%s')
     expires=$((now + 3600))
     write_gate_file \
-        3 "$CANONICAL_URL" "(delete)" "$ZERO_OBJECT" "$tag_ref" "$TEST_TAG_OBJECT" "DELETE_NON_PROTECTED_BRANCH_EXACT_OBJECT" "$now" "$expires" "$GATE_NONCE" "TEST_AUTHORITY" 4
+        3 "$CANONICAL_URL" "(delete)" "$ZERO_OBJECT" "$tag_ref" "$TEST_TAG_OBJECT" "DELETE_NON_PROTECTED_BRANCH_EXACT_OBJECT" "$now" "$expires" "$GATE_NONCE" "TEST_AUTHORITY" "$ACTIVE_HOOK_POLICY_VERSION"
 
     printf '%s %s %s %s\n' "(delete)" "$ZERO_OBJECT" "$tag_ref" "$TEST_TAG_OBJECT" > "$WORKSPACE/delete-tag-delete.stdin"
     set +e
@@ -615,7 +615,7 @@ test_t52() {
     now=$(date -u '+%s')
     expires=$((now + 3600))
     write_gate_file \
-        3 "$CANONICAL_URL" "(delete)" "$TEST_COMMIT_IMPL" "$dest_ref" "$TEST_COMMIT_IMPL" "DELETE_NON_PROTECTED_BRANCH_EXACT_OBJECT" "$now" "$expires" "$GATE_NONCE" "TEST_AUTHORITY" 4
+        3 "$CANONICAL_URL" "(delete)" "$TEST_COMMIT_IMPL" "$dest_ref" "$TEST_COMMIT_IMPL" "DELETE_NON_PROTECTED_BRANCH_EXACT_OBJECT" "$now" "$expires" "$GATE_NONCE" "TEST_AUTHORITY" "$ACTIVE_HOOK_POLICY_VERSION"
 
     printf '%s %s %s %s\n' "(delete)" "$TEST_COMMIT_IMPL" "$dest_ref" "$TEST_COMMIT_IMPL" > "$WORKSPACE/delete-local-nonzero.stdin"
     set +e
@@ -640,7 +640,7 @@ test_t53() {
     now=$(date -u '+%s')
     expires=$((now + 3600))
     write_gate_file \
-        3 "$CANONICAL_URL" "refs/heads/product/noor-personal-mvp" "$ZERO_OBJECT" "$dest_ref" "$TEST_COMMIT_IMPL" "DELETE_NON_PROTECTED_BRANCH_EXACT_OBJECT" "$now" "$expires" "$GATE_NONCE" "TEST_AUTHORITY" 4
+        3 "$CANONICAL_URL" "refs/heads/product/noor-personal-mvp" "$ZERO_OBJECT" "$dest_ref" "$TEST_COMMIT_IMPL" "DELETE_NON_PROTECTED_BRANCH_EXACT_OBJECT" "$now" "$expires" "$GATE_NONCE" "TEST_AUTHORITY" "$ACTIVE_HOOK_POLICY_VERSION"
 
     printf '%s %s %s %s\n' "refs/heads/product/noor-personal-mvp" "$ZERO_OBJECT" "$dest_ref" "$ZERO_OBJECT" > "$WORKSPACE/normal-zero.stdin"
     set +e
@@ -683,7 +683,7 @@ test_t44() {
         "$expires" \
         "$GATE_NONCE" \
         "TEST_AUTHORITY" \
-        4
+        "$ACTIVE_HOOK_POLICY_VERSION"
 
     # Attempt deletion - should fail due to zero REQUIRED_REMOTE_OBJECT
     run_simulated_push "(delete)" "$dest_ref" 0 1

@@ -3,7 +3,7 @@ set -eu
 set -f
 LC_ALL=C
 
-# Noor Personal publication-control v4 gate (permanent generic template).
+# Noor Personal publication-control v5 gate (permanent generic template).
 # Installed verbatim into .git/hooks/pre-push by install-hook.sh.
 # This template is the canonical hook policy for the publication-control
 # mechanism. It contains no per-publication commit hashes; all
@@ -13,7 +13,7 @@ LC_ALL=C
 CANONICAL_URL='https://github.com/engaboali9226-mastoura/work-tracker_OS.git'
 PROTECTED_REF='refs/heads/product/noor-personal-mvp'
 ZERO_OBJECT='0000000000000000000000000000000000000000'
-HOOK_POLICY_VERSION='4'
+HOOK_POLICY_VERSION='5'
 SCHEMA_VERSION='3'
 GATE_FILE_LINES=14
 PUB_RE='refs/heads/pub/[0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f]'
@@ -27,7 +27,7 @@ AUDIT_LOG_NAME='audit.log'
 SENTINEL_URL='no_push://noor-personal-dev'
 
 deny() {
-    echo "Push blocked: Noor Personal publication-control v4 gate." >&2
+    echo "Push blocked: Noor Personal publication-control v5 gate." >&2
     echo "Push denied: $1." >&2
     exit 1
 }
@@ -224,7 +224,7 @@ validate_gate() {
                 [ "$line" = "AUTHORITY_ID=$v" ] || deny "field 12 malformed"
                 printf '%s' "$v" | grep -Eq '^[A-Z0-9][A-Z0-9._-]{0,126}$' || deny "authority_id format invalid"
                 AUTH_GATE="$v" ;;
-            13) [ "$line" = "HOOK_POLICY_VERSION=4" ] || deny "hook policy version mismatch" ;;
+            13) [ "$line" = "HOOK_POLICY_VERSION=5" ] || deny "hook policy version mismatch" ;;
             14) v=${line#GATE_FILE_SHA256=}
                 [ "$line" = "GATE_FILE_SHA256=$v" ] || deny "field 14 malformed"
                 printf '%s' "$v" | grep -Eq '^[0-9a-f]{64}$' || deny "sha256 format invalid"
@@ -321,6 +321,16 @@ if [ "$OP_GATE" != "DELETE_NON_PROTECTED_BRANCH_EXACT_OBJECT" ]; then
     [ "$local_object" != "$ZERO_OBJECT" ] || deny "deletion rejected"
 fi
 
+legacy_nonpub_delete_pair_allowed() {
+    case "$1|$2" in
+        "refs/heads/codex/noor-ci-workspace-integration|9427b2574488a3a3b3144d7da63332cdabb9d0aa") return 0 ;;
+        "refs/heads/codex/platform-app-catalog-foundation|3097814d5f2195c35d3308ff96c90abd149c1bd9") return 0 ;;
+        "refs/heads/codex/platform-application-composition-foundation|68fa2995c5be8193a269edc45117d1adc6f6dcba") return 0 ;;
+        "refs/heads/agents/workspace-package-entrypoint-contract-repair|7ab046ac2fe8fa89c4c1031bfead41dfa7aa4b6d") return 0 ;;
+    esac
+    return 1
+}
+
 # Operation-specific checks
 case "$OP_GATE" in
     CREATE_NON_PROTECTED_BRANCH_EXACT_OBJECT)
@@ -364,20 +374,34 @@ case "$OP_GATE" in
 esac
 
 case "$OP_GATE" in
-    CREATE_NON_PROTECTED_BRANCH_EXACT_OBJECT|UPDATE_NON_PROTECTED_BRANCH_FAST_FORWARD|DELETE_NON_PROTECTED_BRANCH_EXACT_OBJECT)
+    CREATE_NON_PROTECTED_BRANCH_EXACT_OBJECT|UPDATE_NON_PROTECTED_BRANCH_FAST_FORWARD)
         [ "$remote_ref" != "$PROTECTED_REF" ] || deny "protected branch rejected"
         case "$DST_REF_GATE" in refs/heads/pub/*) ;; *) deny "branch operation destination not in pub namespace" ;; esac
         actual_suffix=$(printf '%s' "$DST_REF_GATE" | sed 's|^refs/heads/pub/||')
         printf '%s' "$actual_suffix" | grep -Eq '^[0-9a-f]{12}$' || deny "destination suffix format invalid"
-        if [ "$OP_GATE" != "DELETE_NON_PROTECTED_BRANCH_EXACT_OBJECT" ]; then
-            git cat-file -e "$SRC_OBJ_GATE^{commit}" 2>/dev/null || deny "source object is not a commit"
-            resolved_src=$(git rev-parse "$SRC_REF_GATE^{commit}" 2>/dev/null) || deny "source ref unavailable"
-            [ "$resolved_src" = "$SRC_OBJ_GATE" ] || deny "source ref does not resolve to source object"
-        fi
+        git cat-file -e "$SRC_OBJ_GATE^{commit}" 2>/dev/null || deny "source object is not a commit"
+        resolved_src=$(git rev-parse "$SRC_REF_GATE^{commit}" 2>/dev/null) || deny "source ref unavailable"
+        [ "$resolved_src" = "$SRC_OBJ_GATE" ] || deny "source ref does not resolve to source object"
         if [ "$OP_GATE" = "CREATE_NON_PROTECTED_BRANCH_EXACT_OBJECT" ]; then
             expected_suffix=$(first12 "$SRC_OBJ_GATE")
             [ "$actual_suffix" = "$expected_suffix" ] || deny "destination suffix does not match source object"
         fi
+        ;;
+    DELETE_NON_PROTECTED_BRANCH_EXACT_OBJECT)
+        [ "$remote_ref" != "$PROTECTED_REF" ] || deny "protected branch rejected"
+        case "$DST_REF_GATE" in
+            refs/heads/pub/*)
+                actual_suffix=$(printf '%s' "$DST_REF_GATE" | sed 's|^refs/heads/pub/||')
+                printf '%s' "$actual_suffix" | grep -Eq '^[0-9a-f]{12}$' || deny "destination suffix format invalid"
+                ;;
+            refs/heads/*)
+                legacy_nonpub_delete_pair_allowed "$DST_REF_GATE" "$REQ_REMOTE_OBJ_GATE" ||
+                    deny "delete operation destination not authorized by pub namespace or legacy exact allowlist"
+                ;;
+            *)
+                deny "delete operation destination is not a branch ref"
+                ;;
+        esac
         ;;
 esac
 

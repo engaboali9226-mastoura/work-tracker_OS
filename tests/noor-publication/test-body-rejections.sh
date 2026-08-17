@@ -3,7 +3,7 @@ set -eu
 set -f
 LC_ALL=C
 
-# T11-T20 test bodies for the Noor Personal publication-control v3 acceptance suite.
+# T11-T20 test bodies for the Noor Personal publication-control Policy-v5 acceptance suite.
 
 # ---------------------------------------------------------------------------
 # T11: Rejection of wrong repository
@@ -54,7 +54,7 @@ test_t12() {
     past=$((now - 100))
     suffix=$(printf '%s' "$TEST_COMMIT_IMPL" | cut -c1-12)
     write_gate_file \
-        2 \
+        3 \
         "$CANONICAL_URL" \
         "refs/heads/product/noor-personal-mvp" \
         "$TEST_COMMIT_IMPL" \
@@ -65,7 +65,7 @@ test_t12() {
         "$now" \
         "$GATE_NONCE" \
         "TEST_AUTHORITY" \
-        3
+        "$ACTIVE_HOOK_POLICY_VERSION"
 
     # Attempt push - should fail because gate is expired
     run_push "refs/heads/product/noor-personal-mvp:refs/heads/pub/$suffix" 1
