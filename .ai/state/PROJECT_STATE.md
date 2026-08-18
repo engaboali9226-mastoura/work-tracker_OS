@@ -762,3 +762,27 @@ Everything in this subsection is historical and has no present authority.
 - Stable milestone tag: `PENDING` is preserved only as historical pre-PR6 wording; current status is `platform-annotated-tag-publication-control-v1.0.0` published and fully closed.
 - Do not approve or invent a final tag name.
 - Installing another active publication gate is not the current next phase.
+
+<!-- NOOR_STEP043_T2R2_STABLE_REPAIR_MILESTONE_DESIGNATION_BEGIN -->
+## Step043-T2R2 Stable Repair Milestone Designation — 2026-08-18
+
+- `STEP043_T2R2_ACCEPTED_REPAIR=YES`
+- `STEP043_T2R2_TECHNICALLY_ELIGIBLE_FOR_STABLE_REPAIR_MILESTONE=YES`
+- `STEP043_T2R2_STABLE_REPAIR_MILESTONE=YES`
+- Accepted canonical target: `c07bdd829b9ec1945cb706142c6cf261a3b096cd`.
+- Accepted canonical tree: `9dfd5209eabf392228e876fca1580508386490a6`.
+- Governance model: `IMMUTABLE_MILESTONE_EXPLICIT_REPAIR_MILESTONE`.
+- The historical stable Tag `noor-personal-prayer-engine-controlled-synthetic-execution-run-authorization-foundation-v1.0.0` remains immutable and MUST NOT be moved, replaced, deleted, or patch-incremented automatically.
+- A future repair Tag, if subsequently named and authorized, MUST be a distinct descriptive annotated milestone beginning at `v1.0.0` and MUST target the accepted canonical commit above.
+- Exact repair Tag naming has not yet been approved.
+- `TAG_NAME_APPROVED=NO`
+- `TAG_MESSAGE_APPROVED=NO`
+- `TAG_CREATION_AUTHORIZED=NO`
+- `TAG_MODIFICATION_AUTHORIZED=NO`
+- `TAG_DELETION_AUTHORIZED=NO`
+- `TAG_PUBLICATION_AUTHORIZED=NO`
+- `GATE_CREATION_AUTHORIZED=NO`
+- `GATE_CONSUMPTION_AUTHORIZED=NO`
+- `PUBLICATION_REF_CLEANUP_AUTHORIZED=NO`
+- `STEP044_R9_AUTHORIZED=NO`
+<!-- NOOR_STEP043_T2R2_STABLE_REPAIR_MILESTONE_DESIGNATION_END -->

@@ -538,3 +538,23 @@ T01–T53 matrix covering:
 - Dirty publication-artifact refusal
 - Ruleset-evidence verification
 - Bootstrap publication of the future implementation HEAD
+
+<!-- NOOR_STABLE_REPAIR_MILESTONE_POLICY_V1_BEGIN -->
+## Stable Repair Milestones
+
+A stable Tag identifies one immutable accepted milestone snapshot. Once published, its name, direct annotated-Tag object, and peeled commit are permanent historical identities and MUST NOT be moved, force-updated, deleted, recreated, or replaced by a later repair.
+
+An `ACCEPTED_REPAIR` is a forward-only correction to a previously accepted capability whose repaired canonical state completed its applicable governed lifecycle and received independent acceptance. Repair acceptance does not designate a stable milestone and grants no Tag authority.
+
+A `STABLE_REPAIR_MILESTONE` is an `ACCEPTED_REPAIR` separately and explicitly designated by human product-governance authority as independently worth naming and preserving. Designation is permitted only when the repair closes a material correctness, security, or determinism defect; completed the full applicable governed lifecycle; has independent operational or provenance value; materially improves rollback, audit, recovery, or dependency referencing through a stable reference; and is not merely documentation, formatting, or incidental maintenance.
+
+An accepted repair MAY therefore have `STABLE_REPAIR_MILESTONE=NO`. No repair Tag is created automatically by implementation, acceptance, commit, publication, PR, merge, canonical reconciliation, or local alignment.
+
+When a stable repair milestone is designated, it MUST receive a new descriptive identity using `{existing-capability-name}-{concise-semantic-repair-purpose}-v1.0.0`. The version belongs to that newly named milestone identity. An existing stable Tag identity MUST NOT receive an automatic `v1.0.1`, `v1.1.0`, or other release-line increment. A future explicit release-line/versioning policy MAY separately define such a series.
+
+The repair Tag message MUST describe the new repair milestone and MUST NOT imply that the historical Tag moved. The historical Tag remains valid and unchanged.
+
+Stable-repair-milestone designation and naming do not authorize Tag creation or publication. Exact naming approval, local annotated-Tag creation authorization, independent Tag-object review, Tag Gate creation authorization and review, Tag publication authorization, remote direct-object and peeled-target verification, and post-publication cleanup remain separate governed lifecycle decisions under `CREATE_ANNOTATED_TAG_EXACT_OBJECT`.
+
+This rule is prospective and interpretive. It does not rename, invalidate, or migrate existing Tags; existing descriptive fix Tags remain valid historical records.
+<!-- NOOR_STABLE_REPAIR_MILESTONE_POLICY_V1_END -->
