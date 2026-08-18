@@ -37,8 +37,9 @@ are not timeless assertions of live repository identity.
 - Accepted scope: `SHELL FOUNDATION ONLY`; this is not production-runnable Platform integration.
 - Protected Routing Foundation: `IMPLEMENTED / SECURITY-REVIEWED / ACCEPTED / represented in the accepted canonical merged state`.
 - Protected Routing Foundation scope: `FOUNDATION ONLY`; it is not production-runnable Platform integration and does not provide production authentication, session, or authorization wiring.
-- Current publication-control tracked candidate: Gate Schema v3 / Hook Policy v5; it is pending independent re-review and is not installed runtime authority.
-- Installed authoritative publication runtime remains accepted Hook Policy v4; installed hook SHA-256: `6e4dd829556584e964c4334bf2027ad4a38de0a23b869d37edc41645501cd84e`; `active.gate`, `state.lock`, and `consume.lock` are absent.
+- Current publication-control runtime: Gate Schema v3 / Hook Policy v5 is independently reviewed, accepted, merged, installed, and live publication authority.
+- Installed authoritative publication runtime is accepted Hook Policy v5; installed hook SHA-256: `1f0154b7b59e22619487b6d00f652532f7d7a55d4e1aab4067e6bf64cb676e2c`; `active.gate`, `state.lock`, and `consume.lock` are absent.
+- Policy-v5 rollout and legacy remote cleanup are closed: the PR #21 publication ref and all four exact legacy allowlist refs are absent remotely; final audit state is 125 lines with SHA-256 `82af9050ee66ec9159ea9c8ec5c31d9db16e0deb4558687535ad73c66da64c20`.
 
 ### Annotated Tag Publication Control Extension — Closed
 
@@ -282,7 +283,7 @@ At the time of the accepted candidate and pre-commit reviews, the reviewed repos
 
 ### Publication Control v1
 
-Publication Control v1 and Publication Control v2 remain historical governance lineage. The current tracked publication-control candidate is Gate Schema v3 / Hook Policy v5; the accepted installed authoritative runtime remains Hook Policy v4 until a separately authorized Policy-v5 hook installation.
+Publication Control v1 and Publication Control v2 remain historical governance lineage. The current accepted publication-control runtime is Gate Schema v3 / Hook Policy v5; its separately authorized installation and live-authority rollout are complete.
 
 ### Publication Control v2
 
@@ -340,19 +341,16 @@ No active publication operation remains.
 
 Persistent installed publication-control runtime:
 
-- tracked Policy-v5 candidate hook template:
+- tracked accepted Policy-v5 hook template:
   `etc/noor-publication/pre-push.noor-policy-hook`
 - installed authoritative local hook:
   `.git/hooks/pre-push`
-- the installed accepted Hook Policy v4 intentionally differs from the tracked
-  Policy-v5 candidate template during this pre-installation lifecycle;
-- installed Hook Policy v4 SHA-256:
-  `6e4dd829556584e964c4334bf2027ad4a38de0a23b869d37edc41645501cd84e`
-- tracked Policy-v5 candidate hook SHA-256:
-  `1f0154b7b59e22619487b6d00f652532f7d7a55d4e1aab4067e6bf64cb676e2c`
-- the accepted Hook Policy v4 runtime remains installed and authoritative;
-- consumption or revocation of an individual Gate does not remove, consume,
-  supersede, or deactivate the persistent hook mechanism.
+- installed accepted Hook Policy v5 matches the accepted tracked Policy-v5 hook template;
+- installed Hook Policy v5 SHA-256:
+  `1f0154b7b59e22619487b6d00f652532f7d7a55d4e1aab4067e6bf64cb676e2c`;
+- Gate Schema v3 / Hook Policy v5 rollout and installation are complete;
+- `active.gate`, `state.lock`, and `consume.lock` are absent;
+- consumed and revoked Gates remain immutable historical evidence and are not reusable authority.
 
 One-time publication authorities remain historical evidence:
 
@@ -367,7 +365,7 @@ One-time publication authorities remain historical evidence:
 - latest consumed UPDATE Gate nonce:
   `20d96dd5a712a34974b87f6d82816154`
 
-The accepted persistent Hook Policy v4 runtime remains installed and authoritative even while a single-use Gate has been consumed. A one-time Gate is not the persistent publication-control runtime itself.
+The accepted persistent Hook Policy v5 runtime is installed and authoritative. Consumed single-use Gates remain immutable historical evidence; a one-time Gate is not the persistent publication-control runtime itself.
 
 ## Step 044 Reports
 
@@ -727,7 +725,7 @@ Everything in this subsection is historical and has no present authority.
 
 ## Publication Governance
 
-- Persistent publication-control runtime: accepted installed Hook Policy v4 remains authoritative; the tracked Policy-v5 candidate is uninstalled and pending independent re-review
+- Persistent publication-control runtime: accepted installed Hook Policy v5 is authoritative; installed hook SHA-256 `1f0154b7b59e22619487b6d00f652532f7d7a55d4e1aab4067e6bf64cb676e2c`; Policy-v5 installation and live-authority rollout are complete
 - Single-use publication gate: consumed and no longer active
 - Publication: completed and accepted
 - PR #4: merged
