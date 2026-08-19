@@ -101,7 +101,7 @@ function hasModifier(
 }
 
 test(
-    "1. package root exposes only the approved DTO and Scheduler surfaces",
+    "1. package root exposes only the approved DTO, Request, Response, and Scheduler surfaces",
     () => {
 
         assert.deepEqual(
@@ -112,6 +112,8 @@ test(
             ),
             [
                 "./dtos",
+                "./requests",
+                "./responses",
                 "./scheduler",
             ],
         );
@@ -176,8 +178,7 @@ test(
             "packages/contracts/src/events/index.ts",
             "packages/contracts/src/messages/index.ts",
             "packages/contracts/src/queries/index.ts",
-            "packages/contracts/src/requests/index.ts",
-            "packages/contracts/src/responses/index.ts",
+
         ];
 
         for (const barrel of reservedBarrels) {
@@ -229,6 +230,9 @@ test(
     CancelScheduleCommand,
     Dto,
     ExecuteScheduleCommand,
+    RouteAccessEvidenceKind,
+    RouteAccessEvidenceRequest,
+    RouteAccessEvidenceResponse,
     PauseScheduleCommand,
     RegisterScheduleCommand,
     ResumeScheduleCommand,
