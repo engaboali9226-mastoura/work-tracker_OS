@@ -864,3 +864,137 @@ test(
     );
   },
 );
+
+test(
+  "registered Noor Personal view mounts only for canonical authenticated-authorized access",
+  () => {
+    let factoryInvocations =
+      0;
+
+    const registry =
+      mountedRegistry(
+        () => {
+          factoryInvocations +=
+            1;
+        },
+      );
+
+    const blockedEvidence:
+    readonly RouteAccessEvidence[] = [
+      accessEvidence(
+        "authentication-required",
+      ),
+      accessEvidence(
+        "session-access-unavailable",
+      ),
+      accessEvidence(
+        "authorization-denied",
+      ),
+      accessEvidence(
+        "authorization-unavailable",
+      ),
+    ];
+
+    for (
+      const evidence
+      of blockedEvidence
+    ) {
+      const state =
+        projectPlatformShell({
+          pathname:
+            personal.route,
+          catalog:
+            applicationCatalog,
+          applicationViews:
+            registry,
+          lifecycleState:
+            "running",
+          accessEvidence:
+            evidence,
+        });
+
+      assert.notEqual(
+        state.kind,
+        "application-view",
+      );
+
+      assert.equal(
+        factoryInvocations,
+        0,
+      );
+    }
+
+    assert.equal(
+      projectPlatformShell({
+        pathname:
+          "/personal/today",
+        catalog:
+          applicationCatalog,
+        applicationViews:
+          registry,
+        lifecycleState:
+          "running",
+        accessEvidence:
+          accessEvidence(
+            "authenticated-authorized",
+          ),
+      }).kind,
+      "not-found",
+    );
+
+    assert.equal(
+      factoryInvocations,
+      0,
+    );
+
+    assert.equal(
+      projectPlatformShell({
+        pathname:
+          work.route,
+        catalog:
+          applicationCatalog,
+        applicationViews:
+          registry,
+        lifecycleState:
+          "running",
+        accessEvidence:
+          accessEvidence(
+            "authenticated-authorized",
+            work,
+          ),
+      }).kind,
+      "planned-application",
+    );
+
+    assert.equal(
+      factoryInvocations,
+      0,
+    );
+
+    const mounted =
+      projectPlatformShell({
+        pathname:
+          personal.route,
+        catalog:
+          applicationCatalog,
+        applicationViews:
+          registry,
+        lifecycleState:
+          "running",
+        accessEvidence:
+          accessEvidence(
+            "authenticated-authorized",
+          ),
+      });
+
+    assert.equal(
+      mounted.kind,
+      "application-view",
+    );
+
+    assert.equal(
+      factoryInvocations,
+      1,
+    );
+  },
+);
