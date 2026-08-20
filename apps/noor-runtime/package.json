@@ -1,0 +1,24 @@
+{
+  "name": "@worktracker/runtime-host",
+  "private": true,
+  "version": "0.0.1",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "(cd ../.. && npm --workspace packages/contracts run build && npm --workspace packages/infrastructure run build && npm --workspace packages/platform run build) && tsc -p tsconfig.json",
+    "test": "node --import tsx --test tests/*.spec.ts"
+  },
+  "dependencies": {
+    "@worktracker/contracts": "0.0.1",
+    "@worktracker/core": "0.0.1",
+    "@worktracker/infrastructure": "0.0.1",
+    "@worktracker/platform": "0.0.1"
+  }
+}

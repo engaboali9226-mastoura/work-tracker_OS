@@ -12,5 +12,13 @@
     "@worktracker/core": "0.0.1",
     "@worktracker/shared": "0.0.1",
     "jose": "6.2.9"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
   }
 }

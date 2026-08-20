@@ -16,3 +16,4 @@ export * from "./session/supabase-postgres-session-repository.js";
 export * from "./authentication/supabase-postgres-authentication-account-linkage-resolver.js";
 export * from "./authorization/cryptographic-entitlement-id-generator.js";
 export * from "./authorization/supabase-postgres-entitlement-repository.js";
+export * from "./authentication/supabase-authentication-verifier.js";
