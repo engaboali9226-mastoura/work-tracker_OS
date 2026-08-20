@@ -207,7 +207,7 @@ test(
       });
 
     assert.equal(result.passed, true);
-    assert.equal(result.totalWorkspaces, 28);
+    assert.equal(result.totalWorkspaces, 29);
     assert.equal(
       result.zeroTestWorkspaces.length,
       3,
