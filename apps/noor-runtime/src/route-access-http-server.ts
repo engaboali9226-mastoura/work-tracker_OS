@@ -17,6 +17,16 @@ import {
   InvalidRouteAccessEvidenceRequestError,
 } from "./privileged-route-access-evidence-operation.js";
 
+import {
+  createSessionEstablishmentHttpHandler,
+  SESSION_ESTABLISHMENT_HTTP_PATH,
+} from "./session-establishment-http-handler.js";
+
+import type {
+  SessionEstablishmentExecutor,
+  SessionEstablishmentHttpHandler,
+} from "./session-establishment-http-handler.js";
+
 export const ROUTE_ACCESS_EVIDENCE_HTTP_PATH =
   "/api/noor/route-access-evidence";
 
@@ -76,6 +86,18 @@ export interface RouteAccessHttpServer {
 
   address():
   ReturnType<Server["address"]>;
+}
+
+export interface RouteAccessHttpServerOptions {
+  readonly sessionEstablishment?:
+    Readonly<{
+      executor:
+        SessionEstablishmentExecutor;
+      publicOrigin:
+        string;
+      secureCookie:
+        boolean;
+    }>;
 }
 
 function isRecord(
@@ -470,11 +492,35 @@ async function readRequestBody(
 async function handleRequest(
   executor:
     RouteAccessEvidenceExecutor,
+  sessionHandler:
+    SessionEstablishmentHttpHandler | undefined,
   request:
     IncomingMessage,
   response:
     ServerResponse,
 ): Promise<void> {
+  if (
+    request.url ===
+      SESSION_ESTABLISHMENT_HTTP_PATH
+  ) {
+    if (!sessionHandler) {
+      writeEmpty(
+        response,
+        404,
+      );
+
+      return;
+    }
+
+    await sessionHandler
+      .handle(
+        request,
+        response,
+      );
+
+    return;
+  }
+
   if (
     request.url !==
     ROUTE_ACCESS_EVIDENCE_HTTP_PATH
@@ -624,7 +670,16 @@ async function handleRequest(
 export function createRouteAccessHttpServer(
   executor:
     RouteAccessEvidenceExecutor,
+  options:
+    RouteAccessHttpServerOptions = {},
 ): RouteAccessHttpServer {
+  const sessionHandler =
+    options.sessionEstablishment
+      ? createSessionEstablishmentHttpHandler(
+          options.sessionEstablishment,
+        )
+      : undefined;
+
   const server =
     createServer(
       (
@@ -633,6 +688,7 @@ export function createRouteAccessHttpServer(
       ) => {
         void handleRequest(
           executor,
+          sessionHandler,
           request,
           response,
         ).catch(

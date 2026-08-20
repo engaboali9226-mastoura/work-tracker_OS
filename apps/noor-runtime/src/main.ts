@@ -75,11 +75,11 @@ Promise<void> {
     };
 
   try {
-    const privilegedConfiguration =
-      readNoorProductionRuntimeConfigurationFromEnvironment();
-
     const httpConfiguration =
       readNoorRuntimeHttpConfigurationFromEnvironment();
+
+    const privilegedConfiguration =
+      readNoorProductionRuntimeConfigurationFromEnvironment();
 
     const host =
       createPrivilegedPlatformRuntimeHost(
