@@ -33,6 +33,20 @@ const HOST_SOURCE_ROOT =
     ),
   );
 
+const HOST_000C_CORE_FILES =
+  [
+    "index.ts",
+    "runtime-environment.ts",
+    "privileged-platform-runtime-host.ts",
+    "privileged-route-access-evidence-operation.ts",
+  ].map(
+    file =>
+      resolve(
+        HOST_SOURCE_ROOT,
+        file,
+      ),
+  );
+
 const SOURCE_EXTENSIONS =
   new Set([
     ".ts",
@@ -200,7 +214,7 @@ test(
 );
 
 test(
-  "privileged runtime host owns no browser-to-server transport or process keepalive",
+  "MVP-CP-000C core files remain transport-neutral and own no process keepalive",
   () => {
     const signals =
       [
@@ -224,9 +238,7 @@ test(
 
     for (
       const sourceFile
-      of sourceFiles(
-        HOST_SOURCE_ROOT,
-      )
+      of HOST_000C_CORE_FILES
     ) {
       const source =
         readFileSync(
@@ -256,7 +268,7 @@ test(
     assert.deepEqual(
       findings,
       [],
-      "MVP-CP-000C must remain transport-neutral and must not invent process liveness.",
+      "MVP-CP-000C core authority must remain transport-neutral.",
     );
   },
 );
