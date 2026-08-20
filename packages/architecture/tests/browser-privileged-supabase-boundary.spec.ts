@@ -21,6 +21,9 @@ const WEB_SOURCE_ROOT =
     ),
   );
 
+const SANCTIONED_PUBLIC_AUTH_FILE =
+  "public-supabase-authentication-client.ts";
+
 const SOURCE_EXTENSIONS =
   new Set([
     ".ts",
@@ -38,12 +41,6 @@ const FORBIDDEN_SIGNALS =
         "infrastructure-package-import",
       pattern:
         /@worktracker\/infrastructure/u,
-    },
-    {
-      name:
-        "direct-supabase-client-import",
-      pattern:
-        /@supabase\/supabase-js/u,
     },
     {
       name:
@@ -67,7 +64,7 @@ const FORBIDDEN_SIGNALS =
       name:
         "supabase-secret-key-prefix",
       pattern:
-        /\bsb_secret_[A-Za-z0-9_-]*/u,
+        /\bsb_secret_[A-Za-z0-9_-]+/u,
     },
     {
       name:
@@ -129,7 +126,7 @@ function sourceFiles(
 }
 
 test(
-  "browser production source cannot own or import privileged Supabase infrastructure",
+  "browser production source cannot own privileged Supabase infrastructure while one public auth adapter is sanctioned",
   () => {
     const files =
       sourceFiles(
@@ -145,11 +142,41 @@ test(
       string[] = [];
 
     for (const file of files) {
+      const relativeFile =
+        relative(
+          WEB_SOURCE_ROOT,
+          file,
+        );
+
       const source =
         readFileSync(
           file,
           "utf8",
         );
+
+      if (
+        /@supabase\/supabase-js/u.test(
+          source,
+        )
+        && relativeFile !==
+          SANCTIONED_PUBLIC_AUTH_FILE
+      ) {
+        findings.push(
+          `${relativeFile}::direct-supabase-client-import`,
+        );
+      }
+
+      if (
+        relativeFile ===
+          SANCTIONED_PUBLIC_AUTH_FILE
+        && /\.from\s*\(/u.test(
+          source,
+        )
+      ) {
+        findings.push(
+          `${relativeFile}::public-auth-database-operation`,
+        );
+      }
 
       for (
         const signal
@@ -162,10 +189,7 @@ test(
         ) {
           findings.push(
             [
-              relative(
-                WEB_SOURCE_ROOT,
-                file,
-              ),
+              relativeFile,
               signal.name,
             ].join(
               "::",

@@ -17,6 +17,9 @@ import {
   createApplicationViewRegistry,
 } from "./application-view-registry.js";
 import {
+  createAuthenticationSessionController,
+} from "./authentication-session-controller.js";
+import {
   createBrowserHistory,
 } from "./browser-history.js";
 import {
@@ -29,11 +32,20 @@ import {
   PlatformShell,
 } from "./platform-shell.js";
 import {
+  readBrowserPublicAuthenticationConfiguration,
+} from "./public-authentication-environment.js";
+import {
+  createBrowserPublicSupabaseAuthenticationClient,
+} from "./public-supabase-authentication-client.js";
+import {
   createBrowserRouteAccessEvidenceClient,
 } from "./route-access-evidence-client.js";
 import {
   createRouteAccessEvidenceController,
 } from "./route-access-evidence-controller.js";
+import {
+  createBrowserSessionEstablishmentClient,
+} from "./session-establishment-client.js";
 
 const history =
   createBrowserHistory(
@@ -54,6 +66,39 @@ const routeAccessController =
     applicationCatalog,
     routeAccessClient,
   );
+
+const publicAuthenticationClient =
+  createBrowserPublicSupabaseAuthenticationClient(
+    readBrowserPublicAuthenticationConfiguration(),
+  );
+
+const sessionEstablishmentClient =
+  createBrowserSessionEstablishmentClient();
+
+const authenticationController =
+  createAuthenticationSessionController({
+    authenticationClient:
+      publicAuthenticationClient,
+
+    sessionClient:
+      sessionEstablishmentClient,
+
+    onAuthenticated:
+      () => {
+        const pathname =
+          history.pathname();
+
+        routeAccessController
+          .selectPathname(
+            "/",
+          );
+
+        routeAccessController
+          .selectPathname(
+            pathname,
+          );
+      },
+  });
 
 routeAccessController
   .selectPathname(
@@ -80,6 +125,16 @@ function ShellFoundation() {
       routeAccessController
         .snapshot,
       routeAccessController
+        .snapshot,
+    );
+
+  const authentication =
+    useSyncExternalStore(
+      authenticationController
+        .subscribe,
+      authenticationController
+        .snapshot,
+      authenticationController
         .snapshot,
     );
 
@@ -117,12 +172,16 @@ function ShellFoundation() {
           ? routeAccess
               .accessEvidence
           : undefined,
+
+      authenticationState:
+        authentication.kind,
     });
 
   return (
     <PlatformShell
       state={state}
       navigate={history.push}
+      signIn={authenticationController.signIn}
     />
   );
 }

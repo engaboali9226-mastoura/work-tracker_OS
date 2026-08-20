@@ -31,9 +31,54 @@ import {
   PrivilegedRouteAccessEvidenceOperation,
 } from "./privileged-route-access-evidence-operation.js";
 
+import {
+  PrivilegedSessionEstablishmentOperation,
+} from "./privileged-session-establishment-operation.js";
+
+export interface PrivilegedPlatformRuntimeOperations {
+  readonly sessionEstablishment:
+    PrivilegedSessionEstablishmentOperation;
+
+  execute(
+    input:
+      Parameters<
+        PrivilegedRouteAccessEvidenceOperation["execute"]
+      >[0],
+  ):
+  ReturnType<
+    PrivilegedRouteAccessEvidenceOperation["execute"]
+  >;
+}
+
+class DefaultPrivilegedPlatformRuntimeOperations
+implements PrivilegedPlatformRuntimeOperations {
+  public constructor(
+    private readonly routeAccess:
+      PrivilegedRouteAccessEvidenceOperation,
+
+    public readonly sessionEstablishment:
+      PrivilegedSessionEstablishmentOperation,
+  ) {}
+
+  public execute(
+    input:
+      Parameters<
+        PrivilegedRouteAccessEvidenceOperation["execute"]
+      >[0],
+  ):
+  ReturnType<
+    PrivilegedRouteAccessEvidenceOperation["execute"]
+  > {
+    return this.routeAccess
+      .execute(
+        input,
+      );
+  }
+}
+
 export interface PrivilegedPlatformRuntimeHost {
   start():
-  Promise<PrivilegedRouteAccessEvidenceOperation>;
+  Promise<PrivilegedPlatformRuntimeOperations>;
 
   shutdown():
   Promise<void>;
@@ -48,11 +93,11 @@ implements PrivilegedPlatformRuntimeHost {
     false;
 
   private activeOperation:
-    PrivilegedRouteAccessEvidenceOperation
+    PrivilegedPlatformRuntimeOperations
     | undefined;
 
   private startRequest:
-    Promise<PrivilegedRouteAccessEvidenceOperation>
+    Promise<PrivilegedPlatformRuntimeOperations>
     | undefined;
 
   public constructor(
@@ -66,7 +111,7 @@ implements PrivilegedPlatformRuntimeHost {
   }
 
   public start():
-  Promise<PrivilegedRouteAccessEvidenceOperation> {
+  Promise<PrivilegedPlatformRuntimeOperations> {
     if (
       this.acceptingAccess
       && this.activeOperation
@@ -88,6 +133,15 @@ implements PrivilegedPlatformRuntimeHost {
         .bootstrap()
         .then(
           platform => {
+            const isRuntimeRunning =
+              () =>
+                (
+                  this.acceptingAccess
+                  && this.root.getState()
+                    === PLATFORM_COMPOSITION_STATES
+                      .RUNNING
+                );
+
             const routeAccess =
               new PrivilegedRouteAccessEvidenceOperation({
                 applicationCatalog:
@@ -95,14 +149,7 @@ implements PrivilegedPlatformRuntimeHost {
                     .services
                     .applicationCatalog,
 
-                isRuntimeRunning:
-                  () =>
-                    (
-                      this.acceptingAccess
-                      && this.root.getState()
-                        === PLATFORM_COMPOSITION_STATES
-                          .RUNNING
-                    ),
+                isRuntimeRunning,
 
                 resolveSession:
                   sessionId =>
@@ -126,13 +173,36 @@ implements PrivilegedPlatformRuntimeHost {
                   },
               });
 
+            const sessionEstablishment =
+              new PrivilegedSessionEstablishmentOperation({
+                isRuntimeRunning,
+
+                authenticate:
+                  platform
+                    .services
+                    .authentication
+                    .authenticate,
+
+                createSession:
+                  platform
+                    .services
+                    .session
+                    .create,
+              });
+
+            const operation =
+              new DefaultPrivilegedPlatformRuntimeOperations(
+                routeAccess,
+                sessionEstablishment,
+              );
+
             this.activeOperation =
-              routeAccess;
+              operation;
 
             this.acceptingAccess =
               true;
 
-            return routeAccess;
+            return operation;
           },
         );
 
@@ -172,8 +242,6 @@ implements PrivilegedPlatformRuntimeHost {
       try {
         await pendingStart;
       } catch {
-        // PlatformCompositionRoot owns
-        // canonical bootstrap failure state.
       }
     }
 

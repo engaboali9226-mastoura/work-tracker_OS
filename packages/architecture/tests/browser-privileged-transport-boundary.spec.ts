@@ -49,6 +49,9 @@ const WEB_MAIN =
     ),
   );
 
+const SANCTIONED_PUBLIC_AUTH_FILE =
+  "public-supabase-authentication-client.ts";
+
 const SOURCE_EXTENSIONS =
   new Set([
     ".ts",
@@ -111,7 +114,7 @@ function sourceFiles(
 }
 
 test(
-  "browser transport requests evidence but cannot own session or privileged authority",
+  "browser transport cannot own NOOR session or privileged authority while one public provider-auth adapter is sanctioned",
   () => {
     const forbidden =
       [
@@ -157,12 +160,6 @@ test(
           pattern:
             /@worktracker\/infrastructure/u,
         },
-        {
-          name:
-            "direct-supabase",
-          pattern:
-            /@supabase\/supabase-js/u,
-        },
       ] as const;
 
     const findings:
@@ -175,11 +172,51 @@ test(
         WEB_SOURCE_ROOT,
       )
     ) {
+      const relativeFile =
+        relative(
+          WEB_SOURCE_ROOT,
+          sourceFile,
+        );
+
       const source =
         readFileSync(
           sourceFile,
           "utf8",
         );
+
+      if (
+        /@supabase\/supabase-js/u.test(
+          source,
+        )
+        && relativeFile !==
+          SANCTIONED_PUBLIC_AUTH_FILE
+      ) {
+        findings.push(
+          [
+            relativeFile,
+            "direct-supabase",
+          ].join(
+            "::",
+          ),
+        );
+      }
+
+      if (
+        relativeFile ===
+          SANCTIONED_PUBLIC_AUTH_FILE
+        && /\.from\s*\(/u.test(
+          source,
+        )
+      ) {
+        findings.push(
+          [
+            relativeFile,
+            "public-auth-database-operation",
+          ].join(
+            "::",
+          ),
+        );
+      }
 
       for (
         const signal
@@ -192,10 +229,7 @@ test(
         ) {
           findings.push(
             [
-              relative(
-                WEB_SOURCE_ROOT,
-                sourceFile,
-              ),
+              relativeFile,
               signal.name,
             ].join(
               "::",
@@ -213,7 +247,7 @@ test(
 );
 
 test(
-  "000D runtime transport primitives are confined to explicit server and process owners",
+  "000D runtime transport primitives remain confined while 000E adds only the sanctioned session boundary",
   () => {
     const allowances =
       [
@@ -225,6 +259,7 @@ test(
           files:
             new Set([
               "route-access-http-server.ts",
+              "session-establishment-http-handler.ts",
             ]),
         },
         {
@@ -256,6 +291,7 @@ test(
           files:
             new Set([
               "route-access-http-server.ts",
+              "session-cookie.ts",
             ]),
         },
         {
@@ -351,7 +387,7 @@ test(
 );
 
 test(
-  "web wiring uses the dedicated route-access client and controller while Vite owns only the development same-origin proxy",
+  "web wiring retains dedicated 000D route-access client/controller and Vite owns only development same-origin proxy",
   () => {
     const main =
       readFileSync(

@@ -17,6 +17,13 @@ export type PlatformLifecycleState =
   | "shutting-down"
   | "failed-closed";
 
+export type AuthenticationPresentationState =
+  | "idle"
+  | "submitting"
+  | "authenticated"
+  | "invalid-credentials"
+  | "unavailable";
+
 export type PlatformShellState<View> =
   | Readonly<{
       kind:
@@ -45,6 +52,8 @@ export type PlatformShellState<View> =
         "authentication-required";
       application:
         ApplicationCatalogEntry;
+      authenticationState?:
+        AuthenticationPresentationState;
     }>
   | Readonly<{
       kind:
@@ -105,6 +114,8 @@ Readonly<{
     PlatformLifecycleState;
   accessEvidence?:
     unknown;
+  authenticationState?:
+    AuthenticationPresentationState;
 }>;
 
 function findApplicationByExactPathname(
@@ -191,6 +202,9 @@ export function projectPlatformShell<View>(
         kind:
           "authentication-required",
         application,
+        authenticationState:
+          input.authenticationState
+          ?? "idle",
       });
 
     case "session-access-unavailable":

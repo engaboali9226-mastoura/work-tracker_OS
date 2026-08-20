@@ -4,6 +4,8 @@ export const NOOR_RUNTIME_HTTP_ENVIRONMENT_KEYS =
       "NOOR_RUNTIME_LISTEN_HOST",
     listenPort:
       "NOOR_RUNTIME_LISTEN_PORT",
+    publicOrigin:
+      "NOOR_PUBLIC_ORIGIN",
   } as const);
 
 export type NoorRuntimeHttpEnvironment =
@@ -19,6 +21,10 @@ export interface NoorRuntimeHttpConfiguration {
     string;
   readonly port:
     number;
+  readonly publicOrigin:
+    string;
+  readonly secureCookie:
+    boolean;
 }
 
 const DEFAULT_LISTEN_HOST =
@@ -26,6 +32,13 @@ const DEFAULT_LISTEN_HOST =
 
 const DEFAULT_LISTEN_PORT =
   8787;
+
+function invalidConfiguration():
+never {
+  throw new Error(
+    "Noor runtime HTTP configuration is invalid.",
+  );
+}
 
 function readHost(
   value:
@@ -42,9 +55,7 @@ function readHost(
       value,
     )
   ) {
-    throw new Error(
-      "Noor runtime HTTP configuration is invalid.",
-    );
+    return invalidConfiguration();
   }
 
   return value;
@@ -63,9 +74,7 @@ function readPort(
       value,
     )
   ) {
-    throw new Error(
-      "Noor runtime HTTP configuration is invalid.",
-    );
+    return invalidConfiguration();
   }
 
   const port =
@@ -80,12 +89,90 @@ function readPort(
     || port < 1
     || port > 65_535
   ) {
-    throw new Error(
-      "Noor runtime HTTP configuration is invalid.",
-    );
+    return invalidConfiguration();
   }
 
   return port;
+}
+
+function isExplicitLoopbackHost(
+  hostname:
+    string,
+): boolean {
+  return (
+    hostname === "localhost"
+    || hostname === "127.0.0.1"
+    || hostname === "::1"
+    || hostname === "[::1]"
+  );
+}
+
+function readPublicOrigin(
+  value:
+    string | undefined,
+): Readonly<{
+  publicOrigin:
+    string;
+  secureCookie:
+    boolean;
+}> {
+  if (
+    value === undefined
+    || value.length === 0
+    || value.trim() !== value
+    || /\s/u.test(
+      value,
+    )
+  ) {
+    return invalidConfiguration();
+  }
+
+  let parsed:
+    URL;
+
+  try {
+    parsed =
+      new URL(
+        value,
+      );
+  } catch {
+    return invalidConfiguration();
+  }
+
+  if (
+    parsed.username.length > 0
+    || parsed.password.length > 0
+    || parsed.pathname !== "/"
+    || parsed.search.length > 0
+    || parsed.hash.length > 0
+  ) {
+    return invalidConfiguration();
+  }
+
+  if (parsed.protocol === "https:") {
+    return Object.freeze({
+      publicOrigin:
+        parsed.origin,
+      secureCookie:
+        true,
+    });
+  }
+
+  if (
+    parsed.protocol === "http:"
+    && isExplicitLoopbackHost(
+      parsed.hostname,
+    )
+  ) {
+    return Object.freeze({
+      publicOrigin:
+        parsed.origin,
+      secureCookie:
+        false,
+    });
+  }
+
+  return invalidConfiguration();
 }
 
 export function readNoorRuntimeHttpConfigurationFromEnvironment(
@@ -93,6 +180,14 @@ export function readNoorRuntimeHttpConfigurationFromEnvironment(
     NoorRuntimeHttpEnvironment =
       process.env,
 ): NoorRuntimeHttpConfiguration {
+  const origin =
+    readPublicOrigin(
+      environment[
+        NOOR_RUNTIME_HTTP_ENVIRONMENT_KEYS
+          .publicOrigin
+      ],
+    );
+
   return Object.freeze({
     host:
       readHost(
@@ -109,5 +204,11 @@ export function readNoorRuntimeHttpConfigurationFromEnvironment(
             .listenPort
         ],
       ),
+
+    publicOrigin:
+      origin.publicOrigin,
+
+    secureCookie:
+      origin.secureCookie,
   });
 }

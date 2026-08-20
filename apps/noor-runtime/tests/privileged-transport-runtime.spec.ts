@@ -11,6 +11,7 @@ import {
 } from "../src/privileged-transport-runtime.js";
 
 import type {
+  PrivilegedTransportExecutor,
   PrivilegedTransportHost,
   RouteAccessHttpServerFactory,
 } from "../src/privileged-transport-runtime.js";
@@ -20,12 +21,12 @@ import {
 } from "../src/runtime-http-environment.js";
 
 import type {
-  RouteAccessEvidenceExecutor,
   RouteAccessHttpServer,
+  RouteAccessHttpServerOptions,
 } from "../src/route-access-http-server.js";
 
 const executor:
-  RouteAccessEvidenceExecutor =
+  PrivilegedTransportExecutor =
   {
     async execute() {
       return Object.freeze({
@@ -36,6 +37,14 @@ const executor:
         pathname:
           "/personal",
       });
+    },
+
+    sessionEstablishment: {
+      async execute() {
+        throw new Error(
+          "session establishment not invoked",
+        );
+      },
     },
   };
 
@@ -65,6 +74,10 @@ function candidate(
 
   let closes =
     0;
+
+  let serverOptions:
+    RouteAccessHttpServerOptions
+    | undefined;
 
   const host:
     PrivilegedTransportHost =
@@ -101,7 +114,13 @@ function candidate(
 
   const createHttpServer:
     RouteAccessHttpServerFactory =
-    () => {
+    (
+      _executor,
+      resolvedOptions,
+    ) => {
+      serverOptions =
+        resolvedOptions;
+
       events.push(
         "server-create",
       );
@@ -161,6 +180,10 @@ function candidate(
           "127.0.0.1",
         port:
           8787,
+        publicOrigin:
+          "https://shell.noor.test",
+        secureCookie:
+          true,
       },
       createHttpServer,
     });
@@ -168,6 +191,9 @@ function candidate(
   return {
     runtime,
     events,
+    serverOptions:
+      () =>
+        serverOptions,
     counts: {
       hostStarts:
         () =>
@@ -186,17 +212,29 @@ function candidate(
 }
 
 test(
-  "HTTP environment defaults are deterministic and explicit values validate strictly",
+  "HTTP environment requires canonical public origin and applies deterministic Secure-cookie policy",
   () => {
+    assert.throws(
+      () =>
+        readNoorRuntimeHttpConfigurationFromEnvironment(
+          {},
+        ),
+    );
+
     assert.deepEqual(
-      readNoorRuntimeHttpConfigurationFromEnvironment(
-        {},
-      ),
+      readNoorRuntimeHttpConfigurationFromEnvironment({
+        NOOR_PUBLIC_ORIGIN:
+          "https://shell.noor.test/",
+      }),
       {
         host:
           "127.0.0.1",
         port:
           8787,
+        publicOrigin:
+          "https://shell.noor.test",
+        secureCookie:
+          true,
       },
     );
 
@@ -206,12 +244,18 @@ test(
           "localhost",
         NOOR_RUNTIME_LISTEN_PORT:
           "9443",
+        NOOR_PUBLIC_ORIGIN:
+          "http://localhost:5173",
       }),
       {
         host:
           "localhost",
         port:
           9443,
+        publicOrigin:
+          "http://localhost:5173",
+        secureCookie:
+          false,
       },
     );
 
@@ -230,6 +274,8 @@ test(
           readNoorRuntimeHttpConfigurationFromEnvironment({
             NOOR_RUNTIME_LISTEN_PORT:
               value,
+            NOOR_PUBLIC_ORIGIN:
+              "https://shell.noor.test",
           }),
       );
     }
@@ -247,6 +293,27 @@ test(
           readNoorRuntimeHttpConfigurationFromEnvironment({
             NOOR_RUNTIME_LISTEN_HOST:
               value,
+            NOOR_PUBLIC_ORIGIN:
+              "https://shell.noor.test",
+          }),
+      );
+    }
+
+    for (
+      const value
+      of [
+        "http://example.test",
+        "ftp://shell.noor.test",
+        "https://shell.noor.test/path",
+        "https://shell.noor.test?query=1",
+        "https://user@shell.noor.test",
+      ]
+    ) {
+      assert.throws(
+        () =>
+          readNoorRuntimeHttpConfigurationFromEnvironment({
+            NOOR_PUBLIC_ORIGIN:
+              value,
           }),
       );
     }
@@ -254,7 +321,7 @@ test(
 );
 
 test(
-  "transport startup starts host before creating and listening on HTTP server and coalesces repeated starts",
+  "transport startup passes only sanctioned session establishment configuration and coalesces repeated starts",
   async () => {
     const value =
       candidate();
@@ -283,6 +350,20 @@ test(
       value.counts
         .listens(),
       1,
+    );
+
+    assert.equal(
+      value.serverOptions()
+        ?.sessionEstablishment
+        ?.publicOrigin,
+      "https://shell.noor.test",
+    );
+
+    assert.equal(
+      value.serverOptions()
+        ?.sessionEstablishment
+        ?.secureCookie,
+      true,
     );
 
     await value.runtime

@@ -9,14 +9,25 @@ import {
 import type {
   RouteAccessEvidenceExecutor,
   RouteAccessHttpServer,
+  RouteAccessHttpServerOptions,
 } from "./route-access-http-server.js";
+
+import type {
+  SessionEstablishmentExecutor,
+} from "./session-establishment-http-handler.js";
 
 const RUNTIME_FAILURE_MESSAGE =
   "Noor privileged transport runtime failed.";
 
+export interface PrivilegedTransportExecutor
+extends RouteAccessEvidenceExecutor {
+  readonly sessionEstablishment:
+    SessionEstablishmentExecutor;
+}
+
 export interface PrivilegedTransportHost {
   start():
-  Promise<RouteAccessEvidenceExecutor>;
+  Promise<PrivilegedTransportExecutor>;
 
   shutdown():
   Promise<void>;
@@ -26,6 +37,8 @@ export type RouteAccessHttpServerFactory =
   (
     executor:
       RouteAccessEvidenceExecutor,
+    options:
+      RouteAccessHttpServerOptions,
   ) => RouteAccessHttpServer;
 
 export interface PrivilegedTransportRuntimeDependencies {
@@ -136,6 +149,21 @@ implements PrivilegedTransportRuntime {
       const server =
         serverFactory(
           executor,
+          {
+            sessionEstablishment: {
+              executor:
+                executor
+                  .sessionEstablishment,
+              publicOrigin:
+                this.dependencies
+                  .httpConfiguration
+                  .publicOrigin,
+              secureCookie:
+                this.dependencies
+                  .httpConfiguration
+                  .secureCookie,
+            },
+          },
         );
 
       this.server =
@@ -162,7 +190,6 @@ implements PrivilegedTransportRuntime {
         try {
           await server.close();
         } catch {
-          // Startup failure remains sanitized.
         }
       }
 
@@ -171,7 +198,6 @@ implements PrivilegedTransportRuntime {
           .host
           .shutdown();
       } catch {
-        // Startup failure remains sanitized.
       }
 
       throw new Error(
@@ -204,7 +230,6 @@ implements PrivilegedTransportRuntime {
       try {
         await pendingStart;
       } catch {
-        // Continue fail-closed shutdown.
       }
     }
 
