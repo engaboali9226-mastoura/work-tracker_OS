@@ -111,6 +111,7 @@ test(
             [
                 "apps/forge",
                 "apps/noor-personal",
+                "apps/noor-runtime",
                 "apps/web",
                 "apps/workos-cli",
                 "packages/application",
