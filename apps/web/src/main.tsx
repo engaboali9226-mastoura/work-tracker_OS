@@ -3,6 +3,7 @@ import {
 } from "@worktracker/core";
 import {
   StrictMode,
+  useEffect,
   useSyncExternalStore,
 } from "react";
 import type {
@@ -27,6 +28,12 @@ import {
 import {
   PlatformShell,
 } from "./platform-shell.js";
+import {
+  createBrowserRouteAccessEvidenceClient,
+} from "./route-access-evidence-client.js";
+import {
+  createRouteAccessEvidenceController,
+} from "./route-access-evidence-controller.js";
 
 const history =
   createBrowserHistory(
@@ -37,6 +44,20 @@ const applicationViews =
   createApplicationViewRegistry<ReactElement>(
     applicationCatalog,
     [],
+  );
+
+const routeAccessClient =
+  createBrowserRouteAccessEvidenceClient();
+
+const routeAccessController =
+  createRouteAccessEvidenceController(
+    applicationCatalog,
+    routeAccessClient,
+  );
+
+routeAccessController
+  .selectPathname(
+    history.pathname(),
   );
 
 applyDocumentLocalization(
@@ -52,12 +73,50 @@ function ShellFoundation() {
       history.pathname,
     );
 
+  const routeAccess =
+    useSyncExternalStore(
+      routeAccessController
+        .subscribe,
+      routeAccessController
+        .snapshot,
+      routeAccessController
+        .snapshot,
+    );
+
+  useEffect(
+    () => {
+      routeAccessController
+        .selectPathname(
+          pathname,
+        );
+    },
+    [
+      pathname,
+    ],
+  );
+
+  const routeAccessMatchesPath =
+    routeAccess.pathname ===
+      pathname;
+
   const state =
     projectPlatformShell({
       pathname,
       catalog:
         applicationCatalog,
       applicationViews,
+
+      lifecycleState:
+        routeAccessMatchesPath
+          ? routeAccess
+              .lifecycleState
+          : "idle",
+
+      accessEvidence:
+        routeAccessMatchesPath
+          ? routeAccess
+              .accessEvidence
+          : undefined,
     });
 
   return (
