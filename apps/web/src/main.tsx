@@ -17,6 +17,9 @@ import {
   createApplicationViewRegistry,
 } from "./application-view-registry.js";
 import {
+  NoorPersonalApplicationView,
+} from "./noor-personal-application-view.js";
+import {
   createAuthenticationSessionController,
 } from "./authentication-session-controller.js";
 import {
@@ -55,7 +58,16 @@ const history =
 const applicationViews =
   createApplicationViewRegistry<ReactElement>(
     applicationCatalog,
-    [],
+    [
+      {
+        appKey:
+          "noor-personal",
+        factory:
+          () => (
+            <NoorPersonalApplicationView />
+          ),
+      },
+    ],
   );
 
 const routeAccessClient =
