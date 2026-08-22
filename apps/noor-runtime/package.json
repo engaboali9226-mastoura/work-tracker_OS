@@ -12,14 +12,15 @@
     }
   },
   "scripts": {
-    "build": "(cd ../.. && npm --workspace packages/contracts run build && npm --workspace packages/infrastructure run build && npm --workspace packages/platform run build) && tsc -p tsconfig.json",
+    "build": "(cd ../.. && npm --workspace packages/contracts run build && npm --workspace packages/infrastructure run build && npm --workspace packages/platform run build && npm --workspace apps/noor-personal run build) && tsc -p tsconfig.json",
     "start": "node ./dist/main.js",
-    "test": "node --import tsx --test tests/*.spec.ts"
+    "test": "(cd ../.. && npm --workspace apps/noor-personal run build) && node --import tsx --test tests/*.spec.ts"
   },
   "dependencies": {
     "@worktracker/contracts": "0.0.1",
     "@worktracker/core": "0.0.1",
     "@worktracker/infrastructure": "0.0.1",
-    "@worktracker/platform": "0.0.1"
+    "@worktracker/platform": "0.0.1",
+    "@noor/personal": "0.0.0"
   }
 }

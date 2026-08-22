@@ -4,6 +4,7 @@ import test from "node:test";
 import {
   createElement,
 } from "react";
+
 import {
   renderToStaticMarkup,
 } from "react-dom/server";
@@ -13,12 +14,26 @@ import {
 } from "../src/noor-personal-application-view.js";
 
 test(
-  "Noor Personal view renders a truthful accessible Today surface without fabricated domain data",
+  "Noor Personal view renders actual Today payload supplied by the privileged client",
   () => {
     const html =
       renderToStaticMarkup(
         createElement(
           NoorPersonalApplicationView,
+          {
+            initialResult: {
+              kind:
+                "success",
+              today: {
+                personalDay: {
+                  id:
+                    "day-real",
+                },
+                automationPending:
+                  2,
+              },
+            },
+          },
         ),
       );
 
@@ -29,22 +44,45 @@ test(
 
     assert.match(
       html,
-      /<h1 id="noor-personal-today-title">Today<\/h1>/u,
+      /data-noor-personal-today="loaded"/u,
     );
 
     assert.match(
       html,
-      /Noor Personal application is connected/u,
+      /day-real/u,
     );
 
     assert.match(
       html,
-      /Today data is not available yet/u,
+      /automationPending/u,
+    );
+  },
+);
+
+test(
+  "Noor Personal view is truthful for setup-required and does not fabricate prayer data",
+  () => {
+    const html =
+      renderToStaticMarkup(
+        createElement(
+          NoorPersonalApplicationView,
+          {
+            initialResult: {
+              kind:
+                "setup-required",
+            },
+          },
+        ),
+      );
+
+    assert.match(
+      html,
+      /needs an active location and prayer policy/u,
     );
 
     assert.doesNotMatch(
       html,
-      /\d{4}-\d{2}-\d{2}|Fajr|Dhuhr|Asr|Maghrib|Isha|next prayer|tasks|habits|Hijri/iu,
+      /Fajr|Dhuhr|Asr|Maghrib|Isha/iu,
     );
   },
 );

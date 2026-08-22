@@ -1,0 +1,1 @@
+export const APPROVED_ISLAMIC_HISTORY_EVENTS_V1 = Object.freeze({ version: "v1", provenance: "No approved historical-event authority has been provisioned.", records: Object.freeze([] as readonly { id: string; hijriMonth: number; hijriDay: number; approvalStatus: "Approved" }[]) });

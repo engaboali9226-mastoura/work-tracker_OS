@@ -3,10 +3,22 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
   "description": "Noor Personal Fajr Day Foundation Core",
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "test": "NOOR_PERSONAL_BUILD_DIR=dist node --test test/*.test.mjs",
     "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.112.3",
+    "adhan": "4.4.4"
   }
 }

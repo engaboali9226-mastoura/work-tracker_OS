@@ -32,6 +32,7 @@ export const ROUTE_ACCESS_EVIDENCE_HTTP_PATH =
 
 export const NOOR_SESSION_COOKIE_NAME =
   "noor_session";
+export const PERSONAL_TODAY_HTTP_PATH = "/api/noor/personal/today";
 
 export const MAX_ROUTE_ACCESS_REQUEST_BODY_BYTES =
   8_192;
@@ -98,6 +99,7 @@ export interface RouteAccessHttpServerOptions {
       secureCookie:
         boolean;
     }>;
+  readonly personalToday?: import("./personal-today-operation.js").PersonalTodayExecutor;
 }
 
 function isRecord(
@@ -166,6 +168,41 @@ function writeEvidence(
     body,
   );
 }
+
+function writeJson(
+  response:
+    ServerResponse,
+  statusCode:
+    number,
+  value:
+    unknown,
+): void {
+  const body =
+    JSON.stringify(
+      value,
+    );
+
+  response.writeHead(
+    statusCode,
+    {
+      "Cache-Control":
+        "no-store",
+      "Content-Type":
+        "application/json; charset=utf-8",
+      "Content-Length":
+        String(
+          Buffer.byteLength(
+            body,
+          ),
+        ),
+    },
+  );
+
+  response.end(
+    body,
+  );
+}
+
 
 function isSupportedContentType(
   value:
@@ -489,16 +526,192 @@ async function readRequestBody(
   });
 }
 
-async function handleRequest(
+function isEmptyJsonObject(
+  value:
+    unknown,
+): boolean {
+  return (
+    isRecord(value)
+    && Object.keys(
+      value,
+    ).length === 0
+  );
+}
+
+async function handlePersonalToday(
   executor:
-    RouteAccessEvidenceExecutor,
-  sessionHandler:
-    SessionEstablishmentHttpHandler | undefined,
+    import("./personal-today-operation.js").PersonalTodayExecutor,
   request:
     IncomingMessage,
   response:
     ServerResponse,
 ): Promise<void> {
+  if (
+    request.method !==
+    "POST"
+  ) {
+    writeEmpty(
+      response,
+      405,
+      {
+        Allow:
+          "POST",
+      },
+    );
+
+    return;
+  }
+
+  if (
+    !isSupportedContentType(
+      request.headers[
+        "content-type"
+      ],
+    )
+  ) {
+    writeEmpty(
+      response,
+      415,
+    );
+
+    return;
+  }
+
+  const bodyResult =
+    await readRequestBody(
+      request,
+    );
+
+  if (
+    bodyResult.kind
+    === "too-large"
+  ) {
+    writeEmpty(
+      response,
+      413,
+    );
+
+    return;
+  }
+
+  let parsed:
+    unknown;
+
+  try {
+    parsed =
+      JSON.parse(
+        bodyResult.body,
+      );
+  } catch {
+    writeEmpty(
+      response,
+      400,
+    );
+
+    return;
+  }
+
+  if (
+    !isEmptyJsonObject(
+      parsed,
+    )
+  ) {
+    writeEmpty(
+      response,
+      400,
+    );
+
+    return;
+  }
+
+  const result =
+    await executor.execute({
+      sessionId:
+        sessionIdFromCookieHeader(
+          request.headers.cookie,
+        ),
+    });
+
+  if (
+    result.status
+    === 200
+  ) {
+    if (
+      result.body
+      === undefined
+    ) {
+      writeEmpty(
+        response,
+        500,
+      );
+
+      return;
+    }
+
+    writeJson(
+      response,
+      200,
+      result.body,
+    );
+
+    return;
+  }
+
+  if (
+    result.status === 401
+    || result.status === 403
+    || result.status === 409
+    || result.status === 503
+  ) {
+    writeEmpty(
+      response,
+      result.status,
+    );
+
+    return;
+  }
+
+  writeEmpty(
+    response,
+    500,
+  );
+}
+
+
+async function handleRequest(
+  executor:
+    RouteAccessEvidenceExecutor,
+  sessionHandler:
+    SessionEstablishmentHttpHandler | undefined,
+  personalToday:
+    import("./personal-today-operation.js").PersonalTodayExecutor | undefined,
+  request:
+    IncomingMessage,
+  response:
+    ServerResponse,
+): Promise<void> {
+  if (
+    request.url ===
+      PERSONAL_TODAY_HTTP_PATH
+  ) {
+    if (!personalToday) {
+      writeEmpty(
+        response,
+        404,
+      );
+
+      return;
+    }
+
+    await handlePersonalToday(
+      personalToday,
+      request,
+      response,
+    );
+
+    return;
+  }
+
   if (
     request.url ===
       SESSION_ESTABLISHMENT_HTTP_PATH
@@ -689,6 +902,7 @@ export function createRouteAccessHttpServer(
         void handleRequest(
           executor,
           sessionHandler,
+          options.personalToday,
           request,
           response,
         ).catch(

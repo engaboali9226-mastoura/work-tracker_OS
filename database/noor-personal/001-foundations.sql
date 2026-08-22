@@ -1,0 +1,1 @@
+CREATE TABLE IF NOT EXISTS noor_personal_foundations (user_id text PRIMARY KEY, schema_version integer NOT NULL CHECK (schema_version = 1), revision bigint NOT NULL CHECK (revision >= 0), state jsonb NOT NULL, created_at timestamptz NOT NULL DEFAULT now(), updated_at timestamptz NOT NULL DEFAULT now());
