@@ -1,0 +1,1 @@
+import { randomUUID } from "node:crypto"; import type { IdGeneratorPort } from "../ports.js"; export class CryptographicIdGenerator implements IdGeneratorPort { next(prefix: string): string { if (!/^[a-z][a-z0-9-]*$/u.test(prefix)) throw new TypeError("Invalid identifier prefix."); return `${prefix}-${randomUUID()}`; } }

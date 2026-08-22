@@ -247,6 +247,14 @@ export type NoorFoundationPersistenceAdapter =
     FoundationPersistenceAdapter<
         ExistingFoundationTransaction
     >;
+export interface PersonalFoundationOperation {
+    readonly locations: import("../ports.js").LocationProfileRepository;
+    readonly prayerPolicies: import("../ports.js").PrayerTimePolicyRepository;
+    readonly transaction: import("../ports.js").LocalTransactionPort;
+}
+export interface PersonalFoundationOperationScopeProvider {
+    openOperation(userId: string): Promise<PersonalFoundationOperation>;
+}
 
 function assertNonEmptyString(
     value:

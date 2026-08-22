@@ -23,6 +23,7 @@ export interface PrivilegedTransportExecutor
 extends RouteAccessEvidenceExecutor {
   readonly sessionEstablishment:
     SessionEstablishmentExecutor;
+  readonly personalToday?: import("./personal-today-operation.js").PersonalTodayExecutor;
 }
 
 export interface PrivilegedTransportHost {
@@ -146,6 +147,15 @@ implements PrivilegedTransportRuntime {
           .createHttpServer
         ?? createRouteAccessHttpServer;
 
+      const personalTodayOptions =
+        executor.personalToday
+          === undefined
+          ? {}
+          : {
+              personalToday:
+                executor.personalToday,
+            };
+
       const server =
         serverFactory(
           executor,
@@ -163,6 +173,7 @@ implements PrivilegedTransportRuntime {
                   .httpConfiguration
                   .secureCookie,
             },
+            ...personalTodayOptions,
           },
         );
 
