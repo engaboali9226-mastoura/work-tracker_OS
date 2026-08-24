@@ -7,12 +7,12 @@
   "active_project_ops_work_wave_id": "WW-01a03272-80c0-7929-902e-d0af90ff07ef",
   "active_work_control_id": "AWC-437ef2a3-73e8-4717-93ae-f591f9bcec64",
   "artifact_manifest_id": "ARTREG-8d13e7bf-4da4-4f59-a4cc-c89ca77d26f1",
-  "canonical_as_of_event_id": "EVT-01a03272-80cd-7313-94d1-91660d7d0cab",
-  "content_sha256": "442a335fb5ca7c14a3fd90e1c8b1dec6bff1e4e54e74e3df5c05e8ca04ee6eb1",
+  "canonical_as_of_event_id": "EVT-1ad03272-80d2-7a33-94d1-91660d7d0cab",
+  "content_sha256": "76c772d74d97badcbe6d5b10ffad08f941e0dcebd394d0a77190059e06c3a227",
   "current_meta_task": "NOOR_PROJECT_OPERATING_SYSTEM_INITIALIZATION",
-  "current_objective": "Make the reconciled Project OS state current on the detached control ref and permit PROJECT_MANAGER bootstrap dispatch only after independent verification of that current control state.",
+  "current_objective": "Complete the in-progress Team Bootstrap wave by dispatching the seven roles whose durable PROJECT_MANAGER dependency is satisfied.",
   "current_phase": "TEAM_BOOTSTRAP",
-  "exact_next_action": "AT_READ_TIME: IF_CURRENT_CONTROL_REF_DOES_NOT_CONTAIN_THIS_LOGICAL_CHECKPOINT_REQUEST_EXACT_OWNER_CAS_PERSISTENCE_AUTHORIZATION; IF_IT_DOES_VERIFY_CURRENT_CONTROL_REF; DISPATCH_PROJECT_MANAGER_BOOTSTRAP_ONLY_AFTER_VERIFICATION_PASS",
+  "exact_next_action": "DISPATCH_REMAINING_SEVEN_BOOTSTRAP_TASKS",
   "hash_profile": "NOOR-COHP-1/CONTENT",
   "last_closed_product_task_id": "TASK-0db46539-39f3-43e6-83bc-43238a328dcb",
   "mutation_lane_status": "IDLE",
@@ -45,7 +45,7 @@
     "verified_control_tree": "6eda8220ee450664ebbdb94850584d08e1f0fb85",
     "verify_persisted_project_os": "PASS"
   },
-  "revision": 2,
+  "revision": 3,
   "role_contract_set_id": "ROLESET-46819b1a-ae4e-4aaa-8790-078581157ed8",
   "source_references": [
     {
@@ -72,7 +72,7 @@
     },
     "CURRENT_OWNER_V1_2_ACCEPTANCE"
   ],
-  "status": "TEAM_BOOTSTRAP_LIFECYCLE_GATE_OPEN_DISPATCH_CONDITIONAL_ON_CURRENT_CONTROL_CHECKPOINT_VERIFICATION",
+  "status": "TEAM_BOOTSTRAP_IN_PROGRESS_PROJECT_MANAGER_BOOTSTRAP_COMPLETE",
   "task_registry_id": "TASKREG-16ee6600-7649-4855-bf1c-bc43168398d0",
   "team_bootstrap_authority_basis": "NOOR-POS-DESIGN-V1.2_FROZEN_TRANSITION_SEQUENCE_AFTER_VERIFY_PERSISTED_PROJECT_OS_PASS",
   "team_bootstrap_authorized": true,
@@ -87,7 +87,7 @@
     "POS_DESIGN_OWNER_ACCEPTANCE": "PASS",
     "PRODUCT_EXECUTION_UNFREEZE": "NOT_AUTHORIZED",
     "ROLE_ACCEPTANCE": "NOT_STARTED",
-    "TEAM_BOOTSTRAP": "LIFECYCLE_GATE_OPEN_DISPATCH_CONDITIONAL_ON_CURRENT_CONTROL_CHECKPOINT_VERIFICATION",
+    "TEAM_BOOTSTRAP": "IN_PROGRESS",
     "VERIFY_PERSISTED_PROJECT_OS": "PASS"
   },
   "work_wave_registry_id": "WAVEREG-db91b414-eb31-4f83-a058-cf7d8eec8ba2"

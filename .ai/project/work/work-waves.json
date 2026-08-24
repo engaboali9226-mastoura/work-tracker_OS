@@ -10,10 +10,10 @@
     "exit_criteria",
     "current_status"
   ],
-  "content_sha256": "3c2711c5d7cfe258070239210d4d5a6b5d4d21d5cd0554d27b737c515fcb046c",
+  "content_sha256": "07e69388ac870e0f5f70552477e78944929d4f6d55877008b4acab9eef537bf2",
   "hash_profile": "NOOR-COHP-1/CONTENT",
   "historical_wave_fabrication": "FORBIDDEN_NO_WORK_WAVE_ID_WAS_PROVEN_IN_FREEZE_FOR_CLOSED_TODAY_TASK",
-  "revision": 2,
+  "revision": 3,
   "status": "CANONICAL_ACTIVE",
   "work_wave_registry_id": "WAVEREG-db91b414-eb31-4f83-a058-cf7d8eec8ba2",
   "work_waves": [
@@ -28,8 +28,8 @@
         "ROLE-18d6d01c-a59e-460d-adac-3b2d7ae4ed6b",
         "ROLE-de9b29d4-4792-4818-a480-aa7fea9f5419"
       ],
-      "content_sha256": "eabb32f36377092b92aa19a64fdccf5e6f4775ce11304d4bf5a37269ed43b4be",
-      "current_status": "READY_TO_START_AFTER_POST_PERSISTENCE_CONTROL_CHECKPOINT_VERIFICATION",
+      "content_sha256": "4272c6926d138f227de00add38c633589bcfe83b9f5f62b4e924797e26cec551",
+      "current_status": "IN_PROGRESS_PROJECT_MANAGER_BOOTSTRAP_COMPLETE_REMAINING_SEVEN_READY_FOR_DISPATCH",
       "dependencies": [
         "VERIFY_PERSISTED_PROJECT_OS=PASS",
         "POST_PERSISTENCE_RECONCILIATION_CHECKPOINT_PERSISTED_AND_VERIFIED"
@@ -43,7 +43,7 @@
       ],
       "hash_profile": "NOOR-COHP-1/CONTENT",
       "objective": "Bootstrap all eight frozen replaceable NOOR Project OS roles in new conversations and collect role acceptance without repository mutation or Product execution.",
-      "revision": 1,
+      "revision": 2,
       "task_ids": [
         "TASK-01a03272-80c1-7a2b-b1eb-ab2de5e0a9d3",
         "TASK-01a03272-80c2-7186-9881-09485b345dc0",
