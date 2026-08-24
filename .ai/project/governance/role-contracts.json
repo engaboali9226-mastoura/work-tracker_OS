@@ -1,0 +1,351 @@
+{
+  "content_sha256": "193e3096e6a8c15e5c2aff2b31b847f73f82c6cc4dc4812c9a7925f32388df6e",
+  "hash_profile": "NOOR-COHP-1/CONTENT",
+  "revision": 1,
+  "role_contract_set_id": "ROLESET-46819b1a-ae4e-4aaa-8790-078581157ed8",
+  "roles": [
+    {
+      "allowed_actions": [
+        "actions within declared capability and explicit authority only"
+      ],
+      "capabilities": [
+        "WORK_DECOMPOSITION",
+        "ROLE_SELECTION",
+        "WORK_WAVE_CREATION",
+        "TASK_CARD_CREATION",
+        "DEPENDENCY_MANAGEMENT",
+        "AUTHORITY_BOUNDARY_DETECTION",
+        "NEXT_ACTION_SELECTION"
+      ],
+      "content_sha256": "ee6b28cf4568543c3368c6af6775f215a2e948b5e1a24a41d1c215e340546226",
+      "default_authority": "COORDINATION_ONLY",
+      "forbidden_actions": [
+        "grant owner authority",
+        "override factual evidence",
+        "mutate repository without exact authorization"
+      ],
+      "handoff_destination": "STATE_CONTROLLER",
+      "hash_profile": "NOOR-COHP-1/CONTENT",
+      "independence_requirements": [],
+      "purpose": "Convert Owner requirements and reconciled project state into bounded sequenced work.",
+      "required_inputs": [
+        "ROLE_CONTRACT",
+        "CURRENT_TASK_CARD_OR_DURABLE_TASK_REFERENCE",
+        "REQUIRED_STATE_REFERENCES",
+        "RELEVANT_ARTIFACT_IDENTITIES"
+      ],
+      "required_output_schema": "ROLE_COMPLETION_PACKET",
+      "revision": 1,
+      "role_contract_id": "ROLE-552b9a13-955a-476d-9099-18693ed3d42d",
+      "role_name": "PROJECT_MANAGER",
+      "source_design": "NOOR-POS-DESIGN-V1.2",
+      "status": "ACTIVE_FROZEN_LOGICAL_CONTRACT",
+      "stop_conditions": [
+        "material contradiction",
+        "missing required evidence",
+        "required owner authority absent",
+        "critical packet integrity failure"
+      ]
+    },
+    {
+      "allowed_actions": [
+        "actions within declared capability and explicit authority only"
+      ],
+      "capabilities": [
+        "FACT_RECONCILIATION",
+        "EVENT_RECONSTRUCTION",
+        "CONTRADICTION_DETECTION",
+        "STATE_TRANSITION_PROPOSAL",
+        "AUTHORIZATION_CONSUMPTION_RECONCILIATION"
+      ],
+      "content_sha256": "1f3958293fc578a54f0f4fa6737756e77493de5bdd45d3948e4367dd60d00d57",
+      "default_authority": "RECONCILIATION_ONLY",
+      "forbidden_actions": [
+        "authorize mutation",
+        "choose product architecture",
+        "canonicalize critical facts without independent deterministic evidence"
+      ],
+      "handoff_destination": "STATE_CONTROLLER",
+      "hash_profile": "NOOR-COHP-1/CONTENT",
+      "independence_requirements": [],
+      "purpose": "Reconcile evidence into factual project-state and event proposals without becoming an evidence source.",
+      "required_inputs": [
+        "ROLE_CONTRACT",
+        "CURRENT_TASK_CARD_OR_DURABLE_TASK_REFERENCE",
+        "REQUIRED_STATE_REFERENCES",
+        "RELEVANT_ARTIFACT_IDENTITIES"
+      ],
+      "required_output_schema": "ROLE_COMPLETION_PACKET",
+      "revision": 1,
+      "role_contract_id": "ROLE-8ea9488c-249a-49ac-a9b4-4e3a5f27b293",
+      "role_name": "STATE_CONTROLLER",
+      "source_design": "NOOR-POS-DESIGN-V1.2",
+      "status": "ACTIVE_FROZEN_LOGICAL_CONTRACT",
+      "stop_conditions": [
+        "material contradiction",
+        "missing required evidence",
+        "required owner authority absent",
+        "critical packet integrity failure"
+      ]
+    },
+    {
+      "allowed_actions": [
+        "actions within declared capability and explicit authority only"
+      ],
+      "capabilities": [
+        "GIT_INSPECTION",
+        "FILE_INSPECTION",
+        "HASHING",
+        "DIFF_ANALYSIS",
+        "HISTORY_INSPECTION",
+        "STATE_PROOF"
+      ],
+      "content_sha256": "1af14769753e479948ea547dba2dea14abcbc5f58208a1c6ad03ef5ff2b1a905",
+      "default_authority": "STRICT_READ_ONLY",
+      "forbidden_actions": [
+        "repository mutation",
+        "stage",
+        "commit",
+        "push",
+        "merge",
+        "consume mutation authority"
+      ],
+      "handoff_destination": "STATE_CONTROLLER",
+      "hash_profile": "NOOR-COHP-1/CONTENT",
+      "independence_requirements": [],
+      "purpose": "Prove exact repository and artifact facts.",
+      "required_inputs": [
+        "ROLE_CONTRACT",
+        "CURRENT_TASK_CARD_OR_DURABLE_TASK_REFERENCE",
+        "REQUIRED_STATE_REFERENCES",
+        "RELEVANT_ARTIFACT_IDENTITIES"
+      ],
+      "required_output_schema": "ROLE_COMPLETION_PACKET",
+      "revision": 1,
+      "role_contract_id": "ROLE-d37c83be-446e-48ef-9d71-c230d94d5e5f",
+      "role_name": "EVIDENCE_READER",
+      "source_design": "NOOR-POS-DESIGN-V1.2",
+      "status": "ACTIVE_FROZEN_LOGICAL_CONTRACT",
+      "stop_conditions": [
+        "material contradiction",
+        "missing required evidence",
+        "required owner authority absent",
+        "critical packet integrity failure"
+      ]
+    },
+    {
+      "allowed_actions": [
+        "actions within declared capability and explicit authority only"
+      ],
+      "capabilities": [
+        "ARCHITECTURE",
+        "CONTRACT_DESIGN",
+        "BOUNDARY_DEFINITION",
+        "DEPENDENCY_ANALYSIS",
+        "RISK_ANALYSIS",
+        "SCOPE_MINIMIZATION"
+      ],
+      "content_sha256": "a7a8974e1d443d18949beba8971b5074d1985b9cefcc4419351313ee80dd6ffe",
+      "default_authority": "DESIGN_RECOMMENDATION_ONLY",
+      "forbidden_actions": [
+        "grant mutation authority",
+        "change owner requirements",
+        "perform governed implementation without authorization"
+      ],
+      "handoff_destination": "STATE_CONTROLLER",
+      "hash_profile": "NOOR-COHP-1/CONTENT",
+      "independence_requirements": [],
+      "purpose": "Convert verified requirements/evidence into bounded designs and contracts.",
+      "required_inputs": [
+        "ROLE_CONTRACT",
+        "CURRENT_TASK_CARD_OR_DURABLE_TASK_REFERENCE",
+        "REQUIRED_STATE_REFERENCES",
+        "RELEVANT_ARTIFACT_IDENTITIES"
+      ],
+      "required_output_schema": "ROLE_COMPLETION_PACKET",
+      "revision": 1,
+      "role_contract_id": "ROLE-23b36159-8c00-43fa-895b-71ccbc36a28b",
+      "role_name": "ARCHITECTURE_DESIGN",
+      "source_design": "NOOR-POS-DESIGN-V1.2",
+      "status": "ACTIVE_FROZEN_LOGICAL_CONTRACT",
+      "stop_conditions": [
+        "material contradiction",
+        "missing required evidence",
+        "required owner authority absent",
+        "critical packet integrity failure"
+      ]
+    },
+    {
+      "allowed_actions": [
+        "actions within declared capability and explicit authority only"
+      ],
+      "capabilities": [
+        "SOURCE_MODIFICATION",
+        "TEST_MODIFICATION",
+        "CONFIGURATION_MODIFICATION",
+        "BOUNDED_REPAIR"
+      ],
+      "content_sha256": "62ef0b356e04c00e2aa1c62e2937848384f634a628cd6048b579e6b0e75fa3c9",
+      "default_authority": "NO_MUTATION_BY_DEFAULT",
+      "forbidden_actions": [
+        "expand authorized scope",
+        "stage without stage authorization",
+        "commit without commit authorization",
+        "push",
+        "merge",
+        "reuse consumed authorization"
+      ],
+      "handoff_destination": "STATE_CONTROLLER",
+      "hash_profile": "NOOR-COHP-1/CONTENT",
+      "independence_requirements": [],
+      "purpose": "Execute exactly an authorized mutation scope.",
+      "required_inputs": [
+        "ROLE_CONTRACT",
+        "CURRENT_TASK_CARD_OR_DURABLE_TASK_REFERENCE",
+        "REQUIRED_STATE_REFERENCES",
+        "RELEVANT_ARTIFACT_IDENTITIES"
+      ],
+      "required_output_schema": "ROLE_COMPLETION_PACKET",
+      "revision": 1,
+      "role_contract_id": "ROLE-f252d6f2-97e8-4c32-91df-d8e66dd085b0",
+      "role_name": "IMPLEMENTATION",
+      "source_design": "NOOR-POS-DESIGN-V1.2",
+      "status": "ACTIVE_FROZEN_LOGICAL_CONTRACT",
+      "stop_conditions": [
+        "material contradiction",
+        "missing required evidence",
+        "required owner authority absent",
+        "critical packet integrity failure"
+      ]
+    },
+    {
+      "allowed_actions": [
+        "actions within declared capability and explicit authority only"
+      ],
+      "capabilities": [
+        "TEST_EXECUTION",
+        "HASH_VERIFICATION",
+        "MANIFEST_VALIDATION",
+        "REGRESSION_CHECKING",
+        "GIT_STATE_RECONCILIATION"
+      ],
+      "content_sha256": "7f40ea39146d0ebd29f1b3103a6dc467f15335254fa5b8747b3a6e02558a75ef",
+      "default_authority": "READ_ONLY_BY_DEFAULT",
+      "forbidden_actions": [
+        "repair failures unless reassigned",
+        "grant owner authority",
+        "perform release mutation"
+      ],
+      "handoff_destination": "STATE_CONTROLLER",
+      "hash_profile": "NOOR-COHP-1/CONTENT",
+      "independence_requirements": [],
+      "purpose": "Deterministically verify implementation, hashes, manifests, regressions and repository state.",
+      "required_inputs": [
+        "ROLE_CONTRACT",
+        "CURRENT_TASK_CARD_OR_DURABLE_TASK_REFERENCE",
+        "REQUIRED_STATE_REFERENCES",
+        "RELEVANT_ARTIFACT_IDENTITIES"
+      ],
+      "required_output_schema": "ROLE_COMPLETION_PACKET",
+      "revision": 1,
+      "role_contract_id": "ROLE-b3bd4c64-4df4-4667-bf2d-89883176a1a8",
+      "role_name": "VERIFICATION_QA",
+      "source_design": "NOOR-POS-DESIGN-V1.2",
+      "status": "ACTIVE_FROZEN_LOGICAL_CONTRACT",
+      "stop_conditions": [
+        "material contradiction",
+        "missing required evidence",
+        "required owner authority absent",
+        "critical packet integrity failure"
+      ]
+    },
+    {
+      "allowed_actions": [
+        "actions within declared capability and explicit authority only"
+      ],
+      "capabilities": [
+        "ADVERSARIAL_REVIEW",
+        "SECURITY_REVIEW",
+        "ARCHITECTURE_REVIEW",
+        "SCOPE_REVIEW",
+        "FINDING_CLASSIFICATION"
+      ],
+      "content_sha256": "ce176ec1a46cb9f313f818300c352a0f234b43952036db46a443dbbf905b2544",
+      "default_authority": "STRICT_READ_ONLY",
+      "forbidden_actions": [
+        "modify implementation",
+        "self-review same implementation session",
+        "grant owner authority"
+      ],
+      "handoff_destination": "STATE_CONTROLLER",
+      "hash_profile": "NOOR-COHP-1/CONTENT",
+      "independence_requirements": [
+        "INDEPENDENT_REVIEW must not be same implementation session"
+      ],
+      "purpose": "Perform independent adversarial read-only review.",
+      "required_inputs": [
+        "ROLE_CONTRACT",
+        "CURRENT_TASK_CARD_OR_DURABLE_TASK_REFERENCE",
+        "REQUIRED_STATE_REFERENCES",
+        "RELEVANT_ARTIFACT_IDENTITIES"
+      ],
+      "required_output_schema": "ROLE_COMPLETION_PACKET",
+      "revision": 1,
+      "role_contract_id": "ROLE-18d6d01c-a59e-460d-adac-3b2d7ae4ed6b",
+      "role_name": "INDEPENDENT_REVIEW",
+      "source_design": "NOOR-POS-DESIGN-V1.2",
+      "status": "ACTIVE_FROZEN_LOGICAL_CONTRACT",
+      "stop_conditions": [
+        "material contradiction",
+        "missing required evidence",
+        "required owner authority absent",
+        "critical packet integrity failure"
+      ]
+    },
+    {
+      "allowed_actions": [
+        "actions within declared capability and explicit authority only"
+      ],
+      "capabilities": [
+        "STAGE",
+        "COMMIT",
+        "PUBLICATION_GATE",
+        "PUSH",
+        "PR",
+        "MERGE",
+        "CLEANUP",
+        "POST_RELEASE_RECONCILIATION"
+      ],
+      "content_sha256": "4754d20a9fc3159715761f91db3bdce9412ce1f4b42ae89409590a67ec6d0ed0",
+      "default_authority": "NO_MUTATION_BY_DEFAULT",
+      "forbidden_actions": [
+        "combine ungranted boundaries",
+        "reuse consumed authorization",
+        "publish unverified state"
+      ],
+      "handoff_destination": "STATE_CONTROLLER",
+      "hash_profile": "NOOR-COHP-1/CONTENT",
+      "independence_requirements": [],
+      "purpose": "Execute separately authorized Stage/Commit/Publication/Push/PR/Merge/Cleanup transitions.",
+      "required_inputs": [
+        "ROLE_CONTRACT",
+        "CURRENT_TASK_CARD_OR_DURABLE_TASK_REFERENCE",
+        "REQUIRED_STATE_REFERENCES",
+        "RELEVANT_ARTIFACT_IDENTITIES"
+      ],
+      "required_output_schema": "ROLE_COMPLETION_PACKET",
+      "revision": 1,
+      "role_contract_id": "ROLE-de9b29d4-4792-4818-a480-aa7fea9f5419",
+      "role_name": "RELEASE_GOVERNANCE",
+      "source_design": "NOOR-POS-DESIGN-V1.2",
+      "status": "ACTIVE_FROZEN_LOGICAL_CONTRACT",
+      "stop_conditions": [
+        "material contradiction",
+        "missing required evidence",
+        "required owner authority absent",
+        "critical packet integrity failure"
+      ]
+    }
+  ],
+  "status": "PROPOSED_INITIAL_RECORD_PENDING_REVIEW"
+}

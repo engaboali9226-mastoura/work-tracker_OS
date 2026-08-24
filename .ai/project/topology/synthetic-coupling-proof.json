@@ -1,0 +1,30 @@
+{
+  "assertions": {
+    "PRODUCT_HEAD_UNCHANGED": true,
+    "PRODUCT_INDEX_UNCHANGED": true,
+    "PRODUCT_STATUS_UNCHANGED": true,
+    "PRODUCT_TREE_UNCHANGED": true
+  },
+  "canonical_user_repository_touched": false,
+  "content_sha256": "b1e40d7c1380c8f4ef265e6dc563c8a079909079ab9d18417ae16786c3715591",
+  "control_commit": "70f440960db6b9594376aac1e7291768c8836047",
+  "control_ref": "refs/heads/noor/project-ops",
+  "control_tree": "48d24ca30e563b6df3a6741735c48850ac036ea0",
+  "formal_live_repository_topology_review": "PENDING_INITIAL_RECORDS_REVIEW_AND_EXACT_FREEZE",
+  "hash_profile": "NOOR-COHP-1/CONTENT",
+  "product_head_after": "12b3eb170b10b0efdf55d1e5289f6384e8919c1b",
+  "product_head_before": "12b3eb170b10b0efdf55d1e5289f6384e8919c1b",
+  "product_index_staged_paths_after": [],
+  "product_status_after": [
+    "?? protected-step044.txt"
+  ],
+  "product_status_before": [
+    "?? protected-step044.txt"
+  ],
+  "product_tree_after": "f9af745243d211e562d854d6a94561dcb6a128fb",
+  "product_tree_before": "f9af745243d211e562d854d6a94561dcb6a128fb",
+  "proof_id": "PROOF-8f01804e-ea94-47e6-9081-e49de412eebd",
+  "proof_type": "SYNTHETIC_DETACHED_CONTROL_REF_PRODUCT_DRIFT_TEST",
+  "status": "PASS",
+  "synthetic_only": true
+}

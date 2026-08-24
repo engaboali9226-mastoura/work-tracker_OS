@@ -1,0 +1,18 @@
+{
+  "active_work_wave_ids": [],
+  "active_work_wave_minimum_required_fields": [
+    "objective",
+    "task_ids",
+    "dependencies",
+    "assigned_roles",
+    "exit_criteria",
+    "current_status"
+  ],
+  "content_sha256": "f2e2dfc54045e790a1e921fabc57c5442195a302d86de90ae5841f83ffbc1871",
+  "hash_profile": "NOOR-COHP-1/CONTENT",
+  "historical_wave_fabrication": "FORBIDDEN_NO_WORK_WAVE_ID_WAS_PROVEN_IN_FREEZE_FOR_CLOSED_TODAY_TASK",
+  "revision": 1,
+  "status": "PROPOSED_INITIAL_RECORD_PENDING_REVIEW",
+  "work_wave_registry_id": "WAVEREG-db91b414-eb31-4f83-a058-cf7d8eec8ba2",
+  "work_waves": []
+}

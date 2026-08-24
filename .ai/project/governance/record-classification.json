@@ -1,0 +1,48 @@
+{
+  "anti_bureaucracy": [
+    "NO_ONE_FILE_PER_MESSAGE",
+    "NO_ONE_FILE_PER_MICRO_EVENT",
+    "NO_FULL_TRANSCRIPT_PERSISTENCE",
+    "READ_ONLY_MICRO_EVENTS_MAY_BATCH_WHEN_SAFE"
+  ],
+  "canonical_durable": [
+    "PROJECT_STATE",
+    "ACTIVE_WORK_CONTROL",
+    "ROLE_CONTRACT_SET",
+    "CANONICAL_EVENT_LEDGER",
+    "ACCEPTED_DECISION_SET",
+    "AUTHORIZATION_STATE",
+    "ARTIFACT_MANIFEST",
+    "PROTECTED_STATE",
+    "PROJECT_CHECKPOINT",
+    "WORK_WAVE_DEFINITION_WHEN_ACTIVE_OR_AUDIT_REQUIRED",
+    "TASK_DEFINITION_WHEN_ACTIVE_OR_AUDIT_REQUIRED",
+    "OBJECT_SCHEMA_SET",
+    "PERSISTENCE_TOPOLOGY",
+    "RECORD_SET_MANIFEST"
+  ],
+  "content_sha256": "273ccca37ca1c7b552654e40c091fac580938cffefac9d84829566ebc2decc15",
+  "derived_regenerable": [
+    "CURRENT_TASK_INDEX",
+    "OPEN_BLOCKER_INDEX",
+    "ROLE_DIRECTORY_VIEW",
+    "DECISION_INDEX",
+    "EVENT_SUMMARY",
+    "ARTIFACT_LOOKUP_INDEX",
+    "DISPLAY_ALIASES",
+    "STATUS_DASHBOARD"
+  ],
+  "hash_profile": "NOOR-COHP-1/CONTENT",
+  "promotion_rule": "Persist only material facts/evidence needed for continuity, auditability, replaceability, authority safety, accepted decisions, protected state, or non-regenerable artifact identity.",
+  "record_classification_id": "RCLASS-a4767b78-d7c2-4acd-834b-ea6fd802e004",
+  "revision": 1,
+  "status": "PROPOSED_INITIAL_RECORD_PENDING_REVIEW",
+  "transient_transport": [
+    "TASK_CARD",
+    "ROLE_COMPLETION_PACKET",
+    "STATE_RECONCILIATION_DRAFT",
+    "HANDOFF_PACKET",
+    "RAW_LOG",
+    "OWNER_AUTHORIZATION_REQUEST_PACKET"
+  ]
+}

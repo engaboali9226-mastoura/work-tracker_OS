@@ -1,0 +1,29 @@
+{
+  "array_order": "SIGNIFICANT_UNLESS_SPECIFIC_SCHEMA_DECLARES_SET_CANONICALIZATION",
+  "bom": "FORBIDDEN",
+  "canonical_representation": "RFC_8785_JSON_CANONICALIZATION_SCHEME_JCS_WITH_NOOR_SCHEMA_RESTRICTIONS",
+  "character_encoding": "UTF-8",
+  "content_sha256": "91fd474c15a28e04eb353dd74cbb4b5e898a8ac633f1b03b5b4c99bd1eb493e7",
+  "digest_encoding": "lowercase hexadecimal",
+  "field_order": "JCS_DETERMINISTIC_OBJECT_MEMBER_ORDER",
+  "formal_cross_tool_gate": "PENDING_INITIAL_RECORDS_REVIEW_AND_EXACT_FREEZE",
+  "hash_algorithm": "SHA-256",
+  "hash_field_exclusion": {
+    "NOOR-COHP-1/CONTENT": [
+      "content_sha256"
+    ],
+    "NOOR-COHP-1/PACKET": [
+      "packet_sha256"
+    ]
+  },
+  "hash_profile": "NOOR-COHP-1/CONTENT",
+  "invariant": "SAME_LOGICAL_FROZEN_PACKET -> SAME_CANONICAL_BYTES -> SAME_SHA256",
+  "line_endings": "NO_FORMATTING_LINE_BREAKS_IN_CANONICAL_JSON",
+  "null_representation": "JSON_null_DISTINCT_FROM_MISSING_EMPTY_STRING_EMPTY_ARRAY_EMPTY_OBJECT",
+  "number_representation": "JCS_ECMASCRIPT_NUMBER_SERIALIZATION_NON_FINITE_FORBIDDEN_EXACT_DECIMAL_AS_STRING_WHEN_REQUIRED",
+  "protocol_id": "NOOR-COHP-1",
+  "raw_yaml_hashing_for_canonical_object_identity": "FORBIDDEN",
+  "revision": 1,
+  "status": "ACCEPTED_DESIGN_OPERATIONAL_QUALIFICATION_PENDING",
+  "trailing_newline": "NO"
+}

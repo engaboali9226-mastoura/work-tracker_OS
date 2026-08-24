@@ -1,0 +1,159 @@
+{
+  "content_sha256": "916bff1545b5a03881a424c39551048746efe2ee0c4fc5bd0b095010aea8f0a0",
+  "hash_profile": "NOOR-COHP-1/CONTENT",
+  "protocol_id": "NOOR-COHP-1",
+  "required_formal_gate": {
+    "DIGEST_MATCH": "PENDING",
+    "SECOND_INDEPENDENT_ADAPTER_RESULT": "PENDING",
+    "TERMINAL_RESULT": "PENDING"
+  },
+  "revision": 1,
+  "status": "CONSTRUCTED_PENDING_FORMAL_CROSS_TOOL_QUALIFICATION",
+  "test_vector_set_id": "TVEC-d91333dd-0cd9-44c8-84d6-c7bc6226a477",
+  "vectors": [
+    {
+      "excluded_fields": [
+        "packet_sha256"
+      ],
+      "expected_sha256": "55c36303d6f00a4aa342785595bb4eb1d1df9fb4b0b5145ac21b613537e17a55",
+      "hash_profile": "NOOR-COHP-1/PACKET",
+      "logical_object": {
+        "alpha": 1,
+        "packet_id": "PKT-demo",
+        "packet_sha256": "ignored",
+        "zeta": 2
+      },
+      "vector_id": "KEY_REORDER_PACKET"
+    },
+    {
+      "excluded_fields": [
+        "content_sha256"
+      ],
+      "expected_sha256": "d091f9c83c091f79652fe8786375b3fe4ce0861a56f5bfbafedbe431877ff0e8",
+      "hash_profile": "NOOR-COHP-1/CONTENT",
+      "logical_object": {
+        "a": null,
+        "content_sha256": "ignored"
+      },
+      "vector_id": "NULL_EXPLICIT"
+    },
+    {
+      "excluded_fields": [
+        "content_sha256"
+      ],
+      "expected_sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "hash_profile": "NOOR-COHP-1/CONTENT",
+      "logical_object": {
+        "content_sha256": "ignored"
+      },
+      "vector_id": "MISSING_FIELD"
+    },
+    {
+      "excluded_fields": [
+        "content_sha256"
+      ],
+      "expected_sha256": "b1d0b4cea14579d39b89f6f13701a12df9dbcef8b29f951c30cc3dfaaa97fc44",
+      "hash_profile": "NOOR-COHP-1/CONTENT",
+      "logical_object": {
+        "content_sha256": "ignored",
+        "items": [
+          "a",
+          "b"
+        ]
+      },
+      "vector_id": "ARRAY_ORDER_AB"
+    },
+    {
+      "excluded_fields": [
+        "content_sha256"
+      ],
+      "expected_sha256": "013fc18f10321db7541276a147c99e8086d59ebb77cf34ed55bbbe2b7015995c",
+      "hash_profile": "NOOR-COHP-1/CONTENT",
+      "logical_object": {
+        "content_sha256": "ignored",
+        "items": [
+          "b",
+          "a"
+        ]
+      },
+      "vector_id": "ARRAY_ORDER_BA"
+    },
+    {
+      "excluded_fields": [
+        "content_sha256"
+      ],
+      "expected_sha256": "5b2d2d12bc78544660c09d0c76cd6a8a2b50ae990f2bcd7ac03b12a15045eb86",
+      "hash_profile": "NOOR-COHP-1/CONTENT",
+      "logical_object": {
+        "content_sha256": "ignored",
+        "text": "نور — مشروع"
+      },
+      "vector_id": "UNICODE_ARABIC"
+    },
+    {
+      "excluded_fields": [
+        "content_sha256"
+      ],
+      "expected_sha256": "c485220c7f2b51d3960a5e118cf7181debd086140691e1c96db8ec13e1cd84cf",
+      "hash_profile": "NOOR-COHP-1/CONTENT",
+      "logical_object": {
+        "content_sha256": "ignored",
+        "text": "line1\nline2"
+      },
+      "vector_id": "NEWLINE_IN_STRING"
+    },
+    {
+      "excluded_fields": [
+        "content_sha256"
+      ],
+      "expected_sha256": "4af869592039c941da4947e756237e7b764018c2af96863d46b484481fd2a0f8",
+      "hash_profile": "NOOR-COHP-1/CONTENT",
+      "logical_object": {
+        "content_sha256": "ignored",
+        "false_value": false,
+        "true_value": true
+      },
+      "vector_id": "BOOLEAN_VALUES"
+    },
+    {
+      "excluded_fields": [
+        "content_sha256"
+      ],
+      "expected_sha256": "c131a416a3787d9da2ca47ce45e492b8f7e07ebf8e600c3ea7e3c03a1cc6990d",
+      "hash_profile": "NOOR-COHP-1/CONTENT",
+      "logical_object": {
+        "content_sha256": "ignored",
+        "negative": -12,
+        "positive": 42,
+        "zero": 0
+      },
+      "vector_id": "INTEGER_NUMBER_VALUES"
+    },
+    {
+      "excluded_fields": [
+        "packet_sha256"
+      ],
+      "expected_sha256": "e228a39effb578bb750d67b0a5f63702a83e6dd0b47f3b3102023c3b436bec93",
+      "hash_profile": "NOOR-COHP-1/PACKET",
+      "logical_object": {
+        "packet_id": "PKT-self",
+        "packet_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "purpose": "same"
+      },
+      "vector_id": "SELF_HASH_EXCLUSION_A"
+    },
+    {
+      "excluded_fields": [
+        "packet_sha256"
+      ],
+      "expected_sha256": "e228a39effb578bb750d67b0a5f63702a83e6dd0b47f3b3102023c3b436bec93",
+      "hash_profile": "NOOR-COHP-1/PACKET",
+      "logical_object": {
+        "packet_id": "PKT-self",
+        "packet_sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "purpose": "same"
+      },
+      "vector_id": "SELF_HASH_EXCLUSION_B"
+    }
+  ]
+}

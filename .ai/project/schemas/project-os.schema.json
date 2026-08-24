@@ -1,0 +1,974 @@
+{
+  "content_sha256": "2c83a5b2401020c64f33cea2b8e3d74d8cb9b4d2abdc73404f6db0ce70b245a0",
+  "hash_profile": "NOOR-COHP-1/CONTENT",
+  "revision": 1,
+  "schema_document": {
+    "$defs": {
+      "ACTIVE_WORK_CONTROL": {
+        "additionalProperties": true,
+        "properties": {
+          "active_work_control_id": {
+            "minLength": 8,
+            "type": "string"
+          },
+          "assigned_role_id": {
+            "anyOf": [
+              {
+                "minLength": 8,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "authorization_id": {
+            "anyOf": [
+              {
+                "minLength": 8,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "content_sha256": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "hash_profile": {
+            "type": "string"
+          },
+          "last_safe_boundary": {
+            "type": "string"
+          },
+          "mutation_lane_status": {
+            "type": "string"
+          },
+          "next_expected_event_or_action": {
+            "type": "string"
+          },
+          "open_blocker_if_any": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "revision": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "start_state_reference": {},
+          "status": {
+            "type": "string"
+          },
+          "task_card_id": {
+            "anyOf": [
+              {
+                "minLength": 8,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "task_card_sha256": {
+            "anyOf": [
+              {
+                "pattern": "^[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "task_id": {
+            "anyOf": [
+              {
+                "minLength": 8,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "task_status": {
+            "type": "string"
+          },
+          "work_wave_id": {
+            "anyOf": [
+              {
+                "minLength": 8,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "active_work_control_id",
+          "revision",
+          "status",
+          "work_wave_id",
+          "task_id",
+          "task_status",
+          "assigned_role_id",
+          "task_card_id",
+          "task_card_sha256",
+          "authorization_id",
+          "mutation_lane_status",
+          "start_state_reference",
+          "last_safe_boundary",
+          "next_expected_event_or_action",
+          "open_blocker_if_any",
+          "hash_profile",
+          "content_sha256"
+        ],
+        "type": "object"
+      },
+      "ARTIFACT": {
+        "additionalProperties": true,
+        "properties": {
+          "artifact_id": {
+            "minLength": 8,
+            "type": "string"
+          },
+          "artifact_type": {
+            "type": "string"
+          },
+          "confidence": {
+            "type": "string"
+          },
+          "content_sha256": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "hash_profile": {
+            "type": "string"
+          },
+          "location_or_reference": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "name": {
+            "type": "string"
+          },
+          "revision": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "sha256": {
+            "anyOf": [
+              {
+                "pattern": "^[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "status": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "artifact_id",
+          "revision",
+          "name",
+          "artifact_type",
+          "status",
+          "sha256",
+          "location_or_reference",
+          "confidence",
+          "hash_profile",
+          "content_sha256"
+        ],
+        "type": "object"
+      },
+      "ARTIFACT_MANIFEST": {
+        "additionalProperties": true,
+        "properties": {
+          "artifact_manifest_id": {
+            "minLength": 8,
+            "type": "string"
+          },
+          "artifacts": {
+            "type": "array"
+          },
+          "content_sha256": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "hash_profile": {
+            "type": "string"
+          },
+          "revision": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "status": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "artifact_manifest_id",
+          "revision",
+          "status",
+          "artifacts",
+          "hash_profile",
+          "content_sha256"
+        ],
+        "type": "object"
+      },
+      "AUTHORIZATION": {
+        "additionalProperties": true,
+        "properties": {
+          "action_result": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "authorization_id": {
+            "minLength": 8,
+            "type": "string"
+          },
+          "authorized_action": {
+            "type": "string"
+          },
+          "authorized_scope": {},
+          "consumption_rule": {
+            "type": "string"
+          },
+          "content_sha256": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "hash_profile": {
+            "type": "string"
+          },
+          "reusable": {
+            "type": "boolean"
+          },
+          "revision": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "status": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "authorization_id",
+          "revision",
+          "authorized_action",
+          "authorized_scope",
+          "consumption_rule",
+          "status",
+          "action_result",
+          "reusable",
+          "hash_profile",
+          "content_sha256"
+        ],
+        "type": "object"
+      },
+      "CANONICAL_EVENT": {
+        "additionalProperties": true,
+        "properties": {
+          "action": {
+            "type": "string"
+          },
+          "authority_reference": {},
+          "content_sha256": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "event_id": {
+            "minLength": 8,
+            "type": "string"
+          },
+          "event_type": {
+            "type": "string"
+          },
+          "evidence_references": {
+            "type": "array"
+          },
+          "hash_profile": {
+            "type": "string"
+          },
+          "mutation_occurred": {},
+          "parent_event_id": {
+            "anyOf": [
+              {
+                "minLength": 8,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "result": {},
+          "supersedes_event_id": {
+            "anyOf": [
+              {
+                "minLength": 8,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "event_id",
+          "parent_event_id",
+          "event_type",
+          "action",
+          "authority_reference",
+          "result",
+          "mutation_occurred",
+          "evidence_references",
+          "supersedes_event_id",
+          "hash_profile",
+          "content_sha256"
+        ],
+        "type": "object"
+      },
+      "DECISION": {
+        "additionalProperties": true,
+        "properties": {
+          "content_sha256": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "decision": {},
+          "decision_authority": {
+            "type": "string"
+          },
+          "decision_class": {
+            "type": "string"
+          },
+          "decision_id": {
+            "minLength": 8,
+            "type": "string"
+          },
+          "hash_profile": {
+            "type": "string"
+          },
+          "revision": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "status": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "decision_id",
+          "revision",
+          "decision_class",
+          "decision",
+          "decision_authority",
+          "status",
+          "hash_profile",
+          "content_sha256"
+        ],
+        "type": "object"
+      },
+      "HANDOFF_PACKET": {
+        "additionalProperties": true,
+        "properties": {
+          "authority_state": {},
+          "exact_next_action": {
+            "type": "string"
+          },
+          "from_role": {
+            "minLength": 8,
+            "type": "string"
+          },
+          "minimum_required_context": {
+            "type": "array"
+          },
+          "packet_id": {
+            "minLength": 8,
+            "type": "string"
+          },
+          "purpose": {
+            "type": "string"
+          },
+          "to_role": {
+            "minLength": 8,
+            "type": "string"
+          }
+        },
+        "required": [
+          "packet_id",
+          "from_role",
+          "to_role",
+          "purpose",
+          "minimum_required_context",
+          "authority_state",
+          "exact_next_action"
+        ],
+        "type": "object"
+      },
+      "PROJECT_CHECKPOINT": {
+        "additionalProperties": true,
+        "properties": {
+          "canonical_event_tip": {
+            "anyOf": [
+              {
+                "minLength": 8,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "content_sha256": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "exact_next_action": {
+            "type": "string"
+          },
+          "hash_profile": {
+            "type": "string"
+          },
+          "project_checkpoint_id": {
+            "minLength": 8,
+            "type": "string"
+          },
+          "project_id": {
+            "type": "string"
+          },
+          "project_state_id": {
+            "minLength": 8,
+            "type": "string"
+          },
+          "revision": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "status": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "project_checkpoint_id",
+          "revision",
+          "project_id",
+          "status",
+          "project_state_id",
+          "canonical_event_tip",
+          "exact_next_action",
+          "hash_profile",
+          "content_sha256"
+        ],
+        "type": "object"
+      },
+      "PROJECT_STATE": {
+        "additionalProperties": true,
+        "properties": {
+          "content_sha256": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "current_phase": {
+            "type": "string"
+          },
+          "exact_next_action": {
+            "type": "string"
+          },
+          "hash_profile": {
+            "type": "string"
+          },
+          "mutation_lane_status": {
+            "type": "string"
+          },
+          "product_execution": {
+            "type": "string"
+          },
+          "project_id": {
+            "type": "string"
+          },
+          "project_state_id": {
+            "minLength": 8,
+            "type": "string"
+          },
+          "revision": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "status": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "project_state_id",
+          "revision",
+          "project_id",
+          "status",
+          "current_phase",
+          "product_execution",
+          "mutation_lane_status",
+          "exact_next_action",
+          "hash_profile",
+          "content_sha256"
+        ],
+        "type": "object"
+      },
+      "PROTECTED_STATE": {
+        "additionalProperties": true,
+        "properties": {
+          "content_sha256": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "hash_profile": {
+            "type": "string"
+          },
+          "items": {
+            "type": "array"
+          },
+          "protected_state_id": {
+            "minLength": 8,
+            "type": "string"
+          },
+          "revision": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "status": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "protected_state_id",
+          "revision",
+          "status",
+          "items",
+          "hash_profile",
+          "content_sha256"
+        ],
+        "type": "object"
+      },
+      "ROLE_CHECKPOINT": {
+        "additionalProperties": true,
+        "properties": {
+          "authority_consumed": {
+            "type": "array"
+          },
+          "authority_held": {
+            "type": "array"
+          },
+          "chat_instance_id": {
+            "type": "string"
+          },
+          "current_task_id": {
+            "anyOf": [
+              {
+                "minLength": 8,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "exact_resume_action": {
+            "type": "string"
+          },
+          "known_canonical_state_reference": {},
+          "role_checkpoint_id": {
+            "minLength": 8,
+            "type": "string"
+          },
+          "role_id": {
+            "minLength": 8,
+            "type": "string"
+          }
+        },
+        "required": [
+          "role_checkpoint_id",
+          "role_id",
+          "chat_instance_id",
+          "current_task_id",
+          "known_canonical_state_reference",
+          "authority_held",
+          "authority_consumed",
+          "exact_resume_action"
+        ],
+        "type": "object"
+      },
+      "ROLE_COMPLETION_PACKET": {
+        "additionalProperties": true,
+        "properties": {
+          "actions_performed": {
+            "type": "array"
+          },
+          "authorization_used": {},
+          "completion_status": {
+            "type": "string"
+          },
+          "from_role": {
+            "minLength": 8,
+            "type": "string"
+          },
+          "mutation_occurred": {},
+          "observations": {
+            "type": "array"
+          },
+          "packet_id": {
+            "minLength": 8,
+            "type": "string"
+          },
+          "recommendations": {
+            "type": "array"
+          },
+          "task_id": {
+            "minLength": 8,
+            "type": "string"
+          }
+        },
+        "required": [
+          "packet_id",
+          "task_id",
+          "from_role",
+          "actions_performed",
+          "observations",
+          "recommendations",
+          "mutation_occurred",
+          "authorization_used",
+          "completion_status"
+        ],
+        "type": "object"
+      },
+      "ROLE_CONTRACT": {
+        "additionalProperties": true,
+        "properties": {
+          "capabilities": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "content_sha256": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "default_authority": {
+            "type": "string"
+          },
+          "forbidden_actions": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "hash_profile": {
+            "type": "string"
+          },
+          "purpose": {
+            "type": "string"
+          },
+          "revision": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "role_contract_id": {
+            "minLength": 8,
+            "type": "string"
+          },
+          "role_name": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "role_contract_id",
+          "revision",
+          "role_name",
+          "purpose",
+          "capabilities",
+          "default_authority",
+          "forbidden_actions",
+          "status",
+          "hash_profile",
+          "content_sha256"
+        ],
+        "type": "object"
+      },
+      "STATE_RECONCILIATION_PACKET": {
+        "additionalProperties": true,
+        "properties": {
+          "confirmed_facts": {
+            "type": "array"
+          },
+          "contradictions": {
+            "type": "array"
+          },
+          "evidence_evaluated": {
+            "type": "array"
+          },
+          "packet_id": {
+            "minLength": 8,
+            "type": "string"
+          },
+          "proposed_project_state": {},
+          "reconciliation_verdict": {
+            "type": "string"
+          },
+          "source_completion_packet_ids": {
+            "type": "array"
+          }
+        },
+        "required": [
+          "packet_id",
+          "source_completion_packet_ids",
+          "evidence_evaluated",
+          "confirmed_facts",
+          "contradictions",
+          "proposed_project_state",
+          "reconciliation_verdict"
+        ],
+        "type": "object"
+      },
+      "TASK": {
+        "additionalProperties": true,
+        "properties": {
+          "acceptance_criteria": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "assigned_role_id": {
+            "anyOf": [
+              {
+                "minLength": 8,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "authority_requirement": {
+            "type": "string"
+          },
+          "content_sha256": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "current_status": {
+            "type": "string"
+          },
+          "dependencies": {
+            "type": "array"
+          },
+          "hash_profile": {
+            "type": "string"
+          },
+          "purpose": {
+            "type": "string"
+          },
+          "revision": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "scope": {
+            "type": "string"
+          },
+          "task_id": {
+            "minLength": 8,
+            "type": "string"
+          }
+        },
+        "required": [
+          "task_id",
+          "revision",
+          "purpose",
+          "scope",
+          "dependencies",
+          "assigned_role_id",
+          "acceptance_criteria",
+          "authority_requirement",
+          "current_status",
+          "hash_profile",
+          "content_sha256"
+        ],
+        "type": "object"
+      },
+      "TASK_CARD": {
+        "additionalProperties": true,
+        "properties": {
+          "allowed_actions": {
+            "type": "array"
+          },
+          "authority": {},
+          "forbidden_actions": {
+            "type": "array"
+          },
+          "inputs": {
+            "type": "array"
+          },
+          "packet_id": {
+            "minLength": 8,
+            "type": "string"
+          },
+          "packet_sha256": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "purpose": {
+            "type": "string"
+          },
+          "required_output": {
+            "type": "string"
+          },
+          "stop_conditions": {
+            "type": "array"
+          },
+          "task_card_id": {
+            "minLength": 8,
+            "type": "string"
+          },
+          "task_id": {
+            "minLength": 8,
+            "type": "string"
+          },
+          "to_role": {
+            "minLength": 8,
+            "type": "string"
+          },
+          "work_wave_id": {
+            "anyOf": [
+              {
+                "minLength": 8,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "packet_id",
+          "packet_sha256",
+          "task_card_id",
+          "task_id",
+          "work_wave_id",
+          "to_role",
+          "purpose",
+          "inputs",
+          "authority",
+          "allowed_actions",
+          "forbidden_actions",
+          "required_output",
+          "stop_conditions"
+        ],
+        "type": "object"
+      },
+      "WORK_WAVE": {
+        "additionalProperties": true,
+        "properties": {
+          "assigned_roles": {
+            "items": {
+              "minLength": 8,
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "content_sha256": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "current_status": {
+            "type": "string"
+          },
+          "dependencies": {
+            "type": "array"
+          },
+          "exit_criteria": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "hash_profile": {
+            "type": "string"
+          },
+          "objective": {
+            "type": "string"
+          },
+          "revision": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "task_ids": {
+            "items": {
+              "minLength": 8,
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "work_wave_id": {
+            "minLength": 8,
+            "type": "string"
+          }
+        },
+        "required": [
+          "work_wave_id",
+          "revision",
+          "objective",
+          "task_ids",
+          "dependencies",
+          "assigned_roles",
+          "exit_criteria",
+          "current_status",
+          "hash_profile",
+          "content_sha256"
+        ],
+        "type": "object"
+      }
+    },
+    "$id": "urn:noor:project-os:v1.2:schemas",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "NOOR Project OS Object Schemas",
+    "type": "object"
+  },
+  "schema_object_id": "SCHEMA-266ae010-1ffc-4231-a8d7-263bcb189661",
+  "schema_policy": {
+    "active_task_definition_recoverability": "PURPOSE_SCOPE_DEPENDENCIES_ASSIGNED_ROLE_ACCEPTANCE_CRITERIA_AUTHORITY_REQUIREMENT_CURRENT_STATUS_REQUIRED",
+    "stable_identity": "UUID_BASED_COLLISION_RESISTANT",
+    "unknown_fields": "OBJECT_SPECIFIC_SCHEMA_CONTROLS"
+  }
+}

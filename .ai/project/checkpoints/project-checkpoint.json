@@ -1,0 +1,36 @@
+{
+  "accepted_decision_ids": [
+    "DEC-c650126c-e68a-4bfe-bb6a-498c718a25a4"
+  ],
+  "active_authorization_ids": [],
+  "active_work_control_id": "AWC-437ef2a3-73e8-4717-93ae-f591f9bcec64",
+  "artifact_manifest_id": "ARTREG-8d13e7bf-4da4-4f59-a4cc-c89ca77d26f1",
+  "blockers": [],
+  "canonical_event_tip": "EVT-c3f9686e-c46d-4836-a1b9-5188aed6a2a5",
+  "content_sha256": "e1af10ff67faa061e57a30342e56b7161484f01bbc350c9513cb6efb8624c3cd",
+  "exact_next_action": "INITIAL_RECORDS_REVIEW_AND_EXACT_FREEZE",
+  "genesis_acceptance_requirements": [
+    "RECORD_SET_INTERNAL_CONSISTENCY_PASS",
+    "FREEZE_PACK_TRANSLATION_PASS",
+    "NO_FABRICATED_HISTORY_PASS",
+    "ROLE_REPLACEABILITY_SUPPORT_PASS",
+    "MID_WAVE_RECOVERY_SUPPORT_PASS",
+    "CONTROL_PLANE_PRODUCT_STATE_COUPLING_ACCEPTABLE",
+    "NOOR_COHP_1_TEST_VECTORS_PASS",
+    "CROSS_TOOL_HASH_REPRODUCIBILITY_PASS",
+    "RECORD_SET_MANIFEST_FROZEN",
+    "EXACT_REPOSITORY_PERSISTENCE_SCOPE_FROZEN"
+  ],
+  "hash_profile": "NOOR-COHP-1/CONTENT",
+  "open_tasks": [],
+  "open_work_wave": null,
+  "pending_decisions": [],
+  "project_checkpoint_id": "PCHK-450c3041-0050-4c79-8514-126629efb757",
+  "project_id": "NOOR",
+  "project_state_id": "PS-5c5a60e8-ff0a-46a9-aecf-ff47e629be15",
+  "protected_state_id": "PROT-db291e78-5dcf-40ce-be8e-39885ec081bd",
+  "repository_reference_policy": "LIVE_PRODUCT_REF_STATE_MUST_BE_REPROBED_WHEN_OPERATION_DEPENDS_ON_IT",
+  "revision": 1,
+  "role_checkpoint_references": [],
+  "status": "INITIALIZATION_CONSTRUCTION_CHECKPOINT_PENDING_REVIEW"
+}
