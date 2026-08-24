@@ -1,5 +1,6 @@
 {
-  "content_sha256": "90e9e44fa137d91d419569b0c3a9c32f890424f726c29e4a9c96a4a2907dd8ee",
+  "acceptance_basis": "INITIAL_RECORDS_REVIEW_AND_EXACT_FREEZE=PASS",
+  "content_sha256": "0026beb5a838d5f06a9bf4cb87a38f31e4368eecc0a67c4942f307ec7bcdb78f",
   "decision_set_id": "DECSET-8664dfb2-4b52-4a13-813d-89b8f79c4786",
   "decisions": [
     {
@@ -49,6 +50,6 @@
     }
   ],
   "hash_profile": "NOOR-COHP-1/CONTENT",
-  "revision": 1,
-  "status": "PROPOSED_INITIAL_RECORD_PENDING_REVIEW"
+  "revision": 2,
+  "status": "CANONICAL_ACCEPTED"
 }

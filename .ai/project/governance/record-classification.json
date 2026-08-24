@@ -1,4 +1,5 @@
 {
+  "acceptance_basis": "INITIAL_RECORDS_REVIEW_AND_EXACT_FREEZE=PASS",
   "anti_bureaucracy": [
     "NO_ONE_FILE_PER_MESSAGE",
     "NO_ONE_FILE_PER_MICRO_EVENT",
@@ -21,7 +22,7 @@
     "PERSISTENCE_TOPOLOGY",
     "RECORD_SET_MANIFEST"
   ],
-  "content_sha256": "273ccca37ca1c7b552654e40c091fac580938cffefac9d84829566ebc2decc15",
+  "content_sha256": "5ea485abbd4f74a0682c1e70dba67189f8d874658e3866bfc24364f2e6b19494",
   "derived_regenerable": [
     "CURRENT_TASK_INDEX",
     "OPEN_BLOCKER_INDEX",
@@ -35,8 +36,8 @@
   "hash_profile": "NOOR-COHP-1/CONTENT",
   "promotion_rule": "Persist only material facts/evidence needed for continuity, auditability, replaceability, authority safety, accepted decisions, protected state, or non-regenerable artifact identity.",
   "record_classification_id": "RCLASS-a4767b78-d7c2-4acd-834b-ea6fd802e004",
-  "revision": 1,
-  "status": "PROPOSED_INITIAL_RECORD_PENDING_REVIEW",
+  "revision": 2,
+  "status": "CANONICAL_ACCEPTED",
   "transient_transport": [
     "TASK_CARD",
     "ROLE_COMPLETION_PACKET",

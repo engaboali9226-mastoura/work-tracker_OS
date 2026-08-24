@@ -5,12 +5,20 @@
     "nested_separate_repository": "REJECTED_WEAKENS_SINGLE_PROJECT_PORTABILITY_AND_ADDS_DEPENDENCY",
     "product_branch_ai_project": "REJECTED_CAUSES_PRODUCT_HEAD_TREE_DRIFT_WHEN_CONTROL_STATE_CHANGES"
   },
-  "content_sha256": "d9ea133b099872e4d8e72daa51fd5a9158a66c19940b5b96325e9b3ecde29766",
+  "content_sha256": "5423cad5c8c5e49ba9ba50b1f010b1107cf75fd3e1ce1f7660eaaf5b403c00be",
   "control_ref": "refs/heads/noor/project-ops",
   "control_ref_history": "INDEPENDENT_ORPHAN_LINEAGE_NO_PRODUCT_COMMIT_PARENT_REQUIRED",
   "control_tree_root": ".ai/project/",
   "coupling_rule": "CONTROL_REF_COMMITS_AND_OBJECT_WRITES_ARE_EXCLUDED_FROM_PRODUCT_EXECUTION_START_STATE; PRODUCT_REF_HEAD_TREE_INDEX_WORKTREE_AND_PROTECTED_PREIMAGES_MUST_BE PROVEN UNCHANGED AROUND CONTROL PERSISTENCE.",
   "hash_profile": "NOOR-COHP-1/CONTENT",
+  "live_initial_persistence": {
+    "cas_result": "PASS",
+    "control_commit": "399d94a1bde2fc16d7c62c02a5276b4b56bff9de",
+    "control_ref": "refs/heads/noor/project-ops",
+    "control_tree": "6eda8220ee450664ebbdb94850584d08e1f0fb85",
+    "product_state_unchanged": "PASS",
+    "verify_persisted_project_os": "PASS"
+  },
   "materialization": "NO_CHECKOUT_REQUIRED",
   "product_ref": "refs/heads/product/noor-personal-mvp",
   "product_repository": "/Users/eng92fa64icloud.com/noor-personal/noor-personal-dev",
@@ -36,7 +44,7 @@
     "NO_REMOTE_PUSH_OR_PUBLICATION"
   ],
   "remote_durability": "SEPARATE_FUTURE_GOVERNED_PUBLICATION_BOUNDARY_NOT_INCLUDED_IN_INITIAL_LOCAL_PERSISTENCE",
-  "revision": 1,
+  "revision": 2,
   "self_induced_drift_prevention": [
     "CONTROL_RECORDS_NEVER_TRACKED_ON_PRODUCT_BRANCH_BY_DEFAULT",
     "NO_PRODUCT_HEAD_ADVANCE_FOR_CONTROL_UPDATE",
@@ -44,7 +52,7 @@
     "NO_PRODUCT_INDEX_OR_WORKTREE_TOUCH",
     "PERSISTENCE_USES_SEPARATE_CONTROL_REF_CAS"
   ],
-  "status": "PROPOSED_FOR_INITIAL_RECORD_REVIEW",
+  "status": "ACCEPTED_PERSISTED_AND_VERIFIED",
   "topology_id": "TOPO-05919fce-a7c0-4fb1-b17a-6c2c567355c8",
   "topology_name": "DETACHED_CONTROL_PLANE_GIT_REF",
   "write_mechanism": [

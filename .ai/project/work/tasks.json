@@ -8,11 +8,21 @@
     "authority_requirement",
     "current_status"
   ],
-  "active_task_ids": [],
-  "content_sha256": "4dcf8b6139dbd9738d76cabf82065a3ca3d6b097e7d26026302c96fa2863ddc7",
+  "active_task_ids": [
+    "TASK-01a03272-80c1-7a2b-b1eb-ab2de5e0a9d3",
+    "TASK-01a03272-80c2-7186-9881-09485b345dc0",
+    "TASK-01a03272-80c3-7b9f-b173-6bc2987e92b9",
+    "TASK-01a03272-80c4-7d21-bdb3-2663ca9e394f",
+    "TASK-01a03272-80c5-7c7a-bd3a-2624663e9653",
+    "TASK-01a03272-80c6-7eff-92e3-fd66c6ee6121",
+    "TASK-01a03272-80c7-7716-8600-8b4aeb0cb5c7",
+    "TASK-01a03272-80c8-7208-adad-d8f589bcbbf4"
+  ],
+  "bootstrap_wave_id": "WW-01a03272-80c0-7929-902e-d0af90ff07ef",
+  "content_sha256": "82fdaeed3db3ca4e5216edc0aba7df322cf47448f0b0900ce6890491698aacd0",
   "hash_profile": "NOOR-COHP-1/CONTENT",
-  "revision": 1,
-  "status": "PROPOSED_INITIAL_RECORD_PENDING_REVIEW",
+  "revision": 2,
+  "status": "CANONICAL_ACTIVE",
   "task_registry_id": "TASKREG-16ee6600-7649-4855-bf1c-bc43168398d0",
   "tasks": [
     {
@@ -49,6 +59,204 @@
       "task_id": "TASK-0db46539-39f3-43e6-83bc-43238a328dcb",
       "title": "First real NOOR Personal Today operation",
       "work_wave_id": null
+    },
+    {
+      "acceptance_criteria": [
+        "NEW_CONVERSATION",
+        "ROLE_CONTRACT_IDENTITY_CONFIRMED",
+        "CURRENT_PROJECT_STATE_RECONSTRUCTED_FROM_PROJECT_CONTROLLED_SOURCES",
+        "AUTHORITY_BOUNDARY_ACCEPTED",
+        "NO_OLD_TEAM_TRANSCRIPT_REQUIRED",
+        "ROLE_ACCEPTANCE_COMPLETION_PACKET_EMITTED"
+      ],
+      "active": true,
+      "assigned_role_id": "ROLE-552b9a13-955a-476d-9099-18693ed3d42d",
+      "authority_requirement": "READ_ONLY_OR_COORDINATION_ONLY_PER_FROZEN_ROLE_CONTRACT; NO_REPOSITORY_MUTATION_AUTHORITY",
+      "content_sha256": "67623b805d234e4d92ec08bf99018eb12dd6e6c61431a0993e11bfdfe64ea22a",
+      "current_status": "READY_FOR_DISPATCH_AFTER_CONTROL_CHECKPOINT_VERIFICATION",
+      "dependencies": [],
+      "hash_profile": "NOOR-COHP-1/CONTENT",
+      "purpose": "Bootstrap the PROJECT_MANAGER role in a new conversation from project-controlled state.",
+      "revision": 1,
+      "scope": "Read the verified control plane, reconstruct current initialization state, accept the frozen role contract, and coordinate the remaining bootstrap wave without relying on old chat history.",
+      "task_id": "TASK-01a03272-80c1-7a2b-b1eb-ab2de5e0a9d3",
+      "title": "Bootstrap PROJECT_MANAGER role",
+      "work_wave_id": "WW-01a03272-80c0-7929-902e-d0af90ff07ef"
+    },
+    {
+      "acceptance_criteria": [
+        "NEW_CONVERSATION",
+        "ROLE_CONTRACT_IDENTITY_CONFIRMED",
+        "CURRENT_PROJECT_STATE_RECONSTRUCTED_FROM_PROJECT_CONTROLLED_SOURCES",
+        "AUTHORITY_BOUNDARY_ACCEPTED",
+        "NO_OLD_TEAM_TRANSCRIPT_REQUIRED",
+        "ROLE_ACCEPTANCE_COMPLETION_PACKET_EMITTED"
+      ],
+      "active": true,
+      "assigned_role_id": "ROLE-8ea9488c-249a-49ac-a9b4-4e3a5f27b293",
+      "authority_requirement": "READ_ONLY_OR_COORDINATION_ONLY_PER_FROZEN_ROLE_CONTRACT; NO_REPOSITORY_MUTATION_AUTHORITY",
+      "content_sha256": "e81d322299c83408d91f3345e74342877d8d5d3a036c80b6b61ed93c95d8ae31",
+      "current_status": "BLOCKED_BY_PROJECT_MANAGER_BOOTSTRAP",
+      "dependencies": [
+        "TASK-01a03272-80c1-7a2b-b1eb-ab2de5e0a9d3"
+      ],
+      "hash_profile": "NOOR-COHP-1/CONTENT",
+      "purpose": "Bootstrap the STATE_CONTROLLER role in a new conversation from project-controlled state.",
+      "revision": 1,
+      "scope": "Reconstruct canonical facts and authority state from project-controlled sources and accept reconciliation-only authority.",
+      "task_id": "TASK-01a03272-80c2-7186-9881-09485b345dc0",
+      "title": "Bootstrap STATE_CONTROLLER role",
+      "work_wave_id": "WW-01a03272-80c0-7929-902e-d0af90ff07ef"
+    },
+    {
+      "acceptance_criteria": [
+        "NEW_CONVERSATION",
+        "ROLE_CONTRACT_IDENTITY_CONFIRMED",
+        "CURRENT_PROJECT_STATE_RECONSTRUCTED_FROM_PROJECT_CONTROLLED_SOURCES",
+        "AUTHORITY_BOUNDARY_ACCEPTED",
+        "NO_OLD_TEAM_TRANSCRIPT_REQUIRED",
+        "ROLE_ACCEPTANCE_COMPLETION_PACKET_EMITTED"
+      ],
+      "active": true,
+      "assigned_role_id": "ROLE-d37c83be-446e-48ef-9d71-c230d94d5e5f",
+      "authority_requirement": "READ_ONLY_OR_COORDINATION_ONLY_PER_FROZEN_ROLE_CONTRACT; NO_REPOSITORY_MUTATION_AUTHORITY",
+      "content_sha256": "fc6d63caa943c0361d389310c8ace3db5f5d3df7560313c6404eec14adb581f7",
+      "current_status": "BLOCKED_BY_PROJECT_MANAGER_BOOTSTRAP",
+      "dependencies": [
+        "TASK-01a03272-80c1-7a2b-b1eb-ab2de5e0a9d3"
+      ],
+      "hash_profile": "NOOR-COHP-1/CONTENT",
+      "purpose": "Bootstrap the EVIDENCE_READER role in a new conversation from project-controlled state.",
+      "revision": 1,
+      "scope": "Accept strict read-only evidence authority and prove it can recover repository/artifact facts from bounded references.",
+      "task_id": "TASK-01a03272-80c3-7b9f-b173-6bc2987e92b9",
+      "title": "Bootstrap EVIDENCE_READER role",
+      "work_wave_id": "WW-01a03272-80c0-7929-902e-d0af90ff07ef"
+    },
+    {
+      "acceptance_criteria": [
+        "NEW_CONVERSATION",
+        "ROLE_CONTRACT_IDENTITY_CONFIRMED",
+        "CURRENT_PROJECT_STATE_RECONSTRUCTED_FROM_PROJECT_CONTROLLED_SOURCES",
+        "AUTHORITY_BOUNDARY_ACCEPTED",
+        "NO_OLD_TEAM_TRANSCRIPT_REQUIRED",
+        "ROLE_ACCEPTANCE_COMPLETION_PACKET_EMITTED"
+      ],
+      "active": true,
+      "assigned_role_id": "ROLE-23b36159-8c00-43fa-895b-71ccbc36a28b",
+      "authority_requirement": "READ_ONLY_OR_COORDINATION_ONLY_PER_FROZEN_ROLE_CONTRACT; NO_REPOSITORY_MUTATION_AUTHORITY",
+      "content_sha256": "274efd63e62e93e364b1b65ebdce28faa1c99bd2b1027f43e95560de1d16160b",
+      "current_status": "BLOCKED_BY_PROJECT_MANAGER_BOOTSTRAP",
+      "dependencies": [
+        "TASK-01a03272-80c1-7a2b-b1eb-ab2de5e0a9d3"
+      ],
+      "hash_profile": "NOOR-COHP-1/CONTENT",
+      "purpose": "Bootstrap the ARCHITECTURE_DESIGN role in a new conversation from project-controlled state.",
+      "revision": 1,
+      "scope": "Accept design-recommendation-only authority and recover the frozen V1.2 logical design boundaries.",
+      "task_id": "TASK-01a03272-80c4-7d21-bdb3-2663ca9e394f",
+      "title": "Bootstrap ARCHITECTURE_DESIGN role",
+      "work_wave_id": "WW-01a03272-80c0-7929-902e-d0af90ff07ef"
+    },
+    {
+      "acceptance_criteria": [
+        "NEW_CONVERSATION",
+        "ROLE_CONTRACT_IDENTITY_CONFIRMED",
+        "CURRENT_PROJECT_STATE_RECONSTRUCTED_FROM_PROJECT_CONTROLLED_SOURCES",
+        "AUTHORITY_BOUNDARY_ACCEPTED",
+        "NO_OLD_TEAM_TRANSCRIPT_REQUIRED",
+        "ROLE_ACCEPTANCE_COMPLETION_PACKET_EMITTED"
+      ],
+      "active": true,
+      "assigned_role_id": "ROLE-f252d6f2-97e8-4c32-91df-d8e66dd085b0",
+      "authority_requirement": "READ_ONLY_OR_COORDINATION_ONLY_PER_FROZEN_ROLE_CONTRACT; NO_REPOSITORY_MUTATION_AUTHORITY",
+      "content_sha256": "3c3a390ca0288ec641cc5b016e7e9460414044699c8146a3e882364a1d92a828",
+      "current_status": "BLOCKED_BY_PROJECT_MANAGER_BOOTSTRAP",
+      "dependencies": [
+        "TASK-01a03272-80c1-7a2b-b1eb-ab2de5e0a9d3"
+      ],
+      "hash_profile": "NOOR-COHP-1/CONTENT",
+      "purpose": "Bootstrap the IMPLEMENTATION role in a new conversation from project-controlled state.",
+      "revision": 1,
+      "scope": "Accept no-mutation-by-default authority and demonstrate understanding of exact authorization and consumption boundaries.",
+      "task_id": "TASK-01a03272-80c5-7c7a-bd3a-2624663e9653",
+      "title": "Bootstrap IMPLEMENTATION role",
+      "work_wave_id": "WW-01a03272-80c0-7929-902e-d0af90ff07ef"
+    },
+    {
+      "acceptance_criteria": [
+        "NEW_CONVERSATION",
+        "ROLE_CONTRACT_IDENTITY_CONFIRMED",
+        "CURRENT_PROJECT_STATE_RECONSTRUCTED_FROM_PROJECT_CONTROLLED_SOURCES",
+        "AUTHORITY_BOUNDARY_ACCEPTED",
+        "NO_OLD_TEAM_TRANSCRIPT_REQUIRED",
+        "ROLE_ACCEPTANCE_COMPLETION_PACKET_EMITTED"
+      ],
+      "active": true,
+      "assigned_role_id": "ROLE-b3bd4c64-4df4-4667-bf2d-89883176a1a8",
+      "authority_requirement": "READ_ONLY_OR_COORDINATION_ONLY_PER_FROZEN_ROLE_CONTRACT; NO_REPOSITORY_MUTATION_AUTHORITY",
+      "content_sha256": "7ef263058d6fadfd192cf62b84dbdbdc4abf8767d1c23b4d203f3b9efb994013",
+      "current_status": "BLOCKED_BY_PROJECT_MANAGER_BOOTSTRAP",
+      "dependencies": [
+        "TASK-01a03272-80c1-7a2b-b1eb-ab2de5e0a9d3"
+      ],
+      "hash_profile": "NOOR-COHP-1/CONTENT",
+      "purpose": "Bootstrap the VERIFICATION_QA role in a new conversation from project-controlled state.",
+      "revision": 1,
+      "scope": "Accept read-only-by-default verification authority and recover deterministic verification requirements.",
+      "task_id": "TASK-01a03272-80c6-7eff-92e3-fd66c6ee6121",
+      "title": "Bootstrap VERIFICATION_QA role",
+      "work_wave_id": "WW-01a03272-80c0-7929-902e-d0af90ff07ef"
+    },
+    {
+      "acceptance_criteria": [
+        "NEW_CONVERSATION",
+        "ROLE_CONTRACT_IDENTITY_CONFIRMED",
+        "CURRENT_PROJECT_STATE_RECONSTRUCTED_FROM_PROJECT_CONTROLLED_SOURCES",
+        "AUTHORITY_BOUNDARY_ACCEPTED",
+        "NO_OLD_TEAM_TRANSCRIPT_REQUIRED",
+        "ROLE_ACCEPTANCE_COMPLETION_PACKET_EMITTED"
+      ],
+      "active": true,
+      "assigned_role_id": "ROLE-18d6d01c-a59e-460d-adac-3b2d7ae4ed6b",
+      "authority_requirement": "READ_ONLY_OR_COORDINATION_ONLY_PER_FROZEN_ROLE_CONTRACT; NO_REPOSITORY_MUTATION_AUTHORITY",
+      "content_sha256": "d0ea7e08330eb4fadf91d2536e32093522d1a899bb56c5ded3bbe76c0c3d70ee",
+      "current_status": "BLOCKED_BY_PROJECT_MANAGER_BOOTSTRAP",
+      "dependencies": [
+        "TASK-01a03272-80c1-7a2b-b1eb-ab2de5e0a9d3"
+      ],
+      "hash_profile": "NOOR-COHP-1/CONTENT",
+      "purpose": "Bootstrap the INDEPENDENT_REVIEW role in a new conversation from project-controlled state.",
+      "revision": 1,
+      "scope": "Accept strict independent read-only review authority and independence requirements.",
+      "task_id": "TASK-01a03272-80c7-7716-8600-8b4aeb0cb5c7",
+      "title": "Bootstrap INDEPENDENT_REVIEW role",
+      "work_wave_id": "WW-01a03272-80c0-7929-902e-d0af90ff07ef"
+    },
+    {
+      "acceptance_criteria": [
+        "NEW_CONVERSATION",
+        "ROLE_CONTRACT_IDENTITY_CONFIRMED",
+        "CURRENT_PROJECT_STATE_RECONSTRUCTED_FROM_PROJECT_CONTROLLED_SOURCES",
+        "AUTHORITY_BOUNDARY_ACCEPTED",
+        "NO_OLD_TEAM_TRANSCRIPT_REQUIRED",
+        "ROLE_ACCEPTANCE_COMPLETION_PACKET_EMITTED"
+      ],
+      "active": true,
+      "assigned_role_id": "ROLE-de9b29d4-4792-4818-a480-aa7fea9f5419",
+      "authority_requirement": "READ_ONLY_OR_COORDINATION_ONLY_PER_FROZEN_ROLE_CONTRACT; NO_REPOSITORY_MUTATION_AUTHORITY",
+      "content_sha256": "f41ce6451a3f02be921729fcadac6f1bc2aea7f232691662b3b0583a01dad562",
+      "current_status": "BLOCKED_BY_PROJECT_MANAGER_BOOTSTRAP",
+      "dependencies": [
+        "TASK-01a03272-80c1-7a2b-b1eb-ab2de5e0a9d3"
+      ],
+      "hash_profile": "NOOR-COHP-1/CONTENT",
+      "purpose": "Bootstrap the RELEASE_GOVERNANCE role in a new conversation from project-controlled state.",
+      "revision": 1,
+      "scope": "Accept no-mutation-by-default release authority and recover separated Stage/Commit/Publication/Push/PR/Merge/Cleanup boundaries.",
+      "task_id": "TASK-01a03272-80c8-7208-adad-d8f589bcbbf4",
+      "title": "Bootstrap RELEASE_GOVERNANCE role",
+      "work_wave_id": "WW-01a03272-80c0-7929-902e-d0af90ff07ef"
     }
   ],
   "transient_task_card_loss_rule": "ACTIVE_WORK_PURPOSE_AND_SCOPE_MUST_REMAIN_RECONSTRUCTABLE_FROM_DURABLE_TASK_AND_WORK_WAVE_DEFINITIONS"

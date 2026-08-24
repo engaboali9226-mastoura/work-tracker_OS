@@ -2,7 +2,7 @@
   "active_authorization_ids": [],
   "authorization_consumption_uncertainty_protocol": "NOOR-ACUP-1",
   "authorization_state_id": "AUTHSET-007f8066-a3d0-4197-a38c-6c62cc83c1a3",
-  "content_sha256": "6904355fb64b8647996e7d2f98dd48e0fa173cb9bc89fc26a4401c8c92264225",
+  "content_sha256": "86fd33a3ac7e565f02785cae69edc939e02a2d69e536d0c6b29d2b5c7efe0dac",
   "hash_profile": "NOOR-COHP-1/CONTENT",
   "historical_authorizations": [
     {
@@ -404,9 +404,46 @@
       "status": "INVALIDATED",
       "task_id": null,
       "work_wave_id": null
+    },
+    {
+      "action_result": "PASS",
+      "authorization_id": "AUTH-590dc410-27bf-4923-8856-441df6b26b22",
+      "authorized_action": "PERSIST_FROZEN_INITIAL_PROJECT_OS_RECORD_SET_TO_LOCAL_CONTROL_REF",
+      "authorized_role": "RELEASE_GOVERNANCE",
+      "authorized_scope": [
+        "CREATE_ONLY_CONTROL_REF refs/heads/noor/project-ops USING CAS FROM ABSENT PREIMAGE",
+        "WRITE_GIT_OBJECTS_FOR_EXACT_FROZEN_21_FILE_CONTROL_TREE",
+        "NO_PRODUCT_REF_INDEX_WORKTREE_OR_STEP044_CHANGE",
+        "NO_NETWORK_OPERATION"
+      ],
+      "consumption_point": "IMMEDIATELY_BEFORE_FIRST_CANONICAL_REPOSITORY_GIT_OBJECT_WRITE_AFTER_ALL_PRECONDITIONS_PASS",
+      "consumption_rule": "EXACTLY_ONCE",
+      "content_sha256": "5aaaf4acafd1e9b0838f92668100a3d4a17155212ca9fe7a0ce2994273a4f7de",
+      "hash_profile": "NOOR-COHP-1/CONTENT",
+      "issuer": "OWNER",
+      "packet_id": "PKT-c05fde09-04f5-4d45-af11-ab8dd5f7ecab",
+      "packet_sha256": "951f11167036c81ed774a004a23044fe9eec9680458f286295912ac3143fae0f",
+      "reason": "MUTATION_MARKER_EMITTED_AND_PERSISTENCE_ACTION_VERIFIED_PASS",
+      "result_state": {
+        "control_commit": "399d94a1bde2fc16d7c62c02a5276b4b56bff9de",
+        "control_ref": "refs/heads/noor/project-ops",
+        "control_tree": "6eda8220ee450664ebbdb94850584d08e1f0fb85",
+        "verify_persisted_project_os": "PASS"
+      },
+      "reusable": false,
+      "revision": 1,
+      "start_state": {
+        "control_ref_preimage": "ABSENT",
+        "product_head": "99a685a95a3a0fe9f4ee6bf0bc519563dad12a7a",
+        "product_tree": "53ca9a3c990bcfbd54553557663c1faaebffd38f"
+      },
+      "status": "CONSUMED",
+      "task_id": "TASK-3385fc6c-8ee4-4856-a2b3-9c95ab59271c",
+      "work_wave_id": "WW-5cad067b-4df0-47fb-8ca1-fed1509703f7"
     }
   ],
-  "revision": 1,
-  "status": "PROPOSED_INITIAL_RECORD_PENDING_REVIEW",
+  "latest_consumed_authorization_id": "AUTH-590dc410-27bf-4923-8856-441df6b26b22",
+  "revision": 2,
+  "status": "CANONICAL_ACTIVE",
   "unresolved_authorization_state": false
 }

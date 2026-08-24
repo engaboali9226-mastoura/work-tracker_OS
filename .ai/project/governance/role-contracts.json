@@ -1,7 +1,8 @@
 {
-  "content_sha256": "193e3096e6a8c15e5c2aff2b31b847f73f82c6cc4dc4812c9a7925f32388df6e",
+  "acceptance_basis": "INITIAL_RECORDS_REVIEW_AND_EXACT_FREEZE=PASS",
+  "content_sha256": "a5ce3ec68c952971fcf11c4f5a5a6fe9993f73c8e60dea5bbf167c4824933689",
   "hash_profile": "NOOR-COHP-1/CONTENT",
-  "revision": 1,
+  "revision": 2,
   "role_contract_set_id": "ROLESET-46819b1a-ae4e-4aaa-8790-078581157ed8",
   "roles": [
     {
@@ -347,5 +348,5 @@
       ]
     }
   ],
-  "status": "PROPOSED_INITIAL_RECORD_PENDING_REVIEW"
+  "status": "CANONICAL_ACCEPTED"
 }

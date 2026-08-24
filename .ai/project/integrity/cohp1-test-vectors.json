@@ -1,14 +1,15 @@
 {
-  "content_sha256": "916bff1545b5a03881a424c39551048746efe2ee0c4fc5bd0b095010aea8f0a0",
+  "content_sha256": "9d8c73c57f7bfab57a0f6b7f18a9b92fbf96ffdb4a4465a5e271fa834fc3eb9c",
   "hash_profile": "NOOR-COHP-1/CONTENT",
+  "independent_review_v3": "PASS",
   "protocol_id": "NOOR-COHP-1",
   "required_formal_gate": {
-    "DIGEST_MATCH": "PENDING",
-    "SECOND_INDEPENDENT_ADAPTER_RESULT": "PENDING",
-    "TERMINAL_RESULT": "PENDING"
+    "DIGEST_MATCH": "PASS",
+    "SECOND_INDEPENDENT_ADAPTER_RESULT": "PASS",
+    "TERMINAL_RESULT": "PASS"
   },
-  "revision": 1,
-  "status": "CONSTRUCTED_PENDING_FORMAL_CROSS_TOOL_QUALIFICATION",
+  "revision": 2,
+  "status": "FORMALLY_QUALIFIED",
   "test_vector_set_id": "TVEC-d91333dd-0cd9-44c8-84d6-c7bc6226a477",
   "vectors": [
     {
