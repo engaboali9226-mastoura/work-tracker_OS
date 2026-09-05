@@ -194,6 +194,7 @@ function ShellFoundation() {
       state={state}
       navigate={history.push}
       signIn={authenticationController.signIn}
+      authenticationState={authentication.kind}
     />
   );
 }
