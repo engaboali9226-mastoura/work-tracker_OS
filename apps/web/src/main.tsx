@@ -100,6 +100,7 @@ const authenticationController =
         const pathname =
           history.pathname();
 
+        // Synchronize route access evidence immediately upon session establishment
         routeAccessController
           .selectPathname(
             "/",

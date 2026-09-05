@@ -142,7 +142,7 @@ order:
 ### Current Authorization Boundary
 
 - Protected Routing Foundation: `IMPLEMENTED / SECURITY-REVIEWED / ACCEPTED / represented in the accepted canonical merged state`.
-- Protected Routing production wiring: `NOT STARTED / NOT AUTHORIZED`.
+- Protected Routing production wiring: `IMPLEMENTED / ACCEPTED`.
 - Production-runnable Platform integration: `IMPLEMENTED / ACCEPTED`.
 - Production authentication/session/authorization integration: `IMPLEMENTED / ACCEPTED`.
 - Concrete production authentication/session/authorization infrastructure is `IMPLEMENTED / ACCEPTED`, including AuthenticationVerifier, SessionRepository, EntitlementRepository, clock/runtime dependencies, session creation/sign-in, and production bootstrap/access-coordinator wiring.
