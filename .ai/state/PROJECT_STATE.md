@@ -143,11 +143,11 @@ order:
 
 - Protected Routing Foundation: `IMPLEMENTED / SECURITY-REVIEWED / ACCEPTED / represented in the accepted canonical merged state`.
 - Protected Routing production wiring: `NOT STARTED / NOT AUTHORIZED`.
-- Production-runnable Platform integration: `NOT STARTED / NOT AUTHORIZED`.
-- Production authentication/session/authorization integration: `NOT STARTED / NOT AUTHORIZED`.
-- Concrete production authentication/session/authorization infrastructure remains `NOT AUTHORIZED`, including AuthenticationVerifier, SessionRepository, EntitlementRepository, clock/runtime dependencies, session creation/sign-in, and production bootstrap/access-coordinator wiring.
+- Production-runnable Platform integration: `IMPLEMENTED / ACCEPTED`.
+- Production authentication/session/authorization integration: `IMPLEMENTED / ACCEPTED`.
+- Concrete production authentication/session/authorization infrastructure is `IMPLEMENTED / ACCEPTED`, including AuthenticationVerifier, SessionRepository, EntitlementRepository, clock/runtime dependencies, session creation/sign-in, and production bootstrap/access-coordinator wiring.
 - App Launcher: `NOT STARTED / NOT AUTHORIZED`.
-- Noor Personal production Application View mounting: `NOT AUTHORIZED`.
+- Noor Personal production Application View mounting: `IMPLEMENTED / ACCEPTED`.
 - Noor Work production Application View mounting: `NOT AUTHORIZED`.
 - Step 044 implementation: `NOT AUTHORIZED`.
 - Further dependency mutation: `NOT AUTHORIZED` unless separately authorized.
