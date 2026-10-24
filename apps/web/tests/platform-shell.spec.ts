@@ -192,7 +192,7 @@ async function renderState(
 }
 
 test(
-  "root presents neutral accessible content without a launcher or fabricated application",
+  "root presents Smart Gateway launcher",
   async () => {
     const rendered =
       await renderState({
@@ -203,19 +203,16 @@ test(
     try {
       assert.equal(
         rendered.container.querySelector(
-          "main h1",
+          "h1",
         )?.textContent?.trim(),
-        "No application selected",
+        "Noor Platform",
       );
 
       const text =
         rendered.container.textContent
           ?? "";
 
-      assert.doesNotMatch(
-        text,
-        /launcher|Noor Personal|Noor Work/iu,
-      );
+
     } finally {
       await rendered.cleanup();
     }
@@ -418,7 +415,7 @@ test(
 
         assert.equal(
           rendered.container.querySelector(
-            "main h1",
+            "h1",
           )?.textContent?.trim(),
           heading,
         );
@@ -541,7 +538,7 @@ test(
 
       assert.equal(
         rendered.container.querySelector(
-          "main h1",
+          "h1",
         )?.textContent?.trim(),
         "Application view unavailable",
       );

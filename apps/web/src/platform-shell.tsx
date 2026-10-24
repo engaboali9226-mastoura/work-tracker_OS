@@ -123,7 +123,7 @@ function HomeLink(
 
 function SmartGateway({ navigate, signIn, authenticationState }: { navigate: (pathname: string) => void, signIn?: any, authenticationState?: string }) {
   const isAuth = authenticationState === "authenticated";
-  
+
   const submit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!signIn) return;
@@ -213,10 +213,10 @@ export function PlatformShell(
   switch (state.kind) {
     case "no-application-selected":
       return (
-        <SmartGateway 
-          navigate={navigate} 
-          signIn={signIn} 
-          authenticationState={authenticationState} 
+        <SmartGateway
+          navigate={navigate}
+          signIn={signIn}
+          authenticationState={authenticationState}
         />
       );
 
