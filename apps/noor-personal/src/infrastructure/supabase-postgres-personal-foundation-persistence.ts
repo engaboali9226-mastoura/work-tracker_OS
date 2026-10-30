@@ -350,7 +350,7 @@ export function permanentlyDeleteFoundationDefinition(state: FoundationState, us
   const execution=state.dailyExecution.filter(item=>item.userId===userId&&item.definitionId===definitionId);
   const ids=new Set([definitionId,definition.revisionId,...execution.flatMap(item=>[item.id,item.definitionRevisionId])]);
   const references=(value:unknown):boolean=>typeof value==="string"?ids.has(value):Array.isArray(value)?value.some(references):value!==null&&typeof value==="object"?Object.values(value).some(references):false;
-  const remove=<T>(values:T[],predicate:(value:T)=>boolean):void=>{for(let index=values.length-1;index>=0;index--)if(predicate(values[index]))values.splice(index,1);};
+  const remove=<T>(values:T[],predicate:(value:T)=>boolean):void=>{for(let index=values.length-1;index>=0;index--)if(predicate(values[index]!))values.splice(index,1);};
   remove(state.definitions,item=>item.userId===userId&&item.id===definitionId);
   remove(state.dailyExecution,item=>item.userId===userId&&item.definitionId===definitionId);
   remove(state.outbox,item=>item.userId===userId&&(references(item.aggregateId)||references(item.payload)));

@@ -339,7 +339,7 @@ export function parseFinanceOperation(value:unknown):FinanceOperation|null {
 export interface FinanceSummary { readonly balances:Readonly<Record<string,number>>; readonly outstanding:Readonly<Record<string,number>>; readonly incomeMinor:number; readonly expenseMinor:number; readonly totalMinor:number; readonly receivableMinor:number; readonly payableMinor:number; }
 export function financeSummary(ledger:FinanceLedger,month?:string):FinanceSummary {
  const balances:Record<string,number>={},outstanding:Record<string,number>={};let incomeMinor=0,expenseMinor=0;
- const add=(record:Record<string,number>,key:string,amount:number)=>{if(!Object.hasOwn(record,key))throw new Error('FINANCE_REFERENCE_MISSING');const n=record[key]+amount;if(!Number.isSafeInteger(n))throw new Error('FINANCE_AMOUNT_OVERFLOW');record[key]=n;};
+ const add=(record:Record<string,number>,key:string,amount:number)=>{if(!Object.hasOwn(record,key))throw new Error('FINANCE_REFERENCE_MISSING');const n=record[key]!+amount;if(!Number.isSafeInteger(n))throw new Error('FINANCE_AMOUNT_OVERFLOW');record[key]=n;};
  for(const a of ledger.accounts){if(Object.hasOwn(balances,a.id))throw new Error('FINANCE_DUPLICATE_ACCOUNT');balances[a.id]=a.openingMinor;}
  for(const d of ledger.debts){if(Object.hasOwn(outstanding,d.id))throw new Error('FINANCE_DUPLICATE_DEBT');outstanding[d.id]=0;}
  const debt=(id:string|null)=>{const d=ledger.debts.find(d=>d.id===id);if(!d)throw new Error('FINANCE_DEBT_MISSING');return d;};
@@ -353,7 +353,7 @@ export function financeSummary(ledger:FinanceLedger,month?:string):FinanceSummar
  }
  if(Object.values(balances).some(v=>v<0) || Object.values(outstanding).some(v=>v<0))throw new Error('FINANCE_INSUFFICIENT_BALANCE_OR_OVERPAYMENT');
  const totalMinor=Object.values(balances).reduce((a,b)=>a+b,0);
- const receivableMinor=ledger.debts.filter(d=>d.direction==='receivable').reduce((s,d)=>s+outstanding[d.id],0),payableMinor=ledger.debts.filter(d=>d.direction==='payable').reduce((s,d)=>s+outstanding[d.id],0);
+ const receivableMinor=ledger.debts.filter(d=>d.direction==='receivable').reduce((s,d)=>s+outstanding[d.id]!,0),payableMinor=ledger.debts.filter(d=>d.direction==='payable').reduce((s,d)=>s+outstanding[d.id]!,0);
  if([incomeMinor,expenseMinor,totalMinor,receivableMinor,payableMinor].some(n=>!Number.isSafeInteger(n)))throw new Error('FINANCE_AMOUNT_OVERFLOW');
  return {balances,outstanding,incomeMinor,expenseMinor,totalMinor,receivableMinor,payableMinor};
 }
@@ -381,8 +381,8 @@ export function applyFinanceOperation(current:FinanceLedger,userId:string,input:
   if(op.debtId){const origin=entries.find(e=>e.debtId===op.debtId&&e.kind!=='repay'&&!e.voidedAt);if(!origin || op.date<origin.date)throw new Error('FINANCE_DEBT_DATE_INVALID');}
   entries.push({id:op.id,kind:op.kind,amountMinor:op.amountMinor,date:op.date,accountId:op.accountId,targetAccountId:op.targetAccountId,debtId:op.debtId,category:op.category,note:op.note,createdAt:now});
  }else{
-  const index=entries.findIndex(e=>e.id===op.entryId);if(index<0 || entries[index].voidedAt)throw new Error('FINANCE_ENTRY_NOT_ACTIVE');
-  const e=entries[index];if(e.debtId && e.kind!=='repay' && entries.some(x=>x.debtId===e.debtId && x.kind==='repay' && !x.voidedAt))throw new Error('FINANCE_REVERSE_SETTLEMENTS_FIRST');
+  const index=entries.findIndex(e=>e.id===op.entryId);const e=entries[index];if(!e || e.voidedAt)throw new Error('FINANCE_ENTRY_NOT_ACTIVE');
+  if(e.debtId && e.kind!=='repay' && entries.some(x=>x.debtId===e.debtId && x.kind==='repay' && !x.voidedAt))throw new Error('FINANCE_REVERSE_SETTLEMENTS_FIRST');
   entries[index]={...e,voidedAt:now,voidReason:op.reason};
  }
  const result:FinanceLedger={...current,accounts,debts,entries,requests:[...current.requests,{id:op.id,body}]};
