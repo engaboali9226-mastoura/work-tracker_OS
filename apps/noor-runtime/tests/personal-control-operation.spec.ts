@@ -308,8 +308,7 @@ test(
         fixture.value,
       );
 
-    assert.deepEqual(
-      await operation.executeCommand({
+    const result = await operation.executeCommand({
         sessionId: "session-1",
         command: {
           type: "create-definition",
@@ -322,11 +321,14 @@ test(
           weekdays: [],
           importance: "Supporting",
         },
-      }),
-      {
-        status: 204,
-      },
-    );
+      });
+    assert.equal(result.status,200);
+    const reply=result.body as any;
+    assert.equal(reply.materializationRequired,true);
+    assert.equal(reply.personalDayId,"day-1");
+    assert.deepEqual(reply.executions,[]);
+    assert.equal(reply.workspace.definitions.length,1);
+    assert.equal(reply.workspace.definitions[0].userId,"user-1");
 
     assert.equal(
       fixture.state

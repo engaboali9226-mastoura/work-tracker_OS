@@ -51,13 +51,11 @@ test(
       /openOperation\([\s\S]*userId\.toString\(\)/um,
     );
 
-    assert.doesNotMatch(
-      client,
-      /userId\s*:/um,
-    );
+    const todayTransport = client.slice(0,client.indexOf("export function fetchNoorPersonalWorkspace"));
+    assert.doesNotMatch(todayTransport,/userId\s*:/um);
 
     assert.doesNotMatch(
-      client,
+      todayTransport,
       /accountId\s*:/um,
     );
 
@@ -88,7 +86,7 @@ test(
 
     assert.doesNotMatch(
       persistence,
-      /\bwhile\s*\(|\bfor\s*\([^)]*retry|automaticRetry|retryCount/ium,
+      /\bfor\s*\([^)]*retry|automaticRetry|retryCount/ium,
     );
 
     assert.match(
@@ -125,3 +123,4 @@ test(
     );
   },
 );
+

@@ -1,3 +1,5 @@
+import { loadCurrentTemperature } from "./public-weather-client.js";
+import { readAppearance, saveAppearance, type NoorAppearance } from "./appearance-preference-store.js";
 import { createPortal } from "react-dom";
 import {
   useEffect,
@@ -849,23 +851,6 @@ export function formatLiveClock(nowMs: number, timeZone: string): string {
   ).format(new Date(nowMs));
 }
 
-async function loadCurrentTemperature(location: HeaderLocation): Promise<number | null> {
-  try {
-    const url = new URL("https://api.open-meteo.com/v1/forecast");
-    url.searchParams.set("latitude",String(location.latitude));
-    url.searchParams.set("longitude",String(location.longitude));
-    url.searchParams.set("current","temperature_2m");
-    url.searchParams.set("temperature_unit","celsius");
-    const response = await fetch(url.toString(),{ cache:"no-store" });
-    if (!response.ok) return null;
-    const payload = await response.json() as unknown;
-    if (!isRecord(payload) || !isRecord(payload.current)) return null;
-    const temperature = payload.current.temperature_2m;
-    return typeof temperature === "number" && Number.isFinite(temperature) ? temperature : null;
-  } catch {
-    return null;
-  }
-}
 
 function completedCount(items: readonly ExecutionItem[]): number {
   return items.filter(item => item.status === "Completed").length;
@@ -922,7 +907,7 @@ function DefinitionForm({ busy, onCommand, defaultStartDate, defaultKind = "Habi
   </form>;
 }
 
-type NoorAppearance = "noor" | "light" | "dark";
+
 
 const FINANCE_ACCOUNT_LABELS={cash:"نقدي",bank:"حساب بنكي",savings:"صندوق الادخار",emergency:"صندوق الطوارئ"};
 const FINANCE_KIND_LABELS={income:"دخل",expense:"مصروف",transfer:"تحويل",repay:"سداد / تحصيل",lend:"إقراض",borrow:"اقتراض","opening-receivable":"دين سابق لي","opening-payable":"دين سابق عليّ"};
@@ -1372,10 +1357,8 @@ export function NoorPersonalApplicationView({ initialResult, initialWorkspace }:
   const [busy,setBusy] = useState(false);
   const [actionError,setActionError] = useState<string | null>(null);
   const [controlOpen,setControlOpen] = useState(false);
-  const [appearance,setAppearance] = useState<NoorAppearance>(() => {
-    try { const saved = typeof window !== "undefined" ? window.localStorage.getItem("noor:appearance:v1") : null;return saved === "light" || saved === "dark" ? saved : "noor"; } catch { return "noor"; }
-  });
-  const chooseAppearance = (value: NoorAppearance) => { setAppearance(value);try { window.localStorage.setItem("noor:appearance:v1",value); } catch { /* The selected theme still works for this session. */ } };
+  const [appearance,setAppearance] = useState<NoorAppearance>(readAppearance);
+  const chooseAppearance = (value: NoorAppearance) => { setAppearance(value); saveAppearance(value); };
 
   const [nowMs,setNowMs] = useState(() => Date.now());
   const prayerRefreshRef = useRef<string | null>(null);

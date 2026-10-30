@@ -226,6 +226,7 @@ test(
           signal.pattern.test(
             source,
           )
+          && !(signal.name === "browser-session-storage" && relativeFile === "appearance-preference-store.ts")
         ) {
           findings.push(
             [
@@ -239,6 +240,12 @@ test(
       }
     }
 
+    const preferences = readFileSync(resolve(WEB_SOURCE_ROOT,"appearance-preference-store.ts"),"utf8");
+    assert.match(preferences,/const APPEARANCE_KEY = "noor:appearance:v1"/u);
+    assert.equal([...preferences.matchAll(/localStorage\.getItem\(APPEARANCE_KEY\)/gu)].length,1);
+    assert.equal([...preferences.matchAll(/localStorage\.setItem\(APPEARANCE_KEY, value\)/gu)].length,1);
+    assert.equal([...preferences.matchAll(/\blocalStorage\b/gu)].length,2);
+    assert.doesNotMatch(preferences,/sessionStorage|document\.cookie|\bfetch\s*\(|\.removeItem\(|\.clear\(|SUPABASE|sessionId|access_token|refresh_token/u);
     assert.deepEqual(
       findings,
       [],
@@ -306,11 +313,15 @@ test(
         },
       ];
 
+    allowances.push({name:"scheduled-materialization-timer",pattern:/\bsetInterval\s*\(/u,files:new Set(["personal-daily-materialization-scheduler.ts"])});
+    const scheduler=readFileSync(resolve(RUNTIME_SOURCE_ROOT,"personal-daily-materialization-scheduler.ts"),"utf8");
+    assert.match(scheduler,/this\.timer\.unref\?\.\(\)/u);
+    assert.match(scheduler,/clearInterval\(this\.timer\)/u);
+    assert.match(scheduler,/await this\.activeTick/u);
     const globallyForbidden =
       [
         /\bprocess\.exit\s*\(/u,
         /\bprocess\.stdin\.resume\b/u,
-        /\bsetInterval\s*\(/u,
       ];
 
     const findings:

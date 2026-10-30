@@ -178,6 +178,12 @@ function createClient() {
   };
 }
 
+function writeDefinition(tx, title) {
+  tx.saveDefinition({ id:"scope-definition", userId:"user-1", kind:"Task", revisionId:"scope-revision", title,
+    state:"Active", schedule:{kind:"OneTime", localDate:"2026-08-22"}, effectiveFromDate:"2026-08-22",
+    importance:"Supporting", weight:1, gatePolicy:"NonBlocking", targets:{} });
+}
+
 test(
   "operation scope loads once and commits exactly one new revision",
   async () => {
@@ -220,8 +226,7 @@ test(
     const result =
       await scope.transaction
         .runInTransaction(
-          () =>
-            "committed",
+          tx => { writeDefinition(tx,"first commit"); return "committed"; },
         );
 
     assert.equal(
@@ -272,8 +277,7 @@ test(
         "user-1",
       )
     ).transaction.runInTransaction(
-      () =>
-        undefined,
+      tx => writeDefinition(tx,"initial"),
     );
 
     const first =
@@ -288,8 +292,7 @@ test(
 
     await first.transaction
       .runInTransaction(
-        () =>
-          undefined,
+        tx => writeDefinition(tx,"updated"),
       );
 
     assert.equal(
@@ -302,8 +305,7 @@ test(
       () =>
         stale.transaction
           .runInTransaction(
-            () =>
-              undefined,
+            tx => writeDefinition(tx,"stale attempted update"),
           ),
       error =>
         error?.code
@@ -317,3 +319,11 @@ test(
     );
   },
 );
+
+test("an empty Foundation transaction commits no database revision", async () => {
+ const {SupabasePostgresPersonalFoundationPersistence}=await import(moduleUrl);
+ const fake=createClient();const persistence=new SupabasePostgresPersonalFoundationPersistence(fake.client);
+ await persistence.initialize();const scope=await persistence.openOperation("user-1");
+ assert.equal(await scope.transaction.runInTransaction(()=>"unchanged"),"unchanged");
+ assert.equal(fake.snapshot(),null);
+});

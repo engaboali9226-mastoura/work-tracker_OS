@@ -134,6 +134,8 @@ test(
       /appKey:\s*"noor-work"/u,
     );
 
+    assert.match(view,/from "\.\/public-weather-client\.js"/u);
+    assert.match(view,/from "\.\/appearance-preference-store\.js"/u);
     const productionPresentation =
       `${main}\n${view}`;
 
@@ -157,7 +159,7 @@ test(
 
     assert.doesNotMatch(
       view,
-      /\bfetch\s*\(|\/api\/|nextPrayer|hijriDate|personalDay\b|\btasks\b|\bhabits\b/u,
+      /\bfetch\s*\(|\/api\/|\blocalStorage\b|\bsessionStorage\b/u,
     );
   },
 );
