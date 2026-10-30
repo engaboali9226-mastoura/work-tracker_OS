@@ -617,6 +617,70 @@ const PAGE_STYLES = `
 
 /* NOOR_SPEED_R69 */
 .np-sync-status{margin:0 0 10px;font-size:12px;line-height:1.7;color:#637e85;text-align:center}
+/* NOOR_MOBILE_LAYOUT_R75: mobile presentation; all eight prayer events remain visible. */
+@media(max-width:600px){
+ .np-page .np-wrap{width:calc(100% - 20px);padding-top:12px;padding-bottom:calc(24px + env(safe-area-inset-bottom,0px))}
+ .np-page .np-topbar[data-testid="platform-topbar"]{grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:8px;min-height:0;padding:65px 10px 16px;margin-bottom:12px;border-radius:22px;box-shadow:0 8px 24px rgba(81,61,31,.07)}
+ .np-page .np-topbar .np-brand{top:12px;right:14px}
+ .np-page .np-topbar .np-logo-frame{width:44px;height:44px;box-shadow:0 3px 10px rgba(106,78,25,.10),0 0 0 3px rgba(255,255,255,.7)}
+ .np-page .np-topbar .np-top-actions{top:12px;left:14px}
+ .np-page .np-topbar .np-icon-btn{width:44px;height:44px;border-radius:14px}
+ .np-page .np-topbar .np-icon-btn svg{width:22px;height:22px}
+ .np-page .np-topbar[data-testid="platform-topbar"] .np-header-calendar{padding:0;min-width:0}
+ .np-page .np-topbar[data-testid="platform-topbar"] .np-header-day{font-size:27px;line-height:1.25;margin:0 0 8px}
+ .np-page .np-topbar[data-testid="platform-topbar"] .np-header-day::after{margin-top:5px;width:90px}
+ .np-page .np-topbar[data-testid="platform-topbar"] .np-header-date-pair{gap:5px;grid-template-columns:minmax(0,1fr) 1px minmax(0,1fr)}
+ .np-page .np-topbar[data-testid="platform-topbar"] .np-header-date-pair>.np-header-date-block{width:100%;justify-self:stretch}
+ .np-page .np-topbar[data-testid="platform-topbar"] .np-header-date-main{font-size:12px;line-height:1.6;text-wrap:initial}
+ .np-page .np-date-month{display:block;white-space:normal;text-wrap:balance}
+ .np-page .np-date-year{display:block;white-space:nowrap;color:#6b7f92;font-size:11px}
+ .np-page .np-topbar[data-testid="platform-topbar"] .np-header-date-divider{height:38px;align-self:center}
+ .np-page .np-topbar[data-testid="platform-topbar"] .np-header-status{padding:0;gap:0;align-self:center}
+ .np-page .np-topbar[data-testid="platform-topbar"] .np-header-clock{font-size:clamp(22px,6vw,28px);letter-spacing:-.5px;line-height:1.2}
+ .np-page .np-topbar[data-testid="platform-topbar"] .np-header-location{gap:3px;margin-top:5px;flex-wrap:nowrap}
+ .np-page .np-topbar[data-testid="platform-topbar"] .np-header-location>span{font-size:11px;line-height:1.5}
+ .np-page .np-topbar .np-header-location svg{width:14px;height:14px}
+ .np-page .np-topbar[data-testid="platform-topbar"] .np-header-weather{margin-top:3px;gap:2px}
+ .np-page .np-topbar .np-header-temperature{font-size:23px;line-height:1.3}
+ .np-page .np-topbar .np-weather-icon{transform:scale(.72);width:34px;height:28px;transform-origin:center}
+ .np-page .np-topbar::after{height:22px;opacity:.07}
+ .np-page .np-prayer-card{width:100%;margin-inline:0;margin-bottom:16px;padding:12px 4px 8px;border-radius:22px;box-shadow:0 6px 20px rgba(81,61,31,.06)}
+ .np-page .np-prayer-card-head{gap:5px;padding-inline:8px;margin-bottom:10px}
+ .np-page .np-prayer-card-title{font-size:19px;line-height:1.3}
+ .np-page .np-prayer-card-icon{width:23px;height:23px}
+ .np-page .np-prayer-card-icon svg{width:23px;height:23px}
+ .np-page .np-prayer-times{grid-template-columns:repeat(8,minmax(0,1fr));gap:2px;padding:0 0 4px;overflow:visible;align-items:stretch}
+ .np-page .np-prayer-times .np-prayer{display:grid;grid-template-rows:22px 34px 31px 24px;align-items:center;justify-items:center;align-content:center;gap:3px;min-height:128px;padding:6px 0;border-radius:11px;box-shadow:none}
+ .np-page .np-prayer-symbol{margin:0;width:22px;height:22px}
+ .np-page .np-prayer-label{width:100%;margin:0;font-size:11px;line-height:1.4;overflow-wrap:normal;text-wrap:balance}
+ .np-page .np-prayer-time{display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:12px;line-height:1.3;white-space:nowrap;font-variant-numeric:tabular-nums}
+ .np-page .np-prayer-period{font-size:10px;line-height:1.2;color:#6b7f92}
+ .np-page .np-prayer .np-countdown{grid-row:4;width:100%;min-width:0;min-height:24px;margin:0;padding:3px 0;box-shadow:none;border-radius:999px}
+ .np-page .np-prayer .np-countdown-digits{font-family:Arial,sans-serif;font-size:11px;line-height:1.4;letter-spacing:-.65px;font-weight:700}
+ .np-page .np-main-grid{gap:16px}
+ .np-page .np-execution-stack,.np-page .np-habits-section{gap:10px}
+ .np-page .np-section-heading{padding:0 4px;gap:6px}
+ .np-page .np-section-heading h2,.np-page .np-summary-heading{font-size:21px;line-height:1.5}
+ .np-page .np-section-heading>span{font-size:11px}
+ .np-page .np-category-grid{gap:12px}
+ .np-page .np-category{padding:14px;border-radius:20px}
+ .np-page .np-habits-empty{padding:12px}
+ .np-page .np-habits-empty .np-empty{padding:16px 12px;border-radius:14px;line-height:1.7}
+ .np-page .np-habits-empty .np-empty strong{font-size:14px;margin-bottom:5px}
+ .np-page .np-habits-empty .np-empty span{font-size:12px}
+ .np-page .np-side-stack{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+ .np-page .np-summary-heading{grid-column:1/-1;margin:0;padding-inline:4px}
+ .np-page .np-metric-card{padding:13px;min-height:102px;border-radius:18px;gap:5px;box-shadow:0 4px 14px rgba(81,61,31,.04)}
+ .np-page .np-metric-label{font-size:12px;line-height:1.5}
+ .np-page .np-metric-value{font-size:25px;line-height:1.2}
+ .np-page .np-metric-copy{font-size:11px;line-height:1.5}
+ .np-page .np-insights{margin-top:16px;padding:14px;border-radius:20px}
+ .np-page .np-insights-head{gap:8px;align-items:center;flex-wrap:wrap}
+ .np-page .np-insights-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+ .np-page .np-insight{padding:12px;min-height:100px;border-radius:15px}
+ .np-page .np-insight-rate{font-size:25px}
+}
+
 `;
 
 
@@ -1195,6 +1259,7 @@ function Dashboard({ view, workspace, busy, actionError, onCommand, onOpenContro
     { day:"numeric", month:"long", year:"numeric", timeZone:view.timeZone },
   ).formatToParts(new Date(nowMs));
   const gregorianDate = `${datePart(dateOnlyParts,"day")} ${datePart(dateOnlyParts,"month")} ${datePart(dateOnlyParts,"year")}`;
+  const hijriDateParts = new Intl.DateTimeFormat("ar-SA-u-ca-islamic-umalqura-nu-latn",{day:"numeric",month:"long",year:"numeric",timeZone:view.timeZone}).formatToParts(new Date(nowMs));
   const compactCalendarDate = (calendar: "gregory" | "islamic-umalqura"): string => {
     const parts = new Intl.DateTimeFormat("en-GB-u-nu-latn",{calendar,day:"2-digit",month:"2-digit",year:"numeric",timeZone:view.timeZone}).formatToParts(new Date(nowMs));
     return `${datePart(parts,"day")}/${datePart(parts,"month")}/${datePart(parts,"year")}`;
@@ -1223,12 +1288,12 @@ function Dashboard({ view, workspace, busy, actionError, onCommand, onOpenContro
         <div className="np-header-day">{weekday}</div>
         <div className="np-header-date-pair">
           <div className="np-header-date-block">
-            <span aria-label={gregorianDate} className="np-header-date-main"><span aria-hidden="true" className="np-date-full">{gregorianDate}</span><span aria-hidden="true" className="np-date-compact">{compactCalendarDate("gregory")}</span></span>
+            <span aria-label={gregorianDate} className="np-header-date-main"><span aria-hidden="true" className="np-date-full"><span className="np-date-month">{datePart(dateOnlyParts,"day")} {datePart(dateOnlyParts,"month")}</span><span className="np-date-year"> {datePart(dateOnlyParts,"year")}</span></span><span aria-hidden="true" className="np-date-compact">{compactCalendarDate("gregory")}</span></span>
             <span className="np-header-date-caption">التاريخ الميلادي</span>
           </div>
           <span className="np-header-date-divider" />
           <div className="np-header-date-block">
-            <span aria-label={dates.hijri} className="np-header-date-main hijri"><span aria-hidden="true" className="np-date-full">{dates.hijri}</span><span aria-hidden="true" className="np-date-compact">{compactCalendarDate("islamic-umalqura")}</span></span>
+            <span aria-label={dates.hijri} className="np-header-date-main hijri"><span aria-hidden="true" className="np-date-full"><span className="np-date-month">{datePart(hijriDateParts,"day")} {datePart(hijriDateParts,"month")}</span><span className="np-date-year"> {datePart(hijriDateParts,"year")} هـ</span></span><span aria-hidden="true" className="np-date-compact">{compactCalendarDate("islamic-umalqura")}</span></span>
             <span className="np-header-date-caption">التاريخ الهجري</span>
           </div>
         </div>
@@ -1261,6 +1326,7 @@ function Dashboard({ view, workspace, busy, actionError, onCommand, onOpenContro
       </div>
       <div aria-label="مواقيت الصلاة وأوقات الليل" className="np-prayer-times" data-testid="prayer-times-strip" role="region" tabIndex={0}>
         {eventTimes.map(prayer => {
+          const [prayerClock,prayerPeriod] = formatTime(prayer.at,view.timeZone).split(/\s+/);
           const isNext = prayer.key === nextKey;
           const isNightEvent = prayer.key === "midnight" || prayer.key === "last-third";
           const nightRemaining = isNightEvent ? remainingPrayerSeconds(prayer.at,nowMs) : 0;
@@ -1269,7 +1335,7 @@ function Dashboard({ view, workspace, busy, actionError, onCommand, onOpenContro
           return <div className={`np-prayer ${isNext ? "is-next" : ""} ${isNightEvent ? "np-night-event" : ""}`} data-prayer-key={prayer.key} data-event-at={prayer.at} data-night-countdown-active={isNightEvent ? String(Boolean(night?.enabled)) : undefined} key={prayer.key}>
             <span className="np-prayer-symbol">{prayerSymbol(prayer.key)}</span>
             <span className="np-prayer-label">{prayer.label}</span>
-            <span className="np-prayer-time">{formatTime(prayer.at,view.timeZone)}</span>
+            <span className="np-prayer-time"><span>{prayerClock}</span>{" "}<span className="np-prayer-period">{prayerPeriod}</span></span>
             {isNext && view.nextPrayer ? <span className="np-countdown" data-testid="prayer-countdown">
               <svg aria-hidden="true" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.3" stroke="currentColor" strokeWidth="1.5"/><path d="M12 7.8v4.6l3 1.7" stroke="currentColor" strokeLinecap="round" strokeWidth="1.5"/></svg>
               <span className="np-countdown-digits">{formatCountdown(countdown)}</span>
