@@ -681,6 +681,48 @@ const PAGE_STYLES = `
  .np-page .np-insight-rate{font-size:25px}
 }
 
+/* NOOR_HABIT_TRACKER_CARDS_R76: category groups with independent completion and note controls. */
+.np-page .np-category-grid{grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:16px}
+.np-page .np-habit-category{padding:0;border-radius:22px;border-color:var(--border);background:var(--panel);box-shadow:0 7px 24px rgba(32,55,67,.055);overflow:hidden}
+.np-page .np-habit-category>.np-category-head{padding:18px 18px 15px;margin:0;gap:12px;min-height:88px}
+.np-page .np-habit-category .np-category-heading{display:grid;grid-template-columns:36px minmax(0,1fr);column-gap:10px;row-gap:3px;align-items:center;min-width:0}
+.np-page .np-category-symbol{grid-column:1;grid-row:1 / 3;display:grid;place-items:center;width:36px;height:36px;border-radius:12px;background:var(--panel-soft);border:1px solid var(--border);color:#527485}
+.np-page .np-category-symbol svg{width:20px;height:20px}
+.np-page .np-habit-category .np-category-title{grid-column:2;margin:0;color:var(--text);font-size:17px;line-height:1.55;font-weight:750;overflow-wrap:anywhere}
+.np-page .np-habit-category .np-category-count{grid-column:2;padding:0;background:none;border-radius:0;color:var(--muted);font-size:12px;line-height:1.6}
+.np-page .np-habit-category .np-category-progress{width:54px;height:54px;flex:0 0 54px}
+.np-page .np-habit-category .np-category-progress>span{color:var(--text);font-size:15px;font-weight:700}
+.np-page .np-habit-category .np-category-progress small{font-size:10px}
+.np-page .np-habit-category .np-ring-track{stroke:var(--border)}
+.np-page .np-habit-category>.np-list{gap:0;padding:0 12px 10px}
+.np-page .np-habit-category .np-habit-row{display:grid;grid-template-columns:44px minmax(0,1fr) 44px;align-items:center;gap:6px;min-width:0;min-height:70px;padding:10px 0;margin:0;border:0;border-top:1px solid var(--border);border-radius:0;background:transparent;box-shadow:none;direction:rtl}
+.np-page .np-habit-row>.np-item-main{grid-column:2;grid-row:1;min-width:0}
+.np-page .np-habit-row .np-item-title{color:var(--text);font-size:14px;font-weight:650;line-height:1.65;overflow-wrap:anywhere}
+.np-page .np-habit-row .np-item-meta{gap:0;margin-top:3px;font-size:12px;line-height:1.5;color:var(--muted)}
+.np-page .np-habit-row .np-kind-badge{display:none}
+.np-page .np-habit-row .np-activity-actions{display:contents}
+.np-page .np-habit-row .np-habit-check-target{grid-column:1;grid-row:1;justify-self:center;display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;margin:0;padding:0}
+.np-page .np-habit-row .np-btn.np-pencil{grid-column:3;grid-row:1;justify-self:center;align-self:center;width:24px;min-width:24px;height:24px;min-height:24px;border-radius:7px;border-color:#b9c8ce;background:#f5f8f8;color:#526f7c;padding:0;margin:0}
+.np-page .np-habit-row .np-btn.np-pencil svg{width:15px;height:15px}
+.np-page .np-habit-row .np-btn.np-pencil::before{content:"";display:block;position:absolute;inset:-10px;border-radius:12px;z-index:-1}
+.np-page .np-habit-row .np-habit-check{width:24px;min-width:24px;height:24px;min-height:24px;flex:0 0 24px;border-radius:7px;border-color:#b9c8ce;background-color:#f5f8f8}
+.np-page .np-habit-row .np-habit-check:checked{border-color:#287b65;background-color:#287b65}
+.np-page .np-habit-row.is-completed .np-item-title{color:#287b65}
+.np-page .np-habit-row.is-completed .np-item-meta{color:#468471}
+.np-page .np-habit-row .np-activity-note{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;margin:6px 0 0;padding:6px 9px;border-inline-start:2px solid #bed3cb;border-radius:0 5px 5px 0;background:var(--panel-soft);color:var(--muted);font-size:12px;line-height:1.7;white-space:pre-wrap;overflow-wrap:anywhere}
+.np-page .np-habit-row .np-progress-copy{font-size:12px;line-height:1.6;margin-top:6px}
+.np-page[data-appearance=dark] .np-habit-row .np-btn.np-pencil,.np-page[data-appearance=dark] .np-habit-row .np-habit-check:not(:checked){background-color:#263744;border-color:#64808d;color:#c1d5de}
+.np-page[data-appearance=dark] .np-habit-row.is-completed .np-item-title,.np-page[data-appearance=dark] .np-habit-row.is-completed .np-item-meta{color:#8bd0b4}
+.np-page[data-appearance=dark] .np-category-symbol{color:#b5ccd6}
+@media(max-width:600px){
+ .np-page .np-category-grid{grid-template-columns:1fr;gap:12px}
+ .np-page .np-habit-category>.np-category-head{padding:16px 16px 13px;min-height:82px}
+ .np-page .np-habit-category .np-category-title{font-size:16px}
+ .np-page .np-habit-category>.np-list{padding:0 8px 8px}
+ .np-page .np-habit-category .np-habit-row{gap:4px;min-height:70px;padding:10px 0}
+ .np-page .np-habit-row .np-item-title{font-size:14px}
+}
+
 `;
 
 
@@ -1169,7 +1211,7 @@ function ActivityCard({item,definition,busy,onCommand}:{item:ExecutionItem;defin
   if(await onCommand({type:"record-activity",executionId:item.id,entryId,note,amount,endReason}))setMode(null);
   else setError("تعذر تأكيد الحفظ. بياناتك ما زالت هنا؛ يمكنك إعادة المحاولة.");
  };
- return <div className="np-item np-activity-item" data-testid={`activity-card-${item.id}`}>
+ return <div className={`np-item np-activity-item${task?"":" np-habit-row"}${completed?" is-completed":""}`} data-testid={`activity-card-${item.id}`}>
   <div className="np-item-main"><p className="np-item-title">{item.title}</p><div className="np-item-meta"><span className="np-kind-badge">{task?"مهمة":"عادة"}</span><span>{ended && latest?.endReason ? END_REASON_LABELS[latest.endReason] : STATUS_LABELS[item.status] ?? item.status}</span></div>
   {definition?.measurement ? <div className="np-progress-copy"><span>{arabicNumber(total)} / {arabicNumber(definition.measurement.target)} {definition.measurement.unit}</span><progress aria-label={`تقدم ${item.title}`} max={definition.measurement.target} value={total}/></div> : null}
   {latest?.note ? <p className="np-activity-note">{latest.note}</p> : null}</div>
@@ -1362,9 +1404,9 @@ function Dashboard({ view, workspace, busy, actionError, onCommand, onOpenContro
                 const done = completedCount(items);
                 const rate = items.length === 0 ? 0 : Math.round(done / items.length * 100);
                 const circumference = 2 * Math.PI * 24;
-                return <section className="np-card np-category np-habit-category" data-testid="habit-category-card" key={category}>
+                return <section aria-label={`عادات ${category}`} className="np-card np-category np-habit-category" data-habit-layout="tracker-r76" data-testid="habit-category-card" key={category}>
                   <div className="np-category-head">
-                    <div className="np-category-heading"><h3 className="np-category-title">{category}</h3><span className="np-category-count">{arabicNumber(done)} من {arabicNumber(items.length)} مكتمل</span></div>
+                    <div className="np-category-heading"><span aria-hidden="true" className="np-category-symbol"><svg fill="none" viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="6" height="6" rx="1.8" stroke="currentColor" strokeWidth="1.5"/><rect x="14.5" y="3.5" width="6" height="6" rx="1.8" stroke="currentColor" strokeWidth="1.5"/><rect x="3.5" y="14.5" width="6" height="6" rx="1.8" stroke="currentColor" strokeWidth="1.5"/><path d="m14.5 17.5 2 2 4-4.5" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"/></svg></span><h3 className="np-category-title">{category}</h3><span className="np-category-count">{arabicNumber(done)} من {arabicNumber(items.length)} مكتمل اليوم</span></div>
                     <div aria-label={`إنجاز قسم ${category}`} aria-valuemin={0} aria-valuemax={100} aria-valuenow={rate} aria-valuetext={`${arabicNumber(done)} من ${arabicNumber(items.length)} عادات، ${arabicNumber(rate)}%`} className={`np-category-progress${rate === 100 ? " is-complete" : ""}`} role="progressbar">
                       <svg aria-hidden="true" viewBox="0 0 60 60"><circle className="np-ring-track" cx="30" cy="30" r="24"/><circle className="np-ring-value" cx="30" cy="30" r="24" strokeDasharray={circumference} strokeDashoffset={circumference * (1 - rate / 100)}/></svg>
                       <span aria-hidden="true">{arabicNumber(rate)}<small>%</small></span>
