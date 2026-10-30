@@ -24,6 +24,7 @@ extends RouteAccessEvidenceExecutor {
   readonly sessionEstablishment:
     SessionEstablishmentExecutor;
   readonly personalToday?: import("./personal-today-operation.js").PersonalTodayExecutor;
+  readonly personalControl?: import("./personal-control-operation.js").PersonalControlExecutor;
 }
 
 export interface PrivilegedTransportHost {
@@ -156,6 +157,15 @@ implements PrivilegedTransportRuntime {
                 executor.personalToday,
             };
 
+      const personalControlOptions =
+        executor.personalControl
+          === undefined
+          ? {}
+          : {
+              personalControl:
+                executor.personalControl,
+            };
+
       const server =
         serverFactory(
           executor,
@@ -174,6 +184,7 @@ implements PrivilegedTransportRuntime {
                   .secureCookie,
             },
             ...personalTodayOptions,
+            ...personalControlOptions,
           },
         );
 

@@ -1,88 +1,52 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { JSDOM } from "jsdom";
+import { act, createElement } from "react";
+import { createRoot } from "react-dom/client";
+import { NoorPersonalApplicationView, civilDateLabels, formatLiveClock, headerLocationForTimeZone, nightMilestones, remainingPrayerSeconds } from "../src/noor-personal-application-view.js";
 
-import {
-  createElement,
-} from "react";
+function installDom(){
+  const dom=new JSDOM(
+    '<!doctype html><html lang="ar" dir="rtl"><head><title>Noor Personal test</title></head><body><div id="root"></div></body></html>',
+    {url:"https://noor.test/personal",runScripts:"outside-only"},
+  );
+  const globals={
+    window:dom.window,
+    document:dom.window.document,
+    navigator:dom.window.navigator,
+    Node:dom.window.Node,
+    Element:dom.window.Element,
+    HTMLElement:dom.window.HTMLElement,
+    MutationObserver:dom.window.MutationObserver,
+    getComputedStyle:dom.window.getComputedStyle.bind(dom.window),
+    fetch:async()=>new Response(JSON.stringify({current:{temperature_2m:29.4}}),{status:200,headers:{"content-type":"application/json"}}),
+    IS_REACT_ACT_ENVIRONMENT:true,
+  } as const;
+  const previous=new Map<string,PropertyDescriptor|undefined>();
+  for(const [key,value] of Object.entries(globals)){
+    previous.set(key,Object.getOwnPropertyDescriptor(globalThis,key));
+    Object.defineProperty(globalThis,key,{configurable:true,writable:true,value});
+  }
+  const container=dom.window.document.getElementById("root")!;
+  return{
+    dom,
+    container,
+    restore(){
+      for(const [key,descriptor] of previous){
+        if(descriptor) Object.defineProperty(globalThis,key,descriptor);
+        else Reflect.deleteProperty(globalThis,key);
+      }
+    },
+  };
+}
 
-import {
-  renderToStaticMarkup,
-} from "react-dom/server";
+const futurePrayerAt=new Date(Date.now()+3_600_000).toISOString();
+const today={kind:"success" as const,today:{personalDay:{id:"day",userId:"user",state:"Open",boundary:{localDate:"2026-10-24",timeZone:"Asia/Riyadh"}},islamicContext:{hijriDate:{day:13,month:5,year:1448},prayerTimes:{fajr:"2026-10-25T01:37:00.000Z",sunrise:"2026-10-25T02:54:00.000Z",dhuhr:"2026-10-25T08:38:00.000Z",asr:"2026-10-25T11:52:00.000Z",maghrib:"2026-10-25T14:20:00.000Z",isha:"2026-10-25T15:50:00.000Z"}},nextPrayer:{name:"Fajr",at:futurePrayerAt,secondsRemaining:3600},tasks:[{id:"e1",definitionId:"d1",kind:"Task",title:"تمرين",status:"Planned"}],habits:[{id:"e2",definitionId:"d2",kind:"Habit",title:"المشي",status:"Pending"}],automationPending:0}};
+const workspace={kind:"success" as const,workspace:{definitions:[{id:"d1",kind:"Task",title:"تمرين",state:"Active",category:"الصحة والرياضة",schedule:{kind:"Weekdays",weekdays:[0,2,4]},effectiveFromDate:"2026-10-25",importance:"Important"},{id:"d2",kind:"Habit",title:"المشي",state:"Active",category:"الصحة والرياضة",schedule:{kind:"Daily"},effectiveFromDate:"2026-10-25",importance:"Supporting"}],insights:{currentStreakDays:2,bestStreakDays:4,periods:{week:{windowDays:7,scheduled:2,completed:0,completionRate:0,successfulDays:0},month:{windowDays:30,scheduled:2,completed:0,completionRate:0,successfulDays:0},quarter:{windowDays:90,scheduled:2,completed:0,completionRate:0,successfulDays:0},year:{windowDays:365,scheduled:2,completed:0,completionRate:0,successfulDays:0}}}}};
 
-import {
-  NoorPersonalApplicationView,
-} from "../src/noor-personal-application-view.js";
-
-test(
-  "Noor Personal view renders actual Today payload supplied by the privileged client",
-  () => {
-    const html =
-      renderToStaticMarkup(
-        createElement(
-          NoorPersonalApplicationView,
-          {
-            initialResult: {
-              kind:
-                "success",
-              today: {
-                personalDay: {
-                  id:
-                    "day-real",
-                },
-                automationPending:
-                  2,
-              },
-            },
-          },
-        ),
-      );
-
-    assert.match(
-      html,
-      /aria-labelledby="noor-personal-today-title"/u,
-    );
-
-    assert.match(
-      html,
-      /data-noor-personal-today="loaded"/u,
-    );
-
-    assert.match(
-      html,
-      /day-real/u,
-    );
-
-    assert.match(
-      html,
-      /automationPending/u,
-    );
-  },
-);
-
-test(
-  "Noor Personal view is truthful for setup-required and does not fabricate prayer data",
-  () => {
-    const html =
-      renderToStaticMarkup(
-        createElement(
-          NoorPersonalApplicationView,
-          {
-            initialResult: {
-              kind:
-                "setup-required",
-            },
-          },
-        ),
-      );
-
-    assert.match(
-      html,
-      /needs an active location and prayer policy/u,
-    );
-
-    assert.doesNotMatch(
-      html,
-      /Fajr|Dhuhr|Asr|Maghrib|Isha/iu,
-    );
-  },
-);
+test("civil header uses Latin 0-9 digits and no year grouping",()=>{const labels=civilDateLabels(Date.parse("2026-10-25T12:00:00.000Z"),"Asia/Riyadh");assert.match(labels.hijri,/1448/);assert.doesNotMatch(labels.hijri,/1,448/);assert.match(labels.gregorian,/2026/);assert.doesNotMatch(`${labels.gregorian} ${labels.hijri}`,/[٠-٩]/);});
+test("prayer countdown derives continuously from prayer instant rather than stored secondsRemaining",()=>{const at="2026-10-25T12:00:10.000Z";assert.equal(remainingPrayerSeconds(at,Date.parse("2026-10-25T12:00:00.000Z")),10);assert.equal(remainingPrayerSeconds(at,Date.parse("2026-10-25T12:00:03.000Z")),7);});
+test("night milestones are the midpoint and start of the final third between maghrib and the following fajr",()=>{const milestones=nightMilestones([{key:"fajr",label:"الفجر",at:"2026-10-25T01:00:00.000Z"},{key:"maghrib",label:"المغرب",at:"2026-10-25T15:00:00.000Z"}]);assert.ok(milestones);assert.equal(milestones.midnight,"2026-10-25T20:00:00.000Z");assert.equal(milestones.lastThird,"2026-10-25T21:40:00.000Z");});
+test("header location follows the active Noor timezone for Riyadh and Cairo",()=>{assert.deepEqual(headerLocationForTimeZone("Asia/Riyadh"),{city:"الرياض",country:"السعودية",latitude:24.7136,longitude:46.6753});assert.deepEqual(headerLocationForTimeZone("Africa/Cairo"),{city:"القاهرة",country:"مصر",latitude:30.0444,longitude:31.2357});});
+test("live clock uses Latin 0-9 digits in the requested timezone",()=>{const value=formatLiveClock(Date.parse("2026-10-25T11:03:04.000Z"),"Asia/Riyadh");assert.match(value,/2/);assert.match(value,/03/);assert.doesNotMatch(value,/[٠-٩]/);});
+test("dashboard groups items into category cards and opens a separate control center",async()=>{const t=installDom();const root=createRoot(t.container);try{await act(async()=>{root.render(createElement(NoorPersonalApplicationView,{initialResult:today,initialWorkspace:workspace}));});assert.ok(t.container.querySelector('img[alt="شعار نور"][src="/noor-platform-logo.jpeg"]'));assert.doesNotMatch(t.container.textContent??"",/نور بيرسونال/);assert.ok(t.container.querySelector('[data-testid="header-information"]'));assert.match(t.container.textContent??"",/الرياض/);assert.match(t.container.textContent??"",/السعودية/);assert.ok(t.container.querySelector('[data-testid="live-clock"]'));assert.ok(t.container.querySelector('[data-testid="header-temperature"]'));assert.ok(t.container.querySelector('[data-testid="prayer-card"]'));assert.ok(t.container.querySelector('[data-testid="today-summary"]'));assert.equal(t.container.querySelector('[data-testid="today-completion-rate"]')?.textContent,"0%");assert.equal(t.container.querySelector('section[data-design-version="r62-visible-layout-fix"]')?.getAttribute("dir"),"rtl");assert.ok(t.container.querySelector('[data-testid="prayer-times-strip"]'));assert.equal(t.container.querySelector('[data-testid="prayer-card"]')?.getAttribute("data-prayer-layout"),"compact-1x8-until-600-92");assert.equal(t.container.querySelector('[data-header-layout="padding-only-132"]')?.getAttribute("data-header-layout"),"padding-only-132");assert.equal(t.container.querySelectorAll("[data-prayer-key]").length,8);assert.match(t.container.textContent??"",/منتصف الليل/);assert.match(t.container.textContent??"",/الثلث الأخير/);assert.match(t.container.textContent??"",/الشروق/);assert.deepEqual([...t.container.querySelectorAll("[data-prayer-key]")].map(node=>node.getAttribute("data-prayer-key")),["fajr","sunrise","dhuhr","asr","maghrib","isha","midnight","last-third"]);assert.doesNotMatch(t.container.textContent??"",/الصلاة القادمة/);assert.match(t.container.textContent??"",/الصحة والرياضة/);const countdown=t.container.querySelector('[data-testid="prayer-countdown"]');assert.ok(countdown);assert.ok(countdown.closest('[data-prayer-key="fajr"]'));assert.doesNotMatch(t.container.textContent??"",/[٠-٩]/);assert.doesNotMatch(t.container.textContent??"",/أضف مهمة لليوم/);const gear=t.container.querySelector('button[aria-label="فتح مركز التحكم"]') as HTMLButtonElement;assert.ok(gear);await act(async()=>{gear.click();});assert.match(t.container.textContent??"",/مركز التحكم/);assert.ok(t.container.querySelector('img[alt="شعار نور"][src="/noor-platform-logo.jpeg"]'));assert.doesNotMatch(t.container.textContent??"",/نور بيرسونال/);assert.ok(t.container.querySelector('#definition-title'));assert.ok(t.container.querySelector('#definition-category'));assert.ok(t.container.querySelector('#definition-start'));assert.ok(t.container.querySelector('#definition-repeat'));}finally{await act(async()=>{root.unmount();});t.restore();t.dom.window.close();}});

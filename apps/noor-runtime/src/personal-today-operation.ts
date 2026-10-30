@@ -14,6 +14,7 @@ import type {
 
 import {
   EnsureTodayService,
+  buildPersonalWorkspace,
   ProductionAdapterError,
 } from "@noor/personal";
 
@@ -224,8 +225,10 @@ implements PersonalTodayExecutor {
       );
     }
 
-    try {
-      await this.dependencies
+    // Both lookups require the verified account, and neither depends on the other.
+    // Authorization must still succeed before any personal foundation is opened.
+    const [permissionResult,userResult]=await Promise.allSettled([
+      Promise.resolve().then(()=>this.dependencies
         .authorize
         .execute({
           accountId,
@@ -235,7 +238,11 @@ implements PersonalTodayExecutor {
             "application",
           resourceId:
             "noor-personal",
-        });
+        })),
+      Promise.resolve().then(()=>this.dependencies.accountUserResolver.resolve(accountId)),
+    ]);
+    try {
+      if(permissionResult.status==="rejected")throw permissionResult.reason;
     } catch (error) {
       if (
         error
@@ -266,12 +273,8 @@ implements PersonalTodayExecutor {
       UserId | null;
 
     try {
-      userId =
-        await this.dependencies
-          .accountUserResolver
-          .resolve(
-            accountId,
-          );
+      if(userResult.status==="rejected")throw userResult.reason;
+      userId=userResult.value;
     } catch {
       return empty(
         503,
@@ -314,7 +317,7 @@ implements PersonalTodayExecutor {
         status:
           200 as const,
         body:
-          today,
+          {...today,workspace:buildPersonalWorkspace(userId.toString(),scope.snapshot)},
       });
     } catch (error) {
       if (

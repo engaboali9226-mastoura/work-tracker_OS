@@ -184,7 +184,7 @@ function SmartGateway({ navigate, signIn, authenticationState }: { navigate: (pa
             <h1 className="glass-title">Welcome</h1>
             <p className="glass-subtitle">Select an application to launch</p>
             <div className="app-grid">
-              <a href="/noor-personal" onClick={(e) => { e.preventDefault(); navigate("/noor-personal"); }} className="app-card">
+              <a href="/personal" onClick={(e) => { e.preventDefault(); navigate("/personal"); }} className="app-card">
                 <span className="app-icon">✨</span>
                 <p className="app-name">Noor Personal</p>
               </a>
