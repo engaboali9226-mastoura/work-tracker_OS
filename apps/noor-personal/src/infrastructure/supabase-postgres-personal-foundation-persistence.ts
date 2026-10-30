@@ -1,3 +1,4 @@
+import { emptyFinanceLedger, financeSummary, type FinanceLedger } from "../domain/model.js";
 import type {
   SupabaseClient,
 } from "@supabase/supabase-js";
@@ -17,6 +18,7 @@ import type {
   FoundationTransaction,
   LocalTransactionPort,
   LocationProfileRepository,
+  PersonalFoundationSnapshotPort,
   PrayerTimePolicyRepository,
 } from "../ports.js";
 
@@ -95,6 +97,7 @@ export interface NoorPersonalFoundationDatabase {
 }
 
 interface FoundationState {
+  finance?: FinanceLedger;
   readonly locations:
     LocationProfileRevision[];
   readonly prayerPolicies:
@@ -191,7 +194,7 @@ FoundationState {
   const actualKeys =
     Object.keys(
       value,
-    ).sort();
+    ).filter(key=>key!=="finance").sort();
 
   if (
     actualKeys.length
@@ -227,6 +230,11 @@ FoundationState {
     }
   }
 
+  if(value.finance!==undefined){
+    const f=value.finance;
+    if(!isRecord(f) || typeof f.userId!=="string" || f.currency!=="SAR" || !Array.isArray(f.accounts) || !Array.isArray(f.debts) || !Array.isArray(f.entries) || !Array.isArray(f.requests))throw new ProductionAdapterError("PersistenceCorruptRecord","Invalid finance ledger.");
+    financeSummary(f as unknown as FinanceLedger);
+  }
   return clone(
     value as unknown as FoundationState,
   );
@@ -336,12 +344,28 @@ function upsert<
     clone(value);
 }
 
+export function permanentlyDeleteFoundationDefinition(state: FoundationState, userId: string, definitionId: string): void {
+  const definition=state.definitions.find(item=>item.userId===userId&&item.id===definitionId);
+  if(!definition)throw new ProductionAdapterError("PersistenceTransactionAborted","Definition does not belong to this user.");
+  const execution=state.dailyExecution.filter(item=>item.userId===userId&&item.definitionId===definitionId);
+  const ids=new Set([definitionId,definition.revisionId,...execution.flatMap(item=>[item.id,item.definitionRevisionId])]);
+  const references=(value:unknown):boolean=>typeof value==="string"?ids.has(value):Array.isArray(value)?value.some(references):value!==null&&typeof value==="object"?Object.values(value).some(references):false;
+  const remove=<T>(values:T[],predicate:(value:T)=>boolean):void=>{for(let index=values.length-1;index>=0;index--)if(predicate(values[index]!))values.splice(index,1);};
+  remove(state.definitions,item=>item.userId===userId&&item.id===definitionId);
+  remove(state.dailyExecution,item=>item.userId===userId&&item.definitionId===definitionId);
+  remove(state.outbox,item=>item.userId===userId&&(references(item.aggregateId)||references(item.payload)));
+}
+
 function createTransaction(
   state:
     FoundationState,
+  owner: string,
 ):
 FoundationTransaction {
   return {
+    getFinance:(userId)=>{if(userId!==owner || state.finance && state.finance.userId!==owner)throw new Error("FINANCE_OWNER_MISMATCH");return clone(state.finance ?? emptyFinanceLedger(owner));},
+    saveFinance:(userId,ledger)=>{if(userId!==owner || ledger.userId!==owner)throw new Error("FINANCE_OWNER_MISMATCH");financeSummary(ledger);state.finance=clone(ledger);},
+    deleteDefinitionPermanently:(userId,definitionId)=>permanentlyDeleteFoundationDefinition(state,userId,definitionId),
     findOpenPersonalDayContaining:
       (
         userId,
@@ -471,6 +495,42 @@ FoundationTransaction {
           ),
         ),
 
+    findDefinitionById:
+      (
+        userId,
+        definitionId,
+      ) => {
+        const matches =
+          state.definitions.filter(
+            definition =>
+              definition.userId
+                === userId
+              && definition.id
+                === definitionId,
+          );
+
+        if (
+          matches.length > 1
+        ) {
+          throw new ProductionAdapterError(
+            "PersistenceCorruptRecord",
+            "Foundation contains duplicate definition ids.",
+          );
+        }
+
+        return matches[0]
+          ? clone(matches[0])
+          : null;
+      },
+
+    saveDefinition:
+      definition => {
+        upsert(
+          state.definitions,
+          definition,
+        );
+      },
+
     listDailyExecution:
       personalDayId =>
         clone(
@@ -480,6 +540,34 @@ FoundationTransaction {
               === personalDayId,
           ),
         ),
+
+    findDailyExecutionById:
+      (
+        userId,
+        executionId,
+      ) => {
+        const matches =
+          state.dailyExecution.filter(
+            instance =>
+              instance.userId
+                === userId
+              && instance.id
+                === executionId,
+          );
+
+        if (
+          matches.length > 1
+        ) {
+          throw new ProductionAdapterError(
+            "PersistenceCorruptRecord",
+            "Foundation contains duplicate execution ids.",
+          );
+        }
+
+        return matches[0]
+          ? clone(matches[0])
+          : null;
+      },
 
     saveDailyExecution:
       instance => {
@@ -541,6 +629,9 @@ implements PersonalFoundationOperation {
   public readonly transaction:
     LocalTransactionPort;
 
+  public readonly snapshot:
+    PersonalFoundationSnapshotPort;
+
   private transactionAttempted =
     false;
 
@@ -555,6 +646,7 @@ implements PersonalFoundationOperation {
           FoundationState,
       ) =>
         Promise<void>,
+    private readonly validateUnchanged?: ()=>Promise<void>,
   ) {
     this.locations =
       Object.freeze({
@@ -598,6 +690,73 @@ implements PersonalFoundationOperation {
                 .prayerPolicies,
               requestedUserId,
               instant,
+            );
+          },
+      });
+
+    this.snapshot =
+      Object.freeze({
+        getFinance:(userId:string)=>{this.assertUser(userId);const f=this.loaded.state.finance;if(f && f.userId!==userId)throw new Error("FINANCE_OWNER_MISMATCH");return clone(f ?? emptyFinanceLedger(userId));},
+        listDefinitions:
+          (
+            requestedUserId:
+              string,
+          ) => {
+            this.assertUser(
+              requestedUserId,
+            );
+
+            return clone(
+              this.loaded
+                .state
+                .definitions
+                .filter(
+                  definition =>
+                    definition.userId
+                    === requestedUserId,
+                ),
+            );
+          },
+
+        listPersonalDays:
+          (
+            requestedUserId:
+              string,
+          ) => {
+            this.assertUser(
+              requestedUserId,
+            );
+
+            return clone(
+              this.loaded
+                .state
+                .personalDays
+                .filter(
+                  personalDay =>
+                    personalDay.userId
+                    === requestedUserId,
+                ),
+            );
+          },
+
+        listDailyExecutionForUser:
+          (
+            requestedUserId:
+              string,
+          ) => {
+            this.assertUser(
+              requestedUserId,
+            );
+
+            return clone(
+              this.loaded
+                .state
+                .dailyExecution
+                .filter(
+                  instance =>
+                    instance.userId
+                    === requestedUserId,
+                ),
             );
           },
       });
@@ -672,6 +831,7 @@ implements PersonalFoundationOperation {
         await work(
           createTransaction(
             working,
+            this.userId,
           ),
         );
     } catch (error) {
@@ -692,9 +852,13 @@ implements PersonalFoundationOperation {
       );
     }
 
+    // A read-only ensure/retry does not need another remote write.
+    if(JSON.stringify(working) === JSON.stringify(this.loaded.state)){if(this.validateUnchanged)await this.validateUnchanged();return result;}
     await this.commitState(
       working,
     );
+    // Publish only after successful commit; snapshots never expose failed writes.
+    Object.assign(this.loaded.state,clone(working));
 
     return result;
   }
@@ -707,6 +871,8 @@ implements
   public readonly kind =
     "FoundationPersistence" as const;
 
+  // Candidate data only; sessions and permissions are never cached here.
+  private readonly commandCache: Map<string,{loaded:LoadedFoundation;expires:number}> = new Map();
   private lifecycle:
     "created"
     | "ready"
@@ -736,8 +902,49 @@ implements
       "ready";
   }
 
+  public async listKnownUserIds():
+  Promise<readonly string[]> {
+    this.assertReady();
+
+    const response =
+      await this.client
+        .from(
+          "noor_personal_foundations",
+        )
+        .select(
+          "user_id",
+        );
+
+    if (response.error) {
+      throw new ProductionAdapterError(
+        "PersistenceUnavailable",
+        "Unable to list Personal Foundation users.",
+        {
+          cause:
+            response.error,
+        },
+      );
+    }
+
+    return [
+      ...new Set(
+        (response.data ?? [])
+          .map(
+            row =>
+              row.user_id,
+          )
+          .filter(
+            userId =>
+              typeof userId === "string"
+              && userId.length > 0,
+          ),
+      ),
+    ].sort();
+  }
+
   public async close():
   Promise<void> {
+    this.commandCache.clear();
     this.lifecycle =
       "closed";
   }
@@ -844,30 +1051,37 @@ implements
     };
   }
 
-  public async openOperation(
-    userId:
-      string,
-  ):
-  Promise<PersonalFoundationOperation> {
-    assertUserId(
-      userId,
-    );
-
-    const loaded =
-      await this.load(
-        userId,
-      );
-
-    return new BoundFoundationOperation(
-      userId,
-      loaded,
-      state =>
-        this.commit(
-          userId,
-          loaded,
-          state,
-        ),
-    );
+  public forgetCommandCache(userId:string):void {this.commandCache.delete(userId);}
+  private rememberCommandState(userId:string,loaded:LoadedFoundation):void {
+    const previous=this.commandCache.get(userId);
+    if(previous && previous.loaded.revision>loaded.revision)return;
+    this.commandCache.delete(userId);
+    this.commandCache.set(userId,{loaded:clone(loaded),expires:Date.now()+60000});
+    while(this.commandCache.size>32)this.commandCache.delete(this.commandCache.keys().next().value!);
+  }
+  private operationFor(userId:string,loaded:LoadedFoundation,candidate:boolean):PersonalFoundationOperation {
+    const validate=async()=>{
+      const response=await this.client.from("noor_personal_foundations").select("revision").eq("user_id",userId).limit(2);
+      if(response.error)throw new ProductionAdapterError("PersistenceUnavailable","Unable to validate candidate revision.");
+      if(loaded.existed ? response.data?.length!==1 || response.data[0]?.revision!==loaded.revision : response.data?.length!==0){this.forgetCommandCache(userId);throw new ProductionAdapterError("PersistenceConflict","Candidate revision changed.");}
+    };
+    return new BoundFoundationOperation(userId,loaded,async state=>{
+      try{
+        await this.commit(userId,loaded,state);
+        this.rememberCommandState(userId,{existed:true,revision:loaded.revision+1,state});
+      }catch(error){this.forgetCommandCache(userId);throw error;}
+    },candidate?validate:undefined);
+  }
+  public async openOperation(userId:string):Promise<PersonalFoundationOperation> {
+    assertUserId(userId);
+    try{const loaded=await this.load(userId);this.rememberCommandState(userId,loaded);return this.operationFor(userId,loaded,false);}
+    catch(error){this.forgetCommandCache(userId);throw error;}
+  }
+  public async openCommandOperation(userId:string):Promise<PersonalFoundationOperation> {
+    assertUserId(userId);this.assertReady();
+    const cached=this.commandCache.get(userId);
+    if(!cached || cached.expires<=Date.now()){this.forgetCommandCache(userId);return this.openOperation(userId);}
+    return this.operationFor(userId,clone(cached.loaded),true);
   }
 
   public async runAtomic<Result>(

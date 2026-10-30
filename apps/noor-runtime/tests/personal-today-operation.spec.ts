@@ -539,6 +539,11 @@ test(
     dependencies.foundation = {
       async openOperation() {
         return {
+          snapshot: {
+            listDefinitions() { return []; },
+            listPersonalDays() { return [personalDay]; },
+            listDailyExecutionForUser() { return []; },
+          },
           locations: {
             async getEffective() {
               return {
@@ -643,7 +648,7 @@ test(
       200,
     );
     assert.deepEqual(
-      result.body,
+      (({workspace,...dashboard})=>dashboard)(result.body as any),
       {
         personalDay,
         islamicContext: context,
@@ -657,5 +662,9 @@ test(
         automationPending: 0,
       },
     );
+    const workspace=(result.body as any).workspace;
+    assert.deepEqual(workspace.definitions,[]);
+    assert.equal(workspace.finance.userId,"user-1");
+    assert.equal(workspace.insights.periods.week.scheduled,0);
   },
 );

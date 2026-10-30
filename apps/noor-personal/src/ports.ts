@@ -1,3 +1,4 @@
+import type { FinanceLedger } from "./domain/model.js";
 import type {
     AutomationOutboxEvent,
     DailyExecutionInstance,
@@ -80,6 +81,9 @@ export interface IslamicHistoryCatalogPort {
 }
 
 export interface FoundationTransaction {
+    getFinance?(userId:string): FinanceLedger;
+    saveFinance?(userId:string,ledger:FinanceLedger):void;
+    deleteDefinitionPermanently?(userId: string, definitionId: string): void;
     findOpenPersonalDayContaining(
         userId: string,
         instant: IsoInstant,
@@ -109,9 +113,23 @@ export interface FoundationTransaction {
         userId: string,
     ): readonly ExecutionDefinition[];
 
+    findDefinitionById(
+        userId: string,
+        definitionId: string,
+    ): ExecutionDefinition | null;
+
+    saveDefinition(
+        definition: ExecutionDefinition,
+    ): void;
+
     listDailyExecution(
         personalDayId: string,
     ): readonly DailyExecutionInstance[];
+
+    findDailyExecutionById(
+        userId: string,
+        executionId: string,
+    ): DailyExecutionInstance | null;
 
     saveDailyExecution(
         instance: DailyExecutionInstance,
@@ -134,4 +152,19 @@ export interface LocalTransactionPort {
             transaction: FoundationTransaction,
         ) => Promise<T> | T,
     ): Promise<T>;
+}
+
+export interface PersonalFoundationSnapshotPort {
+    getFinance?(userId:string): FinanceLedger;
+    listDefinitions(
+        userId: string,
+    ): readonly ExecutionDefinition[];
+
+    listPersonalDays(
+        userId: string,
+    ): readonly PersonalDay[];
+
+    listDailyExecutionForUser(
+        userId: string,
+    ): readonly DailyExecutionInstance[];
 }

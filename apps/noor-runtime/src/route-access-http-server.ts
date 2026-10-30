@@ -33,6 +33,8 @@ export const ROUTE_ACCESS_EVIDENCE_HTTP_PATH =
 export const NOOR_SESSION_COOKIE_NAME =
   "noor_session";
 export const PERSONAL_TODAY_HTTP_PATH = "/api/noor/personal/today";
+export const PERSONAL_WORKSPACE_HTTP_PATH = "/api/noor/personal/workspace";
+export const PERSONAL_COMMAND_HTTP_PATH = "/api/noor/personal/command";
 
 export const MAX_ROUTE_ACCESS_REQUEST_BODY_BYTES =
   8_192;
@@ -100,6 +102,7 @@ export interface RouteAccessHttpServerOptions {
         boolean;
     }>;
   readonly personalToday?: import("./personal-today-operation.js").PersonalTodayExecutor;
+  readonly personalControl?: import("./personal-control-operation.js").PersonalControlExecutor;
 }
 
 function isRecord(
@@ -678,6 +681,118 @@ async function handlePersonalToday(
 }
 
 
+async function handlePersonalWorkspace(
+  executor:
+    import("./personal-control-operation.js").PersonalControlExecutor,
+  request:
+    IncomingMessage,
+  response:
+    ServerResponse,
+): Promise<void> {
+  if (
+    request.method !==
+    "POST"
+  ) {
+    writeEmpty(response, 405, { Allow: "POST" });
+    return;
+  }
+
+  if (!isSupportedContentType(request.headers["content-type"])) {
+    writeEmpty(response, 415);
+    return;
+  }
+
+  const bodyResult = await readRequestBody(request);
+
+  if (bodyResult.kind === "too-large") {
+    writeEmpty(response, 413);
+    return;
+  }
+
+  let parsed: unknown;
+
+  try {
+    parsed = JSON.parse(bodyResult.body);
+  } catch {
+    writeEmpty(response, 400);
+    return;
+  }
+
+  if (!isEmptyJsonObject(parsed)) {
+    writeEmpty(response, 400);
+    return;
+  }
+
+  const result = await executor.readWorkspace({
+    sessionId:
+      sessionIdFromCookieHeader(
+        request.headers.cookie,
+      ),
+  });
+
+  if (result.status === 200) {
+    if (result.body === undefined) {
+      writeEmpty(response, 500);
+      return;
+    }
+
+    writeJson(response, 200, result.body);
+    return;
+  }
+
+  writeEmpty(response, result.status);
+}
+
+async function handlePersonalCommand(
+  executor:
+    import("./personal-control-operation.js").PersonalControlExecutor,
+  request:
+    IncomingMessage,
+  response:
+    ServerResponse,
+): Promise<void> {
+  if (request.method !== "POST") {
+    writeEmpty(response, 405, { Allow: "POST" });
+    return;
+  }
+
+  if (!isSupportedContentType(request.headers["content-type"])) {
+    writeEmpty(response, 415);
+    return;
+  }
+
+  const bodyResult = await readRequestBody(request);
+
+  if (bodyResult.kind === "too-large") {
+    writeEmpty(response, 413);
+    return;
+  }
+
+  let parsed: unknown;
+
+  try {
+    parsed = JSON.parse(bodyResult.body);
+  } catch {
+    writeEmpty(response, 400);
+    return;
+  }
+
+  const result = await executor.executeCommand({
+    sessionId:
+      sessionIdFromCookieHeader(
+        request.headers.cookie,
+      ),
+    command: parsed,
+  });
+
+  if(result.status===200){
+    if(result.body===undefined){writeEmpty(response,500);return;}
+    writeJson(response,200,result.body);return;
+  }
+  writeEmpty(response, result.status);
+}
+
+
 async function handleRequest(
   executor:
     RouteAccessEvidenceExecutor,
@@ -685,11 +800,47 @@ async function handleRequest(
     SessionEstablishmentHttpHandler | undefined,
   personalToday:
     import("./personal-today-operation.js").PersonalTodayExecutor | undefined,
+  personalControl:
+    import("./personal-control-operation.js").PersonalControlExecutor | undefined,
   request:
     IncomingMessage,
   response:
     ServerResponse,
 ): Promise<void> {
+  if (
+    request.url ===
+      PERSONAL_WORKSPACE_HTTP_PATH
+  ) {
+    if (!personalControl) {
+      writeEmpty(response, 404);
+      return;
+    }
+
+    await handlePersonalWorkspace(
+      personalControl,
+      request,
+      response,
+    );
+    return;
+  }
+
+  if (
+    request.url ===
+      PERSONAL_COMMAND_HTTP_PATH
+  ) {
+    if (!personalControl) {
+      writeEmpty(response, 404);
+      return;
+    }
+
+    await handlePersonalCommand(
+      personalControl,
+      request,
+      response,
+    );
+    return;
+  }
+
   if (
     request.url ===
       PERSONAL_TODAY_HTTP_PATH
@@ -903,6 +1054,7 @@ export function createRouteAccessHttpServer(
           executor,
           sessionHandler,
           options.personalToday,
+          options.personalControl,
           request,
           response,
         ).catch(

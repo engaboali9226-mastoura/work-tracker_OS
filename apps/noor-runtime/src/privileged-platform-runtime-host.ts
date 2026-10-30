@@ -48,6 +48,14 @@ import {
 } from "./personal-today-operation.js";
 
 import {
+  PersonalControlOperation,
+} from "./personal-control-operation.js";
+
+import {
+  PersonalDailyMaterializationScheduler,
+} from "./personal-daily-materialization-scheduler.js";
+
+import {
   PrivilegedRouteAccessEvidenceOperation,
 } from "./privileged-route-access-evidence-operation.js";
 
@@ -61,6 +69,9 @@ export interface PrivilegedPlatformRuntimeOperations {
 
   readonly personalToday:
     PersonalTodayOperation;
+
+  readonly personalControl:
+    PersonalControlOperation;
 
   execute(
     input:
@@ -84,6 +95,9 @@ implements PrivilegedPlatformRuntimeOperations {
 
     public readonly personalToday:
       PersonalTodayOperation,
+
+    public readonly personalControl:
+      PersonalControlOperation,
   ) {}
 
   public execute(
@@ -128,6 +142,10 @@ implements PrivilegedPlatformRuntimeHost {
 
   private personalPersistenceReady =
     false;
+
+  private personalScheduler:
+    PersonalDailyMaterializationScheduler
+    | undefined;
 
   public constructor(
     private readonly root:
@@ -205,6 +223,15 @@ implements PrivilegedPlatformRuntimeHost {
 
       this.personalPersistenceReady =
         true;
+
+      this.personalScheduler =
+        new PersonalDailyMaterializationScheduler({
+          foundation:
+            this.personalPersistence,
+        });
+
+      this.personalScheduler
+        .start();
 
       const isRuntimeRunning =
         () =>
@@ -301,11 +328,41 @@ implements PrivilegedPlatformRuntimeHost {
           },
         });
 
+      const personalControl =
+        new PersonalControlOperation({
+          isRuntimeRunning,
+
+          resolveSession:
+            platform
+              .services
+              .session
+              .resolve,
+
+          authorize:
+            platform
+              .services
+              .authorization
+              .authorize,
+
+          accountUserResolver:
+            this.accountUserResolver,
+
+          foundation:
+            this.personalPersistence,
+
+          clock:
+            new PersonalSystemClock(),
+
+          idGenerator:
+            new CryptographicIdGenerator(),
+        });
+
       const operation =
         new DefaultPrivilegedPlatformRuntimeOperations(
           routeAccess,
           sessionEstablishment,
           personalToday,
+          personalControl,
         );
 
       this.activeOperation =
@@ -321,6 +378,17 @@ implements PrivilegedPlatformRuntimeHost {
 
       this.activeOperation =
         undefined;
+
+      if (this.personalScheduler) {
+        try {
+          await this.personalScheduler
+            .stop();
+        } catch {
+        }
+
+        this.personalScheduler =
+          undefined;
+      }
 
       if (
         this.personalPersistenceReady
@@ -365,6 +433,19 @@ implements PrivilegedPlatformRuntimeHost {
 
     let failed =
       false;
+
+    if (this.personalScheduler) {
+      try {
+        await this.personalScheduler
+          .stop();
+      } catch {
+        failed =
+          true;
+      }
+
+      this.personalScheduler =
+        undefined;
+    }
 
     if (
       this.personalPersistenceReady

@@ -102,6 +102,10 @@ export interface FoundationStoreSeed {
         readonly PrayerTimePolicyRevision[];
     readonly definitions?:
         readonly ExecutionDefinition[];
+    readonly personalDays?:
+        readonly PersonalDay[];
+    readonly dailyExecution?:
+        readonly DailyExecutionInstance[];
 }
 
 export class SequenceIdGenerator
@@ -151,7 +155,14 @@ implements
                     ],
                 ),
             personalDays:
-                [],
+                clone(
+                    [
+                        ...(
+                            seed.personalDays
+                            ?? []
+                        ),
+                    ],
+                ),
             islamicContexts:
                 [],
             definitions:
@@ -164,7 +175,14 @@ implements
                     ],
                 ),
             dailyExecution:
-                [],
+                clone(
+                    [
+                        ...(
+                            seed.dailyExecution
+                            ?? []
+                        ),
+                    ],
+                ),
             outbox:
                 [],
         };
@@ -522,6 +540,33 @@ implements
                         ),
                 ),
 
+            findDefinitionById: (
+                userId,
+                definitionId,
+            ) => {
+                const found =
+                    state.definitions
+                        .find(
+                            definition =>
+                                definition.userId
+                                === userId
+                                && definition.id
+                                === definitionId,
+                        );
+
+                return found
+                    ? clone(found)
+                    : null;
+            },
+
+            saveDefinition:
+                definition => {
+                    upsert(
+                        state.definitions,
+                        definition,
+                    );
+                },
+
             listDailyExecution:
                 personalDayId =>
                     clone(
@@ -533,6 +578,25 @@ implements
                                     === personalDayId,
                             ),
                     ),
+
+            findDailyExecutionById: (
+                userId,
+                executionId,
+            ) => {
+                const found =
+                    state.dailyExecution
+                        .find(
+                            instance =>
+                                instance.userId
+                                === userId
+                                && instance.id
+                                === executionId,
+                        );
+
+                return found
+                    ? clone(found)
+                    : null;
+            },
 
             saveDailyExecution:
                 instance => {
