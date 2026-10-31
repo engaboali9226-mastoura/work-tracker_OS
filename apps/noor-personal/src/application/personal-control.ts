@@ -1,4 +1,4 @@
-const DEFAULT_PERSONAL_CATEGORIES=["الصحة والرياضة","العبادات","العمل","التعلم","الأسرة","الشؤون الشخصية"] as const;
+const DEFAULT_PERSONAL_CATEGORIES=["الصحة والرياضة","العبادات","العمل","التعلم","الأسرة","الشؤون الشخصية","الأدوية والمكملات الغذائية"] as const;
 import { applyFinanceOperation, emptyFinanceLedger, parseFinanceOperation, type FinanceOperation, type FinanceLedger } from "../domain/model.js";
 import type {
     AutomationOutboxEvent,
@@ -20,14 +20,23 @@ import type {
     PersonalFoundationSnapshotPort,
 } from "../ports.js";
 
+function orderedDefinitions(definitions:readonly ExecutionDefinition[]):ExecutionDefinition[]{
+    return [...definitions].sort((a,b)=>(a.displayOrder??Number.MAX_SAFE_INTEGER)-(b.displayOrder??Number.MAX_SAFE_INTEGER)||(a.category??"عام").localeCompare(b.category??"عام","ar")||a.kind.localeCompare(b.kind)||a.title.localeCompare(b.title,"ar")||a.id.localeCompare(b.id));
+}
+function categoryNames(snapshot:Pick<PersonalFoundationSnapshotPort,"getCategories"|"listDefinitions">,userId:string):string[]{return [...new Set([...(snapshot.getCategories?.(userId)??DEFAULT_PERSONAL_CATEGORIES),...snapshot.listDefinitions(userId).map(d=>d.category??"عام")])];}
+
 export type PersonalCommand =
+    | Readonly<{type:"edit-activity-note";executionId:string;entryId:string;expectedNote:string;note:string|null}>
+    | Readonly<{type:"reorder-display";scope:"Habit"|"Task"|"categories";expected:readonly string[];order:readonly string[]}>
     | Readonly<{type:"manage-category"; action:"add"|"rename"; name:string; previousName:string|null}>
-    | Readonly<{type:"update-definition";definitionId:string;expectedRevisionId:string;kind:DefinitionKind;title:string;category:string;startDate:LocalDate;endDate:LocalDate|null;scheduleKind:Schedule["kind"];weekdays:readonly number[];importance:ImportanceLevel;measurement?:{readonly target:number;readonly unit:string}}>
+    | Readonly<{type:"update-definition";weight?:number;definitionId:string;expectedRevisionId:string;kind:DefinitionKind;title:string;category:string;startDate:LocalDate;endDate:LocalDate|null;scheduleKind:Schedule["kind"];weekdays:readonly number[];importance:ImportanceLevel;timeOfDay?:string;measurement?:{readonly target:number;readonly unit:string}}>
     | Readonly<{type:"finance";operation:FinanceOperation}>
     | Readonly<{ type: "record-activity"; executionId: string; entryId: string; note: string; amount: number; endReason: "achieved" | "expired" | "cancelled" | null }>
     | Readonly<{ readonly type: "delete-definition"; readonly definitionId: string; readonly confirm: true }>
     | Readonly<{
         readonly type: "create-definition";
+        readonly weight?: number;
+        readonly timeOfDay?: string;
         readonly measurement?: { readonly target: number; readonly unit: string };
         readonly kind: DefinitionKind;
         readonly title: string;
@@ -73,7 +82,9 @@ export interface PersonalInsights {
     }>;
 }
 
+export interface PersonalStatisticRow {readonly id:string;readonly definitionId:string;readonly title:string;readonly kind:DefinitionKind;readonly date:string;readonly weight:number;readonly status:ExecutionStatus;readonly amount:number;readonly unit:string;}
 export interface PersonalWorkspace {
+    readonly statistics:Readonly<{currentDate:string|null;rows:readonly PersonalStatisticRow[]}>;
     readonly categories: readonly string[];
     readonly finance: FinanceLedger;
     readonly definitions: readonly ExecutionDefinition[];
@@ -223,6 +234,12 @@ export function parsePersonalCommand(
         const operation=parseFinanceOperation(value.operation);
         return operation?{type:"finance",operation}:null;
     }
+    if(value.type==="reorder-display"){
+        if(!exactKeys(value,["type","scope","expected","order"])||!["Habit","Task","categories"].includes(String(value.scope)))return null;
+        const valid=(v:unknown):v is string[]=>Array.isArray(v)&&v.length<=5000&&v.every(x=>boundedText(x,200))&&new Set(v).size===v.length;
+        if(!valid(value.expected)||!valid(value.order)||value.expected.length!==value.order.length||value.order.some(x=>!(value.expected as string[]).includes(x)))return null;
+        return {type:"reorder-display",scope:value.scope as "Habit"|"Task"|"categories",expected:[...value.expected],order:[...value.order]};
+    }
     if(value.type==="manage-category"){
         if(!exactKeys(value,["type","action","name","previousName"]) || !boundedText(value.name,60) || !["add","rename"].includes(String(value.action)) || (value.action==="add" ? value.previousName!==null : !boundedText(value.previousName,60)))return null;
         return {type:"manage-category",action:value.action as "add"|"rename",name:(value.name as string).trim(),previousName:value.previousName===null?null:(value.previousName as string).trim()};
@@ -247,7 +264,9 @@ export function parsePersonalCommand(
                     "scheduleKind",
                     "weekdays",
                     "importance",
+                    ...(Object.hasOwn(value,"weight")?["weight"]:[]),
                     ...(Object.hasOwn(value,"measurement") ? ["measurement"] : []),
+                    ...(Object.hasOwn(value,"timeOfDay") ? ["timeOfDay"] : []),
                 ],
             )
             || (
@@ -263,6 +282,7 @@ export function parsePersonalCommand(
             return null;
         }
 
+        if(Object.hasOwn(value,'timeOfDay')&&(value.kind!=='Habit'||typeof value.timeOfDay!=='string'||!/^([01]\d|2[0-3]):[0-5]\d$/.test(value.timeOfDay)))return null;
         let measurement: {target:number;unit:string} | undefined;
         if (Object.hasOwn(value,"measurement")) {
             const m=value.measurement;
@@ -277,6 +297,7 @@ export function parsePersonalCommand(
             : localDate(value.endDate);
         const selectedWeekdays = weekdays(value.weekdays);
         const selectedImportance = importance(value.importance);
+        if(value.weight!==undefined&&(!Number.isInteger(value.weight)||Number(value.weight)<1||Number(value.weight)>100))return null;
 
         if (
             !title
@@ -308,8 +329,10 @@ export function parsePersonalCommand(
 
         return Object.freeze({
             type: "create-definition" as const,
+            ...(typeof value.weight==="number"?{weight:value.weight}:{}),
             kind: value.kind,
             ...(measurement ? {measurement} : {}),
+            ...(typeof value.timeOfDay==='string'?{timeOfDay:value.timeOfDay}:{}),
             title,
             category,
             startDate,
@@ -346,6 +369,10 @@ export function parsePersonalCommand(
         });
     }
 
+    if(value.type==="edit-activity-note"){
+        if(!exactKeys(value,["type","executionId","entryId","expectedNote","note"])||!boundedIdentifier(value.executionId)||!boundedIdentifier(value.entryId)||typeof value.expectedNote!=="string"||value.expectedNote.length>2000||(value.note!==null&&(typeof value.note!=="string"||!value.note.trim()||value.note.length>2000)))return null;
+        return {type:"edit-activity-note",executionId:value.executionId,entryId:value.entryId,expectedNote:value.expectedNote,note:value.note===null?null:(value.note as string).trim()};
+    }
     if (value.type === "record-activity") {
         if(!exactKeys(value,["type","executionId","entryId","note","amount","endReason"]) || !boundedIdentifier(value.executionId) || !boundedIdentifier(value.entryId) || typeof value.note!=="string" || value.note.length>2000 || typeof value.amount!=="number" || !Number.isFinite(value.amount) || value.amount<0 || value.amount>1e9 || Math.abs(value.amount*1e6-Math.round(value.amount*1e6))>0.00001 || ![null,"achieved","expired","cancelled"].includes(value.endReason as null)) return null;
         if(!value.note.trim() && value.amount===0 && value.endReason===null) return null;
@@ -527,6 +554,18 @@ export class PersonalCommandService {
 
         await this.dependencies.transaction.runInTransaction(
             transaction => {
+                if(command.type==="reorder-display"){
+                    if(!parsePersonalCommand(command))throw new Error("DISPLAY_ORDER_INVALID");
+                    const definitions=orderedDefinitions(transaction.listDefinitions(userId));
+                    const current=command.scope==="categories"?categoryNames(transaction,userId):definitions.filter(d=>d.kind===command.scope).map(d=>d.id);
+                    if(JSON.stringify(current)===JSON.stringify(command.order))return;
+                    if(JSON.stringify(current)!==JSON.stringify(command.expected))throw new Error("DISPLAY_ORDER_CONFLICT");
+                    if(command.scope==="categories"){
+                        if(!transaction.saveCategories)throw new Error("CATEGORY_STORAGE_UNAVAILABLE");
+                        transaction.saveCategories(userId,command.order);
+                    }else command.order.forEach((id,index)=>{const d=definitions.find(d=>d.id===id)!;if(d.displayOrder!==index)transaction.saveDefinition({...d,displayOrder:index});});
+                    return;
+                }
                 if(command.type==="manage-category"){
                     const parsed=parsePersonalCommand(command);if(!parsed || parsed.type!=="manage-category")throw new Error("CATEGORY_INVALID");
                     if(!transaction.saveCategories)throw new Error("CATEGORY_STORAGE_UNAVAILABLE");
@@ -547,14 +586,31 @@ export class PersonalCommandService {
                     if(definition.revisionId!==command.expectedRevisionId || definition.kind!==command.kind)throw new PersonalControlError("DEFINITION_STATE_CONFLICT");
                     const total=(definition.activityLog??[]).reduce((n,e)=>n+e.amount,0);
                     if(definition.measurement && (!command.measurement || command.measurement.unit!==definition.measurement.unit || command.measurement.target<total))throw new Error("EDIT_PROGRESS_CONFLICT");
-                    const {effectiveUntilDate:_end,measurement:_measurement,...preserved}=definition;
-                    transaction.saveDefinition({...preserved,revisionId:this.dependencies.idGenerator.next("definition-revision"),title:command.title,category:command.category,schedule:commandSchedule(command),effectiveFromDate:command.startDate,...(command.endDate?{effectiveUntilDate:command.endDate}:{}),importance:command.importance,...(command.measurement?{measurement:command.measurement}:{})});return;
+                    const {effectiveUntilDate:_end,measurement:_measurement,timeOfDay:_timeOfDay,...preserved}=definition;
+                    transaction.saveDefinition({...preserved,revisionId:this.dependencies.idGenerator.next("definition-revision"),title:command.title,category:command.category,schedule:commandSchedule(command),effectiveFromDate:command.startDate,...(command.endDate?{effectiveUntilDate:command.endDate}:{}),importance:command.importance,...(command.weight!==undefined?{weight:command.weight}:{}),...(command.measurement?{measurement:command.measurement}:{}),...(command.timeOfDay?{timeOfDay:command.timeOfDay}:{})});
+                    if(command.weight!==undefined&&command.weight!==definition.weight){
+                        const day=transaction.findOpenPersonalDayContaining(userId,now);
+                        if(day)for(const item of transaction.listDailyExecution(day.id))if(item.definitionId===definition.id)transaction.saveDailyExecution({...item,eligibility:{...item.eligibility,weight:command.weight},version:item.version+1,updatedAt:now});
+                    }return;
                 }
                 if(command.type==="finance"){
                     if(!transaction.getFinance || !transaction.saveFinance)throw new Error("FINANCE_STORAGE_UNAVAILABLE");
                     const ledger=transaction.getFinance(userId);
                     const updated=applyFinanceOperation(ledger,userId,command.operation,now);
                     transaction.saveFinance(userId,updated);return;
+                }
+                if(command.type==="edit-activity-note"){
+                    if(!parsePersonalCommand(command))throw new Error("INVALID_ACTIVITY_NOTE_EDIT");
+                    const instance=transaction.findDailyExecutionById(userId,command.executionId);
+                    if(!instance)throw new PersonalControlError("EXECUTION_NOT_FOUND");
+                    const definition=transaction.findDefinitionById(userId,instance.definitionId);
+                    if(!definition)throw new PersonalControlError("DEFINITION_NOT_FOUND");
+                    const log=definition.activityLog??[],entry=log.find(e=>e.id===command.entryId&&e.executionId===instance.id);
+                    if(!entry)throw new Error("ACTIVITY_NOTE_NOT_FOUND");
+                    const note=command.note===null?"":command.note.trim();
+                    if(entry.note===note)return;
+                    if(entry.note!==command.expectedNote)throw new PersonalControlError("DEFINITION_STATE_CONFLICT");
+                    transaction.saveDefinition({...definition,activityLog:log.map(e=>e.id===entry.id?{...e,note}:e)});return;
                 }
                 if (command.type === "record-activity") {
                     const parsed=parsePersonalCommand(command);
@@ -630,10 +686,11 @@ export class PersonalCommandService {
                                 effectiveUntilDate: command.endDate,
                             }),
                         importance: command.importance,
-                        weight: 1,
+                        weight: command.weight??1,
                         gatePolicy: "NonBlocking",
                         targets: {},
                         ...(command.measurement ? {measurement:command.measurement} : {}),
+                        ...(command.timeOfDay?{timeOfDay:command.timeOfDay}:{}),
                     };
 
                     transaction.saveDefinition(definition);
@@ -824,12 +881,7 @@ function periodInsight(
         windowDays,
         scheduled: inWindow.length,
         completed,
-        completionRate:
-            inWindow.length === 0
-                ? 0
-                : Math.round(
-                    completed / inWindow.length * 100,
-                ),
+        completionRate: (()=>{const total=inWindow.reduce((n,e)=>n+e.eligibility.weight,0),done=inWindow.filter(e=>e.status==="Completed").reduce((n,e)=>n+e.eligibility.weight,0);return total?Math.round(done/total*100):0;})(),
         successfulDays,
     };
 }
@@ -928,21 +980,13 @@ export function buildPersonalWorkspace(
         currentLocalDate,
     );
 
+    const days=new Map(personalDays.map(d=>[d.id,d.boundary.localDate])),defs=new Map(definitions.map(d=>[d.id,d]));
+    const rows:PersonalStatisticRow[]=execution.flatMap(e=>{const date=days.get(e.personalDayId)??e.scheduleOccurrenceKey;if(!/^\d{4}-\d{2}-\d{2}$/.test(date)||!currentLocalDate||date>currentLocalDate)return [];const d=defs.get(e.definitionId);return [{id:e.id,definitionId:e.definitionId,title:d?.title??e.title,kind:e.kind,date,weight:Number.isFinite(e.eligibility.weight)&&e.eligibility.weight>0?e.eligibility.weight:1,status:e.status,amount:(d?.activityLog??[]).filter(a=>a.executionId===e.id).reduce((n,a)=>n+a.amount,0),unit:d?.measurement?.unit??""}];});
     return Object.freeze({
+        statistics:{currentDate:currentLocalDate,rows:rows.sort((a,b)=>a.date.localeCompare(b.date)||a.id.localeCompare(b.id))},
         categories:[...new Set([...(snapshot.getCategories?.(userId)??DEFAULT_PERSONAL_CATEGORIES),...snapshot.listDefinitions(userId).map(d=>d.category??"عام")])],
         finance: snapshot.getFinance?.(userId) ?? emptyFinanceLedger(userId),
-        definitions:
-            [...definitions]
-                .sort(
-                    (left, right) =>
-                        (left.category ?? "عام")
-                            .localeCompare(
-                                right.category ?? "عام",
-                                "ar",
-                            )
-                        || left.kind.localeCompare(right.kind)
-                        || left.title.localeCompare(right.title, "ar"),
-                ),
+        definitions: orderedDefinitions(definitions),
         insights: {
             currentLocalDate,
             currentStreakDays: streak.current,
