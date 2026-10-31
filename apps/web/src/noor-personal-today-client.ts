@@ -273,24 +273,36 @@ export async function sendNoorPersonalCommand(command:NoorPersonalCommandInput,f
 // NOOR_FINANCE_R68: amounts are integer halalas; transfers never count as spending.
 export type FinanceAccountKind = "cash" | "bank" | "savings" | "emergency";
 export interface FinanceAccount { readonly id:string; readonly name:string; readonly kind:FinanceAccountKind; readonly openingMinor:number; readonly date:string; }
-export interface FinanceDebt { readonly currency?:"SAR"|"EGP"; readonly id:string; readonly person:string; readonly direction:"receivable"|"payable"; readonly dueDate:string|null; readonly note:string; }
+export interface FinancePerson {readonly id:string;readonly name:string;readonly note:string;}
+export interface FinanceDebt {readonly personId?:string; readonly currency?:"SAR"|"EGP"; readonly id:string; readonly person:string; readonly direction:"receivable"|"payable"; readonly dueDate:string|null; readonly note:string; }
 export type FinanceEntryKind = "income"|"expense"|"transfer"|"repay"|"lend"|"borrow"|"opening-receivable"|"opening-payable";
 export interface FinanceEntry { readonly id:string; readonly kind:FinanceEntryKind; readonly amountMinor:number; readonly date:string; readonly accountId:string|null; readonly targetAccountId:string|null; readonly debtId:string|null; readonly category:string; readonly note:string; readonly createdAt:string; readonly voidedAt?:string; readonly voidReason?:string; }
-export interface FinanceLedger { readonly userId:string; readonly currency:"SAR"; readonly accounts:readonly FinanceAccount[]; readonly debts:readonly FinanceDebt[]; readonly entries:readonly FinanceEntry[]; readonly requests:readonly {readonly id:string;readonly body:string}[]; }
+export interface FinanceLedger {readonly people?:readonly FinancePerson[]; readonly userId:string; readonly currency:"SAR"; readonly accounts:readonly FinanceAccount[]; readonly debts:readonly FinanceDebt[]; readonly entries:readonly FinanceEntry[]; readonly requests:readonly {readonly id:string;readonly body:string}[]; }
 export type FinanceOperation =
+ | Readonly<{action:"create-person";id:string;name:string;note:string}>
  | Readonly<{action:"create-account";id:string;name:string;kind:FinanceAccountKind;openingMinor:number;date:string}>
  | Readonly<{action:"settle-debt";id:string;debtId:string;amountMinor:number;date:string;accountId:string|null;note:string}>
- | Readonly<{action:"create-debt";currency?:"SAR"|"EGP";id:string;person:string;direction:"receivable"|"payable";amountMinor:number;date:string;dueDate:string|null;accountId:string|null;note:string}>
+ | Readonly<{action:"create-debt";personId?:string;currency?:"SAR"|"EGP";id:string;person:string;direction:"receivable"|"payable";amountMinor:number;date:string;dueDate:string|null;accountId:string|null;note:string}>
  | Readonly<{action:"record-entry";id:string;kind:"income"|"expense"|"transfer"|"repay";amountMinor:number;date:string;accountId:string;targetAccountId:string|null;debtId:string|null;category:string;note:string}>
  | Readonly<{action:"void-entry";id:string;entryId:string;reason:string}>;
 
 
+export function debtElapsedPeriod(start:string,end:string):{years:number;months:number;days:number;totalMonths:number}|null{
+ const valid=(value:string)=>/^\d{4}-\d{2}-\d{2}$/.test(value)&&Number.isFinite(Date.parse(value+'T00:00:00Z'))&&new Date(value+'T00:00:00Z').toISOString().slice(0,10)===value;
+ if(!valid(start)||!valid(end)||end<start)return null;
+ const a=new Date(start+'T00:00:00Z'),b=new Date(end+'T00:00:00Z');
+ const add=(n:number)=>{const y=a.getUTCFullYear()+Math.floor((a.getUTCMonth()+n)/12),m=(a.getUTCMonth()+n)%12;const last=new Date(0);last.setUTCFullYear(y,m+1,0);const result=new Date(0);result.setUTCFullYear(y,m,Math.min(a.getUTCDate(),last.getUTCDate()));result.setUTCHours(0,0,0,0);return result;};
+ let totalMonths=(b.getUTCFullYear()-a.getUTCFullYear())*12+b.getUTCMonth()-a.getUTCMonth();if(add(totalMonths)>b)totalMonths--;
+ return {years:Math.floor(totalMonths/12),months:totalMonths%12,days:Math.floor((b.getTime()-add(totalMonths).getTime())/86400000),totalMonths};
+}
+
 export interface FinanceSummary { readonly balances:Readonly<Record<string,number>>; readonly outstanding:Readonly<Record<string,number>>; readonly incomeMinor:number; readonly expenseMinor:number; readonly totalMinor:number; readonly receivableMinor:number; readonly payableMinor:number; }
 export function financeSummary(ledger:FinanceLedger,month?:string):FinanceSummary {
+ if(ledger.people!==undefined){if(!Array.isArray(ledger.people)||ledger.people.length>20000)throw new Error('FINANCE_INVALID_PEOPLE');const ids=new Set<string>(),names=new Set<string>();for(const person of ledger.people){if(!person||typeof person.id!=='string'||typeof person.name!=='string'||!person.name.trim()||person.name.length>100||typeof person.note!=='string'||person.note.length>1000||ids.has(person.id)||names.has(person.name))throw new Error('FINANCE_INVALID_PEOPLE');ids.add(person.id);names.add(person.name);}}
  const balances:Record<string,number>={},outstanding:Record<string,number>={};let incomeMinor=0,expenseMinor=0;
  const add=(record:Record<string,number>,key:string,amount:number)=>{if(!Object.hasOwn(record,key))throw new Error('FINANCE_REFERENCE_MISSING');const n=record[key]!+amount;if(!Number.isSafeInteger(n))throw new Error('FINANCE_AMOUNT_OVERFLOW');record[key]=n;};
  for(const a of ledger.accounts){if(Object.hasOwn(balances,a.id))throw new Error('FINANCE_DUPLICATE_ACCOUNT');balances[a.id]=a.openingMinor;}
- for(const d of ledger.debts){if(d.currency!==undefined && d.currency!=='SAR' && d.currency!=='EGP')throw new Error('FINANCE_INVALID_CURRENCY');if(Object.hasOwn(outstanding,d.id))throw new Error('FINANCE_DUPLICATE_DEBT');outstanding[d.id]=0;}
+ for(const d of ledger.debts){if(d.personId&&!ledger.people?.some(p=>p.id===d.personId&&p.name===d.person))throw new Error('FINANCE_PERSON_MISSING');if(d.currency!==undefined && d.currency!=='SAR' && d.currency!=='EGP')throw new Error('FINANCE_INVALID_CURRENCY');if(Object.hasOwn(outstanding,d.id))throw new Error('FINANCE_DUPLICATE_DEBT');outstanding[d.id]=0;}
  const debt=(id:string|null)=>{const d=ledger.debts.find(d=>d.id===id);if(!d)throw new Error('FINANCE_DEBT_MISSING');return d;};
  const entryIds=new Set<string>();
  for(const e of ledger.entries){if(entryIds.has(e.id))throw new Error('FINANCE_DUPLICATE_ENTRY');entryIds.add(e.id);if(e.voidedAt)continue;
