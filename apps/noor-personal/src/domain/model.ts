@@ -168,6 +168,8 @@ export interface ActivityEntry {
 export interface ProgressMeasurement { readonly target: number; readonly unit: string; }
 
 export interface ExecutionDefinition {
+    readonly displayOrder?: number;
+    readonly timeOfDay?: string;
     readonly measurement?: ProgressMeasurement;
     readonly activityLog?: readonly ActivityEntry[];
     readonly id: string;
@@ -308,10 +310,12 @@ export interface FinanceAccount { readonly id:string; readonly name:string; read
 export interface FinancePerson {readonly id:string;readonly name:string;readonly note:string;}
 export interface FinanceDebt {readonly personId?:string; readonly currency?:"SAR"|"EGP"; readonly id:string; readonly person:string; readonly direction:"receivable"|"payable"; readonly dueDate:string|null; readonly note:string; }
 export type FinanceEntryKind = "income"|"expense"|"transfer"|"repay"|"lend"|"borrow"|"opening-receivable"|"opening-payable";
-export interface FinanceEntry { readonly id:string; readonly kind:FinanceEntryKind; readonly amountMinor:number; readonly date:string; readonly accountId:string|null; readonly targetAccountId:string|null; readonly debtId:string|null; readonly category:string; readonly note:string; readonly createdAt:string; readonly voidedAt?:string; readonly voidReason?:string; }
+export interface FinanceEntry { readonly id:string; readonly kind:FinanceEntryKind; readonly amountMinor:number; readonly date:string; readonly accountId:string|null; readonly targetAccountId:string|null; readonly debtId:string|null; readonly category:string; readonly note:string; readonly createdAt:string; readonly corrections?:readonly {readonly at:string;readonly amountMinor:number;readonly date:string;readonly note:string;readonly reason:string;readonly dueDate?:string|null;readonly debtNote?:string}[]; readonly voidedAt?:string; readonly voidReason?:string; }
 export interface FinanceLedger {readonly people?:readonly FinancePerson[]; readonly userId:string; readonly currency:"SAR"; readonly accounts:readonly FinanceAccount[]; readonly debts:readonly FinanceDebt[]; readonly entries:readonly FinanceEntry[]; readonly requests:readonly {readonly id:string;readonly body:string}[]; }
 export type FinanceOperation =
  | Readonly<{action:"create-person";id:string;name:string;note:string}>
+ | Readonly<{action:"edit-debt";id:string;debtId:string;expected:string;amountMinor:number;date:string;dueDate:string|null;note:string;reason:string}>
+ | Readonly<{action:"edit-payment";id:string;entryId:string;expected:string;amountMinor:number;date:string;note:string;reason:string}>
  | Readonly<{action:"edit-person";id:string;personId:string|null;expectedName:string;expectedNote:string;name:string;note:string}>
  | Readonly<{action:"create-account";id:string;name:string;kind:FinanceAccountKind;openingMinor:number;date:string}>
  | Readonly<{action:"settle-debt";id:string;debtId:string;amountMinor:number;date:string;accountId:string|null;note:string}>
@@ -330,6 +334,8 @@ export function parseFinanceOperation(value:unknown):FinanceOperation|null {
  const money=(x:unknown,zero=false):x is number=>typeof x==="number" && Number.isSafeInteger(x) && x>=(zero?0:1) && x<=1e12;
  if(!id(v.id))return null;
  if(v.action==="create-debt" && v.id.length>123)return null;
+ if(v.action==='edit-debt'&&exact(['action','id','debtId','expected','amountMinor','date','dueDate','note','reason'])&&id(v.debtId)&&text(v.expected,5000)&&money(v.amountMinor)&&date(v.date)&&(v.dueDate===null||date(v.dueDate)&&v.dueDate>=v.date)&&text(v.note,1000,true)&&text(v.reason,500))return {action:'edit-debt',id:v.id,debtId:v.debtId,expected:v.expected,amountMinor:v.amountMinor,date:v.date,dueDate:v.dueDate as string|null,note:v.note.trim(),reason:v.reason.trim()};
+ if(v.action==='edit-payment'&&exact(['action','id','entryId','expected','amountMinor','date','note','reason'])&&id(v.entryId)&&text(v.expected,5000)&&money(v.amountMinor)&&date(v.date)&&text(v.note,1000,true)&&text(v.reason,500))return {action:'edit-payment',id:v.id,entryId:v.entryId,expected:v.expected,amountMinor:v.amountMinor,date:v.date,note:v.note.trim(),reason:v.reason.trim()};
  if(v.action==="edit-person" && exact(["action","id","personId","expectedName","expectedNote","name","note"]) && (v.personId===null||id(v.personId)) && text(v.expectedName,100) && text(v.expectedNote,1000,true) && text(v.name,100) && text(v.note,1000,true))return {action:"edit-person",id:v.id,personId:v.personId as string|null,expectedName:v.expectedName,expectedNote:v.expectedNote,name:v.name.trim(),note:v.note.trim()};
  if(v.action==="create-person" && exact(["action","id","name","note"]) && text(v.name,100) && text(v.note,1000,true))return {action:"create-person",id:v.id,name:v.name.trim(),note:v.note.trim()};
  if(v.action==="create-account" && exact(['action','id','name','kind','openingMinor','date']) && text(v.name,60) && ['cash','bank','savings','emergency'].includes(String(v.kind)) && money(v.openingMinor,true) && date(v.date))return {action:v.action,id:v.id,name:v.name.trim(),kind:v.kind as FinanceAccountKind,openingMinor:v.openingMinor,date:v.date};
@@ -354,6 +360,7 @@ export function debtElapsedPeriod(start:string,end:string):{years:number;months:
 }
 
 export interface FinanceSummary { readonly balances:Readonly<Record<string,number>>; readonly outstanding:Readonly<Record<string,number>>; readonly incomeMinor:number; readonly expenseMinor:number; readonly totalMinor:number; readonly receivableMinor:number; readonly payableMinor:number; }
+export function financeEditToken(entry:FinanceEntry,debt?:FinanceDebt):string{return JSON.stringify([entry.id,entry.amountMinor,entry.date,entry.note,entry.corrections?.length??0,entry.voidedAt??null,debt?.dueDate??null,debt?.note??null]);}
 export function financeSummary(ledger:FinanceLedger,month?:string):FinanceSummary {
  if(ledger.people!==undefined){if(!Array.isArray(ledger.people)||ledger.people.length>20000)throw new Error('FINANCE_INVALID_PEOPLE');const ids=new Set<string>(),names=new Set<string>();for(const person of ledger.people){if(!person||typeof person.id!=='string'||typeof person.name!=='string'||!person.name.trim()||person.name.length>100||typeof person.note!=='string'||person.note.length>1000||ids.has(person.id)||names.has(person.name))throw new Error('FINANCE_INVALID_PEOPLE');ids.add(person.id);names.add(person.name);}}
  const balances:Record<string,number>={},outstanding:Record<string,number>={};let incomeMinor=0,expenseMinor=0;
@@ -406,6 +413,15 @@ export function applyFinanceOperation(current:FinanceLedger,userId:string,input:
   if(op.accountId){if((op.currency??'SAR')!=='SAR')throw new Error('FINANCE_CURRENCY_MISMATCH');checkDate(op.accountId,op.date);}
   debts.push({...(op.personId?{personId:op.personId}:{}),...(op.currency?{currency:op.currency}:{}),id:op.id,person:op.person,direction:op.direction,dueDate:op.dueDate,note:op.note});
   entries.push({id:'debt:'+op.id,kind:op.accountId?(op.direction==='receivable'?'lend':'borrow'):(op.direction==='receivable'?'opening-receivable':'opening-payable'),amountMinor:op.amountMinor,date:op.date,accountId:op.accountId,targetAccountId:null,debtId:op.id,category:'دين',note:op.note,createdAt:now});
+ }else if(op.action==='edit-debt'||op.action==='edit-payment'){
+  const index=entries.findIndex(e=>op.action==='edit-debt'?e.debtId===op.debtId&&e.kind!=='repay'&&!e.voidedAt:e.id===op.entryId);const entry=entries[index];
+  if(!entry||entry.voidedAt||op.action==='edit-payment'&&entry.kind!=='repay')throw new Error('FINANCE_EDIT_ENTRY_MISSING');
+  const d=debts.find(d=>d.id===entry.debtId);if(!d)throw new Error('FINANCE_DEBT_MISSING');
+  if(financeEditToken(entry,op.action==='edit-debt'?d:undefined)!==op.expected)throw new Error('FINANCE_EDIT_CONFLICT');
+  if(entry.accountId)checkDate(entry.accountId,op.date);
+  if(op.action==='edit-debt'){if(entries.some(e=>e.debtId===d.id&&e.kind==='repay'&&!e.voidedAt&&e.date<op.date))throw new Error('FINANCE_DEBT_DATE_INVALID');debts[debts.indexOf(d)]={...d,dueDate:op.dueDate,note:op.note};}
+  else{const origin=entries.find(e=>e.debtId===d.id&&e.kind!=='repay'&&!e.voidedAt);if(!origin||op.date<origin.date)throw new Error('FINANCE_DEBT_DATE_INVALID');}
+  entries[index]={...entry,amountMinor:op.amountMinor,date:op.date,note:op.note,corrections:[...(entry.corrections??[]),{at:now,amountMinor:entry.amountMinor,date:entry.date,note:entry.note,reason:op.reason,...(op.action==='edit-debt'?{dueDate:d.dueDate,debtNote:d.note}:{})}]};
  }else if(op.action==='settle-debt'){
   const debt=debts.find(d=>d.id===op.debtId);if(!debt)throw new Error('FINANCE_DEBT_MISSING');
   const origin=entries.find(e=>e.debtId===op.debtId&&e.kind!=='repay'&&!e.voidedAt);if(!origin||op.date<origin.date)throw new Error('FINANCE_DEBT_DATE_INVALID');

@@ -20,13 +20,17 @@ export type NoorPersonalWorkspaceResult =
     };
 
 export type NoorPersonalCommandInput =
-  | Readonly<{type:"manage-category";action:"add"|"rename";name:string;previousName:string|null}>
-  | Readonly<{type:"update-definition";definitionId:string;expectedRevisionId:string;kind:"Task"|"Habit";title:string;category:string;startDate:string;endDate:string|null;scheduleKind:"OneTime"|"Daily"|"Weekdays";weekdays:readonly number[];importance:"Essential"|"Important"|"Supporting"|"Optional";measurement?:{target:number;unit:string}}>
+  | Readonly<{type:"edit-activity-note";executionId:string;entryId:string;expectedNote:string;note:string|null}>
+    | Readonly<{type:"reorder-display";scope:"Habit"|"Task"|"categories";expected:readonly string[];order:readonly string[]}>
+    | Readonly<{type:"manage-category";action:"add"|"rename";name:string;previousName:string|null}>
+  | Readonly<{type:"update-definition";weight?:number;definitionId:string;expectedRevisionId:string;kind:"Task"|"Habit";title:string;category:string;startDate:string;endDate:string|null;scheduleKind:"OneTime"|"Daily"|"Weekdays";weekdays:readonly number[];importance:"Essential"|"Important"|"Supporting"|"Optional";timeOfDay?:string;measurement?:{target:number;unit:string}}>
   | Readonly<{type:"finance";operation:FinanceOperation}>
   | Readonly<{ type: "record-activity"; executionId: string; entryId: string; note: string; amount: number; endReason: "achieved" | "expired" | "cancelled" | null }>
   | Readonly<{ type: "delete-definition"; definitionId: string; confirm: true }>
   | Readonly<{
       type: "create-definition";
+      weight?:number;
+      timeOfDay?: string;
       measurement?: { target: number; unit: string };
       kind: "Task" | "Habit";
       title: string;
@@ -276,10 +280,12 @@ export interface FinanceAccount { readonly id:string; readonly name:string; read
 export interface FinancePerson {readonly id:string;readonly name:string;readonly note:string;}
 export interface FinanceDebt {readonly personId?:string; readonly currency?:"SAR"|"EGP"; readonly id:string; readonly person:string; readonly direction:"receivable"|"payable"; readonly dueDate:string|null; readonly note:string; }
 export type FinanceEntryKind = "income"|"expense"|"transfer"|"repay"|"lend"|"borrow"|"opening-receivable"|"opening-payable";
-export interface FinanceEntry { readonly id:string; readonly kind:FinanceEntryKind; readonly amountMinor:number; readonly date:string; readonly accountId:string|null; readonly targetAccountId:string|null; readonly debtId:string|null; readonly category:string; readonly note:string; readonly createdAt:string; readonly voidedAt?:string; readonly voidReason?:string; }
+export interface FinanceEntry { readonly id:string; readonly kind:FinanceEntryKind; readonly amountMinor:number; readonly date:string; readonly accountId:string|null; readonly targetAccountId:string|null; readonly debtId:string|null; readonly category:string; readonly note:string; readonly createdAt:string; readonly corrections?:readonly {readonly at:string;readonly amountMinor:number;readonly date:string;readonly note:string;readonly reason:string;readonly dueDate?:string|null;readonly debtNote?:string}[]; readonly voidedAt?:string; readonly voidReason?:string; }
 export interface FinanceLedger {readonly people?:readonly FinancePerson[]; readonly userId:string; readonly currency:"SAR"; readonly accounts:readonly FinanceAccount[]; readonly debts:readonly FinanceDebt[]; readonly entries:readonly FinanceEntry[]; readonly requests:readonly {readonly id:string;readonly body:string}[]; }
 export type FinanceOperation =
  | Readonly<{action:"create-person";id:string;name:string;note:string}>
+ | Readonly<{action:"edit-debt";id:string;debtId:string;expected:string;amountMinor:number;date:string;dueDate:string|null;note:string;reason:string}>
+ | Readonly<{action:"edit-payment";id:string;entryId:string;expected:string;amountMinor:number;date:string;note:string;reason:string}>
  | Readonly<{action:"edit-person";id:string;personId:string|null;expectedName:string;expectedNote:string;name:string;note:string}>
  | Readonly<{action:"create-account";id:string;name:string;kind:FinanceAccountKind;openingMinor:number;date:string}>
  | Readonly<{action:"settle-debt";id:string;debtId:string;amountMinor:number;date:string;accountId:string|null;note:string}>
@@ -298,6 +304,7 @@ export function debtElapsedPeriod(start:string,end:string):{years:number;months:
 }
 
 export interface FinanceSummary { readonly balances:Readonly<Record<string,number>>; readonly outstanding:Readonly<Record<string,number>>; readonly incomeMinor:number; readonly expenseMinor:number; readonly totalMinor:number; readonly receivableMinor:number; readonly payableMinor:number; }
+export function financeEditToken(entry:FinanceEntry,debt?:FinanceDebt):string{return JSON.stringify([entry.id,entry.amountMinor,entry.date,entry.note,entry.corrections?.length??0,entry.voidedAt??null,debt?.dueDate??null,debt?.note??null]);}
 export function financeSummary(ledger:FinanceLedger,month?:string):FinanceSummary {
  if(ledger.people!==undefined){if(!Array.isArray(ledger.people)||ledger.people.length>20000)throw new Error('FINANCE_INVALID_PEOPLE');const ids=new Set<string>(),names=new Set<string>();for(const person of ledger.people){if(!person||typeof person.id!=='string'||typeof person.name!=='string'||!person.name.trim()||person.name.length>100||typeof person.note!=='string'||person.note.length>1000||ids.has(person.id)||names.has(person.name))throw new Error('FINANCE_INVALID_PEOPLE');ids.add(person.id);names.add(person.name);}}
  const balances:Record<string,number>={},outstanding:Record<string,number>={};let incomeMinor=0,expenseMinor=0;
