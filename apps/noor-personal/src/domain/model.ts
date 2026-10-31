@@ -312,6 +312,7 @@ export interface FinanceEntry { readonly id:string; readonly kind:FinanceEntryKi
 export interface FinanceLedger {readonly people?:readonly FinancePerson[]; readonly userId:string; readonly currency:"SAR"; readonly accounts:readonly FinanceAccount[]; readonly debts:readonly FinanceDebt[]; readonly entries:readonly FinanceEntry[]; readonly requests:readonly {readonly id:string;readonly body:string}[]; }
 export type FinanceOperation =
  | Readonly<{action:"create-person";id:string;name:string;note:string}>
+ | Readonly<{action:"edit-person";id:string;personId:string|null;expectedName:string;expectedNote:string;name:string;note:string}>
  | Readonly<{action:"create-account";id:string;name:string;kind:FinanceAccountKind;openingMinor:number;date:string}>
  | Readonly<{action:"settle-debt";id:string;debtId:string;amountMinor:number;date:string;accountId:string|null;note:string}>
  | Readonly<{action:"create-debt";personId?:string;currency?:"SAR"|"EGP";id:string;person:string;direction:"receivable"|"payable";amountMinor:number;date:string;dueDate:string|null;accountId:string|null;note:string}>
@@ -329,6 +330,7 @@ export function parseFinanceOperation(value:unknown):FinanceOperation|null {
  const money=(x:unknown,zero=false):x is number=>typeof x==="number" && Number.isSafeInteger(x) && x>=(zero?0:1) && x<=1e12;
  if(!id(v.id))return null;
  if(v.action==="create-debt" && v.id.length>123)return null;
+ if(v.action==="edit-person" && exact(["action","id","personId","expectedName","expectedNote","name","note"]) && (v.personId===null||id(v.personId)) && text(v.expectedName,100) && text(v.expectedNote,1000,true) && text(v.name,100) && text(v.note,1000,true))return {action:"edit-person",id:v.id,personId:v.personId as string|null,expectedName:v.expectedName,expectedNote:v.expectedNote,name:v.name.trim(),note:v.note.trim()};
  if(v.action==="create-person" && exact(["action","id","name","note"]) && text(v.name,100) && text(v.note,1000,true))return {action:"create-person",id:v.id,name:v.name.trim(),note:v.note.trim()};
  if(v.action==="create-account" && exact(['action','id','name','kind','openingMinor','date']) && text(v.name,60) && ['cash','bank','savings','emergency'].includes(String(v.kind)) && money(v.openingMinor,true) && date(v.date))return {action:v.action,id:v.id,name:v.name.trim(),kind:v.kind as FinanceAccountKind,openingMinor:v.openingMinor,date:v.date};
  if(v.action==="create-debt" && exact(['action','id','person','direction','amountMinor','date','dueDate','accountId','note',...(Object.hasOwn(v,'currency')?['currency']:[]),...(Object.hasOwn(v,'personId')?['personId']:[])]) && (v.personId===undefined||id(v.personId)) && (v.currency===undefined || v.currency==='SAR' || v.currency==='EGP') && text(v.person,100) && ['receivable','payable'].includes(String(v.direction)) && money(v.amountMinor) && date(v.date) && (v.dueDate===null || date(v.dueDate) && v.dueDate>=v.date) && (v.accountId===null || id(v.accountId)) && text(v.note,1000,true))return {action:v.action,...(v.personId?{personId:v.personId as string}:{}),...(v.currency?{currency:v.currency as 'SAR'|'EGP'}:{}),id:v.id,person:v.person.trim(),direction:v.direction as 'receivable'|'payable',amountMinor:v.amountMinor,date:v.date,dueDate:v.dueDate as string|null,accountId:v.accountId as string|null,note:v.note.trim()};
@@ -390,6 +392,14 @@ export function applyFinanceOperation(current:FinanceLedger,userId:string,input:
   accounts.push({id:op.id,name:op.name,kind:op.kind,openingMinor:op.openingMinor,date:op.date});
  }else if(op.action==='create-person'){
   if(people.some(p=>p.id===op.id||p.name===op.name))throw new Error('FINANCE_DUPLICATE_PERSON');people.push({id:op.id,name:op.name,note:op.note});
+ }else if(op.action==='edit-person'){
+  const index=people.findIndex(p=>p.id===op.personId),person=people[index];
+  if(op.personId!==null&&(!person||person.name!==op.expectedName||person.note!==op.expectedNote))throw new Error('FINANCE_PERSON_CONFLICT');
+  if(op.personId===null&&(op.expectedNote!==''||people.some(p=>p.name===op.expectedName)||!debts.some(d=>!d.personId&&d.person===op.expectedName)))throw new Error('FINANCE_PERSON_CONFLICT');
+  const personId=person?.id??op.id;
+  if(people.some(p=>p.id!==personId&&p.name===op.name)||debts.some(d=>d.personId!==personId&&d.person!==op.expectedName&&d.person===op.name))throw new Error('FINANCE_DUPLICATE_PERSON');
+  if(person)people[index]={...person,name:op.name,note:op.note};else people.push({id:personId,name:op.name,note:op.note});
+  for(let i=0;i<debts.length;i++){const d=debts[i]!;if(d.personId===personId||!d.personId&&d.person===op.expectedName)debts[i]={...d,personId,person:op.name};}
  }else if(op.action==='create-debt'){
   if(op.personId&&!people.some(p=>p.id===op.personId&&p.name===op.person))throw new Error('FINANCE_PERSON_MISSING');
   if(debts.some(d=>d.id===op.id))throw new Error('FINANCE_DUPLICATE_DEBT');
@@ -410,6 +420,6 @@ export function applyFinanceOperation(current:FinanceLedger,userId:string,input:
   if(e.debtId && e.kind!=='repay' && entries.some(x=>x.debtId===e.debtId && x.kind==='repay' && !x.voidedAt))throw new Error('FINANCE_REVERSE_SETTLEMENTS_FIRST');
   entries[index]={...e,voidedAt:now,voidReason:op.reason};
  }
- const result:FinanceLedger={...current,...(current.people||op.action==='create-person'?{people}:{}),accounts,debts,entries,requests:[...current.requests,{id:op.id,body}]};
+ const result:FinanceLedger={...current,...(current.people||op.action==='create-person'||op.action==='edit-person'?{people}:{}),accounts,debts,entries,requests:[...current.requests,{id:op.id,body}]};
  financeSummary(result);return result;
 }
