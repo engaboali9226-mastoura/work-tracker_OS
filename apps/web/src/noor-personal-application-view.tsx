@@ -946,9 +946,17 @@ export function nightCountdownState(prayerTimes: readonly Readonly<{ key: string
   };
 }
 
+// NOOR_COUNTDOWN_ROLLOVER_R81
+export function liveNextPrayer(prayerTimes: readonly Readonly<{key:string;at:string}>[], snapshot: Readonly<{name:string;at:string}>|null, nowMs:number):Readonly<{key:string;at:string}>|null{
+ const keys:Record<string,string>={Fajr:'fajr',Dhuhr:'dhuhr',Asr:'asr',Maghrib:'maghrib',Isha:'isha'};
+ const candidates=prayerTimes.filter(p=>Object.values(keys).includes(p.key)).map(p=>({key:p.key,at:p.at}));
+ if(snapshot&&keys[snapshot.name])candidates.push({key:keys[snapshot.name]!,at:snapshot.at});
+ return candidates.filter(p=>Number.isFinite(Date.parse(p.at))&&Date.parse(p.at)>nowMs).sort((a,b)=>Date.parse(a.at)-Date.parse(b.at))[0]??null;
+}
+
 export function remainingPrayerSeconds(at: string, nowMs: number): number {
   const target = new Date(at).getTime();
-  return Number.isFinite(target) ? Math.max(0, Math.floor((target - nowMs) / 1000)) : 0;
+  return Number.isFinite(target) ? Math.max(0, Math.ceil((target - nowMs) / 1000)) : 0;
 }
 
 function formatCountdown(seconds: number): string {
@@ -1348,7 +1356,8 @@ function Dashboard({ view, workspace, busy, actionError, onCommand, onOpenContro
     }
     return [...map.entries()].sort(([left],[right]) => left.localeCompare(right,"ar"));
   }, [view.habits, workspace]);
-  const countdown = view.nextPrayer ? remainingPrayerSeconds(view.nextPrayer.at, nowMs) : 0;
+  const nextPrayer=liveNextPrayer(view.prayerTimes,view.nextPrayer,nowMs);
+  const countdown = nextPrayer ? remainingPrayerSeconds(nextPrayer.at, nowMs) : 0;
   const gregorianParts = new Intl.DateTimeFormat(
     "ar-SA-u-ca-gregory-nu-latn",
     { weekday:"long", day:"numeric", month:"long", year:"numeric", timeZone:view.timeZone },
@@ -1369,16 +1378,11 @@ function Dashboard({ view, workspace, busy, actionError, onCommand, onOpenContro
     };
   }, [location.city,location.country,location.latitude,location.longitude]);
 
-  const nextKey = view.nextPrayer?.name === "Fajr" ? "fajr"
-    : view.nextPrayer?.name === "Dhuhr" ? "dhuhr"
-    : view.nextPrayer?.name === "Asr" ? "asr"
-    : view.nextPrayer?.name === "Maghrib" ? "maghrib"
-    : view.nextPrayer?.name === "Isha" ? "isha"
-    : null;
+  const nextKey = nextPrayer?.key ?? null;
 
   const night = nightCountdownState(view.prayerTimes,nowMs);
   const eventTimes = [
-    ...view.prayerTimes,
+    ...view.prayerTimes.map(p=>p.key===nextPrayer?.key?{...p,at:nextPrayer.at}:p),
     ...(night ? [
       { key:"midnight", label:"منتصف الليل", at:night.midnight },
       { key:"last-third", label:"الثلث الأخير", at:night.lastThird },
@@ -1455,7 +1459,8 @@ function Dashboard({ view, workspace, busy, actionError, onCommand, onOpenContro
         </span>
         <h2 className="np-prayer-card-title">الصلوات وأوقات الليل</h2>
       </div>
-      <div aria-label="مواقيت الصلاة وأوقات الليل" className="np-prayer-times" data-testid="prayer-times-strip" role="region" tabIndex={0}>
+      {!nextPrayer && view.nextPrayer ? <p className="np-action-error" role="status">جارٍ تحديث مواقيت الصلاة…</p> : null}
+      <div data-countdown-version="NOOR_COUNTDOWN_ROLLOVER_R81" aria-label="مواقيت الصلاة وأوقات الليل" className="np-prayer-times" data-testid="prayer-times-strip" role="region" tabIndex={0}>
         {eventTimes.map(prayer => {
           const [prayerClock,prayerPeriod] = formatTime(prayer.at,view.timeZone).split(/\s+/);
           const isNext = prayer.key === nextKey;
@@ -1467,7 +1472,7 @@ function Dashboard({ view, workspace, busy, actionError, onCommand, onOpenContro
             <span className="np-prayer-symbol">{prayerSymbol(prayer.key)}</span>
             <span className="np-prayer-label">{prayer.label}</span>
             <span className="np-prayer-time"><span>{prayerClock}</span>{" "}<span className="np-prayer-period">{prayerPeriod}</span></span>
-            {isNext && view.nextPrayer ? <span className="np-countdown" data-testid="prayer-countdown">
+            {isNext && nextPrayer ? <span className="np-countdown" data-testid="prayer-countdown">
               <svg aria-hidden="true" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.3" stroke="currentColor" strokeWidth="1.5"/><path d="M12 7.8v4.6l3 1.7" stroke="currentColor" strokeLinecap="round" strokeWidth="1.5"/></svg>
               <span className="np-countdown-digits">{formatCountdown(countdown)}</span>
             </span> : null}
@@ -1558,7 +1563,7 @@ export function NoorPersonalApplicationView({ initialResult, initialWorkspace }:
   const chooseAppearance = (value: NoorAppearance) => { setAppearance(value); saveAppearance(value); };
 
   const [nowMs,setNowMs] = useState(() => Date.now());
-  const prayerRefreshRef = useRef<string | null>(null);
+  const prayerRefreshRef = useRef({lastAttempt:0,pending:false,key:""});
 
   const refreshEpoch=useRef(0);
   const commandInFlight=useRef(false);
@@ -1585,28 +1590,25 @@ export function NoorPersonalApplicationView({ initialResult, initialWorkspace }:
   }, []);
 
   useEffect(() => {
-    const timer = window.setInterval(() => setNowMs(Date.now()),1000);
-    return () => window.clearInterval(timer);
+    const tick=()=>setNowMs(Date.now());
+    const visible=()=>{if(document.visibilityState==='visible')tick();};
+    const timer = window.setInterval(tick,1000);
+    window.addEventListener('focus',tick);window.addEventListener('pageshow',tick);document.addEventListener('visibilitychange',visible);
+    return () => {window.clearInterval(timer);window.removeEventListener('focus',tick);window.removeEventListener('pageshow',tick);document.removeEventListener('visibilitychange',visible);};
   }, []);
 
   const view = useMemo(()=>result?.kind === "success" ? buildViewModel(result.today) : null,[result]);
   const workspace = useMemo(()=>workspaceResult?.kind === "success" ? buildWorkspaceViewModel(workspaceResult.workspace) : null,[workspaceResult]);
 
   useEffect(() => {
-    const at = view?.nextPrayer?.at;
-    if (!at) return;
-    const target = new Date(at).getTime();
-    if (!Number.isFinite(target)) return;
-    const delay = Math.max(0,target - Date.now() + 1200);
-    const timer = window.setTimeout(() => {
-      if (prayerRefreshRef.current === at) return;
-      prayerRefreshRef.current = at;
-      void refresh().finally(() => {
-        prayerRefreshRef.current = null;
-      });
-    },delay);
-    return () => window.clearTimeout(timer);
-  }, [view?.nextPrayer?.at]);
+    const at=view?.nextPrayer?.at;
+    if(!at||!Number.isFinite(Date.parse(at))||nowMs<Date.parse(at))return;
+    const state=prayerRefreshRef.current;
+    if(state.pending||commandInFlight.current)return;
+    if(state.key===at&&nowMs-state.lastAttempt<30_000)return;
+    state.key=at;state.lastAttempt=nowMs;state.pending=true;
+    void refresh().finally(()=>{state.pending=false;});
+  }, [nowMs,view?.nextPrayer?.at]);
 
   const runCommand = async (command: NoorPersonalCommandInput): Promise<boolean> => {
     if (commandInFlight.current) return false;
