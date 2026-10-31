@@ -355,7 +355,7 @@ implements PersonalControlExecutor {
       const now=this.dependencies.clock.now();
       const currentDay=scope.snapshot.listPersonalDays(resolved.userId).find(day=>day.state==="Open" && day.boundary.startAt<=now && now<day.boundary.endAt);
       const executions=currentDay?scope.snapshot.listDailyExecutionForUser(resolved.userId).filter(item=>item.personalDayId===currentDay.id):[];
-      return Object.freeze({status:200 as const,body:{workspace,executions,personalDayId:currentDay?.id ?? null,materializationRequired:!currentDay || ["create-definition","set-definition-state","archive-definition","delete-definition"].includes(command.type)}});
+      return Object.freeze({status:200 as const,body:{workspace,executions,personalDayId:currentDay?.id ?? null,materializationRequired:!currentDay || ["create-definition","update-definition","set-definition-state","archive-definition","delete-definition"].includes(command.type)}});
       }catch{return empty(204);}
       }
       return empty(409);

@@ -169,7 +169,7 @@ export function materializeDefinitions(
             );
 
         const current =
-            byKey.get(key);
+            byKey.get(key) ?? existing.find(instance=>instance.userId===input.personalDay.userId && instance.definitionId===definition.id && instance.scheduleOccurrenceKey===input.personalDay.boundary.localDate);
 
         const eligible =
             definitionIsEligible(

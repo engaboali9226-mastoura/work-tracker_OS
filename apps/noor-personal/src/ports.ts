@@ -81,6 +81,8 @@ export interface IslamicHistoryCatalogPort {
 }
 
 export interface FoundationTransaction {
+    getCategories?(userId:string): readonly string[] | undefined;
+    saveCategories?(userId:string,categories:readonly string[]):void;
     getFinance?(userId:string): FinanceLedger;
     saveFinance?(userId:string,ledger:FinanceLedger):void;
     deleteDefinitionPermanently?(userId: string, definitionId: string): void;
@@ -155,6 +157,7 @@ export interface LocalTransactionPort {
 }
 
 export interface PersonalFoundationSnapshotPort {
+    getCategories?(userId:string): readonly string[] | undefined;
     getFinance?(userId:string): FinanceLedger;
     listDefinitions(
         userId: string,

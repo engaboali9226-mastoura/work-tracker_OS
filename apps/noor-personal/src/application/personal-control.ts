@@ -1,3 +1,4 @@
+const DEFAULT_PERSONAL_CATEGORIES=["الصحة والرياضة","العبادات","العمل","التعلم","الأسرة","الشؤون الشخصية"] as const;
 import { applyFinanceOperation, emptyFinanceLedger, parseFinanceOperation, type FinanceOperation, type FinanceLedger } from "../domain/model.js";
 import type {
     AutomationOutboxEvent,
@@ -20,6 +21,8 @@ import type {
 } from "../ports.js";
 
 export type PersonalCommand =
+    | Readonly<{type:"manage-category"; action:"add"|"rename"; name:string; previousName:string|null}>
+    | Readonly<{type:"update-definition";definitionId:string;expectedRevisionId:string;kind:DefinitionKind;title:string;category:string;startDate:LocalDate;endDate:LocalDate|null;scheduleKind:Schedule["kind"];weekdays:readonly number[];importance:ImportanceLevel;measurement?:{readonly target:number;readonly unit:string}}>
     | Readonly<{type:"finance";operation:FinanceOperation}>
     | Readonly<{ type: "record-activity"; executionId: string; entryId: string; note: string; amount: number; endReason: "achieved" | "expired" | "cancelled" | null }>
     | Readonly<{ readonly type: "delete-definition"; readonly definitionId: string; readonly confirm: true }>
@@ -71,6 +74,7 @@ export interface PersonalInsights {
 }
 
 export interface PersonalWorkspace {
+    readonly categories: readonly string[];
     readonly finance: FinanceLedger;
     readonly definitions: readonly ExecutionDefinition[];
     readonly insights: PersonalInsights;
@@ -219,6 +223,16 @@ export function parsePersonalCommand(
         const operation=parseFinanceOperation(value.operation);
         return operation?{type:"finance",operation}:null;
     }
+    if(value.type==="manage-category"){
+        if(!exactKeys(value,["type","action","name","previousName"]) || !boundedText(value.name,60) || !["add","rename"].includes(String(value.action)) || (value.action==="add" ? value.previousName!==null : !boundedText(value.previousName,60)))return null;
+        return {type:"manage-category",action:value.action as "add"|"rename",name:(value.name as string).trim(),previousName:value.previousName===null?null:(value.previousName as string).trim()};
+    }
+    if(value.type==="update-definition"){
+        const {definitionId,expectedRevisionId,...fields}=value;
+        if(!boundedIdentifier(definitionId)||!boundedIdentifier(expectedRevisionId))return null;
+        const parsed=parsePersonalCommand({...fields,type:"create-definition"});
+        return parsed?.type==="create-definition"?{...parsed,type:"update-definition",definitionId,expectedRevisionId}:null;
+    }
     if (value.type === "create-definition") {
         if (
             !exactKeys(
@@ -268,6 +282,7 @@ export function parsePersonalCommand(
             !title
             || !category
             || !startDate
+            || (value.endDate!==null && endDate===null)
             || selectedWeekdays === null
             || !selectedImportance
             || (
@@ -477,7 +492,7 @@ export interface PersonalCommandServiceDependencies {
 }
 
 function commandSchedule(
-    command: Extract<PersonalCommand, { type: "create-definition" }>,
+    command: Extract<PersonalCommand, { type: "create-definition" | "update-definition" }>,
 ): Schedule {
     if (command.scheduleKind === "OneTime") {
         return {
@@ -512,6 +527,29 @@ export class PersonalCommandService {
 
         await this.dependencies.transaction.runInTransaction(
             transaction => {
+                if(command.type==="manage-category"){
+                    const parsed=parsePersonalCommand(command);if(!parsed || parsed.type!=="manage-category")throw new Error("CATEGORY_INVALID");
+                    if(!transaction.saveCategories)throw new Error("CATEGORY_STORAGE_UNAVAILABLE");
+                    const definitions=transaction.listDefinitions(userId);
+                    const names=[...new Set([...(transaction.getCategories?.(userId)??DEFAULT_PERSONAL_CATEGORIES),...definitions.map(d=>d.category??"عام")])];
+                    if(command.action==="rename"){
+                        if(!names.includes(command.previousName!))throw new Error("CATEGORY_NOT_FOUND");
+                        if(command.name!==command.previousName && names.includes(command.name))throw new Error("CATEGORY_ALREADY_EXISTS");
+                        for(const d of definitions)if(d.category===command.previousName)transaction.saveDefinition({...d,category:command.name,revisionId:this.dependencies.idGenerator.next("definition-revision")});
+                    }else if(names.includes(command.name))return;
+                    const next=command.action==="add"?[...names,command.name]:names.map(n=>n===command.previousName?command.name:n);
+                    if(next.length>100)throw new Error("CATEGORY_LIMIT");transaction.saveCategories(userId,next);return;
+                }
+                if(command.type==="update-definition"){
+                    const parsed=parsePersonalCommand(command);if(!parsed || parsed.type!=="update-definition")throw new Error("DEFINITION_INVALID_EDIT");
+                    const definition=transaction.findDefinitionById(userId,command.definitionId);
+                    if(!definition)throw new PersonalControlError("DEFINITION_NOT_FOUND");
+                    if(definition.revisionId!==command.expectedRevisionId || definition.kind!==command.kind)throw new PersonalControlError("DEFINITION_STATE_CONFLICT");
+                    const total=(definition.activityLog??[]).reduce((n,e)=>n+e.amount,0);
+                    if(definition.measurement && (!command.measurement || command.measurement.unit!==definition.measurement.unit || command.measurement.target<total))throw new Error("EDIT_PROGRESS_CONFLICT");
+                    const {effectiveUntilDate:_end,measurement:_measurement,...preserved}=definition;
+                    transaction.saveDefinition({...preserved,revisionId:this.dependencies.idGenerator.next("definition-revision"),title:command.title,category:command.category,schedule:commandSchedule(command),effectiveFromDate:command.startDate,...(command.endDate?{effectiveUntilDate:command.endDate}:{}),importance:command.importance,...(command.measurement?{measurement:command.measurement}:{})});return;
+                }
                 if(command.type==="finance"){
                     if(!transaction.getFinance || !transaction.saveFinance)throw new Error("FINANCE_STORAGE_UNAVAILABLE");
                     const ledger=transaction.getFinance(userId);
@@ -891,6 +929,7 @@ export function buildPersonalWorkspace(
     );
 
     return Object.freeze({
+        categories:[...new Set([...(snapshot.getCategories?.(userId)??DEFAULT_PERSONAL_CATEGORIES),...snapshot.listDefinitions(userId).map(d=>d.category??"عام")])],
         finance: snapshot.getFinance?.(userId) ?? emptyFinanceLedger(userId),
         definitions:
             [...definitions]
