@@ -280,6 +280,7 @@ export interface FinanceEntry { readonly id:string; readonly kind:FinanceEntryKi
 export interface FinanceLedger {readonly people?:readonly FinancePerson[]; readonly userId:string; readonly currency:"SAR"; readonly accounts:readonly FinanceAccount[]; readonly debts:readonly FinanceDebt[]; readonly entries:readonly FinanceEntry[]; readonly requests:readonly {readonly id:string;readonly body:string}[]; }
 export type FinanceOperation =
  | Readonly<{action:"create-person";id:string;name:string;note:string}>
+ | Readonly<{action:"edit-person";id:string;personId:string|null;expectedName:string;expectedNote:string;name:string;note:string}>
  | Readonly<{action:"create-account";id:string;name:string;kind:FinanceAccountKind;openingMinor:number;date:string}>
  | Readonly<{action:"settle-debt";id:string;debtId:string;amountMinor:number;date:string;accountId:string|null;note:string}>
  | Readonly<{action:"create-debt";personId?:string;currency?:"SAR"|"EGP";id:string;person:string;direction:"receivable"|"payable";amountMinor:number;date:string;dueDate:string|null;accountId:string|null;note:string}>
