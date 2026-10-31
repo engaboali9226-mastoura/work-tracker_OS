@@ -20,6 +20,8 @@ export type NoorPersonalWorkspaceResult =
     };
 
 export type NoorPersonalCommandInput =
+  | Readonly<{type:"manage-category";action:"add"|"rename";name:string;previousName:string|null}>
+  | Readonly<{type:"update-definition";definitionId:string;expectedRevisionId:string;kind:"Task"|"Habit";title:string;category:string;startDate:string;endDate:string|null;scheduleKind:"OneTime"|"Daily"|"Weekdays";weekdays:readonly number[];importance:"Essential"|"Important"|"Supporting"|"Optional";measurement?:{target:number;unit:string}}>
   | Readonly<{type:"finance";operation:FinanceOperation}>
   | Readonly<{ type: "record-activity"; executionId: string; entryId: string; note: string; amount: number; endReason: "achieved" | "expired" | "cancelled" | null }>
   | Readonly<{ type: "delete-definition"; definitionId: string; confirm: true }>
@@ -271,13 +273,14 @@ export async function sendNoorPersonalCommand(command:NoorPersonalCommandInput,f
 // NOOR_FINANCE_R68: amounts are integer halalas; transfers never count as spending.
 export type FinanceAccountKind = "cash" | "bank" | "savings" | "emergency";
 export interface FinanceAccount { readonly id:string; readonly name:string; readonly kind:FinanceAccountKind; readonly openingMinor:number; readonly date:string; }
-export interface FinanceDebt { readonly id:string; readonly person:string; readonly direction:"receivable"|"payable"; readonly dueDate:string|null; readonly note:string; }
+export interface FinanceDebt { readonly currency?:"SAR"|"EGP"; readonly id:string; readonly person:string; readonly direction:"receivable"|"payable"; readonly dueDate:string|null; readonly note:string; }
 export type FinanceEntryKind = "income"|"expense"|"transfer"|"repay"|"lend"|"borrow"|"opening-receivable"|"opening-payable";
 export interface FinanceEntry { readonly id:string; readonly kind:FinanceEntryKind; readonly amountMinor:number; readonly date:string; readonly accountId:string|null; readonly targetAccountId:string|null; readonly debtId:string|null; readonly category:string; readonly note:string; readonly createdAt:string; readonly voidedAt?:string; readonly voidReason?:string; }
 export interface FinanceLedger { readonly userId:string; readonly currency:"SAR"; readonly accounts:readonly FinanceAccount[]; readonly debts:readonly FinanceDebt[]; readonly entries:readonly FinanceEntry[]; readonly requests:readonly {readonly id:string;readonly body:string}[]; }
 export type FinanceOperation =
  | Readonly<{action:"create-account";id:string;name:string;kind:FinanceAccountKind;openingMinor:number;date:string}>
- | Readonly<{action:"create-debt";id:string;person:string;direction:"receivable"|"payable";amountMinor:number;date:string;dueDate:string|null;accountId:string|null;note:string}>
+ | Readonly<{action:"settle-debt";id:string;debtId:string;amountMinor:number;date:string;accountId:string|null;note:string}>
+ | Readonly<{action:"create-debt";currency?:"SAR"|"EGP";id:string;person:string;direction:"receivable"|"payable";amountMinor:number;date:string;dueDate:string|null;accountId:string|null;note:string}>
  | Readonly<{action:"record-entry";id:string;kind:"income"|"expense"|"transfer"|"repay";amountMinor:number;date:string;accountId:string;targetAccountId:string|null;debtId:string|null;category:string;note:string}>
  | Readonly<{action:"void-entry";id:string;entryId:string;reason:string}>;
 
@@ -285,21 +288,22 @@ export type FinanceOperation =
 export interface FinanceSummary { readonly balances:Readonly<Record<string,number>>; readonly outstanding:Readonly<Record<string,number>>; readonly incomeMinor:number; readonly expenseMinor:number; readonly totalMinor:number; readonly receivableMinor:number; readonly payableMinor:number; }
 export function financeSummary(ledger:FinanceLedger,month?:string):FinanceSummary {
  const balances:Record<string,number>={},outstanding:Record<string,number>={};let incomeMinor=0,expenseMinor=0;
- const add=(record:Record<string,number>,key:string,amount:number)=>{if(!Object.hasOwn(record,key))throw new Error('FINANCE_REFERENCE_MISSING');const n=record[key]+amount;if(!Number.isSafeInteger(n))throw new Error('FINANCE_AMOUNT_OVERFLOW');record[key]=n;};
+ const add=(record:Record<string,number>,key:string,amount:number)=>{if(!Object.hasOwn(record,key))throw new Error('FINANCE_REFERENCE_MISSING');const n=record[key]!+amount;if(!Number.isSafeInteger(n))throw new Error('FINANCE_AMOUNT_OVERFLOW');record[key]=n;};
  for(const a of ledger.accounts){if(Object.hasOwn(balances,a.id))throw new Error('FINANCE_DUPLICATE_ACCOUNT');balances[a.id]=a.openingMinor;}
- for(const d of ledger.debts){if(Object.hasOwn(outstanding,d.id))throw new Error('FINANCE_DUPLICATE_DEBT');outstanding[d.id]=0;}
+ for(const d of ledger.debts){if(d.currency!==undefined && d.currency!=='SAR' && d.currency!=='EGP')throw new Error('FINANCE_INVALID_CURRENCY');if(Object.hasOwn(outstanding,d.id))throw new Error('FINANCE_DUPLICATE_DEBT');outstanding[d.id]=0;}
  const debt=(id:string|null)=>{const d=ledger.debts.find(d=>d.id===id);if(!d)throw new Error('FINANCE_DEBT_MISSING');return d;};
  const entryIds=new Set<string>();
  for(const e of ledger.entries){if(entryIds.has(e.id))throw new Error('FINANCE_DUPLICATE_ENTRY');entryIds.add(e.id);if(e.voidedAt)continue;
   if(e.kind==='income'){add(balances,e.accountId!,e.amountMinor);if(!month || e.date.startsWith(month))incomeMinor+=e.amountMinor;}
   if(e.kind==='expense'){add(balances,e.accountId!,-e.amountMinor);if(!month || e.date.startsWith(month))expenseMinor+=e.amountMinor;}
   if(e.kind==='transfer'){add(balances,e.accountId!,-e.amountMinor);add(balances,e.targetAccountId!,e.amountMinor);}
-  if(['lend','borrow','opening-receivable','opening-payable'].includes(e.kind)){const d=debt(e.debtId);add(outstanding,d.id,e.amountMinor);if(e.accountId)add(balances,e.accountId,e.kind==='lend'?-e.amountMinor:e.amountMinor);}
-  if(e.kind==='repay'){const d=debt(e.debtId);add(outstanding,d.id,-e.amountMinor);add(balances,e.accountId!,d.direction==='receivable'?e.amountMinor:-e.amountMinor);}
+  if(['lend','borrow','opening-receivable','opening-payable'].includes(e.kind)){const d=debt(e.debtId);add(outstanding,d.id,e.amountMinor);if(e.accountId){if((d.currency??'SAR')!=='SAR')throw new Error('FINANCE_CURRENCY_MISMATCH');add(balances,e.accountId,e.kind==='lend'?-e.amountMinor:e.amountMinor);}}
+  if(e.kind==='repay'){const d=debt(e.debtId);add(outstanding,d.id,-e.amountMinor);if(e.accountId){if((d.currency??'SAR')!=='SAR')throw new Error('FINANCE_CURRENCY_MISMATCH');add(balances,e.accountId,d.direction==='receivable'?e.amountMinor:-e.amountMinor);}}
  }
  if(Object.values(balances).some(v=>v<0) || Object.values(outstanding).some(v=>v<0))throw new Error('FINANCE_INSUFFICIENT_BALANCE_OR_OVERPAYMENT');
+ for(const currency of ['SAR','EGP']){const total=ledger.debts.filter(d=>(d.currency??'SAR')===currency).reduce((sum,d)=>sum+outstanding[d.id]!,0);if(!Number.isSafeInteger(total))throw new Error('FINANCE_AMOUNT_OVERFLOW');}
  const totalMinor=Object.values(balances).reduce((a,b)=>a+b,0);
- const receivableMinor=ledger.debts.filter(d=>d.direction==='receivable').reduce((s,d)=>s+outstanding[d.id],0),payableMinor=ledger.debts.filter(d=>d.direction==='payable').reduce((s,d)=>s+outstanding[d.id],0);
+ const receivableMinor=ledger.debts.filter(d=>d.direction==='receivable'&&(d.currency??'SAR')==='SAR').reduce((s,d)=>s+outstanding[d.id]!,0),payableMinor=ledger.debts.filter(d=>d.direction==='payable'&&(d.currency??'SAR')==='SAR').reduce((s,d)=>s+outstanding[d.id]!,0);
  if([incomeMinor,expenseMinor,totalMinor,receivableMinor,payableMinor].some(n=>!Number.isSafeInteger(n)))throw new Error('FINANCE_AMOUNT_OVERFLOW');
  return {balances,outstanding,incomeMinor,expenseMinor,totalMinor,receivableMinor,payableMinor};
 }

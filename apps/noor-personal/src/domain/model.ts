@@ -305,13 +305,14 @@ export function isBefore(
 // NOOR_FINANCE_R68: amounts are integer halalas; transfers never count as spending.
 export type FinanceAccountKind = "cash" | "bank" | "savings" | "emergency";
 export interface FinanceAccount { readonly id:string; readonly name:string; readonly kind:FinanceAccountKind; readonly openingMinor:number; readonly date:string; }
-export interface FinanceDebt { readonly id:string; readonly person:string; readonly direction:"receivable"|"payable"; readonly dueDate:string|null; readonly note:string; }
+export interface FinanceDebt { readonly currency?:"SAR"|"EGP"; readonly id:string; readonly person:string; readonly direction:"receivable"|"payable"; readonly dueDate:string|null; readonly note:string; }
 export type FinanceEntryKind = "income"|"expense"|"transfer"|"repay"|"lend"|"borrow"|"opening-receivable"|"opening-payable";
 export interface FinanceEntry { readonly id:string; readonly kind:FinanceEntryKind; readonly amountMinor:number; readonly date:string; readonly accountId:string|null; readonly targetAccountId:string|null; readonly debtId:string|null; readonly category:string; readonly note:string; readonly createdAt:string; readonly voidedAt?:string; readonly voidReason?:string; }
 export interface FinanceLedger { readonly userId:string; readonly currency:"SAR"; readonly accounts:readonly FinanceAccount[]; readonly debts:readonly FinanceDebt[]; readonly entries:readonly FinanceEntry[]; readonly requests:readonly {readonly id:string;readonly body:string}[]; }
 export type FinanceOperation =
  | Readonly<{action:"create-account";id:string;name:string;kind:FinanceAccountKind;openingMinor:number;date:string}>
- | Readonly<{action:"create-debt";id:string;person:string;direction:"receivable"|"payable";amountMinor:number;date:string;dueDate:string|null;accountId:string|null;note:string}>
+ | Readonly<{action:"settle-debt";id:string;debtId:string;amountMinor:number;date:string;accountId:string|null;note:string}>
+ | Readonly<{action:"create-debt";currency?:"SAR"|"EGP";id:string;person:string;direction:"receivable"|"payable";amountMinor:number;date:string;dueDate:string|null;accountId:string|null;note:string}>
  | Readonly<{action:"record-entry";id:string;kind:"income"|"expense"|"transfer"|"repay";amountMinor:number;date:string;accountId:string;targetAccountId:string|null;debtId:string|null;category:string;note:string}>
  | Readonly<{action:"void-entry";id:string;entryId:string;reason:string}>;
 
@@ -327,12 +328,13 @@ export function parseFinanceOperation(value:unknown):FinanceOperation|null {
  if(!id(v.id))return null;
  if(v.action==="create-debt" && v.id.length>123)return null;
  if(v.action==="create-account" && exact(['action','id','name','kind','openingMinor','date']) && text(v.name,60) && ['cash','bank','savings','emergency'].includes(String(v.kind)) && money(v.openingMinor,true) && date(v.date))return {action:v.action,id:v.id,name:v.name.trim(),kind:v.kind as FinanceAccountKind,openingMinor:v.openingMinor,date:v.date};
- if(v.action==="create-debt" && exact(['action','id','person','direction','amountMinor','date','dueDate','accountId','note']) && text(v.person,100) && ['receivable','payable'].includes(String(v.direction)) && money(v.amountMinor) && date(v.date) && (v.dueDate===null || date(v.dueDate) && v.dueDate>=v.date) && (v.accountId===null || id(v.accountId)) && text(v.note,1000,true))return {action:v.action,id:v.id,person:v.person.trim(),direction:v.direction as 'receivable'|'payable',amountMinor:v.amountMinor,date:v.date,dueDate:v.dueDate as string|null,accountId:v.accountId as string|null,note:v.note.trim()};
+ if(v.action==="create-debt" && exact(['action','id','person','direction','amountMinor','date','dueDate','accountId','note',...(Object.hasOwn(v,'currency')?['currency']:[])]) && (v.currency===undefined || v.currency==='SAR' || v.currency==='EGP') && text(v.person,100) && ['receivable','payable'].includes(String(v.direction)) && money(v.amountMinor) && date(v.date) && (v.dueDate===null || date(v.dueDate) && v.dueDate>=v.date) && (v.accountId===null || id(v.accountId)) && text(v.note,1000,true))return {action:v.action,...(v.currency?{currency:v.currency as 'SAR'|'EGP'}:{}),id:v.id,person:v.person.trim(),direction:v.direction as 'receivable'|'payable',amountMinor:v.amountMinor,date:v.date,dueDate:v.dueDate as string|null,accountId:v.accountId as string|null,note:v.note.trim()};
  if(v.action==="record-entry" && exact(['action','id','kind','amountMinor','date','accountId','targetAccountId','debtId','category','note']) && ['income','expense','transfer','repay'].includes(String(v.kind)) && money(v.amountMinor) && date(v.date) && id(v.accountId) && (v.targetAccountId===null || id(v.targetAccountId)) && (v.debtId===null || id(v.debtId)) && text(v.category,60) && text(v.note,1000,true)) {
   if(v.kind==='transfer' ? v.targetAccountId===null || v.targetAccountId===v.accountId || v.debtId!==null : v.targetAccountId!==null)return null;
   if(v.kind==='repay' ? v.debtId===null : v.debtId!==null)return null;
   return {action:v.action,id:v.id,kind:v.kind as 'income'|'expense'|'transfer'|'repay',amountMinor:v.amountMinor,date:v.date,accountId:v.accountId,targetAccountId:v.targetAccountId as string|null,debtId:v.debtId as string|null,category:v.category.trim(),note:v.note.trim()};
  }
+ if(v.action==='settle-debt' && exact(['action','id','debtId','amountMinor','date','accountId','note']) && id(v.debtId) && money(v.amountMinor) && date(v.date) && (v.accountId===null||id(v.accountId)) && text(v.note,1000,true))return {action:v.action,id:v.id,debtId:v.debtId,amountMinor:v.amountMinor,date:v.date,accountId:v.accountId as string|null,note:v.note.trim()};
  if(v.action==='void-entry' && exact(['action','id','entryId','reason']) && id(v.entryId) && text(v.reason,500))return {action:v.action,id:v.id,entryId:v.entryId,reason:v.reason.trim()};
  return null;
 }
@@ -341,19 +343,20 @@ export function financeSummary(ledger:FinanceLedger,month?:string):FinanceSummar
  const balances:Record<string,number>={},outstanding:Record<string,number>={};let incomeMinor=0,expenseMinor=0;
  const add=(record:Record<string,number>,key:string,amount:number)=>{if(!Object.hasOwn(record,key))throw new Error('FINANCE_REFERENCE_MISSING');const n=record[key]!+amount;if(!Number.isSafeInteger(n))throw new Error('FINANCE_AMOUNT_OVERFLOW');record[key]=n;};
  for(const a of ledger.accounts){if(Object.hasOwn(balances,a.id))throw new Error('FINANCE_DUPLICATE_ACCOUNT');balances[a.id]=a.openingMinor;}
- for(const d of ledger.debts){if(Object.hasOwn(outstanding,d.id))throw new Error('FINANCE_DUPLICATE_DEBT');outstanding[d.id]=0;}
+ for(const d of ledger.debts){if(d.currency!==undefined && d.currency!=='SAR' && d.currency!=='EGP')throw new Error('FINANCE_INVALID_CURRENCY');if(Object.hasOwn(outstanding,d.id))throw new Error('FINANCE_DUPLICATE_DEBT');outstanding[d.id]=0;}
  const debt=(id:string|null)=>{const d=ledger.debts.find(d=>d.id===id);if(!d)throw new Error('FINANCE_DEBT_MISSING');return d;};
  const entryIds=new Set<string>();
  for(const e of ledger.entries){if(entryIds.has(e.id))throw new Error('FINANCE_DUPLICATE_ENTRY');entryIds.add(e.id);if(e.voidedAt)continue;
   if(e.kind==='income'){add(balances,e.accountId!,e.amountMinor);if(!month || e.date.startsWith(month))incomeMinor+=e.amountMinor;}
   if(e.kind==='expense'){add(balances,e.accountId!,-e.amountMinor);if(!month || e.date.startsWith(month))expenseMinor+=e.amountMinor;}
   if(e.kind==='transfer'){add(balances,e.accountId!,-e.amountMinor);add(balances,e.targetAccountId!,e.amountMinor);}
-  if(['lend','borrow','opening-receivable','opening-payable'].includes(e.kind)){const d=debt(e.debtId);add(outstanding,d.id,e.amountMinor);if(e.accountId)add(balances,e.accountId,e.kind==='lend'?-e.amountMinor:e.amountMinor);}
-  if(e.kind==='repay'){const d=debt(e.debtId);add(outstanding,d.id,-e.amountMinor);add(balances,e.accountId!,d.direction==='receivable'?e.amountMinor:-e.amountMinor);}
+  if(['lend','borrow','opening-receivable','opening-payable'].includes(e.kind)){const d=debt(e.debtId);add(outstanding,d.id,e.amountMinor);if(e.accountId){if((d.currency??'SAR')!=='SAR')throw new Error('FINANCE_CURRENCY_MISMATCH');add(balances,e.accountId,e.kind==='lend'?-e.amountMinor:e.amountMinor);}}
+  if(e.kind==='repay'){const d=debt(e.debtId);add(outstanding,d.id,-e.amountMinor);if(e.accountId){if((d.currency??'SAR')!=='SAR')throw new Error('FINANCE_CURRENCY_MISMATCH');add(balances,e.accountId,d.direction==='receivable'?e.amountMinor:-e.amountMinor);}}
  }
  if(Object.values(balances).some(v=>v<0) || Object.values(outstanding).some(v=>v<0))throw new Error('FINANCE_INSUFFICIENT_BALANCE_OR_OVERPAYMENT');
+ for(const currency of ['SAR','EGP']){const total=ledger.debts.filter(d=>(d.currency??'SAR')===currency).reduce((sum,d)=>sum+outstanding[d.id]!,0);if(!Number.isSafeInteger(total))throw new Error('FINANCE_AMOUNT_OVERFLOW');}
  const totalMinor=Object.values(balances).reduce((a,b)=>a+b,0);
- const receivableMinor=ledger.debts.filter(d=>d.direction==='receivable').reduce((s,d)=>s+outstanding[d.id]!,0),payableMinor=ledger.debts.filter(d=>d.direction==='payable').reduce((s,d)=>s+outstanding[d.id]!,0);
+ const receivableMinor=ledger.debts.filter(d=>d.direction==='receivable'&&(d.currency??'SAR')==='SAR').reduce((s,d)=>s+outstanding[d.id]!,0),payableMinor=ledger.debts.filter(d=>d.direction==='payable'&&(d.currency??'SAR')==='SAR').reduce((s,d)=>s+outstanding[d.id]!,0);
  if([incomeMinor,expenseMinor,totalMinor,receivableMinor,payableMinor].some(n=>!Number.isSafeInteger(n)))throw new Error('FINANCE_AMOUNT_OVERFLOW');
  return {balances,outstanding,incomeMinor,expenseMinor,totalMinor,receivableMinor,payableMinor};
 }
@@ -373,9 +376,14 @@ export function applyFinanceOperation(current:FinanceLedger,userId:string,input:
   accounts.push({id:op.id,name:op.name,kind:op.kind,openingMinor:op.openingMinor,date:op.date});
  }else if(op.action==='create-debt'){
   if(debts.some(d=>d.id===op.id))throw new Error('FINANCE_DUPLICATE_DEBT');
-  if(op.accountId)checkDate(op.accountId,op.date);
-  debts.push({id:op.id,person:op.person,direction:op.direction,dueDate:op.dueDate,note:op.note});
+  if(op.accountId){if((op.currency??'SAR')!=='SAR')throw new Error('FINANCE_CURRENCY_MISMATCH');checkDate(op.accountId,op.date);}
+  debts.push({...(op.currency?{currency:op.currency}:{}),id:op.id,person:op.person,direction:op.direction,dueDate:op.dueDate,note:op.note});
   entries.push({id:'debt:'+op.id,kind:op.accountId?(op.direction==='receivable'?'lend':'borrow'):(op.direction==='receivable'?'opening-receivable':'opening-payable'),amountMinor:op.amountMinor,date:op.date,accountId:op.accountId,targetAccountId:null,debtId:op.id,category:'دين',note:op.note,createdAt:now});
+ }else if(op.action==='settle-debt'){
+  const debt=debts.find(d=>d.id===op.debtId);if(!debt)throw new Error('FINANCE_DEBT_MISSING');
+  const origin=entries.find(e=>e.debtId===op.debtId&&e.kind!=='repay'&&!e.voidedAt);if(!origin||op.date<origin.date)throw new Error('FINANCE_DEBT_DATE_INVALID');
+  if(op.accountId){if((debt.currency??'SAR')!=='SAR')throw new Error('FINANCE_CURRENCY_MISMATCH');checkDate(op.accountId,op.date);}
+  entries.push({id:op.id,kind:'repay',amountMinor:op.amountMinor,date:op.date,accountId:op.accountId,targetAccountId:null,debtId:op.debtId,category:'سداد دين',note:op.note,createdAt:now});
  }else if(op.action==='record-entry'){
   checkDate(op.accountId,op.date);if(op.targetAccountId)checkDate(op.targetAccountId,op.date);
   if(op.debtId){const origin=entries.find(e=>e.debtId===op.debtId&&e.kind!=='repay'&&!e.voidedAt);if(!origin || op.date<origin.date)throw new Error('FINANCE_DEBT_DATE_INVALID');}

@@ -97,6 +97,7 @@ export interface NoorPersonalFoundationDatabase {
 }
 
 interface FoundationState {
+  categories?: string[];
   finance?: FinanceLedger;
   readonly locations:
     LocationProfileRevision[];
@@ -194,7 +195,7 @@ FoundationState {
   const actualKeys =
     Object.keys(
       value,
-    ).filter(key=>key!=="finance").sort();
+    ).filter(key=>key!=="finance" && key!=="categories").sort();
 
   if (
     actualKeys.length
@@ -230,6 +231,7 @@ FoundationState {
     }
   }
 
+  if(value.categories!==undefined && (!Array.isArray(value.categories)||value.categories.length>100||value.categories.some((c:unknown)=>typeof c!=="string"||!c.trim()||c.length>60)||new Set(value.categories).size!==value.categories.length))throw new ProductionAdapterError("PersistenceCorruptRecord","Invalid categories.");
   if(value.finance!==undefined){
     const f=value.finance;
     if(!isRecord(f) || typeof f.userId!=="string" || f.currency!=="SAR" || !Array.isArray(f.accounts) || !Array.isArray(f.debts) || !Array.isArray(f.entries) || !Array.isArray(f.requests))throw new ProductionAdapterError("PersistenceCorruptRecord","Invalid finance ledger.");
@@ -363,6 +365,8 @@ function createTransaction(
 ):
 FoundationTransaction {
   return {
+    getCategories:(userId)=>{if(userId!==owner)throw new Error("CATEGORY_OWNER_MISMATCH");return state.categories?clone(state.categories):undefined;},
+    saveCategories:(userId,categories)=>{if(userId!==owner)throw new Error("CATEGORY_OWNER_MISMATCH");state.categories=[...categories];},
     getFinance:(userId)=>{if(userId!==owner || state.finance && state.finance.userId!==owner)throw new Error("FINANCE_OWNER_MISMATCH");return clone(state.finance ?? emptyFinanceLedger(owner));},
     saveFinance:(userId,ledger)=>{if(userId!==owner || ledger.userId!==owner)throw new Error("FINANCE_OWNER_MISMATCH");financeSummary(ledger);state.finance=clone(ledger);},
     deleteDefinitionPermanently:(userId,definitionId)=>permanentlyDeleteFoundationDefinition(state,userId,definitionId),
@@ -696,6 +700,7 @@ implements PersonalFoundationOperation {
 
     this.snapshot =
       Object.freeze({
+        getCategories:(userId:string)=>{this.assertUser(userId);return this.loaded.state.categories?clone(this.loaded.state.categories):undefined;},
         getFinance:(userId:string)=>{this.assertUser(userId);const f=this.loaded.state.finance;if(f && f.userId!==userId)throw new Error("FINANCE_OWNER_MISMATCH");return clone(f ?? emptyFinanceLedger(userId));},
         listDefinitions:
           (

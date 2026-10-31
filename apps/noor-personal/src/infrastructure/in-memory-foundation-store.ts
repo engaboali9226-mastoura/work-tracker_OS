@@ -17,6 +17,7 @@ import type {
 } from "../ports.js";
 
 interface FoundationState {
+    categories?: {userId:string;names:string[]}[];
     locations:
         LocationProfileRevision[];
     prayerPolicies:
@@ -559,6 +560,8 @@ implements
                     : null;
             },
 
+            getCategories:(userId)=>{const c=state.categories?.find(c=>c.userId===userId);return c?clone(c.names):undefined;},
+            saveCategories:(userId,names)=>{state.categories??=[];const c=state.categories.find(c=>c.userId===userId);if(c)c.names=[...names];else state.categories.push({userId,names:[...names]});},
             saveDefinition:
                 definition => {
                     upsert(
