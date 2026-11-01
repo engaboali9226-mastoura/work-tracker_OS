@@ -7,6 +7,8 @@ import {
   UserId,
 } from "@worktracker/core";
 
+import { IntlTimeZoneAdapter } from "@noor/personal";
+
 import {
   PersonalTodayOperation,
 } from "../src/personal-today-operation.js";
@@ -611,30 +613,7 @@ test(
         };
       },
     };
-    dependencies.ensureToday.timeZone = {
-      localDateForInstant() {
-        return "2026-08-22";
-      },
-      addLocalDays(
-        localDate,
-        days,
-      ) {
-        const value =
-          new Date(
-            `${localDate}T12:00:00.000Z`,
-          );
-
-        value.setUTCDate(
-          value.getUTCDate()
-          + days,
-        );
-
-        return value.toISOString().slice(0, 10);
-      },
-      weekday() {
-        return 6;
-      },
-    };
+    dependencies.ensureToday.timeZone = new IntlTimeZoneAdapter();
 
     const result =
       await new PersonalTodayOperation(

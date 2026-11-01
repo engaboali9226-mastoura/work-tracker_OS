@@ -1700,15 +1700,31 @@ export function NoorPersonalApplicationView({ initialResult, initialWorkspace }:
   const workspace=useMemo(()=>{if(!activityWorkspace)return null;let result=activityWorkspace;for(const command of orderChanges){if(command.scope==='categories')result={...result,categories:command.order};else{const ranks=new Map(command.order.map((id,index)=>[id,index]));result={...result,definitions:result.definitions.map(d=>d.kind===command.scope&&ranks.has(d.id)?{...d,displayOrder:ranks.get(d.id)!}:d).sort((a,b)=>(a.displayOrder??Number.MAX_SAFE_INTEGER)-(b.displayOrder??Number.MAX_SAFE_INTEGER))};}}return result;},[activityWorkspace,orderChanges]);
 
 
+  // A Personal Day may end independently of the next-prayer refresh.
+  // Use the persisted UTC boundary rather than a browser-local calendar date.
+  const dayBoundaryEndAt = (() => {
+    if(result?.kind!=="success"||!isRecord(result.today))return null;
+    const personalDay=result.today.personalDay;
+    if(!isRecord(personalDay)||!isRecord(personalDay.boundary))return null;
+    return stringValue(personalDay.boundary.endAt);
+  })();
   useEffect(() => {
     const at=view?.nextPrayer?.at;
-    if(!at||!Number.isFinite(Date.parse(at))||nowMs<Date.parse(at))return;
+    const prayerDue=!!at&&Number.isFinite(Date.parse(at))&&nowMs>=Date.parse(at);
+    const dayDue=!!dayBoundaryEndAt&&Number.isFinite(Date.parse(dayBoundaryEndAt))&&nowMs>=Date.parse(dayBoundaryEndAt);
+    // R98: legacy Fajr-based days can span civil midnight; refresh at 00:00.
+    const civilDate=view?.timeZone?civilLocalDate(nowMs,view.timeZone):null;
+    // Only genuine persisted day boundaries trigger civil rollover; synthetic
+    // legacy/partial view models without endAt remain backward-compatible.
+    const civilDue=!!dayBoundaryEndAt&&!!civilDate&&!!view?.localDate&&civilDate!==view.localDate;
+    if(!prayerDue&&!dayDue&&!civilDue)return;
     const state=prayerRefreshRef.current;
     if(state.pending||commandInFlight.current)return;
-    if(state.key===at&&nowMs-state.lastAttempt<30_000)return;
-    state.key=at;state.lastAttempt=nowMs;state.pending=true;
+    const key=civilDue?`civil:${civilDate}`:dayDue?`day:${dayBoundaryEndAt}`:`prayer:${at}`;
+    if(state.key===key&&nowMs-state.lastAttempt<30_000)return;
+    state.key=key;state.lastAttempt=nowMs;state.pending=true;
     void refresh().finally(()=>{state.pending=false;});
-  }, [nowMs,view?.nextPrayer?.at]);
+  }, [nowMs,view?.nextPrayer?.at,dayBoundaryEndAt]);
 
   const runCommand = async (command: NoorPersonalCommandInput): Promise<boolean> => {
     if (commandInFlight.current) return false;

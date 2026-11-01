@@ -1,4 +1,5 @@
 const DEFAULT_PERSONAL_CATEGORIES=["الصحة والرياضة","العبادات","العمل","التعلم","الأسرة","الشؤون الشخصية","الأدوية والمكملات الغذائية"] as const;
+import { IntlTimeZoneAdapter } from "../domain/time.js";
 import { applyFinanceOperation, emptyFinanceLedger, parseFinanceOperation, type FinanceOperation, type FinanceLedger } from "../domain/model.js";
 import type {
     AutomationOutboxEvent,
@@ -441,7 +442,11 @@ function activePersonalDay(
                 now,
             );
 
-    if (!personalDay) {
+    // An unexpired legacy Fajr day must not accept yesterday's checkboxes
+    // after midnight while EnsureToday is still reconciling the new day.
+    if (!personalDay || new IntlTimeZoneAdapter().localDateForInstant(
+        now, personalDay.boundary.timeZone,
+    ) !== personalDay.boundary.localDate) {
         throw new PersonalControlError(
             "CURRENT_PERSONAL_DAY_REQUIRED",
         );
