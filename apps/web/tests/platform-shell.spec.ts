@@ -205,7 +205,7 @@ test(
         rendered.container.querySelector(
           "h1",
         )?.textContent?.trim(),
-        "Noor Platform",
+        "مرحبا بك في منصة نور",
       );
 
       const text =
@@ -355,7 +355,7 @@ test(
           application:
             personal,
           lifecycleState:
-            "idle",
+            "shutting-down",
         },
         "Application unavailable",
         /cannot be opened while the platform is unavailable/iu,

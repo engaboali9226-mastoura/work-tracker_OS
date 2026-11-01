@@ -161,7 +161,7 @@ function SmartGateway({ navigate, signIn, authenticationState }: { navigate: (pa
       <div className="glass-panel">
         {!isAuth ? (
           <>
-            <h1 className="glass-title">Noor Platform</h1>
+            <h1 className="glass-title">مرحبا بك في منصة نور</h1>
             <p className="glass-subtitle">Sign in to access your applications</p>
             <form onSubmit={submit} style={{ textAlign: "left" }}>
               <label>
@@ -181,7 +181,7 @@ function SmartGateway({ navigate, signIn, authenticationState }: { navigate: (pa
           </>
         ) : (
           <>
-            <h1 className="glass-title">Welcome</h1>
+            <h1 className="glass-title">مرحبا بك في منصة نور</h1>
             <p className="glass-subtitle">Select an application to launch</p>
             <div className="app-grid">
               <a href="/personal" onClick={(e) => { e.preventDefault(); navigate("/personal"); }} className="app-card">
@@ -431,6 +431,206 @@ export function PlatformShell(
       );
 
     case "platform-lifecycle-unavailable":
+      // Route evidence is still in flight. Keep access closed, but do not show
+      // an error before the request has actually finished.
+      if (
+        state.lifecycleState === "idle"
+        || state.lifecycleState === "bootstrapping"
+      ) {
+        return (
+          <main
+            id="main-content"
+            className="noor-entry-screen"
+            aria-busy="true"
+            dir="rtl"
+          >
+            <style>{`
+              /* Only the waiting route surface is styled: no changes to permissions. */
+              body { margin: 0; background-color: #f7f4ee; }
+              .noor-entry-screen {
+                min-height: 100vh;
+                min-height: 100dvh;
+                box-sizing: border-box;
+                display: grid;
+                place-items: center;
+                padding: 24px;
+                background-color: #f7f4ee;
+                color: #102a43;
+                text-align: center;
+                font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
+                -webkit-font-smoothing: antialiased;
+                animation: noor-entry-surface 520ms cubic-bezier(.22, 1, .36, 1) both;
+              }
+              .noor-entry-content {
+                display: grid;
+                justify-items: center;
+                gap: 0;
+                max-width: 320px;
+                opacity: 0;
+                animation: noor-entry-content 360ms cubic-bezier(.22, 1, .36, 1) 160ms forwards;
+              }
+              /* R101: identical original logo geometry in both loading phases. */
+              .noor-entry-logo {
+                display: block;
+                width: 66px;
+                height: 66px;
+                object-fit: cover;
+                object-position: center;
+                border-radius: 50%;
+                margin: 0 0 24px;
+                border: 1px solid rgba(184, 134, 43, .22);
+                box-shadow: 0 2px 12px rgba(16, 42, 67, .035);
+              }
+              .noor-entry-ring {
+                display: block;
+                width: 22px;
+                height: 22px;
+                margin-top: 24px;
+                box-sizing: border-box;
+                border: 2px solid rgba(16, 42, 67, .12);
+                border-top-color: #6b7f92;
+                border-radius: 50%;
+                animation: noor-entry-spin 900ms linear infinite;
+              }
+              .noor-entry-title {
+                margin: 0;
+                color: #102a43;
+                font-size: clamp(19px, 4vw, 22px);
+                font-weight: 650;
+                line-height: 1.55;
+                letter-spacing: 0;
+              }
+              .noor-entry-status {
+                margin: 8px 0 0;
+                color: #6b7f92;
+                font-size: 14px;
+                font-weight: 400;
+                line-height: 1.8;
+              }
+/* NOOR_R102_UNIFIED_LOADING_GEOMETRY_BEGIN */
+.noor-entry-screen,
+.np-page .np-entry-loading {
+  position: fixed;
+  inset: 0;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100vh;
+  height: 100dvh;
+  min-height: 100vh;
+  min-height: 100dvh;
+  margin: 0;
+  padding: 24px;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background: #f7f4ee;
+  color: #102a43;
+  text-align: center;
+  direction: rtl;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, Tahoma, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  opacity: 1;
+  transform: none;
+  animation: none;
+}
+.noor-entry-content,
+.np-page .np-entry-loading-content {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 320px;
+  margin: 0;
+  padding: 0;
+  gap: 0;
+  opacity: 1;
+  transform: none;
+  animation: none;
+}
+.noor-entry-logo,
+.np-page .np-entry-loading-logo {
+  display: block;
+  box-sizing: border-box;
+  width: 66px;
+  height: 66px;
+  flex: 0 0 66px;
+  border: 1px solid rgba(184, 134, 43, .22);
+  border-radius: 50%;
+  object-fit: cover;
+  object-position: center;
+  margin: 0 0 24px;
+  box-shadow: 0 2px 12px rgba(16, 42, 67, .035);
+}
+.noor-entry-title,
+.np-page .np-entry-loading-title {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  color: #102a43;
+  font-size: clamp(19px, 4vw, 22px);
+  font-weight: 650;
+  line-height: 1.55;
+  letter-spacing: 0;
+}
+.noor-entry-status,
+.np-page .np-entry-loading-copy {
+  box-sizing: border-box;
+  margin: 8px 0 0;
+  padding: 0;
+  color: #6b7f92;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.8;
+}
+.noor-entry-ring,
+.np-page .np-entry-loading-spinner {
+  box-sizing: border-box;
+  display: block;
+  flex: 0 0 22px;
+  width: 22px;
+  height: 22px;
+  margin: 24px 0 0;
+  border: 2px solid rgba(16, 42, 67, .12);
+  border-top-color: #6b7f92;
+  border-radius: 50%;
+}
+@media (prefers-reduced-motion: reduce) {
+  .noor-entry-ring,
+  .np-page .np-entry-loading-spinner { animation: none; }
+}
+/* NOOR_R102_UNIFIED_LOADING_GEOMETRY_END */
+              @keyframes noor-entry-surface {
+                from { background-color: #0f172a; }
+                to { background-color: #f7f4ee; }
+              }
+              @keyframes noor-entry-content {
+                from { opacity: 0; transform: translateY(7px); }
+                to { opacity: 1; transform: translateY(0); }
+              }
+              @keyframes noor-entry-spin {
+                to { transform: rotate(360deg); }
+              }
+              @media (prefers-reduced-motion: reduce) {
+                .noor-entry-screen, .noor-entry-content, .noor-entry-ring {
+                  animation: none;
+                }
+                .noor-entry-content { opacity: 1; }
+              }
+            `}</style>
+            <div className="noor-entry-content">
+              <img className="noor-entry-logo" src="/noor-platform-logo.jpeg" alt="شعار نور" decoding="sync" loading="eager" />
+              <h1 className="noor-entry-title">مرحبا بك في منصة نور</h1>
+              <p className="noor-entry-status" role="status" aria-live="polite">
+                جارٍ تجهيز مساحتك الشخصية…
+              </p>
+              <span className="noor-entry-ring" aria-hidden="true" />
+            </div>
+          </main>
+        );
+      }
+
       return (
         <main id="main-content">
           <h1>

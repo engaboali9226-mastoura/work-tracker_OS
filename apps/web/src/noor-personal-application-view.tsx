@@ -781,6 +781,161 @@ const PAGE_STYLES = `
 /* NOOR_CHECKBOX_INSTANT_R83 */
 .np-habit-check[aria-busy=true]:not(:disabled){opacity:1;cursor:pointer}
 
+/* NOOR_R100_PERSONAL_LOADING_START: quiet full-viewport waiting state */
+.np-page.np-page-entry-loading {
+  min-height:100vh;
+  min-height:100dvh;
+  background:#f7f4ee;
+}
+.np-page.np-page-entry-loading::before { display:none; }
+.np-page.np-page-entry-loading > .np-wrap {
+  width:100%;max-width:none;min-height:100vh;min-height:100dvh;
+  margin:0;padding:0;display:grid;place-items:center;
+}
+.np-page .np-entry-loading {
+  width:100%;min-height:100vh;min-height:100dvh;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:32px 24px;text-align:center;background:#f7f4ee;
+  color:#102a43;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",system-ui,Tahoma,Arial,sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+.np-page .np-entry-loading-logo {
+  display:block;width:66px;height:66px;object-fit:cover;object-position:center;
+  border-radius:50%;margin:0 0 24px;border:1px solid rgba(184,134,43,.22);
+  box-shadow:0 2px 12px rgba(16,42,67,.035);
+}
+.np-page .np-entry-loading-title {
+  font-size:clamp(19px,4vw,22px);font-weight:650;line-height:1.55;
+  letter-spacing:0;margin:0;color:#102a43;
+}
+.np-page .np-entry-loading-copy {
+  font-size:14px;font-weight:400;line-height:1.8;
+  margin:8px 0 0;color:#6b7f92;
+}
+.np-page .np-entry-loading-spinner {
+  display:block;width:22px;height:22px;box-sizing:border-box;
+  margin-top:24px;border-radius:50%;border:2px solid rgba(16,42,67,.12);
+  border-top-color:#6b7f92;animation:np-entry-loading-spin 900ms linear infinite;
+}
+.np-page .np-entry-loading-content {
+  display:flex;flex-direction:column;align-items:center;
+  /* R101: do not restart the entrance animation after route authorization. */
+  animation:none;
+}
+.np-page.np-page-entry-ready > .np-wrap {
+  animation:np-entry-ready-appear 360ms cubic-bezier(.22,1,.36,1) both;
+}
+@keyframes np-entry-loading-spin { to { transform:rotate(360deg); } }
+@keyframes np-entry-loading-appear {
+  from { opacity:0;transform:translateY(6px); }
+  to { opacity:1;transform:translateY(0); }
+}
+@keyframes np-entry-ready-appear {
+  from { opacity:0;transform:translateY(6px); }
+  to { opacity:1;transform:translateY(0); }
+}
+@media (prefers-reduced-motion:reduce) {
+  .np-page .np-entry-loading-spinner,
+  .np-page .np-entry-loading-content,
+  .np-page.np-page-entry-ready > .np-wrap { animation:none; }
+}
+/* NOOR_R100_PERSONAL_LOADING_END */
+
+/* NOOR_R102_UNIFIED_LOADING_GEOMETRY_BEGIN */
+.noor-entry-screen,
+.np-page .np-entry-loading {
+  position: fixed;
+  inset: 0;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100vh;
+  height: 100dvh;
+  min-height: 100vh;
+  min-height: 100dvh;
+  margin: 0;
+  padding: 24px;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background: #f7f4ee;
+  color: #102a43;
+  text-align: center;
+  direction: rtl;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, Tahoma, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  opacity: 1;
+  transform: none;
+  animation: none;
+}
+.noor-entry-content,
+.np-page .np-entry-loading-content {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 320px;
+  margin: 0;
+  padding: 0;
+  gap: 0;
+  opacity: 1;
+  transform: none;
+  animation: none;
+}
+.noor-entry-logo,
+.np-page .np-entry-loading-logo {
+  display: block;
+  box-sizing: border-box;
+  width: 66px;
+  height: 66px;
+  flex: 0 0 66px;
+  border: 1px solid rgba(184, 134, 43, .22);
+  border-radius: 50%;
+  object-fit: cover;
+  object-position: center;
+  margin: 0 0 24px;
+  box-shadow: 0 2px 12px rgba(16, 42, 67, .035);
+}
+.noor-entry-title,
+.np-page .np-entry-loading-title {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  color: #102a43;
+  font-size: clamp(19px, 4vw, 22px);
+  font-weight: 650;
+  line-height: 1.55;
+  letter-spacing: 0;
+}
+.noor-entry-status,
+.np-page .np-entry-loading-copy {
+  box-sizing: border-box;
+  margin: 8px 0 0;
+  padding: 0;
+  color: #6b7f92;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.8;
+}
+.noor-entry-ring,
+.np-page .np-entry-loading-spinner {
+  box-sizing: border-box;
+  display: block;
+  flex: 0 0 22px;
+  width: 22px;
+  height: 22px;
+  margin: 24px 0 0;
+  border: 2px solid rgba(16, 42, 67, .12);
+  border-top-color: #6b7f92;
+  border-radius: 50%;
+}
+@media (prefers-reduced-motion: reduce) {
+  .noor-entry-ring,
+  .np-page .np-entry-loading-spinner { animation: none; }
+}
+/* NOOR_R102_UNIFIED_LOADING_GEOMETRY_END */
+
 `;
 
 
@@ -1638,6 +1793,25 @@ function Dashboard({ view:providedView, workspace, busy, actionError, onCommand,
   </>;
 }
 
+function PersonalEntryLoading(): ReactElement {
+  return (
+    <section
+      className="np-entry-loading"
+      data-testid="noor-personal-initial-loading-r100"
+      role="status"
+      aria-live="polite"
+      aria-busy="true"
+    >
+      <div className="np-entry-loading-content">
+        <img className="np-entry-loading-logo" src="/noor-platform-logo.jpeg" alt="شعار نور" decoding="sync" loading="eager" />
+        <h1 className="np-entry-loading-title">مرحبا بك في منصة نور</h1>
+        <p className="np-entry-loading-copy">جارٍ تجهيز مساحتك الشخصية…</p>
+        <span className="np-entry-loading-spinner" aria-hidden="true" />
+      </div>
+    </section>
+  );
+}
+
 function StatePage({ title, copy }: { title: string; copy: string }): ReactElement {
   return <section className="np-card np-date-card"><img alt="شعار نور" className="np-state-logo" src="/noor-platform-logo.jpeg" /><h1 className="np-control-title">{title}</h1><p className="np-control-subtitle">{copy}</p></section>;
 }
@@ -1804,7 +1978,7 @@ export function NoorPersonalApplicationView({ initialResult, initialWorkspace }:
 
   let content: ReactElement;
   if (!result) {
-    content = <StatePage copy="جارٍ تحميل يومك..." title="جاري التحميل" />;
+    content = <PersonalEntryLoading />;
   } else if (result.kind === "setup-required") {
     content = <StatePage copy="يلزم استكمال إعداد الموقع وسياسة الصلاة قبل بدء يوم نور." title="الإعداد مطلوب" />;
   } else if (result.kind === "unavailable" || !view) {
@@ -1816,6 +1990,6 @@ export function NoorPersonalApplicationView({ initialResult, initialWorkspace }:
       : <Dashboard actionError={actionError} busy={busy&&!fastChanges.length&&!orderChanges.length} pendingIds={[...view.tasks,...view.habits].filter(e=>fastChanges.some(c=>c.definitionId===e.definitionId)).map(e=>e.id)} lockedIds={[...view.tasks,...view.habits].filter(e=>fastChanges.some(c=>c.definitionId===e.definitionId&&c.command.type==='record-activity'&&(c.command.amount>0||c.command.endReason!==null))).map(e=>e.id)} nowMs={nowMs} onCommand={fastCommand} onOpenControl={() => setControlOpen(true)} view={view} workspace={workspace} />;
   }
 
-  return <><style>{PAGE_STYLES}</style><section className="np-page" data-appearance={appearance} data-design-version="r62-visible-layout-fix" dir="rtl"><div className="np-wrap"><div className="np-save-notices" data-save-feedback="classic-achievement-r95">{orderError?<p className="np-failed-save" role="alert">{orderError}</p>:null}{failedChanges.map((change,i)=><div className="np-failed-save" role="alert" key={`${change.command.type}:${change.command.type==='set-execution-completed'?change.executionId:change.command.entryId}`}><span>لم يتأكد الحفظ: {change.title}. تم إرجاع العرض لآخر بيانات مؤكدة.</span>{change.command.type==='edit-activity-note'?<p>{change.command.note??'حذف الملاحظة'}</p>:null}{change.command.type==='record-activity'?<p>{change.command.note}{change.command.amount>0?` · الكمية: ${change.command.amount}`:''}</p>:null}<button type="button" disabled={fastChanges.some(c=>c.executionId===change.executionId)} onClick={()=>{setFailedChanges(previous=>previous.filter((_,j)=>j!==i));void fastCommand(change.command);}}>إعادة المحاولة</button><button type="button" onClick={()=>setFailedChanges(previous=>previous.filter((_,j)=>j!==i))}>تجاهل التغيير غير المحفوظ</button></div>)}</div>{content}</div></section></>;
+  return <><style>{PAGE_STYLES}</style><section className={`np-page${!result ? " np-page-entry-loading" : result.kind === "success" ? " np-page-entry-ready" : ""}`} data-appearance={appearance} data-design-version="r62-visible-layout-fix" dir="rtl"><div className="np-wrap"><div className="np-save-notices" data-save-feedback="classic-achievement-r95">{orderError?<p className="np-failed-save" role="alert">{orderError}</p>:null}{failedChanges.map((change,i)=><div className="np-failed-save" role="alert" key={`${change.command.type}:${change.command.type==='set-execution-completed'?change.executionId:change.command.entryId}`}><span>لم يتأكد الحفظ: {change.title}. تم إرجاع العرض لآخر بيانات مؤكدة.</span>{change.command.type==='edit-activity-note'?<p>{change.command.note??'حذف الملاحظة'}</p>:null}{change.command.type==='record-activity'?<p>{change.command.note}{change.command.amount>0?` · الكمية: ${change.command.amount}`:''}</p>:null}<button type="button" disabled={fastChanges.some(c=>c.executionId===change.executionId)} onClick={()=>{setFailedChanges(previous=>previous.filter((_,j)=>j!==i));void fastCommand(change.command);}}>إعادة المحاولة</button><button type="button" onClick={()=>setFailedChanges(previous=>previous.filter((_,j)=>j!==i))}>تجاهل التغيير غير المحفوظ</button></div>)}</div>{content}</div></section></>;
 }
 
