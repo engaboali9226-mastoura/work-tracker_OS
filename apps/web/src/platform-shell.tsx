@@ -553,9 +553,9 @@ export function PlatformShell(
 .np-page .np-entry-loading-logo {
   display: block;
   box-sizing: border-box;
-  width: 66px;
-  height: 66px;
-  flex: 0 0 66px;
+  width: 88px;
+  height: 88px;
+  flex: 0 0 88px;
   border: 1px solid rgba(184, 134, 43, .22);
   border-radius: 50%;
   object-fit: cover;
