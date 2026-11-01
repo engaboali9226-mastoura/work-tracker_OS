@@ -270,3 +270,81 @@ export async function resolveFajrBoundary(
         },
     };
 }
+
+/**
+ * Civil-day operational boundary for daily habits and tasks (R98).
+ * Prayer instants and Fajr adjustment remain religious-time calculations.
+ * The binary search uses IANA-zone civil dates, not a fixed UTC offset, so
+ * 23/25-hour DST days and fractional-offset zones are handled correctly.
+ * Historical Fajr-based PersonalDay records are NOT rewritten here.
+ */
+function findCivilMidnight(
+    now: IsoInstant,
+    timeZoneName: string,
+    timeZone: TimeZonePort,
+    direction: "start" | "end",
+): IsoInstant {
+    const instant = Date.parse(now);
+    if (!Number.isFinite(instant)) throw new Error("Invalid civil-day instant.");
+    const localDate = timeZone.localDateForInstant(now, timeZoneName);
+    const horizon = 72 * 60 * 60 * 1000;
+    let low = direction === "start" ? instant - horizon : instant;
+    let high = direction === "start" ? instant : instant + horizon;
+    const dateAt = (ms: number): LocalDate =>
+        timeZone.localDateForInstant(new Date(ms).toISOString(), timeZoneName);
+    const reached = (ms: number): boolean => direction === "start"
+        ? dateAt(ms) >= localDate
+        : dateAt(ms) > localDate;
+    if (reached(low) || !reached(high)) {
+        throw new Error("Unable to resolve IANA civil-day boundary.");
+    }
+    while (high - low > 1) {
+        const middle = low + Math.floor((high - low) / 2);
+        if (reached(middle)) high = middle;
+        else low = middle;
+    }
+    return new Date(high).toISOString();
+}
+
+export async function resolveCivilBoundary(
+    input: {
+        readonly userId: string;
+        readonly now: IsoInstant;
+        readonly location: LocationProfileRevision;
+        readonly policy: PrayerTimePolicyRevision;
+        readonly timeZone: TimeZonePort;
+        readonly prayerCalculator: PrayerTimeCalculatorPort;
+    },
+): Promise<ResolvedFajrBoundary> {
+    const localDate = input.timeZone.localDateForInstant(input.now, input.location.timeZone);
+    const startAt = findCivilMidnight(input.now, input.location.timeZone, input.timeZone, "start");
+    const endAt = findCivilMidnight(input.now, input.location.timeZone, input.timeZone, "end");
+    const nextLocalDate = input.timeZone.localDateForInstant(endAt, input.location.timeZone);
+    const prayerTimes = await input.prayerCalculator.calculate(input.location, input.policy, localDate);
+    const nextPrayerTimes = await input.prayerCalculator.calculate(input.location, input.policy, nextLocalDate);
+    const adjustedFajr = addMinutes(prayerTimes.fajr, input.policy.fajrAdjustmentMinutes);
+    const adjustedNextFajr = addMinutes(nextPrayerTimes.fajr, input.policy.fajrAdjustmentMinutes);
+    if (isBefore(input.now, startAt) || !isBefore(input.now, endAt)) {
+        throw new Error("Civil-day boundary does not contain current instant.");
+    }
+    return {
+        boundary: {
+            key: `personal-day-civil:${input.userId}:${startAt}`,
+            localDate,
+            startAt,
+            endAt,
+            calculatedFajrAt: adjustedFajr,
+            nextCalculatedFajrAt: adjustedNextFajr,
+            fajrAdjustmentMinutes: input.policy.fajrAdjustmentMinutes,
+            // Retained as prayer-policy metadata; it does not shift civil midnight.
+            personalDayOffsetMinutes: input.policy.personalDayOffsetMinutes,
+            locationRevisionId: input.location.id,
+            prayerPolicyRevisionId: input.policy.id,
+            timeZone: input.location.timeZone,
+            calculationMethod: input.policy.calculationMethod,
+            calculationSource: prayerTimes.source,
+            calculationEngineVersion: prayerTimes.engineVersion,
+        },
+        prayerTimes: { ...prayerTimes, fajr: adjustedFajr, nextFajr: adjustedNextFajr },
+    };
+}

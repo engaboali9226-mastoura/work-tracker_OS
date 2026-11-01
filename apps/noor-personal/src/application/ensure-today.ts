@@ -14,7 +14,7 @@ import {
     materializeDefinitions,
 } from "../domain/materialization.js";
 import {
-    resolveFajrBoundary,
+    resolveCivilBoundary,
 } from "../domain/time.js";
 import type {
     ClockPort,
@@ -290,7 +290,7 @@ export class EnsureTodayService {
         }
 
         const resolved =
-            await resolveFajrBoundary(
+            await resolveCivilBoundary(
                 {
                     userId,
                     now,
@@ -323,14 +323,28 @@ export class EnsureTodayService {
                                 now,
                             );
 
+                    // R98 cutover: retain today's legacy day until the next
+                    // civil midnight, preserving any completion already recorded.
+                    // A legacy day from yesterday may still span midnight until
+                    // Fajr: close it atomically BEFORE creating today's civil day
+                    // so the production persistence never contains overlapping
+                    // OPEN PersonalDays. No execution or historical date is edited.
+                    if (existingOpenDay && existingOpenDay.boundary.localDate !== resolved.boundary.localDate) {
+                        if (existingOpenDay.boundary.localDate > resolved.boundary.localDate) {
+                            throw new Error("PERSONAL_DAY_DATE_REGRESSION");
+                        }
+                        transaction.savePersonalDay({
+                            ...existingOpenDay,
+                            state: "Closed",
+                            version: existingOpenDay.version + 1,
+                            updatedAt: now,
+                        });
+                    }
+
                     let personalDay =
-                        existingOpenDay
-                        ?? transaction
-                            .findPersonalDayByKey(
-                                resolved
-                                    .boundary
-                                    .key,
-                            );
+                        transaction.findPersonalDayByKey(resolved.boundary.key)
+                        ?? (existingOpenDay?.boundary.localDate === resolved.boundary.localDate
+                            ? existingOpenDay : null);
 
                     const dayCreated =
                         personalDay

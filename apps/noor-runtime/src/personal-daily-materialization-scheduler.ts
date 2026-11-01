@@ -139,7 +139,10 @@ export class PersonalDailyMaterializationScheduler {
             .some(
               day =>
                 day.boundary.startAt <= now
-                && now < day.boundary.endAt,
+                && now < day.boundary.endAt
+                && new IntlTimeZoneAdapter().localDateForInstant(
+                  now, day.boundary.timeZone,
+                ) === day.boundary.localDate,
             );
 
         if (hasCurrentDay) {

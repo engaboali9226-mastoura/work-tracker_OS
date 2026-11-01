@@ -384,7 +384,7 @@ function createSystem(
 }
 
 test(
-    "before Fajr plus offset remains in the preceding Personal Day",
+    "before Fajr still belongs to the current civil date",
     async () => {
         const system =
             createSystem(
@@ -401,27 +401,27 @@ test(
             today.personalDay
                 .boundary
                 .localDate,
-            "2026-07-23",
+            "2026-07-24",
         );
 
         assert.equal(
             today.personalDay
                 .boundary
                 .startAt,
-            "2026-07-23T01:44:00.000Z",
+            "2026-07-23T21:00:00.000Z",
         );
 
         assert.equal(
             today.personalDay
                 .boundary
                 .endAt,
-            "2026-07-24T01:45:00.000Z",
+            "2026-07-24T21:00:00.000Z",
         );
     },
 );
 
 test(
-    "after Fajr plus offset resolves the new Personal Day",
+    "after Fajr still belongs to the same civil date",
     async () => {
         const system =
             createSystem(
@@ -445,7 +445,7 @@ test(
             today.personalDay
                 .boundary
                 .startAt,
-            "2026-07-24T01:45:00.000Z",
+            "2026-07-23T21:00:00.000Z",
         );
     },
 );
@@ -775,7 +775,7 @@ test(
 
 
 test(
-    "the exact Fajr plus offset instant starts the new Personal Day",
+    "Fajr plus offset does not change the civil-day boundary",
     async () => {
         const system =
             createSystem(
@@ -799,13 +799,13 @@ test(
             today.personalDay
                 .boundary
                 .startAt,
-            "2026-07-24T01:45:00.000Z",
+            "2026-07-23T21:00:00.000Z",
         );
     },
 );
 
 test(
-    "Fajr adjustment updates displayed Fajr, day boundary and fasting duration",
+    "Fajr adjustment updates prayer and fasting but not civil midnight",
     async () => {
         const system =
             createSystem(
@@ -833,14 +833,14 @@ test(
             today.personalDay
                 .boundary
                 .startAt,
-            "2026-07-24T01:50:00.000Z",
+            "2026-07-23T21:00:00.000Z",
         );
 
         assert.equal(
             today.personalDay
                 .boundary
                 .endAt,
-            "2026-07-25T01:51:00.000Z",
+            "2026-07-24T21:00:00.000Z",
         );
 
         assert.equal(
