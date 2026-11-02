@@ -12,7 +12,7 @@ test('R108: dashboard offers historical dates, old-day corrections and notes',()
  assert.match(source,/correct-historical-execution/);
  assert.match(source,/record-historical-progress/);
  assert.match(source,/type:"edit-activity-note"/);
- assert.match(source,/onHistoryCommand=\{runCommand\}/);
+ assert.match(source,/onHistoryCommand=\{fastCommand\}/);
 });
 test('R108: past commands never bypass active-day protection or fabricate occurrences',()=>{
  assert.match(server,/instance\.scheduleOccurrenceKey!==parsed\.localDate/);
