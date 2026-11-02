@@ -4,7 +4,7 @@ import {readFileSync} from 'node:fs';
 const source=readFileSync(new URL('../src/noor-personal-application-view.tsx',import.meta.url),'utf8');
 const server=readFileSync(new URL('../../noor-personal/src/application/personal-control.ts',import.meta.url),'utf8');
 test('R108: dashboard offers historical dates, old-day corrections and notes',()=>{
- assert.match(source,/data-testid="inpage-history-banner-r110"/);
+ assert.doesNotMatch(source,/data-testid="inpage-history-banner-r110"/);
  assert.match(source,/data-week-navigation="r109"/);
  assert.match(source,/data-testid="week-history-previous"/);
  assert.doesNotMatch(source,/<HistoryDayEditor workspace=/);
