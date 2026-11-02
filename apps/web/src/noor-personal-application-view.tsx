@@ -1038,6 +1038,10 @@ const PAGE_STYLES = `
 .np-page .np-category-symbol-r143{--np-category-accent:#417b81;background:color-mix(in srgb,var(--np-category-accent) 11%,var(--panel));border-color:color-mix(in srgb,var(--np-category-accent) 24%,var(--border));color:var(--np-category-accent);flex:0 0 36px}
 .np-page .np-category-symbol-r143 svg{display:block;width:21px;height:21px}
 .np-page .np-category-icon-prayer,.np-page .np-category-icon-quran,.np-page .np-category-icon-dhikr{--np-category-accent:#517b60}
+.np-page .np-category-icon-sunnah{--np-category-accent:#668a5e}
+.np-page .np-category-icon-body-care{--np-category-accent:#a96f7d}
+.np-page .np-category-icon-hair-care{--np-category-accent:#9b7a9f}
+.np-page .np-category-icon-growth{--np-category-accent:#5c87a0}
 .np-page .np-category-icon-fitness,.np-page .np-category-icon-health,.np-page .np-category-icon-nutrition{--np-category-accent:#a76558}
 .np-page .np-category-icon-learning,.np-page .np-category-icon-reading,.np-page .np-category-icon-language{--np-category-accent:#587fa5}
 .np-page .np-category-icon-work,.np-page .np-category-icon-finance,.np-page .np-category-icon-planning{--np-category-accent:#97743e}
@@ -1916,14 +1920,19 @@ export function habitCardDisplayTitle(label:string):string {
 
 /* NOOR_R143_SEMANTIC_CATEGORY_ICONS: deterministic, dependency-free SVG glyphs.
    All rendering is presentational. Category names, IDs and persistence stay unchanged. */
-type NoorCategoryIconKind = "prayer" | "quran" | "dhikr" | "fitness" | "health" | "nutrition" | "sleep" | "learning" | "reading" | "language" | "work" | "finance" | "family" | "home" | "technology" | "planning" | "travel" | "general";
+type NoorCategoryIconKind = "prayer" | "sunnah" | "quran" | "dhikr" | "body-care" | "hair-care" | "growth" | "fitness" | "health" | "nutrition" | "sleep" | "learning" | "reading" | "language" | "work" | "finance" | "family" | "home" | "technology" | "planning" | "travel" | "general";
 export function noorCategoryIconKind(label: string): NoorCategoryIconKind {
   const value=habitCardDisplayTitle(label).normalize("NFKC").toLocaleLowerCase("ar")
     .replace(/[\u064b-\u065f\u0670\u0640]/g,"")
     .replace(/[أإآٱ]/g,"ا").replace(/ى/g,"ي");
+  // NOOR_R145_EXPLICIT_ARABIC_CATEGORIES: distinguish related but different habits.
+  if(/سنن|نوافل|نافله|نفل|sunnah|supererogatory/.test(value))return "sunnah";
+  if(/شعر|شامبو|فرو[هة]\s*الراس|تسريح|حلاق[هة]|hair\s*care|haircare|scalp|shampoo/.test(value))return "hair-care";
+  if(/عناي[هة]\s*بالجسم|عناي[هة]\s*بالبشر[هة]|عناي[هة]\s*شخصي[هة]|بشر[هة]|جلد|استحمام|نظاف[هة]\s*الجسم|نظاف[هة]\s*شخصي[هة]|body\s*care|skin\s*care|personal\s*care/.test(value))return "body-care";
+  if(/تطور|تطوير|تنمي[هة]|ارتقا|تحسين\s*الذات|self[-\s]?improvement|personal\s*growth|development|growth/.test(value))return "growth";
   if(/قران|تلاو|حفظ.*سور|qur.?an|quran/.test(value))return "quran";
   if(/اذكار|ذكر|استغفار|دعاء|تسبيح|dhikr/.test(value))return "dhikr";
-  if(/صلا[هة]|مسجد|عباد|دين|ايمان|روحان|prayer|worship|faith/.test(value))return "prayer";
+  if(/صلا[هة]|صلوات|صلات|صلي|مسجد|عباد|دين|ايمان|روحان|prayer|worship|faith/.test(value))return "prayer";
   if(/رياض|تمرين|جيم|لياق|عضل|مشي|ركض|جري|سباح|sport|fitness|gym|exercise|workout/.test(value))return "fitness";
   if(/صح[هة]|دواء|ادوي|علاج|طبي|استشفاء|health|medical|medicine/.test(value))return "health";
   if(/غذا|طعام|وجب|طبخ|تغذي|اكل|شرب|ماء|nutrition|food|meal|diet/.test(value))return "nutrition";
@@ -1944,8 +1953,16 @@ function NoorCategoryIcon({category}:{category:string}):ReactElement {
   const kind=noorCategoryIconKind(category);
   const drawings:Record<NoorCategoryIconKind,ReactElement>={
     prayer:<><path d="M3 20h18M5 20v-9l7-5 7 5v9M9 20v-6a3 3 0 0 1 6 0v6"/><path d="M12 6V3M8.5 11h7"/></>,
+    // A prayer rug with a small star, distinct from the mosque used for prayers.
+    sunnah:<><rect x="4.5" y="2.5" width="15" height="19" rx="2"/><path d="M7.5 18V11l4.5-4 4.5 4v7M7.5 18h9M7.5 4.5h9"/><path d="m12 11.5.6 1.4 1.5.2-1.1 1 .3 1.5-1.3-.7-1.3.7.3-1.5-1.1-1 1.5-.2Z"/></>,
     quran:<><path d="M12 6c-3-2-6-2-9-1v14c3-1 6-1 9 1 3-2 6-2 9-1V5c-3-1-6-1-9 1Z"/><path d="M12 6v14M6 10h3M15 10h3M6 13h3M15 13h3"/></>,
     dhikr:<><circle cx="7.2" cy="6.5" r="2"/><circle cx="12.8" cy="5.3" r="2"/><circle cx="18" cy="8.2" r="2"/><circle cx="18" cy="14" r="2"/><circle cx="12.7" cy="18.5" r="2"/><circle cx="7" cy="17.4" r="2"/><path d="M5.8 13.4a7.6 7.6 0 0 1-.4-2.8M12 22v-1"/></>,
+    // Human figure and sparkle: body care, not exercise or medical care.
+    "body-care":<><circle cx="10.5" cy="5.7" r="2.5"/><path d="M5.7 20.5v-5.6c0-2.9 2.1-4.7 4.8-4.7s4.8 1.8 4.8 4.7v5.6M9 15h3"/><path d="M19 3v5m-2.5-2.5h5m-2.5 7.5.5 1.5 1.5.5-1.5.5-.5 1.5-.5-1.5-1.5-.5 1.5-.5Z"/></>,
+    // A comb with visible teeth and a curved upper hairline.
+    "hair-care":<><path d="M5 10c0-4 2.5-7 7-7s7 3 7 7"/><rect x="4" y="10.5" width="16" height="3" rx="1"/><path d="M6 13.5V21m3-7.5v5.5m3-5.5V21m3-7.5v5.5m3-5.5V21"/></>,
+    // Upward trajectory with arrow: learning/growth/development.
+    growth:<><path d="M3 20h18M5 16l5-5 4 3 6-8M16 6h4v4"/></>,
     fitness:<><path d="M4.5 8v8M7.5 6v12M16.5 6v12M19.5 8v8M7.5 12h9M2 10v4M22 10v4"/></>,
     health:<><path d="M20.8 8.4c0 5-8.8 11.7-8.8 11.7S3.2 13.4 3.2 8.4a4.5 4.5 0 0 1 8.8-1.1 4.5 4.5 0 0 1 8.8 1.1Z"/><path d="M5.9 11.2h3l1.7-2.5 2.2 5.3 1.6-2.8h3.6"/></>,
     nutrition:<><path d="M4 3v7a3 3 0 0 0 6 0V3M7 3v18M15 21V9c0-3 2-5 5-6v18M15 14h5"/></>,

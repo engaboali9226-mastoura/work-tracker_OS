@@ -6,7 +6,12 @@ const s=readFileSync(new URL("../src/noor-personal-application-view.tsx",import.
 
 test("R143 semantic icons follow Arabic category meaning and normalize category numbering",()=>{
  const examples:[string,string][]= [
-  ["الصلاة","prayer"],["العبادات","prayer"],["القرآن الكريم","quran"],["01 - حفظ القرآن","quran"],
+  ["الصلاة","prayer"],["الصلوات","prayer"],["العبادات","prayer"],
+  ["السنن الرواتب","sunnah"],["01 - السنن الرواتب","sunnah"],["النوافل","sunnah"],
+  ["العناية بالجسم","body-care"],["العناية بالبشرة","body-care"],
+  ["العناية بالشعر","hair-care"],["صحة فروة الرأس","hair-care"],
+  ["التطور","growth"],["تطوير الذات","growth"],
+  ["القرآن الكريم","quran"],["01 - حفظ القرآن","quran"],
   ["الأذكار","dhikr"],["الصحة والرياضة","fitness"],["اللياقة البدنية","fitness"],["الصحة","health"],
   ["التغذية","nutrition"],["النوم","sleep"],["الدراسة","learning"],["القراءة","reading"],
   ["تعلم الإنجليزية","language"],["العمل","work"],["المالية","finance"],["الأسرة والعلاقات","family"],
@@ -26,4 +31,13 @@ test("R143 home and control cards both use semantic vector icons instead of the 
  assert.match(s,/data-testid="control-habit-category-card-r135"/);
  assert.match(s,/NOOR_R139_SELECTED_DAY_SHADOW_ONLY/);
  assert.match(s,/NOOR_R141_FINANCE_COMPACT_NOTES/);
+});
+
+test("R145: five requested categories resolve to distinct, available vector drawings",()=>{
+ const expected=["prayer","sunnah","body-care","hair-care","growth"];
+ for(const key of expected){
+  assert.ok(s.includes(key==='body-care'||key==='hair-care'?'\"'+key+'\":<>':key+':<>'),key);
+ }
+ assert.equal(new Set(expected).size,5);
+ assert.match(s,/NOOR_R145_EXPLICIT_ARABIC_CATEGORIES/);
 });
