@@ -3,15 +3,12 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 const s=readFileSync(new URL('../src/noor-personal-application-view.tsx',import.meta.url),'utf8');
 
-test('R111 historical ribbon shows weekday and full date, without prose or close button',()=>{
-  assert.match(s,/NOOR_MINIMAL_DAY_STRIP_R111/);
-  assert.match(s,/data-testid="inpage-history-banner-r110"/);
-  const ribbon=s.match(/\{historyDate\?<div className="np-inpage-history-banner"[^\n]+/);
-  assert.ok(ribbon);
-  assert.match(ribbon[0],/<time dateTime=\{historyDate\}>/);
-  assert.match(ribbon[0],/weekDateLabel\(historyDate,true\)/);
-  assert.match(ribbon[0],/historyDate\.slice\(0,4\)/);
-  assert.doesNotMatch(ribbon[0],/<p>|<button|أنت تعرض السجل|العودة إلى اليوم الحالي|لا تُنشأ/);
+test('R139: history selection shows a shadow without a yellow ribbon or layout spacer',()=>{
+  assert.match(s,/NOOR_R139_SELECTED_DAY_SHADOW_ONLY/);
+  assert.match(s,/\.np-page \.np-week-day\.is-selected\{box-shadow:/);
+  assert.doesNotMatch(s,/data-testid="inpage-history-banner-r110"/);
+  assert.doesNotMatch(s,/data-testid="historical-date-stable-slot-r135"/);
+  assert.match(s,/data-week-selected=\{historyDate===day\.date/);
 });
 
 test('R111 keeps navigation and history mutation guards, removes weekly help text',()=>{

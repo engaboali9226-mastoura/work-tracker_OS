@@ -7,7 +7,7 @@ test('R110: week selection is in-page; no day overlay or history-day card is ren
  assert.match(s,/NOOR_INPAGE_HISTORY_R110/);
  assert.match(s,/data-week-navigation="r109"/);
  assert.match(s,/data-week-selected=\{historyDate===day\.date\?"true":"false"\}/);
- assert.match(s,/data-testid="inpage-history-banner-r110"/);
+ assert.doesNotMatch(s,/data-testid="inpage-history-banner-r110"/);
  assert.match(s,/data-history-page=\{historyDate\?"historical":"current"\}/);
  assert.doesNotMatch(s,/<HistoryDayEditor workspace=/);
  assert.doesNotMatch(s,/data-week-editor="r109"/);

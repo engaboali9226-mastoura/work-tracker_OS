@@ -17,12 +17,14 @@ test('R130 habit edit modal has fixed accessible submit footer and scrollable co
  assert.match(s,/\.np-cc-modal-body\{[^}]*overflow-y:auto;/);
  assert.match(s,/NOOR_R130_MODAL_SCROLL_SAVE/);
 });
-test('R130 habit category filter preserves one card per category and all-default',()=>{
- assert.match(s,/data-testid="habit-category-filter-r130"/);
- assert.match(s,/const visibleGroups=activeCategory==="all"\?grouped:/);
- assert.match(s,/visibleGroups\.map\(\(\[category,items\]\)/);
+test('R139 home shows all grouped habit cards; category filtering lives in Control Center',()=>{
+ assert.doesNotMatch(s,/data-testid="habit-category-filter-r130"/);
+ assert.match(s,/grouped\.map\(\(\[category,items\]\)/);
  assert.match(s,/data-testid="habit-category-card"/);
+ assert.match(s,/data-testid="control-category-filter-r135"/);
+ assert.match(s,/data-testid="control-habit-cards-r135"/);
 });
+
 test('R130 finance people list has repayment-state filtering, separate from debt detail',()=>{
  assert.match(s,/data-testid="people-payment-filter-r130"/);
  assert.match(s,/personPaymentStatus==="all"\|\|allRows\.some/);

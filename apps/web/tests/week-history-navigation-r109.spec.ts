@@ -14,7 +14,7 @@ test('R109: history navigates from weekly achievement strip with bounded previou
 });
 test('R109: selected historical day opens editor without independent legacy card or date picker',()=>{
  assert.match(ui,/setHistoryDate\(day\.date\)/);
- assert.match(ui,/data-testid="inpage-history-banner-r110"/);
+ assert.doesNotMatch(ui,/data-testid="inpage-history-banner-r110"/);
  assert.match(ui,/data-history-page=\{historyDate\?"historical":"current"\}/);
  assert.match(ui,/setHistoryDate\(null\)/);
  assert.doesNotMatch(ui,/<details className="np-history-editor"/);
@@ -25,6 +25,8 @@ test('R109: selected historical day opens editor without independent legacy card
 });
 test('R109: future days are disabled and current day uses existing live controls',()=>{
  assert.match(ui,/disabled=\{day\.future\}/);
- assert.match(ui,/scrollIntoView\?\./);
+ // R136: selecting a day must never auto-scroll or insert the banner into layout.
+ assert.doesNotMatch(ui,/querySelector<HTMLElement>\('\.np-main-grid\.np-daily-only'\)\?\.scrollIntoView\?\./);
+ assert.doesNotMatch(ui,/data-testid="historical-date-stable-slot-r135"/);
  assert.match(ui,/data-week-state=\{day\.future\?"future":day\.current\?"today":"past"\}/);
 });

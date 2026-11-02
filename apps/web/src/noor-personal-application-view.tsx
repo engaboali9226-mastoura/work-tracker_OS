@@ -571,6 +571,34 @@ const PAGE_STYLES = `
 
 /* NOOR_INLINE_DETAILS_R65D BEGIN */
 .np-cc-layout,.np-cc-layout:has(.np-cc-themes){grid-template-columns:180px minmax(0,1fr)}
+/* NOOR_R135_CONTROL_CARDS_AND_PORTAL_MODAL_BEGIN */
+.np-cc-tools.np-cc-tools-habit-cards-r135{grid-template-columns:minmax(0,1fr) minmax(130px,150px) minmax(150px,200px)}
+.np-cc-category-groups-r135{display:grid;gap:12px;min-width:0}
+.np-cc-category-card-r135{min-width:0;overflow:hidden;border:1px solid var(--border);border-radius:17px;background:var(--panel);box-shadow:0 3px 15px #1020330b}
+.np-cc-category-card-r135>summary{display:flex;align-items:center;gap:12px;justify-content:space-between;padding:16px;min-height:58px;cursor:pointer;list-style:none;color:var(--text);font-size:15px}
+.np-cc-category-card-r135>summary::-webkit-details-marker{display:none}
+.np-cc-category-card-r135>summary:focus-visible{outline:3px solid #86b29f;outline-offset:-3px}
+.np-cc-category-card-r135[open]>summary{border-bottom:1px solid var(--border)}
+.np-cc-category-card-heading-r135{display:grid;gap:5px;min-width:0}
+.np-cc-category-card-heading-r135 strong{overflow-wrap:anywhere}
+.np-cc-category-card-heading-r135 small{font-size:12px;color:var(--muted)}
+.np-cc-category-chevron-r135{flex:0 0 10px;width:10px;height:10px;border-inline-end:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(45deg);transition:transform .15s ease}
+.np-cc-category-card-r135[open] .np-cc-category-chevron-r135{transform:rotate(225deg)}
+.np-cc-category-items-r135{display:grid;gap:4px;padding:8px;min-width:0}
+.np-cc-category-items-r135 .np-cc-expandable{border-color:var(--border)}
+/* This overlay is portaled beside .np-page, outside clipped .np-cc and animated .np-wrap. */
+.np-cc-modal-backdrop{z-index:12000;box-sizing:border-box;overflow-y:auto;overscroll-behavior:contain;padding:clamp(7px,2vh,18px);align-items:center;justify-content:center}
+.np-cc-modal-backdrop,.np-cc-modal-backdrop *{box-sizing:border-box}
+.np-cc-modal-backdrop .np-cc-modal{position:relative;min-width:0;width:min(680px,100%);min-height:0;max-height:100%;display:flex;flex-direction:column;overflow:hidden;flex:0 1 680px;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Tahoma,Arial,sans-serif}
+.np-cc-modal-backdrop .np-cc-modal-head,.np-cc-modal-backdrop .np-cc-modal-footer{flex:0 0 auto}
+.np-cc-modal-backdrop .np-cc-modal-body{flex:1 1 auto;min-height:0;max-height:none;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;touch-action:pan-y}
+.np-cc-modal-backdrop[data-appearance="dark"] .np-cc-modal{background:#202b36;color:#e2eaf2;border-color:#3a4959}
+.np-cc-modal-backdrop[data-appearance="dark"] .np-cc-modal-head,.np-cc-modal-backdrop[data-appearance="dark"] .np-cc-modal-footer{border-color:#3a4959}
+.np-cc-modal-backdrop[data-appearance="dark"] .np-cc-modal-footer>span{color:#afbdca}
+.np-cc-modal-backdrop[data-appearance="dark"] .np-cc-modal .np-input,.np-cc-modal-backdrop[data-appearance="dark"] .np-cc-modal .np-select{background:#24363e;color:#e2eaf2;border-color:#465963}
+@media(max-width:700px){.np-cc-tools.np-cc-tools-habit-cards-r135{grid-template-columns:1fr 1fr}.np-cc-tools-habit-cards-r135 .np-input{grid-column:1/-1}.np-cc-modal-backdrop .np-cc-modal{max-height:100%;border-radius:16px}.np-cc-modal-backdrop .np-cc-modal-head{padding:12px 14px}.np-cc-modal-backdrop .np-cc-modal-body{padding:15px 14px}.np-cc-modal-backdrop .np-cc-modal-footer{padding:9px 12px}.np-cc-category-card-r135>summary{padding:13px}}
+@media(max-width:420px){.np-cc-tools.np-cc-tools-habit-cards-r135{grid-template-columns:1fr}.np-cc-tools-habit-cards-r135 .np-input{grid-column:auto}.np-cc-modal-footer>span{display:none}}
+/* NOOR_R135_CONTROL_CARDS_AND_PORTAL_MODAL_END */
 .np-cc-expandable{min-width:0;border:1px solid transparent;border-radius:14px;overflow:hidden}
 .np-cc-expandable:has(.np-cc-inline-detail){border-color:#d9e7ee;background:#f8fafb}
 .np-cc-row{border-radius:12px}
@@ -933,8 +961,6 @@ const PAGE_STYLES = `
 
 /* NOOR_HISTORY_EDITOR_R108: independent from R107 native card disclosures. */
 /* NOOR_R130_FILTER_STYLES */
-.np-category-filter-r130{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:2px 4px 12px;color:var(--muted);font-size:12px}
-.np-category-filter-r130 select{min-height:40px;max-width:min(100%,340px);min-width:180px;border:1px solid var(--border);border-radius:10px;padding:8px 10px;background:var(--panel);color:var(--text);font:inherit}
 .nf-person-filters-r130{display:flex;gap:10px;align-items:end;flex-wrap:wrap;margin:8px 0 14px}
 .nf-person-filters-r130>input{flex:1 1 180px;min-height:40px}
 .nf-person-filters-r130>label{display:grid;gap:4px;flex:1 1 170px;font-size:12px;color:var(--muted)}
@@ -985,11 +1011,8 @@ const PAGE_STYLES = `
 @media(max-width:600px){.np-page .np-week-heading{align-items:flex-start;flex-direction:column}.np-page .np-week-navigation{width:100%;justify-content:space-between}.np-page .np-history-overlay{padding:9px}.np-page .np-history-overlay .np-history-editor{max-height:94vh}.np-page button.np-week-day{min-height:67px}}
 
 /* NOOR_INPAGE_HISTORY_R110: historical day replaces the existing main-day content. */
-/* NOOR_MINIMAL_DAY_STRIP_R111: compact pastel-yellow date ribbon only. */
-.np-page .np-inpage-history-banner{display:flex;align-items:center;justify-content:center;margin:8px 0 10px;padding:7px 12px;min-height:34px;border:1px solid #efdfad;border-radius:9px;background:#fff8de;color:#614b1f;text-align:center}
-.np-page .np-inpage-history-banner time{font-size:12px;line-height:1.45;font-weight:600;font-variant-numeric:tabular-nums}
-.np-page .np-week-day.is-selected{outline:2px solid var(--gold);outline-offset:-2px;border-radius:7px;background:var(--gold-soft)!important}
-@media(max-width:600px){.np-page .np-inpage-history-banner{padding:6px 10px;margin:7px 0 9px}}
+/* NOOR_R139_SELECTED_DAY_SHADOW_ONLY: no yellow ribbon, no reserved slot, no auto-scroll. */
+.np-page .np-week-day.is-selected{box-shadow:0 0 0 2px var(--gold),0 4px 14px rgba(184,134,43,.20);border-radius:7px}
 
 /* NOOR_MANAGEMENT_R77 */
 .np-category-editor{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:20px}.np-category-editor .np-input{flex:1;min-width:160px}.np-category-registry{display:grid;gap:8px}.np-category-registry>div{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px;border:1px solid var(--border);border-radius:12px}.np-category-registry span{overflow-wrap:anywhere}.np-form small{line-height:1.7}.np-form .np-weekday{font-size:13px;min-height:40px}.np-form .np-weekday input{width:18px;height:18px}
@@ -1004,6 +1027,30 @@ const PAGE_STYLES = `
 .np-delete-backdrop{position:fixed;inset:0;z-index:11000;display:flex;align-items:center;justify-content:center;padding:16px;background:#102a4366;direction:rtl;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Tahoma,Arial,sans-serif;box-sizing:border-box}.np-delete-dialog,.np-delete-dialog *{box-sizing:border-box}.np-delete-dialog{width:min(100%,440px);max-height:calc(100dvh - 32px);display:flex;flex-direction:column;overflow:hidden;border:1px solid #e2e6e9;border-radius:20px;background:#fff;color:#183b56;box-shadow:0 22px 70px #102a4333}.np-delete-dialog header{padding:14px 18px;display:flex;gap:10px;justify-content:space-between;align-items:center;flex:0 0 auto;border-bottom:1px solid #e9edef}.np-delete-dialog h2{font-size:20px;margin:0}.np-delete-dialog header button{width:44px;height:44px;border:0;border-radius:12px;background:#f1f4f6;color:#526e80;font-size:24px;cursor:pointer}.np-delete-dialog form{display:flex;flex-direction:column;min-height:0;overflow:hidden;margin:0}.np-delete-body{overflow:auto;min-height:0;padding:18px;overscroll-behavior:contain}.np-delete-body>strong{display:block;font-size:16px;overflow-wrap:anywhere}.np-delete-body p{font-size:14px;line-height:1.8;margin:12px 0;overflow-wrap:anywhere}.np-delete-body label{display:block;font-size:14px;margin:14px 0 8px}.np-delete-body input{width:100%;padding:10px 12px;border:1px solid #d7dfe5;border-radius:10px;font:inherit;font-size:16px;color:#183b56;background:#fff}.np-delete-body [role=alert]{color:#ad493b}.np-delete-dialog footer{display:flex;gap:10px;padding:14px 18px;border-top:1px solid #e9edef;flex:0 0 auto;background:#fff}.np-delete-dialog footer button{flex:1;min-height:44px;font:inherit;font-size:13px;border-radius:10px;border:1px solid #d6dfe5;padding:9px;cursor:pointer}.np-delete-dialog .cancel{background:#f3f6f8;color:#37556b}.np-delete-dialog .confirm{background:#af423a;border-color:#af423a;color:white}.np-delete-dialog button:disabled{opacity:.45;cursor:not-allowed}.np-delete-dialog :is(button,input):focus-visible{outline:3px solid #83b8d1;outline-offset:2px}
 .nf-person-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:12px;margin:16px 0}.nf-person{display:grid;gap:9px;padding:18px;border:1px solid var(--border);border-radius:18px;background:var(--panel);color:var(--text);font:inherit;text-align:right;cursor:pointer;min-width:0}.nf-person strong{font-size:17px;overflow-wrap:anywhere}.nf-person span,.nf-person small{font-size:12px;line-height:1.8;color:var(--muted);overflow-wrap:anywhere}.nf-person:hover{border-color:#8fafb7}.nf-debt-filters{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}.nf-age-cell{font-variant-numeric:tabular-nums}.nf-age-cell.age-yellow{background:#fff7cf;color:#755d00}.nf-age-cell.age-orange{background:#ffe8c7;color:#895318}.nf-age-cell.age-red{background:#ffe3df;color:#963f34}.nf-age-cell.age-paid{background:#e0f4e7;color:#26714e}.np-page[data-appearance=dark] .nf-age-cell.age-yellow{background:#4a4226;color:#f5dfa4}.np-page[data-appearance=dark] .nf-age-cell.age-orange{background:#4f3b25;color:#f4c990}.np-page[data-appearance=dark] .nf-age-cell.age-red{background:#50302d;color:#ffc3b9}.np-page[data-appearance=dark] .nf-age-cell.age-paid{background:#23453a;color:#a0dcc0}
 @media(max-width:700px){.nf-person-grid{grid-template-columns:1fr}.nf-debt-table td:nth-child(10),.nf-debt-table td:nth-child(11){grid-column:1/-1}.nf-debt-table td:first-child,.nf-debt-table td:last-child{grid-column:1/-1}.nf-age-cell{border-radius:8px}.np-delete-backdrop{padding:12px}.np-delete-dialog{max-height:calc(100dvh - 24px)}.np-gregorian-parts select{font-size:16px;min-height:44px}}
+
+/* NOOR_R141_FINANCE_COMPACT_NOTES: summary closed until user action. */
+.nf .nf-note-disclosure-r140{margin:6px 0;border:1px solid var(--border);border-radius:10px;background:var(--panel-soft);min-width:0;max-width:100%}
+.nf .nf-note-disclosure-r140>summary{cursor:pointer;list-style:revert;min-height:36px;padding:8px 12px;font-size:12px;font-weight:650;line-height:1.6;overflow-wrap:anywhere}
+.nf .nf-note-disclosure-r140>summary:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.nf .nf-note-disclosure-r140>p{margin:0!important;padding:9px 12px 12px;border-top:1px solid var(--border);font-size:12px;line-height:1.8;white-space:pre-wrap;overflow-wrap:anywhere;max-height:min(35vh,240px);overflow-y:auto}
+
+/* NOOR_R143_SEMANTIC_CATEGORY_ICON_STYLES */
+.np-page .np-category-symbol-r143{--np-category-accent:#417b81;background:color-mix(in srgb,var(--np-category-accent) 11%,var(--panel));border-color:color-mix(in srgb,var(--np-category-accent) 24%,var(--border));color:var(--np-category-accent);flex:0 0 36px}
+.np-page .np-category-symbol-r143 svg{display:block;width:21px;height:21px}
+.np-page .np-category-icon-prayer,.np-page .np-category-icon-quran,.np-page .np-category-icon-dhikr{--np-category-accent:#517b60}
+.np-page .np-category-icon-sunnah{--np-category-accent:#668a5e}
+.np-page .np-category-icon-body-care{--np-category-accent:#a96f7d}
+.np-page .np-category-icon-hair-care{--np-category-accent:#9b7a9f}
+.np-page .np-category-icon-growth{--np-category-accent:#5c87a0}
+.np-page .np-category-icon-fitness,.np-page .np-category-icon-health,.np-page .np-category-icon-nutrition{--np-category-accent:#a76558}
+.np-page .np-category-icon-learning,.np-page .np-category-icon-reading,.np-page .np-category-icon-language{--np-category-accent:#587fa5}
+.np-page .np-category-icon-work,.np-page .np-category-icon-finance,.np-page .np-category-icon-planning{--np-category-accent:#97743e}
+.np-page .np-category-icon-family,.np-page .np-category-icon-home,.np-page .np-category-icon-sleep{--np-category-accent:#856eac}
+.np-page .np-category-icon-technology,.np-page .np-category-icon-travel{--np-category-accent:#477e88}
+.np-cc-category-card-heading-r135 .np-cc-category-card-title-r143{display:flex;align-items:center;gap:10px;min-width:0}
+.np-cc-category-card-title-r143 strong{min-width:0;overflow-wrap:anywhere}
+.np-cc-category-card-title-r143 .np-category-symbol-r143{width:36px;height:36px;border-radius:11px;display:grid;place-items:center;flex:0 0 36px}
+.np-page[data-appearance="dark"] .np-category-symbol-r143{color:#d1e7ec;background:color-mix(in srgb,var(--np-category-accent) 32%,#253443);border-color:#516779}
 
 /* NOOR_LEDGER_DESIGN_R80 */
 .nf-person-card{border:1px solid var(--border);border-radius:18px;background:var(--panel);overflow:hidden;min-width:0;display:flex;flex-direction:column;transition:border-color .18s,box-shadow .18s}.nf-person-card:hover{border-color:#91acb9;box-shadow:0 8px 24px #183b560b}.nf-person-card .nf-person{width:100%;border:0;border-radius:0;background:transparent;flex:1;padding:20px;gap:10px;box-shadow:none}.nf-person-card .nf-person strong{font-size:18px}.nf-person-card .nf-person-open{color:var(--text);font-size:13px;font-weight:600;margin-top:6px}.nf-person-card-actions{border-top:1px solid var(--border);padding:8px 14px;background:var(--panel-soft);display:flex;justify-content:flex-end}.nf-person-card-actions .nf-button{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;font-size:13px;margin:0}.nf-person-card :is(button):focus-visible{outline:3px solid #68a9c7;outline-offset:-4px}.nf-debt-register .nf-list-heading{align-items:center;gap:16px;flex-wrap:wrap}.nf-debt-register .nf-list-heading>div:last-child{display:flex;gap:8px;flex-wrap:wrap}.nf-ledger-guide{font-size:12px;color:var(--muted);margin:12px 0}.nf-ledger-guide>summary{cursor:pointer;min-height:32px;display:list-item;align-content:center}.nf-debt-filters>input{flex:1;min-width:160px}.nf-debt-filters>select{min-width:140px}.nf-debt-register .nf-debt-totals{grid-template-columns:repeat(auto-fit,minmax(min(100%,230px),1fr))}.nf-debt-register .nf-debt-totals article{padding:16px;background:var(--panel);border-radius:16px}.nf-debt-register .nf-debt-totals dd{font-size:14px;font-weight:600}.nf-debt-register .nf-debt-totals dt{color:var(--muted)}
@@ -1463,18 +1510,23 @@ function PermanentDeleteDialog({title,busy,onClose,onDelete}:{title:string;busy:
 }
 
 
-function DefinitionForm({busy,onCommand,defaultStartDate,defaultKind="Habit",initial,categories=COMMON_CATEGORIES}:{busy:boolean;onCommand:(command:NoorPersonalCommandInput)=>Promise<boolean>;defaultStartDate:string;defaultKind?:"Habit"|"Task";initial?:DefinitionItem;categories?:readonly string[]}):ReactElement {
+function DefinitionForm({busy,onCommand,onSavingChange,defaultStartDate,defaultKind="Habit",initial,categories=COMMON_CATEGORIES}:{busy:boolean;onCommand:(command:NoorPersonalCommandInput)=>Promise<boolean>;onSavingChange?:(saving:boolean)=>void;defaultStartDate:string;defaultKind?:"Habit"|"Task";initial?:DefinitionItem;categories?:readonly string[]}):ReactElement {
  const [scheduleKind,setScheduleKind]=useState<"OneTime"|"Daily"|"Weekdays">(initial?.scheduleKind??"Daily");
  const [selectedKind,setSelectedKind]=useState(initial?.kind??defaultKind);
  const [duration,setDuration]=useState(initial?.endDate||initial?.scheduleKind==="OneTime"?"limited":"continuous");
  const [days,setDays]=useState<readonly number[]>(initial?.weekdays??[]);
  const [error,setError]=useState("");
+ const definitionSaveLock=useRef(false);
  const submit=async(event:FormEvent<HTMLFormElement>)=>{
-  event.preventDefault();if(busy)return;const data=new FormData(event.currentTarget),text=(key:string)=>String(data.get(key)??"").trim();
+  event.preventDefault();if(busy||definitionSaveLock.current)return;const data=new FormData(event.currentTarget),text=(key:string)=>String(data.get(key)??"").trim();
   if(scheduleKind==="Weekdays"&&!days.length){setError("اختر يومًا واحدًا على الأقل.");return;}
   const endDate=selectedKind==="Habit"&&duration==="continuous"?null:text("endDate")||null;
   const fields={weight:Number(text("weight")||initial?.weight||1),...(selectedKind==="Habit"&&text("timeOfDay")?{timeOfDay:text("timeOfDay")}:{}),kind:selectedKind,title:text("title"),category:text("category"),startDate:text("startDate"),endDate,scheduleKind,weekdays:scheduleKind==="Weekdays"?days:[],importance:text("importance") as "Essential"|"Important"|"Supporting"|"Optional",...(selectedKind==="Task"&&text("progressTarget")?{measurement:{target:Number(text("progressTarget")),unit:text("progressUnit")}}:{})};
-  setError("");const ok=await onCommand(initial?{...fields,type:"update-definition",definitionId:initial.id,expectedRevisionId:initial.revisionId}:{...fields,type:"create-definition"});
+  setError("");definitionSaveLock.current=true;onSavingChange?.(true);
+  let ok=false;
+  try{ok=await onCommand(initial?{...fields,type:"update-definition",definitionId:initial.id,expectedRevisionId:initial.revisionId}:{...fields,type:"create-definition"});}
+  catch{ok=false;}
+  finally{definitionSaveLock.current=false;onSavingChange?.(false);}
   if(!ok)setError("تعذر تأكيد الحفظ. بياناتك محفوظة هنا؛ ربما عُدّل العنصر من جهاز آخر. أعد تحميله قبل المحاولة مجددًا.");
  };
  return <form id="np-definition-edit-form" className="np-form" onSubmit={e=>{void submit(e);}}>
@@ -1553,7 +1605,21 @@ function parseMoneyInput(value:string):number|null {
  return Number.isSafeInteger(minor)&&minor<=1e12?minor:null;
 }
 function debtDuration(start:string,end:string):string{const p=debtElapsedPeriod(start,end);return p?[p.years?`${p.years} سنة`:'',p.months?`${p.months} شهر`:'',p.days?`${p.days} يوم`:''].filter(Boolean).join(' و ')||'0 يوم':'—';}
-function FinanceCorrections({entry}:{entry:FinanceLedger['entries'][number]|undefined}):ReactElement|null{return entry?.corrections?.length?<details><summary>سجل التصحيحات ({entry.corrections.length})</summary>{entry.corrections.map((c,i)=><p key={i}>القيمة السابقة: {(c.amountMinor/100).toFixed(2)} · {c.date}<br/>السبب: {c.reason}{c.note?<><br/>{c.note}</>:null}</p>)}</details>:null;}
+/* NOOR_R141_FINANCE_NOTES_PRESENTATION_ONLY: do not mutate persisted notes. */
+export function financeVisibleNote(note:string):string {
+  return note.split(/\r?\n/u).filter(line=>{
+    const text=line.trim();
+    if(!text)return true;
+    if(/^(?:مصدر البيانات|مصدر الملف|اسم الملف|اسم ملف المصدر|ملف المصدر|source file|source filename|data source)\s*[:：-]\s*.+\.(?:xlsx?|xlsm|csv|numbers)\s*$/iu.test(text))return false;
+    return true;
+  }).join("\n").trim();
+}
+function FinanceNote({note}:{note:string}):ReactElement|null {
+  const visible=financeVisibleNote(note);
+  return visible?<details className="nf-note-disclosure-r140" data-testid="finance-note-disclosure-r141"><summary>الملاحظات</summary><p>{visible}</p></details>:null;
+}
+
+function FinanceCorrections({entry}:{entry:FinanceLedger['entries'][number]|undefined}):ReactElement|null{return entry?.corrections?.length?<details><summary>سجل التصحيحات ({entry.corrections.length})</summary>{entry.corrections.map((c,i)=><p key={i}>القيمة السابقة: {(c.amountMinor/100).toFixed(2)} · {c.date}<br/>السبب: {c.reason}{c.note?<FinanceNote note={c.note}/>:null}</p>)}</details>:null;}
 function DebtRegister({ledger,today,busy,onRepay,onAddPerson,onAddDebt,onEditPerson,onEditDebt,onEditPayment}:{ledger:FinanceLedger;today:string;busy:boolean;onRepay:(id:string)=>void;onAddPerson:()=>void;onEditDebt:(id:string)=>void;onEditPayment:(id:string)=>void;onEditPerson:(person:{id:string|null;name:string;note:string})=>void;onAddDebt:(person:{id:string|null;name:string})=>void}):ReactElement{
  const [view,setView]=useState<'people'|'statistics'>('people'),[selected,setSelected]=useState<string|null>(null),[query,setQuery]=useState(''),[direction,setDirection]=useState('all'),[state,setState]=useState('all');const summary=financeSummary(ledger);
  const [personPaymentStatus,setPersonPaymentStatus]=useState("all");
@@ -1567,17 +1633,17 @@ function DebtRegister({ledger,today,busy,onRepay,onAddPerson,onAddDebt,onEditPer
  const showPeople=view==='people'&&!person;
  return <section className="nf-debt-register" data-testid="debt-register-r77" data-layout="people-r78" data-person-edit-version="NOOR_PERSON_EDIT_R79" data-ledger-design="NOOR_LEDGER_DESIGN_R80"><nav className="nf-tabs" aria-label="عرض الديون"><button type="button" className={view==='people'?'is-active':''} onClick={()=>{setView('people');setQuery('');}}>الأشخاص</button><button type="button" className={view==='statistics'?'is-active':''} onClick={()=>{setView('statistics');setQuery('');}}>الإحصائيات</button></nav>
  {showPeople?<><div className="nf-list-heading"><h3>الأشخاص</h3><button className="nf-button primary" type="button" disabled={busy} onClick={onAddPerson}>+ إضافة شخص</button></div><div className="nf-person-filters-r130"><input aria-label="البحث عن شخص" placeholder="ابحث بالاسم" value={query} onChange={e=>setQuery(e.currentTarget.value)}/><label>حالة السداد<select data-testid="people-payment-filter-r130" aria-label="فلتر الأشخاص حسب حالة السداد" value={personPaymentStatus} onChange={e=>setPersonPaymentStatus(e.currentTarget.value)}><option value="all">كل الحالات</option>{Object.entries(labels).map(([value,label])=><option key={value} value={value}>{label}</option>)}</select></label></div><div className="nf-person-grid">{[...profiles.values()].filter(p=>(!query||p.name.includes(query.trim()))&&(personPaymentStatus==="all"||allRows.some(r=>personKey(r.debt)===p.key&&r.status===personPaymentStatus))).map(p=>{const debts=allRows.filter(r=>personKey(r.debt)===p.key);return <article className="nf-person-card" key={p.key}><button className="nf-person" type="button" onClick={()=>{setSelected(p.key);setQuery('');setDirection('all');setState('all');}}><strong>{p.name}</strong><span>{debts.length} مبالغ مسجلة · {debts.filter(r=>r.status==='paid').length} مسددة</span>{(['SAR','EGP'] as const).map(currency=>{const group=debts.filter(r=>(r.debt.currency??'SAR')===currency);return group.length?<small key={currency}>لي: {moneyLabel(group.filter(r=>r.debt.direction==='receivable').reduce((n,r)=>n+r.remaining,0),currency)} · عليّ: {moneyLabel(group.filter(r=>r.debt.direction==='payable').reduce((n,r)=>n+r.remaining,0),currency)}</small>:null;})}<span className="nf-person-open">فتح ملف الشخص ←</span></button><div className="nf-person-card-actions"><button className="nf-button" type="button" aria-label={`تعديل بيانات ${p.name}`} disabled={busy} onClick={()=>onEditPerson(p)}><svg aria-hidden="true" viewBox="0 0 24 24" width="16" height="16" fill="none"><path d="m15 5 4 4M4 20l4-1 12-12a2.8 2.8 0 0 0-4-4L4 15l-1 6Z" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"/></svg>الاسم والملاحظات</button><button className="nf-button" type="button" onClick={()=>{setSelected(p.key);setQuery('');setDirection('all');setState('all');}}>تعديل المبالغ</button></div></article>;})}</div>{!profiles.size?<p className="nf-empty">أضف الشخص أولًا، ثم سجل المبالغ ودفعات السداد داخل ملفه.</p>:null}</>:<>
- <div className="nf-list-heading"><div><h3>{person?person.name:'إحصائيات جميع الأشخاص'}</h3>{person?.note?<p className="nf-help">{person.note}</p>:null}</div><div>{person?<><button className="nf-button" type="button" onClick={()=>{setSelected(null);setQuery('');}}>العودة للأشخاص</button><button className="nf-button" type="button" disabled={busy} onClick={()=>onEditPerson(person)}>تعديل الشخص</button><button className="nf-button primary" type="button" disabled={busy} onClick={()=>onAddDebt(person)}>+ إضافة مبلغ لهذا الشخص</button></>:null}</div></div>
+ <div className="nf-list-heading"><div><h3>{person?person.name:'إحصائيات جميع الأشخاص'}</h3>{person?.note?<FinanceNote note={person.note}/>:null}</div><div>{person?<><button className="nf-button" type="button" onClick={()=>{setSelected(null);setQuery('');}}>العودة للأشخاص</button><button className="nf-button" type="button" disabled={busy} onClick={()=>onEditPerson(person)}>تعديل الشخص</button><button className="nf-button primary" type="button" disabled={busy} onClick={()=>onAddDebt(person)}>+ إضافة مبلغ لهذا الشخص</button></>:null}</div></div>
  <div className="nf-debt-filters"><input aria-label="بحث في الديون" placeholder="بحث في الملاحظات" value={query} onChange={e=>setQuery(e.currentTarget.value)}/><select aria-label="اتجاه الدين" value={direction} onChange={e=>setDirection(e.currentTarget.value)}><option value="all">الكل: لي وعليّ</option><option value="receivable">مدين لي — مبالغ لي</option><option value="payable">دائن عليّ — مبالغ عليّ</option></select><select aria-label="حالة السداد" value={state} onChange={e=>setState(e.currentTarget.value)}><option value="all">كل الحالات</option>{Object.entries(labels).map(([value,label])=><option key={value} value={value}>{label}</option>)}</select></div>
  <details className="nf-ledger-guide"><summary>كيف تُحسب المدة والألوان؟</summary><p className="nf-help">المدة من تاريخ الدين حتى آخر تاريخ سداد إن وجد، وإلا حتى اليوم. الدفعة الجزئية لا تُغلق المبلغ المتبقي. الألوان: أصفر أقل من 6 أشهر، برتقالي من 6 إلى 8، أحمر من 9 فأكثر، وأخضر للمسدد بالكامل.</p></details>
  <div className="nf-debt-totals">{(['SAR','EGP'] as const).filter(currency=>rows.some(r=>(r.debt.currency??'SAR')===currency)).flatMap(currency=>(['receivable','payable'] as const).map(dir=>{const group=rows.filter(r=>(r.debt.currency??'SAR')===currency&&r.debt.direction===dir);return <article key={currency+dir}><h3>{dir==='receivable'?'مبالغ لي':'مبالغ عليّ'} · {currency==='SAR'?'ريال سعودي':'جنيه مصري'}</h3><dl><dt>أصل الدين</dt><dd>{moneyLabel(group.reduce((n,r)=>n+(r.origin?.amountMinor??0),0),currency)}</dd><dt>السداد</dt><dd>{moneyLabel(group.reduce((n,r)=>n+r.paid,0),currency)}</dd><dt>المتبقي</dt><dd>{moneyLabel(group.reduce((n,r)=>n+r.remaining,0),currency)}</dd></dl></article>;}))}</div>
  {rows.length===0?<p className="nf-empty">لا توجد مبالغ تطابق الاختيار.</p>:<div className="nf-debt-scroll" tabIndex={0} role="region" aria-label="جدول الشخص والديون والسداد"><table className="nf-debt-table nf-ledger-table"><caption>{person?'سجل '+person.name:'سجل جميع الأشخاص'}<span>{rows.length} مبالغ · إجماليات العملات منفصلة</span></caption><thead><tr>{['الشخص','الدين','السداد','المتبقي','المدة والحالة','الملاحظات','الإجراء'].map(x=><th scope="col" key={x}>{x}</th>)}</tr></thead><tbody>{rows.map(r=>{const age=r.status==='paid'?'paid':!r.origin?'cancelled':(r.period?.totalMonths??0)>=9?'red':(r.period?.totalMonths??0)>=6?'orange':'yellow';return <tr key={r.debt.id}>
  <td data-label="الشخص" className="nf-ledger-person"><strong>{r.debt.person}</strong><span className="nf-badge">{r.debt.direction==='receivable'?'لي عنده':'عليّ له'}</span></td>
  <td data-label="الدين"><strong className="nf-ledger-money">{moneyLabel(r.origin?.amountMinor??0,r.debt.currency)}</strong><time className="nf-ledger-date" dateTime={r.origin?.date}>{r.origin?.date??'ملغى'}</time></td>
- <td data-label="السداد"><strong className="nf-ledger-money">{moneyLabel(r.paid,r.debt.currency)}</strong>{r.payments.length?<><time className="nf-ledger-date" dateTime={r.end}>آخر دفعة: {r.end}</time><details className="nf-ledger-payments"><summary>دفعات السداد ({r.payments.length})</summary><ol>{r.payments.map(e=><li key={e.id}><div><strong>{moneyLabel(e.amountMinor,r.debt.currency)}</strong><time dateTime={e.date}>{e.date}</time></div>{e.note?<p>{e.note}</p>:null}<button className="nf-button" type="button" disabled={busy} onClick={()=>onEditPayment(e.id)}>تعديل الدفعة</button><FinanceCorrections entry={e}/></li>)}</ol></details></>:<small>لا توجد دفعات</small>}</td>
+ <td data-label="السداد"><strong className="nf-ledger-money">{moneyLabel(r.paid,r.debt.currency)}</strong>{r.payments.length?<><time className="nf-ledger-date" dateTime={r.end}>آخر دفعة: {r.end}</time><details className="nf-ledger-payments"><summary>دفعات السداد ({r.payments.length})</summary><ol>{r.payments.map(e=><li key={e.id}><div><strong>{moneyLabel(e.amountMinor,r.debt.currency)}</strong><time dateTime={e.date}>{e.date}</time></div>{e.note?<FinanceNote note={e.note}/>:null}<button className="nf-button" type="button" disabled={busy} onClick={()=>onEditPayment(e.id)}>تعديل الدفعة</button><FinanceCorrections entry={e}/></li>)}</ol></details></>:<small>لا توجد دفعات</small>}</td>
  <td data-label="المتبقي"><strong className="nf-ledger-money nf-ledger-remaining">{moneyLabel(r.remaining,r.debt.currency)}</strong><span className={`nf-payment-state ${r.status}`}>{r.status==='paid'?'✓ ':''}{labels[r.status]}</span></td>
  <td data-label="المدة والحالة"><span className={`nf-ledger-age age-${age}`}>{r.origin?debtDuration(r.origin.date,r.end):'—'}</span><small>{r.status==='paid'?'تم السداد':!r.origin?'ملغى':`${r.period?.totalMonths??0} شهر منذ الدين`}</small></td>
- <td data-label="الملاحظات" className="nf-ledger-note"><p>{r.debt.note||'بدون ملاحظات'}</p>{r.debt.dueDate?<small>الاستحقاق: <time className="nf-ledger-date" dateTime={r.debt.dueDate}>{r.debt.dueDate}</time></small>:<small>بدون موعد استحقاق</small>}</td>
+ <td data-label="الملاحظات" className="nf-ledger-note"><FinanceNote note={r.debt.note}/>{r.debt.dueDate?<small>الاستحقاق: <time className="nf-ledger-date" dateTime={r.debt.dueDate}>{r.debt.dueDate}</time></small>:<small>بدون موعد استحقاق</small>}</td>
  <td data-label="الإجراء" className="nf-ledger-actions"><FinanceCorrections entry={r.origin}/><button className="nf-button" type="button" disabled={busy||!r.origin} onClick={()=>onEditDebt(r.debt.id)}>تعديل المبلغ</button><button className="nf-button" type="button" disabled={busy||!r.origin||r.remaining===0} onClick={()=>onRepay(r.debt.id)}>{r.debt.direction==='receivable'?'تسجيل تحصيل':'تسجيل سداد'}</button></td>
  </tr>;})}</tbody></table></div>}
 
@@ -1640,7 +1706,7 @@ function FinanceCenter({ledger,busy,onCommand,today}:{ledger:FinanceLedger|null;
   {tab==='accounts'?<div className="nf-account-grid">{ledger.accounts.map(a=><article className="nf-account" key={a.id}><span className="nf-badge">{FINANCE_ACCOUNT_LABELS[a.kind]}</span><h3>{a.name}</h3><strong>{moneyLabel(summary.balances[a.id]??0)}</strong><p>افتتاحي: {moneyLabel(a.openingMinor)} · {a.date}</p><button className="nf-button" onClick={()=>{setAccountFilter(a.id);setTab('entries');}} type="button">عرض الحركات</button></article>)}</div>:null}
   {tab==='debts'?<DebtRegister ledger={ledger} today={today} busy={busy} onRepay={id=>open('repay',{debtId:id})} onAddPerson={()=>open('person')} onEditDebt={id=>open('editDebt',{debtId:id})} onEditPayment={id=>open('editPayment',{entryId:id})} onEditPerson={person=>open('editPerson',{personName:person.name,personNote:person.note,...(person.id?{personId:person.id}:{})})} onAddDebt={person=>open('debt',{personName:person.name,...(person.id?{personId:person.id}:{})})}/>:null}
   {tab==='overview'||tab==='entries'?<section className="nf-transactions"><div className="nf-list-heading"><h3>{tab==='overview'?'آخر الحركات في الفترة':'سجل الحركات'}</h3><div><input aria-label="بحث في الحركات المالية" placeholder="بحث بالوصف أو الشخص" value={query} onChange={e=>setQuery(e.currentTarget.value)}/><select aria-label="تصفية الحساب المالي" value={accountFilter} onChange={e=>setAccountFilter(e.currentTarget.value)}><option value="">كل الحسابات</option>{ledger.accounts.map(a=><option key={a.id} value={a.id}>{a.name}</option>)}</select></div></div>
-  {entries.length===0?<p className="nf-empty">لا توجد حركات تطابق الفترة والبحث.</p>:entries.slice(0,tab==='overview'?5:limit).map(e=><article className={`nf-entry${e.voidedAt?' is-void':''}`} key={e.id}><div><span className="nf-badge">{FINANCE_KIND_LABELS[e.kind]}</span><strong>{e.category}{e.debtId?` · ${debtName(e.debtId)}`:''}</strong><p>{e.date} · {accountName(e.accountId)}{e.targetAccountId?` ← ${accountName(e.targetAccountId)}`:''}</p>{e.note?<p>{e.note}</p>:null}{e.voidedAt?<p>ملغاة للتصحيح: {e.voidReason}</p>:null}</div><div className="nf-entry-amount"><strong>{moneyLabel(e.amountMinor,ledger.debts.find(d=>d.id===e.debtId)?.currency)}</strong>{!e.voidedAt?<button className="nf-link" disabled={busy} onClick={()=>open('void',{entryId:e.id})} type="button">إلغاء للتصحيح</button>:<span>ملغاة</span>}</div></article>)}
+  {entries.length===0?<p className="nf-empty">لا توجد حركات تطابق الفترة والبحث.</p>:entries.slice(0,tab==='overview'?5:limit).map(e=><article className={`nf-entry${e.voidedAt?' is-void':''}`} key={e.id}><div><span className="nf-badge">{FINANCE_KIND_LABELS[e.kind]}</span><strong>{e.category}{e.debtId?` · ${debtName(e.debtId)}`:''}</strong><p>{e.date} · {accountName(e.accountId)}{e.targetAccountId?` ← ${accountName(e.targetAccountId)}`:''}</p>{e.note?<FinanceNote note={e.note}/>:null}{e.voidedAt?<p>ملغاة للتصحيح: {e.voidReason}</p>:null}</div><div className="nf-entry-amount"><strong>{moneyLabel(e.amountMinor,ledger.debts.find(d=>d.id===e.debtId)?.currency)}</strong>{!e.voidedAt?<button className="nf-link" disabled={busy} onClick={()=>open('void',{entryId:e.id})} type="button">إلغاء للتصحيح</button>:<span>ملغاة</span>}</div></article>)}
   {tab==='entries'&&entries.length>limit?<button className="nf-button" onClick={()=>setLimit(limit+25)} type="button">عرض المزيد</button>:null}</section>:null}
   {modal?createPortal(<div className="nf-backdrop" onClick={e=>{if(e.target===e.currentTarget)close();}}><div role="dialog" aria-modal="true" aria-label="تسجيل حركة مالية" className="nf-dialog" ref={panel} onKeyDown={e=>{if(e.key==='Escape'){e.preventDefault();close();}if(e.key==='Tab'){const nodes=Array.from(panel.current?.querySelectorAll<HTMLElement>('input:not(:disabled),textarea:not(:disabled),select:not(:disabled),button:not(:disabled)')??[]);if(!nodes.length){e.preventDefault();return;}if(e.shiftKey&&document.activeElement===nodes[0]){e.preventDefault();nodes.at(-1)?.focus();}else if(!e.shiftKey&&document.activeElement===nodes.at(-1)){e.preventDefault();nodes[0]?.focus();}}}}><h2>{({editDebt:'تعديل مبلغ الدين',editPayment:'تعديل دفعة السداد',editPerson:'تعديل الشخص',person:'إضافة شخص',account:'إضافة حساب أو صندوق',income:'تسجيل دخل',expense:'تسجيل مصروف',transfer:'تحويل بين الحسابات',debt:'تسجيل دين',repay:selectedDebt?.direction==='receivable'?'تحصيل مبلغ لي':'سداد مبلغ عليّ',void:'إلغاء حركة للتصحيح'})[modal.kind]}</h2>
   <form onSubmit={e=>{void submit(e);}}><fieldset disabled={busy}>
@@ -1665,6 +1731,7 @@ function ControlCenter({ busy, orderingPending=false, workspace, executions, onC
   const [section,setSection] = useState<"Habit" | "Task" | "appearance" | "finance" | "categories" | "ordering" | "statistics">("Habit");
   const [query,setQuery] = useState("");
   const [filter,setFilter] = useState("active");
+  const [categoryFilter,setCategoryFilter]=useState("all");
   const [selectedId,setSelectedId] = useState<string | null>(null);
   useEffect(() => {
     if(!selectedId)return;
@@ -1682,7 +1749,18 @@ function ControlCenter({ busy, orderingPending=false, workspace, executions, onC
   const [editing,setEditing] = useState<DefinitionItem|undefined>(undefined);
   const [formSession,setFormSession] = useState(0);
   const [formError,setFormError] = useState<string | null>(null);
+  const [definitionSaving,setDefinitionSaving]=useState(false);
   const dialogRef = useRef<HTMLDivElement | null>(null);
+  const [modalViewport,setModalViewport]=useState<{top:number;height:number}|null>(null);
+  useEffect(()=>{
+    if(!creating)return;
+    const update=()=>{const viewport=window.visualViewport;setModalViewport({top:Math.max(0,viewport?.offsetTop??0),height:Math.max(120,Math.round(viewport?.height??window.innerHeight))});};
+    update();
+    window.addEventListener("resize",update);
+    window.visualViewport?.addEventListener("resize",update);
+    window.visualViewport?.addEventListener("scroll",update);
+    return()=>{window.removeEventListener("resize",update);window.visualViewport?.removeEventListener("resize",update);window.visualViewport?.removeEventListener("scroll",update);};
+  },[creating]);
   useEffect(() => {
     if (!creating) return;
     const opener=document.activeElement as HTMLElement | null;
@@ -1691,7 +1769,7 @@ function ControlCenter({ busy, orderingPending=false, workspace, executions, onC
     dialogRef.current?.querySelector<HTMLInputElement>("#definition-title")?.focus();
     return () => { document.body.style.overflow=previousOverflow;if(opener?.isConnected)opener.focus(); };
   }, [creating]);
-  const closeCreate = () => { if(!busy)setCreating(false); };
+  const closeCreate = () => { if(!busy&&!definitionSaving)setCreating(false); };
   const trapDialogKeys = (event: import("react").KeyboardEvent<HTMLDivElement>) => {
     if(event.key==="Escape"){event.preventDefault();event.stopPropagation();closeCreate();return;}
     if(event.key!=="Tab")return;
@@ -1707,26 +1785,23 @@ function ControlCenter({ busy, orderingPending=false, workspace, executions, onC
   const kind = section === "Task" ? "Task" : "Habit";
   const currentExecution = (id: string) => executions.find(item => item.definitionId === id);
   const all = definitions.filter(item => item.kind === kind);
+  const categoryOptions=[...new Set(all.filter(item=>item.kind==="Habit").map(item=>item.category.trim()||"عام"))].sort((a,b)=>{
+    const ranks=workspace?.categories??[],left=ranks.indexOf(a),right=ranks.indexOf(b);
+    return (left<0?Number.MAX_SAFE_INTEGER:left)-(right<0?Number.MAX_SAFE_INTEGER:right)||a.localeCompare(b,"ar");
+  });
   const matches = all.filter(item => {
     const execution = currentExecution(item.id);
     const stateMatch = filter === "all" || (filter === "active" && item.state === "Active") || (filter === "paused" && item.state === "Paused") || (filter === "archived" && item.state === "Archived") || (filter === "completed" && execution?.status === "Completed");
     const needle=query.trim().toLocaleLowerCase("ar");
-    return stateMatch && (!needle || `${item.title} ${item.category}`.toLocaleLowerCase("ar").includes(needle));
+    return stateMatch && (kind!=="Habit"||categoryFilter==="all"||item.category.trim()===categoryFilter) && (!needle || `${item.title} ${item.category}`.toLocaleLowerCase("ar").includes(needle));
   });
+  const habitGroups=categoryOptions.map(category=>[category,matches.filter(item=>(item.category.trim()||"عام")===category)] as const).filter(([,items])=>items.length>0);
   const selected=matches.find(item=>item.id===selectedId) ?? null;
-  const changeSection = (value: typeof section) => { setSection(value);setQuery("");setFilter("active");setSelectedId(null);setCreating(false);setConfirmArchive(null); };
+  const changeSection = (value: typeof section) => { setSection(value);setQuery("");setFilter("active");setCategoryFilter("all");setSelectedId(null);setCreating(false);setConfirmArchive(null); };
   const apply = async (command: NoorPersonalCommandInput): Promise<boolean> => { const ok=await onCommand(command);if(command.type==="create-definition"||command.type==="update-definition")setFormError(ok?null:"تعذر الحفظ. راجع البيانات وحاول مرة أخرى.");if(ok){if(command.type==="delete-definition"){setSelectedId(null);setDeleteId(null);}setConfirmArchive(null);if(command.type==="create-definition"||command.type==="update-definition"){setCreating(false);setEditing(undefined);};}return ok; };
   const icon=(value:string)=><svg aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">{value==="finance"?<><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M3 9h18M15 14h3"/></>:value==="Habit"?<><rect x="4" y="4" width="16" height="16" rx="5"/><path d="m8 12 3 3 5-6"/></>:value==="Task"?<><path d="M10 6h10M10 12h10M10 18h10M4 6h1M4 12h1M4 18h1"/></>:<><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 0 0 16Z" fill="currentColor"/></>}</svg>;
-  return <div className="np-cc-shell" data-testid="control-center-r65">
-    <header className="np-cc-header"><div className="np-cc-heading"><div className="np-logo-frame np-cc-header-logo"><img alt="شعار نور" className="np-platform-logo" src="/noor-platform-logo.jpeg" /></div><div className="np-cc-heading-copy"><h1 className="np-control-title">مركز التحكم</h1></div></div><button aria-label="العودة إلى اليوم" className="np-cc-button" onClick={onClose} type="button">العودة لليوم ←</button></header>
-    <section className="np-card np-control np-cc"><div className="np-cc-layout">
-      <nav aria-label="أقسام مركز التحكم" className="np-cc-nav">{([["Habit","العادات"],["Task","المهام"],["categories","التصنيفات"],["ordering","الترتيب"],["statistics","الإحصائيات"],["finance","المالية"],["appearance","المظهر"]] as const).map(([id,label])=><button aria-current={section===id?"page":undefined} className={`np-cc-nav-item${section===id?" is-selected":""}`} key={id} onClick={()=>changeSection(id)} type="button">{icon(id)}<span>{label}</span>{(id==="Habit"||id==="Task")?<small>{definitions.filter(d=>d.kind===id&&d.state==="Active").length}</small>:null}</button>)}<p className="np-cc-nav-note">إدارة هادئة لعاداتك ومهامك.<br/>إنجاز اليوم في شاشة اليوم.</p></nav>
-      <main className="np-cc-main">
-        {section==="statistics"?<StatisticsCenter workspace={workspace}/>:section==="ordering"?<DisplayOrderManager workspace={workspace} busy={busy&&!orderingPending} onCommand={onCommand}/>:section==="categories"?<CategoryManager categories={workspace?.categories??COMMON_CATEGORIES} busy={busy} onCommand={onCommand}/>:section==="finance"?<FinanceCenter ledger={workspace?.finance ?? null} busy={busy} onCommand={onCommand} today={defaultStartDate}/>:section==="appearance"?<><div className="np-cc-title"><div><h2>مظهر نور</h2><p>اختيارك يُحفظ على هذا المتصفح.</p></div></div><div aria-label="اختيار المظهر" className="np-cc-themes">{([["noor","نور","دفء كريمي ولمسات ذهبية"],["light","فاتح","أبيض ورمادي بألوان هادئة"],["dark","داكن","سطوح فحمية ونصوص واضحة"]] as const).map(([id,title,copy])=><button aria-pressed={appearance===id} className={`np-cc-theme ${id}`} key={id} onClick={()=>onAppearance(id)} type="button"><span aria-hidden="true" className="np-cc-theme-preview"><i/><i/><i/></span><strong>{title}</strong><span>{copy}</span><small>{appearance===id?"المظهر الحالي":"اختيار المظهر"}</small></button>)}</div></>:<>
-          <div className="np-cc-title"><div><h2>{kind==="Habit"?"العادات":"المهام"}</h2><p>{kind==="Habit"?"ابنِ روتينك، خطوة بخطوة.":"رتّب ما تريد إنجازه."}</p></div><button className="np-cc-button primary" onClick={()=>{setEditing(undefined);setFormError(null);setFormSession(value=>value+1);setCreating(true);}} type="button" aria-expanded={creating}>{kind==="Habit"?"+ إضافة عادة":"+ إضافة مهمة"}</button></div>
-          <div className="np-cc-tools"><input aria-label="البحث في العناصر" className="np-input" onChange={event=>setQuery(event.target.value)} onInput={event=>setQuery(event.currentTarget.value)} placeholder="ابحث بالاسم أو القسم…" type="search" value={query}/><select aria-label="تصفية الحالة" className="np-select" onChange={event=>{setFilter(event.target.value);setConfirmArchive(null);}} value={filter}><option value="active">النشطة</option><option value="paused">المتوقفة</option><option value="all">الكل</option>{kind==="Task"?<option value="completed">المكتملة اليوم</option>:null}<option value="archived">المؤرشفة</option></select></div>
-          <div className="np-cc-results" aria-live="polite">{matches.length} {kind==="Habit"?"عادة":"مهمة"}</div>
-          {!workspace?<p role="status" className="np-empty">تعذر تحميل العناصر حاليًا. أعد فتح مركز التحكم بعد تحديث الصفحة.</p>:matches.length===0?<div className="np-empty"><strong>لا توجد عناصر مطابقة</strong><span>غيّر البحث أو الفلتر، أو أضف عنصرًا جديدًا.</span></div>:<div aria-label={kind==="Habit"?"قائمة العادات":"قائمة المهام"} className="np-cc-list">{matches.map(item=><div className="np-cc-expandable" key={item.id}><button aria-expanded={selected?.id===item.id} aria-controls={`np-detail-${item.id}`} className={`np-cc-row${selected?.id===item.id?" is-selected":""}`} onClick={()=>{setSelectedId(selectedId===item.id?null:item.id);setConfirmArchive(null);}} type="button"><span className="np-cc-row-icon">{icon(item.kind)}</span><span className="np-cc-row-copy"><strong>{item.title}</strong><span>{item.category} · {scheduleLabel(item)}</span></span><span className={`np-cc-status ${item.state.toLowerCase()}`}>{item.state==="Paused"?"متوقفة":item.state==="Archived"?"مؤرشفة":currentExecution(item.id)?.status==="Completed"?"مكتملة اليوم":"نشطة"}</span></button>{selected?.id===item.id?<div aria-label="تفاصيل العنصر" className="np-cc-inline-detail" id={`np-detail-${item.id}`}><p className="np-cc-kicker">{selected.kind==="Habit"?"تفاصيل العادة":"تفاصيل المهمة"}</p><h2>{selected.title}</h2><dl><dt>القسم</dt><dd>{selected.category}</dd><dt>الحالة</dt><dd>{selected.state==="Active"?"نشطة":selected.state==="Paused"?"متوقفة مؤقتًا":selected.state==="Stopped"?"متوقفة نهائيًا":"مؤرشفة"}</dd><dt>تاريخ البداية</dt><dd>{selected.startDate}</dd><dt>تاريخ النهاية</dt><dd>{selected.endDate??"غير محدد"}</dd><dt>الجدول</dt><dd>{scheduleLabel(selected)}</dd>{selected.timeOfDay?<><dt>موعد التنفيذ</dt><dd>{selected.timeOfDay}</dd></>:null}<dt>الأهمية</dt><dd>{({Essential:"أساسي",Important:"مهم",Supporting:"داعم",Optional:"اختياري"} as Record<string,string>)[selected.importance]??selected.importance}</dd></dl><div className="np-cc-actions">
+  // R135: preserve the existing per-definition edit and safety actions inside cards.
+  const renderControlRow=(item:DefinitionItem)=><div className="np-cc-expandable" key={item.id}><button aria-expanded={selected?.id===item.id} aria-controls={`np-detail-${item.id}`} className={`np-cc-row${selected?.id===item.id?" is-selected":""}`} onClick={()=>{setSelectedId(selectedId===item.id?null:item.id);setConfirmArchive(null);}} type="button"><span className="np-cc-row-icon">{icon(item.kind)}</span><span className="np-cc-row-copy"><strong>{item.title}</strong><span>{item.category} · {scheduleLabel(item)}</span></span><span className={`np-cc-status ${item.state.toLowerCase()}`}>{item.state==="Paused"?"متوقفة":item.state==="Archived"?"مؤرشفة":currentExecution(item.id)?.status==="Completed"?"مكتملة اليوم":"نشطة"}</span></button>{selected?.id===item.id?<div aria-label="تفاصيل العنصر" className="np-cc-inline-detail" id={`np-detail-${item.id}`}><p className="np-cc-kicker">{selected.kind==="Habit"?"تفاصيل العادة":"تفاصيل المهمة"}</p><h2>{selected.title}</h2><dl><dt>القسم</dt><dd>{selected.category}</dd><dt>الحالة</dt><dd>{selected.state==="Active"?"نشطة":selected.state==="Paused"?"متوقفة مؤقتًا":selected.state==="Stopped"?"متوقفة نهائيًا":"مؤرشفة"}</dd><dt>تاريخ البداية</dt><dd>{selected.startDate}</dd><dt>تاريخ النهاية</dt><dd>{selected.endDate??"غير محدد"}</dd><dt>الجدول</dt><dd>{scheduleLabel(selected)}</dd>{selected.timeOfDay?<><dt>موعد التنفيذ</dt><dd>{selected.timeOfDay}</dd></>:null}<dt>الأهمية</dt><dd>{({Essential:"أساسي",Important:"مهم",Supporting:"داعم",Optional:"اختياري"} as Record<string,string>)[selected.importance]??selected.importance}</dd></dl><div className="np-cc-actions">
         <button className="np-cc-button primary" disabled={busy||!selected.revisionId} type="button" onClick={()=>{setEditing(selected);setFormError(null);setFormSession(v=>v+1);setCreating(true);}}>تعديل البيانات والجدول</button>
         {selected.state!=="Archived"?<button className="np-cc-button" disabled={busy} onClick={()=>{void apply({type:"set-definition-state",definitionId:selected.id,state:selected.state==="Paused"?"Active":"Paused"});}} type="button">{selected.state==="Paused"?"إعادة التشغيل":"إيقاف مؤقت"}</button>:null}
         {selected.kind==="Task"&&selected.state!=="Archived"&&currentExecution(selected.id)?<button className="np-cc-button primary" disabled={busy||currentExecution(selected.id)?.status==="Suppressed"} onClick={()=>{const item=currentExecution(selected.id);if(item)void apply({type:"set-execution-completed",executionId:item.id,completed:item.status!=="Completed"});}} type="button">{currentExecution(selected.id)?.status==="Completed"?"إعادة فتح المهمة":"إنهاء مهمة اليوم"}</button>:selected.kind==="Task"&&selected.state!=="Archived"?<p className="np-cc-help">يظهر زر الإنجاز عندما يكون للمهمة تنفيذ مجدول اليوم.</p>:null}
@@ -1734,19 +1809,29 @@ function ControlCenter({ busy, orderingPending=false, workspace, executions, onC
         <button className="np-cc-button danger" disabled={busy} onClick={()=>{setDeleteId(selected.id);}} type="button">حذف نهائي من قاعدة البيانات</button>
 
         {confirmArchive===selected.id?<div className="np-cc-confirm" role="alert"><p>أرشفة هذا العنصر؟ سيُحفظ تاريخه.</p><button className="np-cc-button danger" disabled={busy} onClick={()=>{void apply({type:"archive-definition",definitionId:selected.id});}} type="button">تأكيد الأرشفة</button><button className="np-cc-button" disabled={busy} onClick={()=>setConfirmArchive(null)} type="button">إلغاء</button></div>:null}
-      </div></div>:null}</div>)}</div>}
+      </div></div>:null}</div>;
+  return <div className="np-cc-shell" data-testid="control-center-r65">
+    <header className="np-cc-header"><div className="np-cc-heading"><div className="np-logo-frame np-cc-header-logo"><img alt="شعار نور" className="np-platform-logo" src="/noor-platform-logo.jpeg" /></div><div className="np-cc-heading-copy"><h1 className="np-control-title">مركز التحكم</h1></div></div><button aria-label="العودة إلى اليوم" className="np-cc-button" onClick={onClose} type="button">العودة لليوم ←</button></header>
+    <section className="np-card np-control np-cc"><div className="np-cc-layout">
+      <nav aria-label="أقسام مركز التحكم" className="np-cc-nav">{([["Habit","العادات"],["Task","المهام"],["categories","التصنيفات"],["ordering","الترتيب"],["statistics","الإحصائيات"],["finance","المالية"],["appearance","المظهر"]] as const).map(([id,label])=><button aria-current={section===id?"page":undefined} className={`np-cc-nav-item${section===id?" is-selected":""}`} key={id} onClick={()=>changeSection(id)} type="button">{icon(id)}<span>{label}</span>{(id==="Habit"||id==="Task")?<small>{definitions.filter(d=>d.kind===id&&d.state==="Active").length}</small>:null}</button>)}<p className="np-cc-nav-note">إدارة هادئة لعاداتك ومهامك.<br/>إنجاز اليوم في شاشة اليوم.</p></nav>
+      <main className="np-cc-main">
+        {section==="statistics"?<StatisticsCenter workspace={workspace}/>:section==="ordering"?<DisplayOrderManager workspace={workspace} busy={busy&&!orderingPending} onCommand={onCommand}/>:section==="categories"?<CategoryManager categories={workspace?.categories??COMMON_CATEGORIES} busy={busy} onCommand={onCommand}/>:section==="finance"?<FinanceCenter ledger={workspace?.finance ?? null} busy={busy} onCommand={onCommand} today={defaultStartDate}/>:section==="appearance"?<><div className="np-cc-title"><div><h2>مظهر نور</h2><p>اختيارك يُحفظ على هذا المتصفح.</p></div></div><div aria-label="اختيار المظهر" className="np-cc-themes">{([["noor","نور","دفء كريمي ولمسات ذهبية"],["light","فاتح","أبيض ورمادي بألوان هادئة"],["dark","داكن","سطوح فحمية ونصوص واضحة"]] as const).map(([id,title,copy])=><button aria-pressed={appearance===id} className={`np-cc-theme ${id}`} key={id} onClick={()=>onAppearance(id)} type="button"><span aria-hidden="true" className="np-cc-theme-preview"><i/><i/><i/></span><strong>{title}</strong><span>{copy}</span><small>{appearance===id?"المظهر الحالي":"اختيار المظهر"}</small></button>)}</div></>:<>
+          <div className="np-cc-title"><div><h2>{kind==="Habit"?"العادات":"المهام"}</h2><p>{kind==="Habit"?"ابنِ روتينك، خطوة بخطوة.":"رتّب ما تريد إنجازه."}</p></div><button className="np-cc-button primary" onClick={()=>{setEditing(undefined);setFormError(null);setFormSession(value=>value+1);setCreating(true);}} type="button" aria-expanded={creating}>{kind==="Habit"?"+ إضافة عادة":"+ إضافة مهمة"}</button></div>
+          <div className={`np-cc-tools${kind==="Habit"?" np-cc-tools-habit-cards-r135":""}`}><input aria-label="البحث في العناصر" className="np-input" onChange={event=>setQuery(event.target.value)} onInput={event=>setQuery(event.currentTarget.value)} placeholder="ابحث بالاسم أو القسم…" type="search" value={query}/><select aria-label="تصفية الحالة" className="np-select" onChange={event=>{setFilter(event.target.value);setConfirmArchive(null);}} value={filter}><option value="active">النشطة</option><option value="paused">المتوقفة</option><option value="all">الكل</option>{kind==="Task"?<option value="completed">المكتملة اليوم</option>:null}<option value="archived">المؤرشفة</option></select>{kind==="Habit"?<select data-testid="control-category-filter-r135" aria-label="اختيار تصنيف العادات في مركز التحكم" className="np-select" value={categoryFilter} onChange={event=>{setCategoryFilter(event.currentTarget.value);setSelectedId(null);setConfirmArchive(null);}}><option value="all">كل كروت التصنيفات</option>{categoryOptions.map(category=><option value={category} key={category}>{habitCardDisplayTitle(category)}</option>)}</select>:null}</div>
+          <div className="np-cc-results" aria-live="polite">{matches.length} {kind==="Habit"?"عادة":"مهمة"}</div>
+          {!workspace?<p role="status" className="np-empty">تعذر تحميل العناصر حاليًا. أعد فتح مركز التحكم بعد تحديث الصفحة.</p>:matches.length===0?<div className="np-empty"><strong>لا توجد عناصر مطابقة</strong><span>غيّر البحث أو الفلتر، أو أضف عنصرًا جديدًا.</span></div> :kind==="Habit"?<div aria-label="كروت تصنيفات العادات في مركز التحكم" className="np-cc-category-groups-r135" data-testid="control-habit-cards-r135">{habitGroups.map(([category,items])=><details className="np-cc-category-card-r135" data-testid="control-habit-category-card-r135" key={category}><summary aria-label={`فتح أو إغلاق كارت ${habitCardDisplayTitle(category)}`}><span className="np-cc-category-card-heading-r135"><span className="np-cc-category-card-title-r143"><NoorCategoryIcon category={category}/><strong>{habitCardDisplayTitle(category)}</strong></span><small>{items.length} من العادات · {items.filter(item=>item.state==="Active").length} نشطة</small></span><span className="np-cc-category-chevron-r135" aria-hidden="true"/></summary><div className="np-cc-category-items-r135">{items.map(renderControlRow)}</div></details>)}</div>:<div aria-label="قائمة المهام" className="np-cc-list">{matches.map(renderControlRow)}</div>}
         </>}
 
       </main>
     </div></section>
     {deleteId&&definitions.some(d=>d.id===deleteId)?<PermanentDeleteDialog key={deleteId} title={definitions.find(d=>d.id===deleteId)!.title} busy={busy} onClose={()=>setDeleteId(null)} onDelete={()=>apply({type:"delete-definition",definitionId:deleteId,confirm:true})}/>:null}
-    <div className="np-cc-modal-backdrop" hidden={!creating} onClick={event=>{if(event.target===event.currentTarget)closeCreate();}}>
+    {createPortal(<div className="np-cc-modal-backdrop" data-appearance={appearance} hidden={!creating} style={modalViewport?{top:modalViewport.top,height:modalViewport.height,bottom:"auto"}:undefined} onClick={event=>{if(event.target===event.currentTarget)closeCreate();}}>
       <div aria-labelledby="np-create-dialog-title" aria-modal="true" className="np-cc-modal" onKeyDown={trapDialogKeys} ref={dialogRef} role="dialog" tabIndex={-1}>
         <div className="np-cc-modal-head"><div><p className="np-cc-kicker">إضافة إلى نور</p><h2 id="np-create-dialog-title">{editing?"تعديل البيانات والجدول":kind==="Habit"?"عادة جديدة":"مهمة جديدة"}</h2></div><button aria-label="إغلاق نافذة الإضافة" className="np-cc-button" disabled={busy} onClick={closeCreate} type="button">إغلاق ×</button></div>
-        <div className="np-cc-modal-body">{formError?<p className="np-action-error" role="alert">{formError}</p>:null}<DefinitionForm key={`${kind}-${formSession}`} busy={busy} defaultStartDate={defaultStartDate} defaultKind={kind} {...(editing?{initial:editing}:{})} categories={workspace?.categories??COMMON_CATEGORIES} onCommand={apply}/></div>
-        <div className="np-cc-modal-footer"><span>الحقول المعلّمة بنجمة مطلوبة.</span><div className="np-definition-footer-actions"><button className="np-cc-button" disabled={busy} onClick={closeCreate} type="button">إلغاء</button><button data-testid="np-definition-save-r130" className="np-cc-button primary np-definition-save-button" type="submit" form="np-definition-edit-form" disabled={busy} aria-label={editing?"حفظ تعديل العادة أو المهمة":"حفظ العادة أو المهمة الجديدة"}><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M4 3h14l3 3v15H3V3h1Z"/><path d="M7 3v7h10V3"/><path d="M7 21v-8h10v8"/></svg><span>{busy?"جارٍ الحفظ…":editing?"حفظ التعديلات":"حفظ"}</span></button></div></div>
+        <div className="np-cc-modal-body">{formError?<p className="np-action-error" role="alert">{formError}</p>:null}<DefinitionForm key={`${kind}-${formSession}`} busy={busy||definitionSaving} onSavingChange={setDefinitionSaving} defaultStartDate={defaultStartDate} defaultKind={kind} {...(editing?{initial:editing}:{})} categories={workspace?.categories??COMMON_CATEGORIES} onCommand={apply}/></div>
+        <div className="np-cc-modal-footer"><span>الحقول المعلّمة بنجمة مطلوبة.</span><div className="np-definition-footer-actions"><button className="np-cc-button" disabled={busy} onClick={closeCreate} type="button">إلغاء</button><button data-testid="np-definition-save-r130" className="np-cc-button primary np-definition-save-button" type="submit" form="np-definition-edit-form" disabled={busy||definitionSaving} aria-label={editing?"حفظ تعديل العادة أو المهمة":"حفظ العادة أو المهمة الجديدة"}><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M4 3h14l3 3v15H3V3h1Z"/><path d="M7 3v7h10V3"/><path d="M7 21v-8h10v8"/></svg><span>{definitionSaving?"يُحفظ في الخلفية…":busy?"جارٍ الحفظ…":editing?"حفظ التعديلات":"حفظ"}</span></button></div></div>
       </div>
-    </div>
+    </div>, document.querySelector(".np-page")?.parentElement ?? document.body)}
   </div>;
 }
 
@@ -1833,13 +1918,78 @@ export function habitCardDisplayTitle(label:string):string {
 }
 
 
+/* NOOR_R143_SEMANTIC_CATEGORY_ICONS: deterministic, dependency-free SVG glyphs.
+   All rendering is presentational. Category names, IDs and persistence stay unchanged. */
+type NoorCategoryIconKind = "prayer" | "sunnah" | "quran" | "dhikr" | "body-care" | "hair-care" | "growth" | "fitness" | "health" | "nutrition" | "sleep" | "learning" | "reading" | "language" | "work" | "finance" | "family" | "home" | "technology" | "planning" | "travel" | "general";
+export function noorCategoryIconKind(label: string): NoorCategoryIconKind {
+  const value=habitCardDisplayTitle(label).normalize("NFKC").toLocaleLowerCase("ar")
+    .replace(/[\u064b-\u065f\u0670\u0640]/g,"")
+    .replace(/[أإآٱ]/g,"ا").replace(/ى/g,"ي");
+  // NOOR_R145_EXPLICIT_ARABIC_CATEGORIES: distinguish related but different habits.
+  if(/سنن|نوافل|نافله|نفل|sunnah|supererogatory/.test(value))return "sunnah";
+  if(/شعر|شامبو|فرو[هة]\s*الراس|تسريح|حلاق[هة]|hair\s*care|haircare|scalp|shampoo/.test(value))return "hair-care";
+  if(/عناي[هة]\s*بالجسم|عناي[هة]\s*بالبشر[هة]|عناي[هة]\s*شخصي[هة]|بشر[هة]|جلد|استحمام|نظاف[هة]\s*الجسم|نظاف[هة]\s*شخصي[هة]|body\s*care|skin\s*care|personal\s*care/.test(value))return "body-care";
+  if(/تطور|تطوير|تنمي[هة]|ارتقا|تحسين\s*الذات|self[-\s]?improvement|personal\s*growth|development|growth/.test(value))return "growth";
+  if(/قران|تلاو|حفظ.*سور|qur.?an|quran/.test(value))return "quran";
+  if(/اذكار|ذكر|استغفار|دعاء|تسبيح|dhikr/.test(value))return "dhikr";
+  if(/صلا[هة]|صلوات|صلات|صلي|مسجد|عباد|دين|ايمان|روحان|prayer|worship|faith/.test(value))return "prayer";
+  if(/رياض|تمرين|جيم|لياق|عضل|مشي|ركض|جري|سباح|sport|fitness|gym|exercise|workout/.test(value))return "fitness";
+  if(/صح[هة]|دواء|ادوي|علاج|طبي|استشفاء|health|medical|medicine/.test(value))return "health";
+  if(/غذا|طعام|وجب|طبخ|تغذي|اكل|شرب|ماء|nutrition|food|meal|diet/.test(value))return "nutrition";
+  if(/نوم|راح[هة]|استرخاء|sleep|rest/.test(value))return "sleep";
+  if(/لغه|لغات|انجليزي|عربي[هة]|ترجم|language|english|arabic/.test(value))return "language";
+  if(/قراء[هة]|كتاب|كتب|مطالع[هة]|reading|books?/.test(value))return "reading";
+  if(/دراس|تعلم|تعليم|علم|معرف|بحث|كورسات|دور[هة]|تدريب|study|learn|education|course/.test(value))return "learning";
+  if(/برمج|تقني|كود|كمبيوتر|حاسوب|ذكاء اصطناع|software|coding|code|tech|computer|ai\b/.test(value))return "technology";
+  if(/مالي|مالي[هة]|فلوس|اموال|ميزاني|ادخار|نقود|ديون|راتب|مصروف|finance|money|budget|saving/.test(value))return "finance";
+  if(/عمل|وظيف|مهن|مشروع|تجاره|مبيعات|work|business|career|job/.test(value))return "work";
+  if(/اسر|عائل|علاقات|اهل|ابناء|اطفال|والد|اصدقاء|اجتماع|family|social|relation/.test(value))return "family";
+  if(/منزل|بيت|نظاف|ترتيب المنزل|غسيل|مطبخ|home|house|clean/.test(value))return "home";
+  if(/تخطيط|اهداف|انجاز|تنظيم|انتاجي|اولويات|خطط|planning|goals?|productiv/.test(value))return "planning";
+  if(/سفر|رحل|تنقل|مواصلات|سياح|travel|trip|journey/.test(value))return "travel";
+  return "general";
+}
+function NoorCategoryIcon({category}:{category:string}):ReactElement {
+  const kind=noorCategoryIconKind(category);
+  const drawings:Record<NoorCategoryIconKind,ReactElement>={
+    prayer:<><path d="M3 20h18M5 20v-9l7-5 7 5v9M9 20v-6a3 3 0 0 1 6 0v6"/><path d="M12 6V3M8.5 11h7"/></>,
+    // A prayer rug with a small star, distinct from the mosque used for prayers.
+    sunnah:<><rect x="4.5" y="2.5" width="15" height="19" rx="2"/><path d="M7.5 18V11l4.5-4 4.5 4v7M7.5 18h9M7.5 4.5h9"/><path d="m12 11.5.6 1.4 1.5.2-1.1 1 .3 1.5-1.3-.7-1.3.7.3-1.5-1.1-1 1.5-.2Z"/></>,
+    quran:<><path d="M12 6c-3-2-6-2-9-1v14c3-1 6-1 9 1 3-2 6-2 9-1V5c-3-1-6-1-9 1Z"/><path d="M12 6v14M6 10h3M15 10h3M6 13h3M15 13h3"/></>,
+    dhikr:<><circle cx="7.2" cy="6.5" r="2"/><circle cx="12.8" cy="5.3" r="2"/><circle cx="18" cy="8.2" r="2"/><circle cx="18" cy="14" r="2"/><circle cx="12.7" cy="18.5" r="2"/><circle cx="7" cy="17.4" r="2"/><path d="M5.8 13.4a7.6 7.6 0 0 1-.4-2.8M12 22v-1"/></>,
+    // Human figure and sparkle: body care, not exercise or medical care.
+    "body-care":<><circle cx="10.5" cy="5.7" r="2.5"/><path d="M5.7 20.5v-5.6c0-2.9 2.1-4.7 4.8-4.7s4.8 1.8 4.8 4.7v5.6M9 15h3"/><path d="M19 3v5m-2.5-2.5h5m-2.5 7.5.5 1.5 1.5.5-1.5.5-.5 1.5-.5-1.5-1.5-.5 1.5-.5Z"/></>,
+    // A comb with visible teeth and a curved upper hairline.
+    "hair-care":<><path d="M5 10c0-4 2.5-7 7-7s7 3 7 7"/><rect x="4" y="10.5" width="16" height="3" rx="1"/><path d="M6 13.5V21m3-7.5v5.5m3-5.5V21m3-7.5v5.5m3-5.5V21"/></>,
+    // Upward trajectory with arrow: learning/growth/development.
+    growth:<><path d="M3 20h18M5 16l5-5 4 3 6-8M16 6h4v4"/></>,
+    fitness:<><path d="M4.5 8v8M7.5 6v12M16.5 6v12M19.5 8v8M7.5 12h9M2 10v4M22 10v4"/></>,
+    health:<><path d="M20.8 8.4c0 5-8.8 11.7-8.8 11.7S3.2 13.4 3.2 8.4a4.5 4.5 0 0 1 8.8-1.1 4.5 4.5 0 0 1 8.8 1.1Z"/><path d="M5.9 11.2h3l1.7-2.5 2.2 5.3 1.6-2.8h3.6"/></>,
+    nutrition:<><path d="M4 3v7a3 3 0 0 0 6 0V3M7 3v18M15 21V9c0-3 2-5 5-6v18M15 14h5"/></>,
+    sleep:<><path d="M20.8 15.5A8.7 8.7 0 0 1 8.5 3.2 8.7 8.7 0 1 0 20.8 15.5Z"/><path d="m16.5 3 .7 1.7 1.8.6-1.8.6-.7 1.7-.6-1.7-1.8-.6 1.8-.6Z"/></>,
+    learning:<><path d="m2 9 10-5 10 5-10 5-10-5ZM6 11v5c3.4 2.5 8.6 2.5 12 0v-5M22 9v7"/></>,
+    reading:<><path d="M12 6c-3-2-6-2-9-1v14c3-1 6-1 9 1 3-2 6-2 9-1V5c-3-1-6-1-9 1Z"/><path d="M12 6v14"/></>,
+    language:<><path d="M3 6h13M9.5 4v2M6 9c1 4 3.8 6.6 7.5 8M13 9c-1 4-4 7-8 9"/><path d="m15 21 3.2-9 3.3 9M16.1 18h4.2"/></>,
+    work:<><rect x="3" y="7" width="18" height="14" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 12c5 4 13 4 18 0M10 14h4"/></>,
+    finance:<><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 9h18M15 14h6M17 14h1"/></>,
+    family:<><circle cx="9" cy="8" r="3"/><circle cx="17.5" cy="9" r="2.3"/><path d="M3 20v-2a6 6 0 0 1 12 0v2M15 15a4.5 4.5 0 0 1 6 4v1"/></>,
+    home:<><path d="m3 11 9-8 9 8v10H3V11ZM9 21v-8h6v8"/></>,
+    technology:<><rect x="2.5" y="4" width="19" height="16" rx="2"/><path d="m9 9-3 3 3 3m6-6 3 3-3 3M13 8l-2 8"/></>,
+    planning:<><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/></>,
+    travel:<><path d="m21 3-8.5 18-2.5-7.5L3 11l18-8Z"/><path d="m10 14 4-4"/></>,
+    general:<><path d="M5 3h14v18l-7-4-7 4V3Z"/><path d="m9 10 2 2 4-4"/></>,
+  };
+  return <span aria-hidden="true" className={`np-category-symbol np-category-symbol-r143 np-category-icon-${kind}`} data-category-icon={kind}>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" focusable="false">{drawings[kind]}</svg>
+  </span>;
+}
+
 function Dashboard({ view:providedView, workspace, busy, actionError, onCommand, onOpenControl, nowMs,pendingIds=[],lockedIds=[],onHistoryCommand }: { view: TodayViewModel; workspace: WorkspaceViewModel | null; busy: boolean; actionError: string | null; onCommand: (command: NoorPersonalCommandInput) => Promise<boolean>; onHistoryCommand: (command:NoorPersonalCommandInput)=>Promise<boolean>; onOpenControl: () => void; nowMs: number;pendingIds?:readonly string[];lockedIds?:readonly string[] }): ReactElement {
   // Today's execution projection is authoritative for recurrence and the personal-day boundary.
   const definitionsById = new Map((workspace?.definitions ?? []).map(definition => [definition.id, definition] as const));
   // NOOR_INPAGE_HISTORY_R110: the selected date drives the existing day grid.
   const [weekShift,setWeekShift]=useState(0);
   const [historyDate,setHistoryDate]=useState<string|null>(null);
-  const [categoryFilter,setCategoryFilter]=useState("all");
   const view=useMemo(()=>{
     const visible=(item:ExecutionItem)=>{const d=definitionsById.get(item.definitionId);return item.status!=="Suppressed" && (historyDate!==null || (d?.state!=="Archived"&&d?.state!=="Paused"&&(d?.state!=="Stopped"||["Completed","Missed","Cancelled"].includes(item.status))));};
     if(historyDate){
@@ -1880,9 +2030,6 @@ function Dashboard({ view:providedView, workspace, busy, actionError, onCommand,
     const categories=(workspace?.categories??[]).map(c=>c.trim().replace(/\s+/g,' '));const rank=(c:string)=>{const i=categories.indexOf(c);return i<0?Number.MAX_SAFE_INTEGER:i;};
     return [...map.entries()].sort(([a],[b])=>rank(a)-rank(b)||a.localeCompare(b,'ar'));
   }, [view.habits, workspace]);
-  // NOOR_R130_CATEGORY_FILTER: show all category cards or only one shared card.
-  const activeCategory=categoryFilter==="all"||grouped.some(([category])=>category===categoryFilter)?categoryFilter:"all";
-  const visibleGroups=activeCategory==="all"?grouped:grouped.filter(([category])=>category===activeCategory);
   // NOOR_INPAGE_HISTORY_R110: a historical status correction can NEVER use today's command.
   const historicalCommand=async(cmd:NoorPersonalCommandInput):Promise<boolean>=>{
     const todayDate=providedView.localDate??workspace?.statistics.currentDate??"";
@@ -2051,7 +2198,7 @@ function Dashboard({ view:providedView, workspace, busy, actionError, onCommand,
           <div className="np-week-days" role="list">{visibleWeek.map(day=><div role="listitem" key={day.date} className="np-week-cell">
             <button type="button" className={`np-week-day${day.current?" is-today":""}${day.future?" is-future":""}${historyDate===day.date?" is-selected":""}`} data-week-selected={historyDate===day.date?"true":"false"} data-week-date={day.date} data-week-state={day.future?"future":day.current?"today":"past"} data-week-rate={day.rate??undefined}
               disabled={day.future} aria-label={`${weekDateLabel(day.date,true)} ${day.date}: ${day.future?"لم يأت بعد":day.rate===null?"لا استحقاقات مسجلة":`إنجاز ${day.rate}%`}. ${day.current?"عرض اليوم الحالي":"عرض عادات ومهام هذا اليوم في نفس الصفحة"}`}
-              onClick={()=>{if(day.current){setHistoryDate(null);}else if(!day.future){setHistoryDate(day.date);}document.querySelector<HTMLElement>('.np-main-grid.np-daily-only')?.scrollIntoView?.({behavior:"smooth",block:"start"});}}>
+              onClick={()=>{if(day.current){setHistoryDate(null);}else if(!day.future){setHistoryDate(day.date);}/* Preserve scroll position when changing personal days. */}}>
               <span className="np-week-name">{weekDateLabel(day.date,true)}</span><div className="np-week-value"><strong>{day.future?null:day.rate===null?"—":`${arabicNumber(day.rate)}%`}</strong></div><time dateTime={day.date}>{weekDateLabel(day.date)}</time><small>{day.current?"اليوم":""}</small>
             </button>
           </div>)}</div>
@@ -2059,16 +2206,16 @@ function Dashboard({ view:providedView, workspace, busy, actionError, onCommand,
       </div>
     </section>
     {/* NOOR_MINIMAL_DAY_STRIP_R111: date only; navigation stays in the weekly strip. */}
-    {historyDate?<div className="np-inpage-history-banner" role="status" data-testid="inpage-history-banner-r110"><time dateTime={historyDate}>{weekDateLabel(historyDate,true)} · {historyDate.slice(8,10)}/{historyDate.slice(5,7)}/{historyDate.slice(0,4)}</time></div>:null}
+    
     <div className="np-main-grid np-daily-only" data-history-page={historyDate?"historical":"current"}>
       <div className="np-execution-stack">
         <section aria-label="عادات اليوم" className="np-habits-section np-history-page">
           <div className="np-section-heading"><h2>{historyDate?`عادات يوم ${weekDateLabel(historyDate)}`:"عادات اليوم"}</h2>{historyDate?null:<span>كل قسم، خطوة للأمام</span>}</div>
-          <label className="np-category-filter-r130" data-testid="habit-category-filter-r130"><span>عرض بطاقات العادات</span><select aria-label="تصفية بطاقات العادات حسب التصنيف" value={activeCategory} onChange={e=>setCategoryFilter(e.currentTarget.value)}><option value="all">كل التصنيفات</option>{grouped.map(([category])=><option key={category} value={category}>{habitCardDisplayTitle(category)}</option>)}</select></label>
+          
           <div className="np-category-grid" data-testid="habit-category-grid">
-            {visibleGroups.length === 0
+            {grouped.length === 0
               ? <section className="np-card np-category np-habits-empty"><div className="np-empty"><strong>مساحة لعاداتك</strong><span>{historyDate?"لا توجد عادات مسجلة لهذا اليوم.":"لا توجد عادات مجدولة اليوم. ستظهر أقسامها هنا حسب تصنيفاتك الحالية."}</span></div></section>
-              : visibleGroups.map(([category,items]) => {
+              : grouped.map(([category,items]) => {
                 const due=items.flatMap(row=>row.execution&&row.execution.status!=='Suppressed'?[row.execution]:[]);
                 const displayCategory=habitCardDisplayTitle(category);
                 const done = completedCount(due);
@@ -2077,7 +2224,7 @@ function Dashboard({ view:providedView, workspace, busy, actionError, onCommand,
                 const circumference = 2 * Math.PI * 24;
                 return <details aria-label={`عادات ${displayCategory}`} className="np-card np-category np-habit-category" data-habit-layout="tracker-r76" data-testid="habit-category-card" key={category}>
                   <summary className="np-category-head" aria-label={`عرض أو إخفاء عادات ${displayCategory}، المنجز ${done} من ${due.length}`}>
-                    <div className="np-category-heading"><span aria-hidden="true" className="np-category-symbol"><svg fill="none" viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="6" height="6" rx="1.8" stroke="currentColor" strokeWidth="1.5"/><rect x="14.5" y="3.5" width="6" height="6" rx="1.8" stroke="currentColor" strokeWidth="1.5"/><rect x="3.5" y="14.5" width="6" height="6" rx="1.8" stroke="currentColor" strokeWidth="1.5"/><path d="m14.5 17.5 2 2 4-4.5" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"/></svg></span><h3 className="np-category-title">{displayCategory}</h3><span className="np-category-count">{arabicNumber(done)} من {arabicNumber(due.length)} مستحقة اليوم · {arabicNumber(items.length)} عادات</span></div>
+                    <div className="np-category-heading"><NoorCategoryIcon category={category}/><h3 className="np-category-title">{displayCategory}</h3><span className="np-category-count">{arabicNumber(done)} من {arabicNumber(due.length)} مستحقة اليوم · {arabicNumber(items.length)} عادات</span></div>
                     <div aria-label={`إنجاز قسم ${displayCategory}`} aria-valuemin={0} aria-valuemax={100} aria-valuenow={rate} aria-valuetext={`${arabicNumber(done)} من ${arabicNumber(due.length)} مستحقة اليوم، ${arabicNumber(rate)}%`} className={`np-category-progress${rate === 100 ? " is-complete" : ""}`} role="progressbar">
                       <svg aria-hidden="true" viewBox="0 0 60 60"><circle className="np-ring-track" cx="30" cy="30" r="24"/><circle className="np-ring-value" cx="30" cy="30" r="24" strokeDasharray={circumference} strokeDashoffset={circumference * (1 - rate / 100)}/></svg>
                       <span aria-hidden="true">{arabicNumber(rate)}<small>%</small></span>
@@ -2258,6 +2405,7 @@ export function NoorPersonalApplicationView({ initialResult, initialWorkspace }:
     }}finally{orderRunning.current=false;}
   };
   const controlCommand=async(command:NoorPersonalCommandInput):Promise<boolean>=>{
+    if(command.type==='update-definition')return runCommand(command,true);
     if(command.type!=='reorder-display')return runCommand(command);
     const active=orderRunning.current?orderQueue.current[0]:undefined;
     const unsent=orderQueue.current.find(c=>c!==active&&c.scope===command.scope);
