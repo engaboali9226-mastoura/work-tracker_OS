@@ -27,6 +27,8 @@ function orderedDefinitions(definitions:readonly ExecutionDefinition[]):Executio
 function categoryNames(snapshot:Pick<PersonalFoundationSnapshotPort,"getCategories"|"listDefinitions">,userId:string):string[]{return [...new Set([...(snapshot.getCategories?.(userId)??DEFAULT_PERSONAL_CATEGORIES),...snapshot.listDefinitions(userId).map(d=>d.category??"عام")])];}
 
 export type PersonalCommand =
+    | Readonly<{type:"correct-historical-execution";executionId:string;localDate:LocalDate;expectedStatus:ExecutionStatus;completed:boolean}>
+    | Readonly<{type:"record-historical-progress";executionId:string;localDate:LocalDate;entryId:string;note:string;amount:number}>
     | Readonly<{type:"edit-activity-note";executionId:string;entryId:string;expectedNote:string;note:string|null}>
     | Readonly<{type:"reorder-display";scope:"Habit"|"Task"|"categories";expected:readonly string[];order:readonly string[]}>
     | Readonly<{type:"manage-category"; action:"add"|"rename"; name:string; previousName:string|null}>
@@ -234,6 +236,23 @@ export function parsePersonalCommand(
         if(!exactKeys(value,["type","operation"]))return null;
         const operation=parseFinanceOperation(value.operation);
         return operation?{type:"finance",operation}:null;
+    }
+    // NOOR_HISTORY_EDITOR_R108: distinct commands; never broaden today's completion rules.
+    if(value.type==="correct-historical-execution"){
+        if(!exactKeys(value,["type","executionId","localDate","expectedStatus","completed"]) ||
+           !boundedIdentifier(value.executionId) || !localDate(value.localDate) ||
+           !["Completed","Missed","Pending","Planned","InProgress"].includes(String(value.expectedStatus)) ||
+           typeof value.completed!=="boolean") return null;
+        return {type:"correct-historical-execution",executionId:value.executionId,localDate:value.localDate as LocalDate,expectedStatus:value.expectedStatus as ExecutionStatus,completed:value.completed};
+    }
+    if(value.type==="record-historical-progress"){
+        if(!exactKeys(value,["type","executionId","localDate","entryId","note","amount"]) ||
+           !boundedIdentifier(value.executionId) || !boundedIdentifier(value.entryId) ||
+           !localDate(value.localDate) || typeof value.note!=="string" || value.note.length>2000 ||
+           typeof value.amount!=="number" || !Number.isFinite(value.amount) || value.amount<0 || value.amount>1e9 ||
+           Math.abs(value.amount*1e6-Math.round(value.amount*1e6))>0.00001 ||
+           (!value.note.trim()&&value.amount===0)) return null;
+        return {type:"record-historical-progress",executionId:value.executionId,localDate:value.localDate as LocalDate,entryId:value.entryId,note:value.note.trim(),amount:value.amount};
     }
     if(value.type==="reorder-display"){
         if(!exactKeys(value,["type","scope","expected","order"])||!["Habit","Task","categories"].includes(String(value.scope)))return null;
@@ -603,6 +622,49 @@ export class PersonalCommandService {
                     const ledger=transaction.getFinance(userId);
                     const updated=applyFinanceOperation(ledger,userId,command.operation,now);
                     transaction.saveFinance(userId,updated);return;
+                }
+                // NOOR_HISTORY_EDITOR_R108: corrections require a real persisted occurrence.
+                // The event timestamp remains NOW; the activity date is the original personal day.
+                if(command.type==="correct-historical-execution" || command.type==="record-historical-progress"){
+                    const parsed=parsePersonalCommand(command);
+                    if(!parsed || (parsed.type!=="correct-historical-execution" && parsed.type!=="record-historical-progress"))
+                        throw new Error("INVALID_HISTORICAL_COMMAND");
+                    const instance=transaction.findDailyExecutionById(userId,parsed.executionId);
+                    if(!instance || instance.userId!==userId) throw new PersonalControlError("EXECUTION_NOT_FOUND");
+                    if(instance.scheduleOccurrenceKey!==parsed.localDate) throw new PersonalControlError("EXECUTION_NOT_CURRENT");
+                    const currentDay=transaction.findOpenPersonalDayContaining(userId,now);
+                    const civilToday=new IntlTimeZoneAdapter().localDateForInstant(now,currentDay?.boundary.timeZone??"Asia/Riyadh");
+                    if(parsed.localDate>=civilToday) throw new PersonalControlError("CURRENT_PERSONAL_DAY_REQUIRED");
+                    if(instance.status==="Suppressed" || instance.status==="Cancelled" || instance.status==="Skipped" || instance.status==="Deferred")
+                        throw new PersonalControlError("EXECUTION_SUPPRESSED");
+                    const definition=transaction.findDefinitionById(userId,instance.definitionId);
+                    if(!definition) throw new PersonalControlError("DEFINITION_NOT_FOUND");
+                    if(parsed.type==="correct-historical-execution"){
+                        const status:ExecutionStatus=parsed.completed?"Completed":"Missed";
+                        if(instance.status===status)return; // retry of an already-applied correction
+                        if(instance.status!==parsed.expectedStatus) throw new PersonalControlError("DEFINITION_STATE_CONFLICT");
+                        const updated:DailyExecutionInstance={...instance,status,version:instance.version+1,updatedAt:now};
+                        transaction.saveDailyExecution(updated);
+                        enqueueExecutionStatusEvent({transaction,idGenerator:this.dependencies.idGenerator,now,instance:updated});
+                        return;
+                    }
+                    const log=definition.activityLog??[];
+                    const previous=log.find(e=>e.id===parsed.entryId);
+                    if(previous){
+                        if(previous.executionId!==instance.id || previous.localDate!==parsed.localDate || previous.note!==parsed.note || previous.amount!==parsed.amount || previous.endReason!==null)
+                            throw new Error("HISTORICAL_ACTIVITY_ID_CONFLICT");
+                        return;
+                    }
+                    if(log.length>=10000)throw new Error("ACTIVITY_LIMIT_REACHED");
+                    if(instance.kind!=="Task"&&parsed.amount!==0)throw new Error("HABIT_NOTE_ONLY");
+                    if(parsed.amount>0){
+                        if(!definition.measurement || instance.kind!=="Task")throw new Error("MEASUREMENT_REQUIRED");
+                        const total=Math.round((log.reduce((sum,e)=>sum+e.amount,0)+parsed.amount)*1e6)/1e6;
+                        if(!Number.isFinite(total) || total>1e9 || total>definition.measurement.target)throw new Error("PROGRESS_EXCEEDS_TARGET");
+                    }
+                    const entry={id:parsed.entryId,executionId:instance.id,localDate:parsed.localDate,at:now,note:parsed.note,amount:parsed.amount,endReason:null};
+                    transaction.saveDefinition({...definition,activityLog:[...log,entry]});
+                    return;
                 }
                 if(command.type==="edit-activity-note"){
                     if(!parsePersonalCommand(command))throw new Error("INVALID_ACTIVITY_NOTE_EDIT");

@@ -20,6 +20,8 @@ export type NoorPersonalWorkspaceResult =
     };
 
 export type NoorPersonalCommandInput =
+  | Readonly<{type:"correct-historical-execution";executionId:string;localDate:string;expectedStatus:"Completed"|"Missed"|"Pending"|"Planned"|"InProgress";completed:boolean}>
+  | Readonly<{type:"record-historical-progress";executionId:string;localDate:string;entryId:string;note:string;amount:number}>
   | Readonly<{type:"edit-activity-note";executionId:string;entryId:string;expectedNote:string;note:string|null}>
     | Readonly<{type:"reorder-display";scope:"Habit"|"Task"|"categories";expected:readonly string[];order:readonly string[]}>
     | Readonly<{type:"manage-category";action:"add"|"rename";name:string;previousName:string|null}>
