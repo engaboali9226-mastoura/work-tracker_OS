@@ -33,7 +33,10 @@ export interface NoorPersonalApplicationViewProps {
   readonly initialWorkspace?: NoorPersonalWorkspaceResult;
 }
 
-type FastCommand=Extract<NoorPersonalCommandInput,{type:'set-execution-completed'|'record-activity'|'edit-activity-note'}>;
+type FastCommand=Extract<NoorPersonalCommandInput,{type:'set-execution-completed'|'record-activity'|'edit-activity-note'|'correct-historical-execution'|'record-historical-progress'}>;
+type FastCompletion=Extract<NoorPersonalCommandInput,{type:'set-execution-completed'|'correct-historical-execution'}>;
+function isFastCompletion(command:FastCommand):command is FastCompletion{return command.type==='set-execution-completed'||command.type==='correct-historical-execution';}
+function fastFailureKey(change:FastChange):string{return isFastCompletion(change.command)?`completion:${change.executionId}`:`entry:${'entryId' in change.command?change.command.entryId:''}`;}
 type FastChange={command:FastCommand;executionId:string;definitionId:string;title:string;entry?:ActivityEntry};
 type UnknownRecord = Record<string, unknown>;
 
@@ -545,6 +548,15 @@ const PAGE_STYLES = `
 .np-cc-modal-head{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:20px 24px;border-bottom:1px solid #e6e9ec;flex-shrink:0}
 .np-cc-modal-head h2{font-size:23px;margin:0;line-height:1.5}
 .np-cc-modal-body{padding:22px 24px;overflow-y:auto;min-height:0;overscroll-behavior:contain}
+/* NOOR_R130_MODAL_SCROLL_SAVE: keep editing actions visible on narrow screens. */
+.np-cc-modal-backdrop{overflow-y:auto;overscroll-behavior:contain}
+.np-cc-modal{min-height:0;max-height:calc(100dvh - 20px)}
+.np-cc-modal-body{flex:1 1 auto;min-height:0;max-height:calc(100dvh - 175px);overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;touch-action:pan-y}
+.np-definition-footer-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+.np-cc-modal-footer .np-definition-save-button{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:10px 17px;background:#287b65;color:#fff;border:1px solid #287b65;border-radius:11px;font-weight:700;cursor:pointer}
+.np-cc-modal-footer .np-definition-save-button:disabled{opacity:.65;cursor:wait}
+.np-cc-modal-footer .np-definition-save-button svg{display:block;flex:0 0 18px}
+@media(max-width:600px){.np-cc-modal-footer{flex-wrap:wrap;gap:8px}.np-definition-footer-actions{width:100%;justify-content:stretch}.np-definition-footer-actions>.np-cc-button{flex:1 1 0}.np-cc-modal-body{max-height:calc(100dvh - 155px)}}
 .np-cc-modal-body .np-form{margin:0}
 .np-cc-modal .np-form-actions .np-btn.complete{width:auto;height:auto;min-height:42px;font-size:13px;padding:9px 18px;border-radius:10px}
 .np-cc-modal .np-form-actions .np-btn.complete::after{content:none}
@@ -920,6 +932,13 @@ const PAGE_STYLES = `
 /* NOOR_COLLAPSIBLE_HABIT_CARDS_R107_END */
 
 /* NOOR_HISTORY_EDITOR_R108: independent from R107 native card disclosures. */
+/* NOOR_R130_FILTER_STYLES */
+.np-category-filter-r130{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:2px 4px 12px;color:var(--muted);font-size:12px}
+.np-category-filter-r130 select{min-height:40px;max-width:min(100%,340px);min-width:180px;border:1px solid var(--border);border-radius:10px;padding:8px 10px;background:var(--panel);color:var(--text);font:inherit}
+.nf-person-filters-r130{display:flex;gap:10px;align-items:end;flex-wrap:wrap;margin:8px 0 14px}
+.nf-person-filters-r130>input{flex:1 1 180px;min-height:40px}
+.nf-person-filters-r130>label{display:grid;gap:4px;flex:1 1 170px;font-size:12px;color:var(--muted)}
+.nf-person-filters-r130 select{min-height:40px;border:1px solid var(--border);border-radius:10px;padding:8px;background:var(--panel);color:var(--text);font:inherit}
 .np-page .np-history-editor{border:1px solid var(--border);border-radius:20px;background:var(--panel);padding:0;overflow:hidden;direction:rtl}
 .np-page .np-history-editor>summary{display:flex;gap:10px;align-items:center;justify-content:space-between;cursor:pointer;list-style:none;padding:15px 18px;font-size:15px;min-height:62px}
 .np-page .np-history-editor>summary::-webkit-details-marker{display:none}
@@ -1458,7 +1477,7 @@ function DefinitionForm({busy,onCommand,defaultStartDate,defaultKind="Habit",ini
   setError("");const ok=await onCommand(initial?{...fields,type:"update-definition",definitionId:initial.id,expectedRevisionId:initial.revisionId}:{...fields,type:"create-definition"});
   if(!ok)setError("تعذر تأكيد الحفظ. بياناتك محفوظة هنا؛ ربما عُدّل العنصر من جهاز آخر. أعد تحميله قبل المحاولة مجددًا.");
  };
- return <form className="np-form" onSubmit={e=>{void submit(e);}}>
+ return <form id="np-definition-edit-form" className="np-form" onSubmit={e=>{void submit(e);}}>
   <div className="np-field"><label className="np-label" htmlFor="definition-kind">النوع *</label><select className="np-select" id="definition-kind" name="kind" disabled={!!initial||busy} value={selectedKind} onChange={e=>setSelectedKind(e.currentTarget.value as "Habit"|"Task")}><option value="Habit">عادة</option><option value="Task">مهمة</option></select></div>
   <div className="np-field"><label className="np-label" htmlFor="definition-title">الاسم *</label><input className="np-input" id="definition-title" name="title" maxLength={120} required defaultValue={initial?.title}/></div>
   <div className="np-field"><label className="np-label" htmlFor="definition-category">التصنيف *</label><input className="np-input" id="definition-category" name="category" list="np-categories" maxLength={60} required defaultValue={initial?.category}/><datalist id="np-categories">{categories.map(c=><option value={c} key={c}/>)}</datalist></div>
@@ -1473,7 +1492,7 @@ function DefinitionForm({busy,onCommand,defaultStartDate,defaultKind="Habit",ini
   <div className="np-field full"><label className="np-label" htmlFor="definition-weight">وزن الإنجاز *</label><input className="np-input" id="definition-weight" name="weight" type="number" min="1" max="100" step="1" required defaultValue={initial?.weight??1}/><small>من 1 إلى 100. مثلًا: وزن 10 يساوي تأثير عشر عادات وزن كل منها 1. التعديل يطبّق على اليوم وما بعده، ويحافظ على أوزان الأيام السابقة.</small></div>
   {initial?<p className="np-cc-help np-field full">التعديل يؤثر على الجدول الحالي والقادم. سجل الإنجاز والملاحظات السابق محفوظ. لا يمكن خفض الهدف عن الإنجاز المسجل أو تغيير وحدته بعد بدء القياس.</p>:null}
   {error?<p role="alert" className="np-action-error np-field full">{error}</p>:null}
-  <div className="np-form-actions"><button className="np-cc-button primary" type="submit" disabled={busy}>{busy?"جارٍ الحفظ…":initial?"حفظ التعديلات":"إضافة إلى نور"}</button></div>
+  <div className="np-field full np-definition-save-hint"><small>يمكنك الحفظ من الشريط الثابت أسفل النافذة.</small></div>
  </form>;
 }
 
@@ -1537,6 +1556,7 @@ function debtDuration(start:string,end:string):string{const p=debtElapsedPeriod(
 function FinanceCorrections({entry}:{entry:FinanceLedger['entries'][number]|undefined}):ReactElement|null{return entry?.corrections?.length?<details><summary>سجل التصحيحات ({entry.corrections.length})</summary>{entry.corrections.map((c,i)=><p key={i}>القيمة السابقة: {(c.amountMinor/100).toFixed(2)} · {c.date}<br/>السبب: {c.reason}{c.note?<><br/>{c.note}</>:null}</p>)}</details>:null;}
 function DebtRegister({ledger,today,busy,onRepay,onAddPerson,onAddDebt,onEditPerson,onEditDebt,onEditPayment}:{ledger:FinanceLedger;today:string;busy:boolean;onRepay:(id:string)=>void;onAddPerson:()=>void;onEditDebt:(id:string)=>void;onEditPayment:(id:string)=>void;onEditPerson:(person:{id:string|null;name:string;note:string})=>void;onAddDebt:(person:{id:string|null;name:string})=>void}):ReactElement{
  const [view,setView]=useState<'people'|'statistics'>('people'),[selected,setSelected]=useState<string|null>(null),[query,setQuery]=useState(''),[direction,setDirection]=useState('all'),[state,setState]=useState('all');const summary=financeSummary(ledger);
+ const [personPaymentStatus,setPersonPaymentStatus]=useState("all");
  const profiles=new Map<string,{id:string|null;key:string;name:string;note:string}>();for(const p of ledger.people??[])profiles.set('person:'+p.id,{...p,key:'person:'+p.id});
  const personKey=(debt:FinanceLedger['debts'][number])=>{const p=ledger.people?.find(p=>debt.personId?p.id===debt.personId:p.name===debt.person);return p?'person:'+p.id:'legacy:'+debt.person;};
  for(const d of ledger.debts){const key=personKey(d);if(!profiles.has(key))profiles.set(key,{key,id:null,name:d.person,note:''});}
@@ -1546,7 +1566,7 @@ function DebtRegister({ledger,today,busy,onRepay,onAddPerson,onAddDebt,onEditPer
  const labels:Record<string,string>={paid:'تم السداد',partial:'سداد جزئي',overdue:'متأخر عن الاستحقاق',open:'لم يُسدّد',cancelled:'ملغى'};
  const showPeople=view==='people'&&!person;
  return <section className="nf-debt-register" data-testid="debt-register-r77" data-layout="people-r78" data-person-edit-version="NOOR_PERSON_EDIT_R79" data-ledger-design="NOOR_LEDGER_DESIGN_R80"><nav className="nf-tabs" aria-label="عرض الديون"><button type="button" className={view==='people'?'is-active':''} onClick={()=>{setView('people');setQuery('');}}>الأشخاص</button><button type="button" className={view==='statistics'?'is-active':''} onClick={()=>{setView('statistics');setQuery('');}}>الإحصائيات</button></nav>
- {showPeople?<><div className="nf-list-heading"><h3>الأشخاص</h3><button className="nf-button primary" type="button" disabled={busy} onClick={onAddPerson}>+ إضافة شخص</button></div><input aria-label="البحث عن شخص" placeholder="ابحث بالاسم" value={query} onChange={e=>setQuery(e.currentTarget.value)}/><div className="nf-person-grid">{[...profiles.values()].filter(p=>!query||p.name.includes(query.trim())).map(p=>{const debts=allRows.filter(r=>personKey(r.debt)===p.key);return <article className="nf-person-card" key={p.key}><button className="nf-person" type="button" onClick={()=>{setSelected(p.key);setQuery('');setDirection('all');setState('all');}}><strong>{p.name}</strong><span>{debts.length} مبالغ مسجلة · {debts.filter(r=>r.status==='paid').length} مسددة</span>{(['SAR','EGP'] as const).map(currency=>{const group=debts.filter(r=>(r.debt.currency??'SAR')===currency);return group.length?<small key={currency}>لي: {moneyLabel(group.filter(r=>r.debt.direction==='receivable').reduce((n,r)=>n+r.remaining,0),currency)} · عليّ: {moneyLabel(group.filter(r=>r.debt.direction==='payable').reduce((n,r)=>n+r.remaining,0),currency)}</small>:null;})}<span className="nf-person-open">فتح ملف الشخص ←</span></button><div className="nf-person-card-actions"><button className="nf-button" type="button" aria-label={`تعديل بيانات ${p.name}`} disabled={busy} onClick={()=>onEditPerson(p)}><svg aria-hidden="true" viewBox="0 0 24 24" width="16" height="16" fill="none"><path d="m15 5 4 4M4 20l4-1 12-12a2.8 2.8 0 0 0-4-4L4 15l-1 6Z" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"/></svg>الاسم والملاحظات</button><button className="nf-button" type="button" onClick={()=>{setSelected(p.key);setQuery('');setDirection('all');setState('all');}}>تعديل المبالغ</button></div></article>;})}</div>{!profiles.size?<p className="nf-empty">أضف الشخص أولًا، ثم سجل المبالغ ودفعات السداد داخل ملفه.</p>:null}</>:<>
+ {showPeople?<><div className="nf-list-heading"><h3>الأشخاص</h3><button className="nf-button primary" type="button" disabled={busy} onClick={onAddPerson}>+ إضافة شخص</button></div><div className="nf-person-filters-r130"><input aria-label="البحث عن شخص" placeholder="ابحث بالاسم" value={query} onChange={e=>setQuery(e.currentTarget.value)}/><label>حالة السداد<select data-testid="people-payment-filter-r130" aria-label="فلتر الأشخاص حسب حالة السداد" value={personPaymentStatus} onChange={e=>setPersonPaymentStatus(e.currentTarget.value)}><option value="all">كل الحالات</option>{Object.entries(labels).map(([value,label])=><option key={value} value={value}>{label}</option>)}</select></label></div><div className="nf-person-grid">{[...profiles.values()].filter(p=>(!query||p.name.includes(query.trim()))&&(personPaymentStatus==="all"||allRows.some(r=>personKey(r.debt)===p.key&&r.status===personPaymentStatus))).map(p=>{const debts=allRows.filter(r=>personKey(r.debt)===p.key);return <article className="nf-person-card" key={p.key}><button className="nf-person" type="button" onClick={()=>{setSelected(p.key);setQuery('');setDirection('all');setState('all');}}><strong>{p.name}</strong><span>{debts.length} مبالغ مسجلة · {debts.filter(r=>r.status==='paid').length} مسددة</span>{(['SAR','EGP'] as const).map(currency=>{const group=debts.filter(r=>(r.debt.currency??'SAR')===currency);return group.length?<small key={currency}>لي: {moneyLabel(group.filter(r=>r.debt.direction==='receivable').reduce((n,r)=>n+r.remaining,0),currency)} · عليّ: {moneyLabel(group.filter(r=>r.debt.direction==='payable').reduce((n,r)=>n+r.remaining,0),currency)}</small>:null;})}<span className="nf-person-open">فتح ملف الشخص ←</span></button><div className="nf-person-card-actions"><button className="nf-button" type="button" aria-label={`تعديل بيانات ${p.name}`} disabled={busy} onClick={()=>onEditPerson(p)}><svg aria-hidden="true" viewBox="0 0 24 24" width="16" height="16" fill="none"><path d="m15 5 4 4M4 20l4-1 12-12a2.8 2.8 0 0 0-4-4L4 15l-1 6Z" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"/></svg>الاسم والملاحظات</button><button className="nf-button" type="button" onClick={()=>{setSelected(p.key);setQuery('');setDirection('all');setState('all');}}>تعديل المبالغ</button></div></article>;})}</div>{!profiles.size?<p className="nf-empty">أضف الشخص أولًا، ثم سجل المبالغ ودفعات السداد داخل ملفه.</p>:null}</>:<>
  <div className="nf-list-heading"><div><h3>{person?person.name:'إحصائيات جميع الأشخاص'}</h3>{person?.note?<p className="nf-help">{person.note}</p>:null}</div><div>{person?<><button className="nf-button" type="button" onClick={()=>{setSelected(null);setQuery('');}}>العودة للأشخاص</button><button className="nf-button" type="button" disabled={busy} onClick={()=>onEditPerson(person)}>تعديل الشخص</button><button className="nf-button primary" type="button" disabled={busy} onClick={()=>onAddDebt(person)}>+ إضافة مبلغ لهذا الشخص</button></>:null}</div></div>
  <div className="nf-debt-filters"><input aria-label="بحث في الديون" placeholder="بحث في الملاحظات" value={query} onChange={e=>setQuery(e.currentTarget.value)}/><select aria-label="اتجاه الدين" value={direction} onChange={e=>setDirection(e.currentTarget.value)}><option value="all">الكل: لي وعليّ</option><option value="receivable">مدين لي — مبالغ لي</option><option value="payable">دائن عليّ — مبالغ عليّ</option></select><select aria-label="حالة السداد" value={state} onChange={e=>setState(e.currentTarget.value)}><option value="all">كل الحالات</option>{Object.entries(labels).map(([value,label])=><option key={value} value={value}>{label}</option>)}</select></div>
  <details className="nf-ledger-guide"><summary>كيف تُحسب المدة والألوان؟</summary><p className="nf-help">المدة من تاريخ الدين حتى آخر تاريخ سداد إن وجد، وإلا حتى اليوم. الدفعة الجزئية لا تُغلق المبلغ المتبقي. الألوان: أصفر أقل من 6 أشهر، برتقالي من 6 إلى 8، أحمر من 9 فأكثر، وأخضر للمسدد بالكامل.</p></details>
@@ -1724,7 +1744,7 @@ function ControlCenter({ busy, orderingPending=false, workspace, executions, onC
       <div aria-labelledby="np-create-dialog-title" aria-modal="true" className="np-cc-modal" onKeyDown={trapDialogKeys} ref={dialogRef} role="dialog" tabIndex={-1}>
         <div className="np-cc-modal-head"><div><p className="np-cc-kicker">إضافة إلى نور</p><h2 id="np-create-dialog-title">{editing?"تعديل البيانات والجدول":kind==="Habit"?"عادة جديدة":"مهمة جديدة"}</h2></div><button aria-label="إغلاق نافذة الإضافة" className="np-cc-button" disabled={busy} onClick={closeCreate} type="button">إغلاق ×</button></div>
         <div className="np-cc-modal-body">{formError?<p className="np-action-error" role="alert">{formError}</p>:null}<DefinitionForm key={`${kind}-${formSession}`} busy={busy} defaultStartDate={defaultStartDate} defaultKind={kind} {...(editing?{initial:editing}:{})} categories={workspace?.categories??COMMON_CATEGORIES} onCommand={apply}/></div>
-        <div className="np-cc-modal-footer"><span>الحقول المعلّمة بنجمة مطلوبة.</span><button className="np-cc-button" disabled={busy} onClick={closeCreate} type="button">إلغاء</button></div>
+        <div className="np-cc-modal-footer"><span>الحقول المعلّمة بنجمة مطلوبة.</span><div className="np-definition-footer-actions"><button className="np-cc-button" disabled={busy} onClick={closeCreate} type="button">إلغاء</button><button data-testid="np-definition-save-r130" className="np-cc-button primary np-definition-save-button" type="submit" form="np-definition-edit-form" disabled={busy} aria-label={editing?"حفظ تعديل العادة أو المهمة":"حفظ العادة أو المهمة الجديدة"}><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M4 3h14l3 3v15H3V3h1Z"/><path d="M7 3v7h10V3"/><path d="M7 21v-8h10v8"/></svg><span>{busy?"جارٍ الحفظ…":editing?"حفظ التعديلات":"حفظ"}</span></button></div></div>
       </div>
     </div>
   </div>;
@@ -1819,6 +1839,7 @@ function Dashboard({ view:providedView, workspace, busy, actionError, onCommand,
   // NOOR_INPAGE_HISTORY_R110: the selected date drives the existing day grid.
   const [weekShift,setWeekShift]=useState(0);
   const [historyDate,setHistoryDate]=useState<string|null>(null);
+  const [categoryFilter,setCategoryFilter]=useState("all");
   const view=useMemo(()=>{
     const visible=(item:ExecutionItem)=>{const d=definitionsById.get(item.definitionId);return item.status!=="Suppressed" && (historyDate!==null || (d?.state!=="Archived"&&d?.state!=="Paused"&&(d?.state!=="Stopped"||["Completed","Missed","Cancelled"].includes(item.status))));};
     if(historyDate){
@@ -1859,6 +1880,9 @@ function Dashboard({ view:providedView, workspace, busy, actionError, onCommand,
     const categories=(workspace?.categories??[]).map(c=>c.trim().replace(/\s+/g,' '));const rank=(c:string)=>{const i=categories.indexOf(c);return i<0?Number.MAX_SAFE_INTEGER:i;};
     return [...map.entries()].sort(([a],[b])=>rank(a)-rank(b)||a.localeCompare(b,'ar'));
   }, [view.habits, workspace]);
+  // NOOR_R130_CATEGORY_FILTER: show all category cards or only one shared card.
+  const activeCategory=categoryFilter==="all"||grouped.some(([category])=>category===categoryFilter)?categoryFilter:"all";
+  const visibleGroups=activeCategory==="all"?grouped:grouped.filter(([category])=>category===activeCategory);
   // NOOR_INPAGE_HISTORY_R110: a historical status correction can NEVER use today's command.
   const historicalCommand=async(cmd:NoorPersonalCommandInput):Promise<boolean>=>{
     const todayDate=providedView.localDate??workspace?.statistics.currentDate??"";
@@ -2040,10 +2064,11 @@ function Dashboard({ view:providedView, workspace, busy, actionError, onCommand,
       <div className="np-execution-stack">
         <section aria-label="عادات اليوم" className="np-habits-section np-history-page">
           <div className="np-section-heading"><h2>{historyDate?`عادات يوم ${weekDateLabel(historyDate)}`:"عادات اليوم"}</h2>{historyDate?null:<span>كل قسم، خطوة للأمام</span>}</div>
+          <label className="np-category-filter-r130" data-testid="habit-category-filter-r130"><span>عرض بطاقات العادات</span><select aria-label="تصفية بطاقات العادات حسب التصنيف" value={activeCategory} onChange={e=>setCategoryFilter(e.currentTarget.value)}><option value="all">كل التصنيفات</option>{grouped.map(([category])=><option key={category} value={category}>{habitCardDisplayTitle(category)}</option>)}</select></label>
           <div className="np-category-grid" data-testid="habit-category-grid">
-            {grouped.length === 0
+            {visibleGroups.length === 0
               ? <section className="np-card np-category np-habits-empty"><div className="np-empty"><strong>مساحة لعاداتك</strong><span>{historyDate?"لا توجد عادات مسجلة لهذا اليوم.":"لا توجد عادات مجدولة اليوم. ستظهر أقسامها هنا حسب تصنيفاتك الحالية."}</span></div></section>
-              : grouped.map(([category,items]) => {
+              : visibleGroups.map(([category,items]) => {
                 const due=items.flatMap(row=>row.execution&&row.execution.status!=='Suppressed'?[row.execution]:[]);
                 const displayCategory=habitCardDisplayTitle(category);
                 const done = completedCount(due);
@@ -2151,7 +2176,19 @@ export function NoorPersonalApplicationView({ initialResult, initialWorkspace }:
   const baseWorkspace = useMemo(()=>workspaceResult?.kind === "success" ? buildWorkspaceViewModel(workspaceResult.workspace) : null,[workspaceResult]);
   const view=useMemo(()=>{if(!baseView)return null;const update=(item:ExecutionItem)=>{let status=item.status;for(const c of fastChanges.filter(c=>c.executionId===item.id)){if(c.command.type==='set-execution-completed')status=c.command.completed?'Completed':'Pending';else if(c.command.type==='record-activity'&&c.command.endReason)status=c.command.endReason==='achieved'?'Completed':'Cancelled';else if(c.command.type==='record-activity'&&c.command.amount>0&&status!=='Completed')status='InProgress';}return {...item,status};};return {...baseView,tasks:baseView.tasks.map(update),habits:baseView.habits.map(update)};},[baseView,fastChanges]);
   const activityWorkspace=useMemo(()=>baseWorkspace?{...baseWorkspace,definitions:baseWorkspace.definitions.map(d=>{const changes=fastChanges.filter(c=>c.definitionId===d.id);let activityLog=[...d.activityLog],state=d.state;for(const change of changes){if(change.command.type==='edit-activity-note'){const command=change.command;activityLog=activityLog.map(e=>e.id===command.entryId&&e.executionId===command.executionId?{...e,note:command.note??''}:e);}if(change.entry&&!activityLog.some(e=>e.id===change.entry!.id))activityLog.push(change.entry);if(change.entry?.endReason)state='Stopped';}return {...d,state,activityLog};})}:null,[baseWorkspace,fastChanges]);
-  const workspace=useMemo(()=>{if(!activityWorkspace)return null;let result=activityWorkspace;for(const command of orderChanges){if(command.scope==='categories')result={...result,categories:command.order};else{const ranks=new Map(command.order.map((id,index)=>[id,index]));result={...result,definitions:result.definitions.map(d=>d.kind===command.scope&&ranks.has(d.id)?{...d,displayOrder:ranks.get(d.id)!}:d).sort((a,b)=>(a.displayOrder??Number.MAX_SAFE_INTEGER)-(b.displayOrder??Number.MAX_SAFE_INTEGER))};}}return result;},[activityWorkspace,orderChanges]);
+  const workspace=useMemo(()=>{
+    if(!activityWorkspace)return null;
+    let result=activityWorkspace;
+    for(const command of orderChanges){if(command.scope==='categories')result={...result,categories:command.order};else{const ranks=new Map(command.order.map((id,index)=>[id,index]));result={...result,definitions:result.definitions.map(d=>d.kind===command.scope&&ranks.has(d.id)?{...d,displayOrder:ranks.get(d.id)!}:d).sort((a,b)=>(a.displayOrder??Number.MAX_SAFE_INTEGER)-(b.displayOrder??Number.MAX_SAFE_INTEGER))};}}
+    // R129: R83 optimistic projection of only persisted historical occurrences.
+    const corrections=fastChanges.filter(change=>change.command.type==='correct-historical-execution');
+    if(corrections.length)result={...result,statistics:{...result.statistics,rows:result.statistics.rows.map(row=>{
+      let status=row.status;
+      for(const change of corrections){const cmd=change.command;if(cmd.type==='correct-historical-execution'&&row.id===change.executionId&&row.date===cmd.localDate)status=cmd.completed?'Completed':'Missed';}
+      return status===row.status?row:{...row,status};
+    })}};
+    return result;
+  },[activityWorkspace,orderChanges,fastChanges]);
 
 
   // A Personal Day may end independently of the next-prayer refresh.
@@ -2180,11 +2217,11 @@ export function NoorPersonalApplicationView({ initialResult, initialWorkspace }:
     void refresh().finally(()=>{state.pending=false;});
   }, [nowMs,view?.nextPrayer?.at,dayBoundaryEndAt]);
 
-  const runCommand = async (command: NoorPersonalCommandInput): Promise<boolean> => {
+  const runCommand = async (command: NoorPersonalCommandInput, background=false): Promise<boolean> => {
     if (commandInFlight.current) return false;
     commandInFlight.current=true;
     ++refreshEpoch.current;
-    setBusy(true);
+    if(!background)setBusy(true);
     setActionError(null);
     try {
       const reply = await sendNoorPersonalCommandDetailed(command);
@@ -2207,7 +2244,7 @@ export function NoorPersonalApplicationView({ initialResult, initialWorkspace }:
       return true;
     } finally {
       commandInFlight.current=false;
-      setBusy(false);
+      if(!background)setBusy(false);
       queueMicrotask(()=>{if(alive.current){void drainFast();void drainOrder();}});
     }
   };
@@ -2230,29 +2267,62 @@ export function NoorPersonalApplicationView({ initialResult, initialWorkspace }:
 
   const drainFast=async()=>{
     if(fastRunning.current||commandInFlight.current||!alive.current)return;fastRunning.current=true;
-    try{while(fastQueue.current.length&&alive.current){const change=fastQueue.current[0]!;let ok=false;try{ok=await runCommand(change.command);}catch{ok=false;}fastQueue.current.shift();if(!alive.current)break;if(!ok&&change.command.type==='edit-activity-note'){const failed=change.command;fastQueue.current=fastQueue.current.filter(c=>c.command.type!=='edit-activity-note'||c.command.entryId!==failed.entryId);}setFastChanges([...fastQueue.current]);
-      const newerChoice=change.command.type==='set-execution-completed'&&fastQueue.current.some(c=>c.executionId===change.executionId&&c.command.type==='set-execution-completed');
-      if(ok&&change.command.type==='set-execution-completed')setFailedChanges(previous=>previous.filter(c=>c.executionId!==change.executionId||c.command.type!=='set-execution-completed'));
-      if(!ok&&!newerChoice)setFailedChanges(previous=>[...previous.filter(c=>c.command.type==='set-execution-completed'&&change.command.type==='set-execution-completed'?c.executionId!==change.executionId:c.command.type!=='set-execution-completed'&&change.command.type!=='set-execution-completed'?c.command.type!==change.command.type||c.command.entryId!==change.command.entryId:true),change]);
+    try{while(fastQueue.current.length&&alive.current){
+      const change=fastQueue.current[0]!;let ok=false;
+      try{ok=await runCommand(change.command,true);}catch{ok=false;}
+      fastQueue.current.shift();if(!alive.current)break;
+      if(!ok&&change.command.type==='edit-activity-note'){const failed=change.command;fastQueue.current=fastQueue.current.filter(c=>c.command.type!=='edit-activity-note'||c.command.entryId!==failed.entryId);}
+      if(!ok&&isFastCompletion(change.command)){
+        // Reject dependent status changes if the prerequisite server write failed.
+        fastQueue.current=fastQueue.current.filter(c=>c.executionId!==change.executionId||!isFastCompletion(c.command));
+      }
+      setFastChanges([...fastQueue.current]);
+      const newerChoice=isFastCompletion(change.command)&&fastQueue.current.some(c=>c.executionId===change.executionId&&isFastCompletion(c.command));
+      if(ok&&isFastCompletion(change.command))setFailedChanges(previous=>previous.filter(c=>fastFailureKey(c)!==fastFailureKey(change)));
+      if(!ok&&!newerChoice)setFailedChanges(previous=>[...previous.filter(c=>fastFailureKey(c)!==fastFailureKey(change)),change]);
+    
     }}
     finally{fastRunning.current=false;}
   };
   const fastCommand=async(command:NoorPersonalCommandInput):Promise<boolean>=>{
-    if(command.type!=='set-execution-completed'&&command.type!=='record-activity'&&command.type!=='edit-activity-note')return runCommand(command);
-    if(fastQueue.current.some(c=>c.executionId===command.executionId&&((command.type==='record-activity'&&(command.amount>0||command.endReason!==null))||(c.command.type==='record-activity'&&(c.command.amount>0||c.command.endReason!==null)))))return false;
-    const execution=[...(baseView?.tasks??[]),...(baseView?.habits??[])].find(e=>e.id===command.executionId);
+    if(command.type!=='set-execution-completed'&&command.type!=='record-activity'&&command.type!=='edit-activity-note'&&command.type!=='correct-historical-execution'&&command.type!=='record-historical-progress')return runCommand(command);
+    const isHistory=command.type==='correct-historical-execution'||command.type==='record-historical-progress';
+    if(isHistory&&(!validStatisticDate(command.localDate)||!baseView?.localDate||command.localDate>=baseView.localDate))return false;
+    if(fastQueue.current.some(c=>c.executionId===command.executionId&&(
+      (command.type==='record-activity'&&(command.amount>0||command.endReason!==null))||(c.command.type==='record-activity'&&(c.command.amount>0||c.command.endReason!==null))||
+      (command.type==='record-historical-progress'&&command.amount>0)||(c.command.type==='record-historical-progress'&&c.command.amount>0)
+    )))return false;
+    const execution=isHistory
+      ?baseWorkspace?.statistics.rows.find(row=>row.id===command.executionId&&row.date===command.localDate)
+      :[...(baseView?.tasks??[]),...(baseView?.habits??[])].find(e=>e.id===command.executionId);
     const definition=command.type==='edit-activity-note'?baseWorkspace?.definitions.find(d=>d.activityLog.some(e=>e.id===command.entryId&&e.executionId===command.executionId)):baseWorkspace?.definitions.find(d=>d.id===execution?.definitionId);
     if(command.type==='edit-activity-note'){if(!definition||fastQueue.current.some(c=>c.definitionId===definition.id))return false;}else if(!execution)return false;
-    const change:FastChange={command,executionId:command.executionId,definitionId:definition?.id??execution!.definitionId,title:definition?.title??execution!.title,...(command.type==='record-activity'?{entry:{id:command.entryId,executionId:execution!.id,localDate:civilLocalDate(Date.now(),baseView!.timeZone),at:new Date().toISOString(),amount:command.amount,note:command.note,endReason:command.endReason}}:{})};
-    if(command.type==='set-execution-completed'&&execution){
-      const active=fastRunning.current?fastQueue.current[0]:undefined;
-      const activeHere=active?.executionId===execution.id&&active.command.type==='set-execution-completed'?active:undefined;
-      const effective=activeHere?.command.type==='set-execution-completed'?activeHere.command.completed:execution.status==='Completed';
-      // Preserve any request already sent. Collapse unsent toggles to the latest choice.
-      fastQueue.current=fastQueue.current.filter(c=>c===active||c.executionId!==execution.id||c.command.type!=='set-execution-completed');
-      if(command.completed!==effective)fastQueue.current.push(change);
-      setFailedChanges(previous=>previous.filter(c=>c.executionId!==execution.id||c.command.type!=='set-execution-completed'));
-    }else {fastQueue.current.push(change);if(command.type==='edit-activity-note')setFailedChanges(previous=>previous.filter(c=>c.command.type!=='edit-activity-note'||c.command.entryId!==command.entryId));}
+    let actualCommand:FastCommand=command;
+    const active=fastRunning.current?fastQueue.current[0]:undefined;
+    if(isFastCompletion(command)&&execution){
+      const activeHere=active?.executionId===execution.id&&isFastCompletion(active.command)?active:undefined;
+      const effective=activeHere&&isFastCompletion(activeHere.command)?activeHere.command.completed:execution.status==='Completed';
+      // For a queued historical toggle, expect the status produced by the in-flight correction.
+      if(command.type==='correct-historical-execution'){
+        const expectedStatus=activeHere&&isFastCompletion(activeHere.command)
+          ?activeHere.command.completed?'Completed':'Missed'
+          :execution.status as typeof command.expectedStatus;
+        actualCommand={...command,expectedStatus};
+      }
+      fastQueue.current=fastQueue.current.filter(c=>c===active||c.executionId!==execution.id||!isFastCompletion(c.command));
+      if(command.completed!==effective){
+        const change:FastChange={command:actualCommand,executionId:command.executionId,definitionId:definition?.id??execution.definitionId,title:definition?.title??execution.title};
+        fastQueue.current.push(change);
+      }
+      setFailedChanges(previous=>previous.filter(c=>c.executionId!==execution.id||!isFastCompletion(c.command)));
+    }else {
+      const entry=command.type==='record-activity'||command.type==='record-historical-progress'
+        ?{id:command.entryId,executionId:command.executionId,localDate:command.type==='record-historical-progress'?command.localDate:civilLocalDate(Date.now(),baseView!.timeZone),at:new Date().toISOString(),amount:command.amount,note:command.note,endReason:command.type==='record-activity'?command.endReason:null}
+        :undefined;
+      const change:FastChange={command:actualCommand,executionId:command.executionId,definitionId:definition?.id??execution!.definitionId,title:definition?.title??execution!.title,...(entry?{entry}:{})};
+      fastQueue.current.push(change);
+      if(command.type==='edit-activity-note')setFailedChanges(previous=>previous.filter(c=>c.command.type!=='edit-activity-note'||c.command.entryId!==command.entryId));
+    }
     flushSync(()=>setFastChanges([...fastQueue.current]));void drainFast();return true;
   };
 
@@ -2267,9 +2337,9 @@ export function NoorPersonalApplicationView({ initialResult, initialWorkspace }:
     const defaultStartDate = civilLocalDate(nowMs, view.timeZone);
     content = controlOpen
       ? <>{actionError ? <p className="np-action-error" role="alert">{actionError}</p> : null}<ControlCenter orderingPending={orderChanges.length>0} appearance={appearance} onAppearance={chooseAppearance} executions={[...view.tasks,...view.habits]} busy={busy} defaultStartDate={defaultStartDate} onClose={() => setControlOpen(false)} onCommand={controlCommand} workspace={workspace} /></>
-      : <Dashboard actionError={actionError} busy={busy&&!fastChanges.length&&!orderChanges.length} pendingIds={[...view.tasks,...view.habits].filter(e=>fastChanges.some(c=>c.definitionId===e.definitionId)).map(e=>e.id)} lockedIds={[...view.tasks,...view.habits].filter(e=>fastChanges.some(c=>c.definitionId===e.definitionId&&c.command.type==='record-activity'&&(c.command.amount>0||c.command.endReason!==null))).map(e=>e.id)} nowMs={nowMs} onCommand={fastCommand} onHistoryCommand={runCommand} onOpenControl={() => setControlOpen(true)} view={view} workspace={workspace} />;
+      : <Dashboard actionError={actionError} busy={busy&&!fastChanges.length&&!orderChanges.length} pendingIds={fastChanges.map(c=>c.executionId)} lockedIds={fastChanges.filter(c=>c.command.type==='record-activity'&&(c.command.amount>0||c.command.endReason!==null)||c.command.type==='record-historical-progress'&&c.command.amount>0).map(c=>c.executionId)} nowMs={nowMs} onCommand={fastCommand} onHistoryCommand={fastCommand} onOpenControl={() => setControlOpen(true)} view={view} workspace={workspace} />;
   }
 
-  return <><style>{PAGE_STYLES}</style><section className={`np-page${!result ? " np-page-entry-loading" : result.kind === "success" ? " np-page-entry-ready" : ""}`} data-appearance={appearance} data-design-version="r62-visible-layout-fix" dir="rtl"><div className="np-wrap"><div className="np-save-notices" data-save-feedback="classic-achievement-r95">{orderError?<p className="np-failed-save" role="alert">{orderError}</p>:null}{failedChanges.map((change,i)=><div className="np-failed-save" role="alert" key={`${change.command.type}:${change.command.type==='set-execution-completed'?change.executionId:change.command.entryId}`}><span>لم يتأكد الحفظ: {change.title}. تم إرجاع العرض لآخر بيانات مؤكدة.</span>{change.command.type==='edit-activity-note'?<p>{change.command.note??'حذف الملاحظة'}</p>:null}{change.command.type==='record-activity'?<p>{change.command.note}{change.command.amount>0?` · الكمية: ${change.command.amount}`:''}</p>:null}<button type="button" disabled={fastChanges.some(c=>c.executionId===change.executionId)} onClick={()=>{setFailedChanges(previous=>previous.filter((_,j)=>j!==i));void fastCommand(change.command);}}>إعادة المحاولة</button><button type="button" onClick={()=>setFailedChanges(previous=>previous.filter((_,j)=>j!==i))}>تجاهل التغيير غير المحفوظ</button></div>)}</div>{content}</div></section></>;
+  return <><style>{PAGE_STYLES}</style><section className={`np-page${!result ? " np-page-entry-loading" : result.kind === "success" ? " np-page-entry-ready" : ""}`} data-appearance={appearance} data-design-version="r62-visible-layout-fix" dir="rtl"><div className="np-wrap"><div className="np-save-notices" data-save-feedback="classic-achievement-r95">{orderError?<p className="np-failed-save" role="alert">{orderError}</p>:null}{failedChanges.map((change,i)=><div className="np-failed-save" role="alert" key={fastFailureKey(change)}><span>لم يتأكد الحفظ: {change.title}. تم إرجاع العرض لآخر بيانات مؤكدة.</span>{change.command.type==='edit-activity-note'?<p>{change.command.note??'حذف الملاحظة'}</p>:null}{change.command.type==='record-activity'||change.command.type==='record-historical-progress'?<p>{change.command.note}{change.command.amount>0?` · الكمية: ${change.command.amount}`:''}</p>:null}<button type="button" disabled={fastChanges.some(c=>c.executionId===change.executionId)} onClick={()=>{setFailedChanges(previous=>previous.filter((_,j)=>j!==i));void fastCommand(change.command);}}>إعادة المحاولة</button><button type="button" onClick={()=>setFailedChanges(previous=>previous.filter((_,j)=>j!==i))}>تجاهل التغيير غير المحفوظ</button></div>)}</div>{content}</div></section></>;
 }
 
