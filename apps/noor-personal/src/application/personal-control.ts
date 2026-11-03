@@ -1027,13 +1027,45 @@ function streaks(
     };
 }
 
+/**
+ * R152: the R98 migration can leave a Fajr-based PersonalDay and a civil
+ * PersonalDay with the same local date. They remain stored for audit, but
+ * statistics must count only one operational PersonalDay per local date.
+ * Prefer the R98 civil key, then use stable source metadata for older data.
+ * This is a read-model projection only: no persisted instance is changed.
+ */
+function selectedStatisticDayIds(personalDays: readonly PersonalDay[]): ReadonlySet<string> {
+    const preferredByDate = new Map<LocalDate, PersonalDay>();
+    const priority = (day: PersonalDay): string => [
+        day.boundary.key.startsWith("personal-day-civil:") ? "0" : "1",
+        day.boundary.startAt,
+        day.createdAt,
+        day.id,
+    ].join("|");
+    for (const day of personalDays) {
+        const date = day.boundary.localDate;
+        const previous = preferredByDate.get(date);
+        if (!previous || priority(day) < priority(previous)) {
+            preferredByDate.set(date, day);
+        }
+    }
+    return new Set([...preferredByDate.values()].map(day => day.id));
+}
+
 export function buildPersonalWorkspace(
     userId: string,
     snapshot: PersonalFoundationSnapshotPort,
 ): PersonalWorkspace {
     const definitions = snapshot.listDefinitions(userId);
     const personalDays = snapshot.listPersonalDays(userId);
-    const execution = snapshot.listDailyExecutionForUser(userId);
+    const selectedDayIds = selectedStatisticDayIds(personalDays);
+    const knownDayIds = new Set(personalDays.map(day => day.id));
+    // Keep orphaned legacy execution readable, but never double-count
+    // executions belonging to a superseded PersonalDay for the same date.
+    const execution = snapshot.listDailyExecutionForUser(userId).filter(
+        instance => !knownDayIds.has(instance.personalDayId)
+            || selectedDayIds.has(instance.personalDayId),
+    );
 
     const currentLocalDate =
         personalDays
