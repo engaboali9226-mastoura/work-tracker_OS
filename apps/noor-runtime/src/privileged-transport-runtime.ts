@@ -1,3 +1,7 @@
+import { assembleLabPrivateJournalR196 } from "./noor-private-journal-assembly-r196.js";
+import type { NoorLabPrivateJournalDependenciesR196 } from "./noor-private-journal-assembly-r196.js";
+import type { PersonalControlOperation } from "./personal-control-operation.js";
+
 import type {
   NoorRuntimeHttpConfiguration,
 } from "./runtime-http-environment.js";
@@ -52,6 +56,9 @@ export interface PrivilegedTransportRuntimeDependencies {
 
   readonly createHttpServer?:
     RouteAccessHttpServerFactory;
+
+  /** Explicit local-only injection. Production main does not supply this. */
+  readonly labPrivateJournalR196?: NoorLabPrivateJournalDependenciesR196;
 }
 
 export interface PrivilegedTransportRuntime {
@@ -166,6 +173,33 @@ implements PrivilegedTransportRuntime {
                 executor.personalControl,
             };
 
+      // No environmental fallback and no privileged production port.
+      // A missing dependency fails startup; normal runtime remains unchanged.
+      let labJournalOptions: Pick<RouteAccessHttpServerOptions, "labPrivateJournalR193"> = {};
+      if (this.dependencies.labPrivateJournalR196 !== undefined) {
+        const conf = this.dependencies.httpConfiguration;
+        if (conf.host !== "127.0.0.1" || conf.port === 8787 ||
+            conf.port < 1024 || conf.port > 65535 ||
+            conf.publicOrigin !== `http://127.0.0.1:${conf.port}` || conf.secureCookie) {
+          throw new Error("R196_PRODUCTION_RUNTIME_JOURNAL_FORBIDDEN");
+        }
+        const control = executor.personalControl;
+        if (!control || !("resolveAuthorizedJournalUser" in control) ||
+            typeof control.resolveAuthorizedJournalUser !== "function" ||
+            !("resolveAuthorizedJournalPersonalDay" in control) ||
+            typeof control.resolveAuthorizedJournalPersonalDay !== "function") {
+          throw new Error("R196_VERIFIED_PERSONAL_CONTROL_MISSING");
+        }
+        const personalControl = control as typeof control & Pick<PersonalControlOperation, "resolveAuthorizedJournalUser" | "resolveAuthorizedJournalPersonalDay">;
+        labJournalOptions = {
+          labPrivateJournalR193: assembleLabPrivateJournalR196(
+            personalControl,
+            this.dependencies.labPrivateJournalR196,
+            conf.publicOrigin,
+          ),
+        };
+      }
+
       const server =
         serverFactory(
           executor,
@@ -185,6 +219,7 @@ implements PrivilegedTransportRuntime {
             },
             ...personalTodayOptions,
             ...personalControlOptions,
+            ...labJournalOptions,
           },
         );
 

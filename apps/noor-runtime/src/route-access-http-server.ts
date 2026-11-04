@@ -27,6 +27,10 @@ import type {
   SessionEstablishmentHttpHandler,
 } from "./session-establishment-http-handler.js";
 
+import { JOURNAL_R186_PATH_PREFIX, makePrivateJournalHttpHandlerR186 } from "./noor-private-journal-http-r186.js";
+
+export type { IncomingMessage, ServerResponse } from "node:http";
+
 export const ROUTE_ACCESS_EVIDENCE_HTTP_PATH =
   "/api/noor/route-access-evidence";
 
@@ -103,6 +107,11 @@ export interface RouteAccessHttpServerOptions {
     }>;
   readonly personalToday?: import("./personal-today-operation.js").PersonalTodayExecutor;
   readonly personalControl?: import("./personal-control-operation.js").PersonalControlExecutor;
+  /** Explicit isolated-lab opt-in. Must NEVER be supplied by production launcher. */
+  readonly labPrivateJournalR193?: Readonly<{
+    operation: import("./noor-private-journal-r185.js").NoorPrivateJournalOperationR185;
+    expectedOrigin: string;
+  }>;
 }
 
 function isRecord(
@@ -802,11 +811,18 @@ async function handleRequest(
     import("./personal-today-operation.js").PersonalTodayExecutor | undefined,
   personalControl:
     import("./personal-control-operation.js").PersonalControlExecutor | undefined,
+  labJournalHandler: ((request:IncomingMessage,response:ServerResponse)=>Promise<void>) | undefined,
   request:
     IncomingMessage,
   response:
     ServerResponse,
 ): Promise<void> {
+  // R193: fail closed when the synthetic lab journal route is not opted in.
+  if (typeof request.url === "string" && request.url.startsWith(JOURNAL_R186_PATH_PREFIX)) {
+    if (!labJournalHandler) {writeEmpty(response,404);return;}
+    await labJournalHandler(request,response);
+    return;
+  }
   if (
     request.url ===
       PERSONAL_WORKSPACE_HTTP_PATH
@@ -1037,6 +1053,13 @@ export function createRouteAccessHttpServer(
   options:
     RouteAccessHttpServerOptions = {},
 ): RouteAccessHttpServer {
+  const labJournalHandler = options.labPrivateJournalR193
+    ? makePrivateJournalHttpHandlerR186(
+        options.labPrivateJournalR193.operation,
+        options.labPrivateJournalR193.expectedOrigin,
+      )
+    : undefined;
+
   const sessionHandler =
     options.sessionEstablishment
       ? createSessionEstablishmentHttpHandler(
@@ -1055,6 +1078,7 @@ export function createRouteAccessHttpServer(
           sessionHandler,
           options.personalToday,
           options.personalControl,
+          labJournalHandler,
           request,
           response,
         ).catch(
@@ -1082,7 +1106,9 @@ export function createRouteAccessHttpServer(
         configuration:
           RouteAccessHttpListenConfiguration,
       ) =>
-        new Promise<void>(
+        (options.labPrivateJournalR193 && configuration.host !== "127.0.0.1")
+          ? Promise.reject(new Error("R193_JOURNAL_LOOPBACK_ONLY"))
+          : new Promise<void>(
           (
             resolve,
             reject,

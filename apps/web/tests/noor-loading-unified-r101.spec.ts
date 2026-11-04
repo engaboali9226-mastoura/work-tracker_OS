@@ -33,7 +33,10 @@ for (const [label, markup] of [["route", entry], ["Personal", waiting]] as const
 }
 test("R101 logo is preloaded by the application HTML before module startup", () => {
   assert.match(html, /rel="preload" as="image" type="image\/jpeg" href="\/noor-platform-logo\.jpeg"/u);
-  assert.ok(html.indexOf('rel="preload"') < html.indexOf('src="/src/main.tsx"'));
+  const knownEntries = ['src="/src/main.tsx"', 'src="/src/main.noor-lab.tsx"'];
+  const matches = knownEntries.filter(entry => html.includes(entry));
+  assert.equal(matches.length, 1, "Exactly one recognized application entrypoint must be present");
+  assert.ok(html.indexOf('rel="preload"') >= 0 && html.indexOf('rel="preload"') < html.indexOf(matches[0]!), "Noor logo must preload before the active entrypoint");
 });
 test("R101 subsequent Personal loading does not replay entrance animation", () => {
   assert.match(waiting, /R101: do not restart the entrance animation/u);
