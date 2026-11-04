@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "node ../../tools/hosting/generate-transparent-noor-icons-r224.mjs && vite build",
     "preview": "vite preview",
     "test": "node --import tsx --test tests/*.spec.ts"
   },
