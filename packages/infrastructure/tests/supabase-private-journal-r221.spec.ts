@@ -93,13 +93,12 @@ test("R221 refuses malformed owners and ciphertext before database calls",async(
 test("R221 fails closed if privileged provider returns a foreign row",async()=>{
  const t=fake();await t.store.insert(sample("r221_fake_user_a"));
  // Force a provider integrity violation despite the adapter's .eq() filter.
- const bad={
-   from(){return{
-     select(){return {eq(){return {order(){return {order(){return {async limit(){return {
-       data:[{...t.rows[0],owner_user_id:"r221_fake_user_b"}],error:null};
-     }}}}}}}}}}
-   };},
+ const chain={
+   eq(){return chain;},
+   order(){return chain;},
+   async limit(){return {data:[{...t.rows[0],owner_user_id:"r221_fake_user_b"}],error:null};},
  };
+ const bad={from(){return {select(){return chain;}};}};
  const store=new SupabasePostgresPrivateJournalStoreR221(bad as never);
  await assert.rejects(store.list("r221_fake_user_a"),/R221_PRIVATE_JOURNAL_PERSISTENCE_REJECTED/);
 });
