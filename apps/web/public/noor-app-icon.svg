@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+<title id="title">نور</title><desc id="desc">شعار نور بلون كحلي وشمس ذهبية</desc>
+<defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#26485b"/><stop offset="1" stop-color="#152b3b"/></linearGradient>
+<radialGradient id="light"><stop stop-color="#fff5cb"/><stop offset=".72" stop-color="#f0d08b"/><stop offset="1" stop-color="#d5a657"/></radialGradient></defs>
+<rect width="512" height="512" fill="url(#bg)" rx="116"/>
+<g stroke="#f3d69d" stroke-width="15" stroke-linecap="round" opacity=".88">
+<path d="M256 92v27M256 393v27M92 256h27M393 256h27M140 140l20 20M352 352l20 20M372 140l-20 20M160 352l-20 20"/>
+</g><circle cx="256" cy="256" r="123" fill="url(#light)" />
+<circle cx="256" cy="256" r="106" fill="none" stroke="#fff7d7" stroke-width="4" opacity=".7"/>
+<text x="256" y="285" text-anchor="middle" font-family="Arial, 'Noto Sans Arabic', sans-serif" font-weight="700" font-size="102" fill="#253b4c" direction="rtl">نور</text>
+</svg>
