@@ -9,7 +9,7 @@ import { JOURNAL_DB_GUARD_SQL_R198 } from './noor-private-journal-release-guard-
 import type { PgPoolR188, PgScopedClientR188 } from './noor-private-journal-postgres-r188.js';
 
 export const R208_POLICY_INVENTORY_SQL = `SELECT schemaname, tablename, policyname,
- permissive, roles, cmd, qual, with_check AS "withCheck"
+ permissive, roles::text[] AS roles, cmd, qual, with_check AS "withCheck"
  FROM pg_catalog.pg_policies
  WHERE schemaname = 'noor_private' AND tablename = 'journal_entries_r188'
  ORDER BY policyname`;
