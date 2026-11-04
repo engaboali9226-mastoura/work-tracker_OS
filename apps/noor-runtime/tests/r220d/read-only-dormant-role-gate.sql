@@ -33,7 +33,17 @@ SELECT CASE WHEN
    AND NOT has_table_privilege('authenticated','noor_private.journal_entries_r188','SELECT')
    AND (SELECT relrowsecurity AND relforcerowsecurity FROM pg_catalog.pg_class WHERE oid='noor_private.journal_entries_r188'::regclass)
    AND (SELECT count(*) FROM pg_catalog.pg_auth_members m
-        JOIN pg_catalog.pg_roles r ON r.oid=m.roleid WHERE r.rolname='noor_journal_r220d')=0
+        JOIN pg_catalog.pg_roles r ON r.oid=m.roleid WHERE r.rolname='noor_journal_r220d')=1
+   -- Supabase automatically grants managed administration to postgres, but
+   -- SET ROLE and inheritance MUST remain denied. Never remove its managed grant.
+   AND EXISTS (
+      SELECT 1 FROM pg_catalog.pg_auth_members m
+      JOIN pg_catalog.pg_roles r ON r.oid=m.roleid
+      WHERE r.rolname='noor_journal_r220d'
+        AND pg_get_userbyid(m.member)='postgres'
+        AND pg_get_userbyid(m.grantor)='supabase_admin'
+        AND m.admin_option=true AND m.set_option=false AND m.inherit_option=false
+   )
    AND (SELECT count(*) FROM pg_catalog.pg_stat_activity WHERE usename='noor_journal_r220d')=0
  THEN 'R220D_DORMANT_RESTRICTED_LOGIN_READY_NO_SECRET_OR_HTTP'
  ELSE 'R220D_FAIL_CLOSED_REVIEW_ROLE_STATE_MISMATCH' END AS decision,
