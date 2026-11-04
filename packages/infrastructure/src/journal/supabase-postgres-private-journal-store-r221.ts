@@ -8,6 +8,7 @@
  * No browser import, no plaintext note arguments, no direct anon access.
  */
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { Buffer } from "node:buffer";
 
 export type NoorJournalEncryptedRowR221 = Readonly<{
   ownerUserId: string;
