@@ -79,7 +79,7 @@ export interface PrivilegedPlatformRuntimeOperations {
   readonly personalControl:
     PersonalControlOperation;
 
-  readonly trustedPrivateJournalR221?: NoorPrivateJournalOperationR185;
+  readonly trustedPrivateJournalR221?: NoorPrivateJournalOperationR185 | undefined;
 
   execute(
     input:
