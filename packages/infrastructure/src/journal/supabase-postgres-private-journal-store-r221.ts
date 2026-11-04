@@ -74,6 +74,13 @@ function validCipher(row: NoorJournalEncryptedRowR221): boolean {
 export class SupabasePostgresPrivateJournalStoreR221 {
   public constructor(private readonly client: SupabaseClient<NoorPrivateJournalDatabaseR221>) {}
 
+  /** Zero-row readiness check: validates schema and server key without reading notes. */
+  public async assertAccessible(): Promise<void> {
+    const response = await this.client.from(TABLE).select("id")
+      .eq("owner_user_id","r221_readiness_no_real_user").limit(0);
+    if (response.error || !response.data || response.data.length !== 0) deny();
+  }
+
   public async insert(row: NoorJournalEncryptedRowR221): Promise<boolean> {
     if (!validCipher(row)) deny();
     const response = await this.client.from(TABLE).insert({
