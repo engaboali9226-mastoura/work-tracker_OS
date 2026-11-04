@@ -251,6 +251,51 @@ implements PersonalControlExecutor {
     };
   }
 
+  /** R186 lab: expose the existing verified session -> authorization -> UserId path
+   * to server-only private journal operations, without adding an alternate identity owner.
+   */
+  public async resolveAuthorizedJournalUser(sessionId: string | null): Promise<UserResolution> {
+    return this.resolveUser(sessionId);
+  }
+
+  /** R197: server-owned journal date, obtained from the verified NOOR session
+   * and the user's open Personal Day, never from a browser-supplied identifier.
+   * Fail closed when no single day covers the trusted runtime clock instant.
+   */
+  public async resolveAuthorizedJournalPersonalDay(
+    sessionId: string | null,
+  ): Promise<Readonly<
+    | { kind: "ok"; userId: string; localDate: string }
+    | { kind: "error"; status: 401 | 403 | 409 | 503 }
+  >> {
+    const resolved = await this.resolveUser(sessionId);
+    if (resolved.kind !== "ok") return resolved;
+    try {
+      const now = this.dependencies.clock.now();
+      if (typeof now !== "string" || !Number.isFinite(Date.parse(now))) {
+        return { kind: "error", status: 503 };
+      }
+      const scope = await this.dependencies.foundation.openOperation(resolved.userId);
+      const matches = scope.snapshot.listPersonalDays(resolved.userId).filter((day: Readonly<{state: string; userId: string; boundary: {startAt: string; endAt: string; localDate: string}}>) =>
+        day.state === "Open"
+        && day.userId === resolved.userId
+        && day.boundary.startAt <= now
+        && now < day.boundary.endAt
+      );
+      if (matches.length !== 1) return { kind: "error", status: 409 };
+      const localDate = matches[0]!.boundary.localDate;
+      if (typeof localDate !== "string" ||
+          !/^\d{4}-\d{2}-\d{2}$/u.test(localDate) ||
+          !Number.isFinite(Date.parse(`${localDate}T00:00:00Z`)) ||
+          new Date(`${localDate}T00:00:00Z`).toISOString().slice(0,10) !== localDate) {
+        return { kind: "error", status: 503 };
+      }
+      return { kind: "ok", userId: resolved.userId, localDate };
+    } catch {
+      return { kind: "error", status: 503 };
+    }
+  }
+
   public async readWorkspace(
     input: Readonly<{
       sessionId: string | null;

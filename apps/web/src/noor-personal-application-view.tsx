@@ -1,3 +1,5 @@
+import { noorCategoryOptions, noorExistingCategory, noorProposeCategory } from "./category-selection-r163.js";
+import { NoorThreeSpacesR171 } from "./noor-three-spaces-r171.js";
 import { parseStatisticRows, summarizeProgress, statisticPeriods, statisticDays, statisticEligible, statisticInsights, statisticCalendar, shiftStatisticMonth, wholeWeekAchievement, yesterdayAchievement, validStatisticDate, shiftStatisticDate, type StatisticRow } from "./progress-statistics.js";
 import { loadCurrentTemperature } from "./public-weather-client.js";
 import { readAppearance, saveAppearance, type NoorAppearance } from "./appearance-preference-store.js";
@@ -1219,6 +1221,66 @@ const PAGE_STYLES = `
 }
 /* NOOR_R102_UNIFIED_LOADING_GEOMETRY_END */
 
+/* NOOR_R163_MOBILE_DIALOGS_AND_TABS: safe small-viewport scrolling for every known overlay. */
+.np-cc-modal-backdrop,.nf-backdrop,.np-activity-backdrop,.np-delete-backdrop,.np-page .np-history-overlay{box-sizing:border-box;max-width:100vw;max-height:100dvh;overscroll-behavior:contain}
+.np-cc-modal-backdrop .np-cc-modal,.nf-dialog,.np-activity-dialog,.np-delete-dialog,.np-page .np-history-overlay .np-history-editor{box-sizing:border-box;max-width:100%;min-width:0;overscroll-behavior:contain}
+.np-cc-modal-backdrop .np-cc-modal{max-height:100%;overflow:hidden}
+.np-cc-modal-backdrop .np-cc-modal-head{flex:0 0 auto;min-width:0;overflow-wrap:anywhere}
+.np-cc-modal-backdrop .np-cc-modal-head>div{min-width:0;flex:1 1 150px}
+.np-cc-modal-backdrop .np-cc-modal-body{min-height:0;flex:1 1 auto;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch}
+.np-cc-modal-backdrop .np-cc-modal-body .np-form{min-width:0;max-width:100%}
+.np-cc-modal-backdrop .np-cc-modal-footer{flex:0 0 auto;flex-wrap:wrap;min-width:0}
+.np-category-add-trigger-r163{border:1px solid #b5ced0;border-radius:9px;background:#f2faf8;color:#175f50;padding:10px;min-height:42px;cursor:pointer;font:inherit;font-size:13px;text-align:center;white-space:normal}
+.np-category-proposal-r163{display:grid;gap:9px;padding:12px;border-radius:12px;border:1px solid #d3e1e4;background:#f7fbfb;min-width:0}
+.np-category-proposal-actions-r163{display:flex;flex-wrap:wrap;gap:8px}
+.np-category-proposal-actions-r163 button{flex:1 1 130px;min-height:44px;padding:8px;border:1px solid #c6d5dc;border-radius:9px;background:white;color:#254e60;font:inherit;cursor:pointer}
+.np-category-proposal-r163 [role=alert]{margin:0}
+.np-cc-modal-backdrop[data-appearance=dark] .np-category-proposal-r163{background:#233640;border-color:#4b5f70}
+.np-cc-modal-backdrop[data-appearance=dark] .np-category-add-trigger-r163,.np-cc-modal-backdrop[data-appearance=dark] .np-category-proposal-actions-r163 button{background:#294350;color:#e2eef2;border-color:#4b5f70}
+@media (max-width:700px){
+ .np-cc-nav{display:flex;flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;scroll-snap-type:x proximity;max-width:100%;width:100%;scrollbar-width:thin;align-items:stretch}
+ .np-cc-nav-item{flex:0 0 auto;min-width:max-content;min-height:44px;scroll-snap-align:start;padding:8px 12px;white-space:nowrap}
+ .np-cc-nav-item span{white-space:nowrap}
+ .np-cc-layout,.np-cc-main,.np-cc-shell,.np-cc{min-width:0;max-width:100%}
+ .np-cc-modal-backdrop{padding:max(5px,env(safe-area-inset-top,0px)) max(6px,env(safe-area-inset-right,0px)) max(5px,env(safe-area-inset-bottom,0px)) max(6px,env(safe-area-inset-left,0px));overflow:hidden}
+ .np-cc-modal-backdrop .np-cc-modal{width:100%;height:100%;max-height:100%;min-height:0;flex:1 1 auto;border-radius:13px}
+ .np-cc-modal-backdrop .np-cc-modal-head{padding:9px 12px;gap:8px}
+ .np-cc-modal-backdrop .np-cc-modal-head h2{font-size:clamp(16px,4.7vw,21px)}
+ .np-cc-modal-backdrop .np-cc-modal-head button{min-height:44px;flex:0 0 auto}
+ .np-cc-modal-backdrop .np-cc-modal-body{padding:12px 10px;max-height:none}
+ .np-cc-modal-backdrop .np-cc-modal-footer{padding:9px 10px max(10px,env(safe-area-inset-bottom,0px));gap:6px}
+ .np-cc-modal-backdrop .np-definition-footer-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));width:100%;gap:8px}
+ .np-cc-modal-backdrop .np-definition-footer-actions>.np-cc-button{min-width:0;width:100%;min-height:44px;padding:8px 5px;font-size:12px;white-space:normal}
+ .np-cc-modal-backdrop .np-form{grid-template-columns:minmax(0,1fr);padding:10px;gap:10px}
+ .np-cc-modal-backdrop .np-field,.np-cc-modal-backdrop .np-field.full{min-width:0;grid-column:auto}
+ .np-cc-modal-backdrop :is(input,select,textarea){font-size:16px;max-width:100%;min-width:0}
+ .np-activity-backdrop,.nf-backdrop,.np-delete-backdrop,.np-page .np-history-overlay{padding:max(6px,env(safe-area-inset-top,0px)) 8px max(6px,env(safe-area-inset-bottom,0px));align-items:center;justify-content:center}
+ .np-activity-dialog,.nf-dialog,.np-delete-dialog,.np-page .np-history-overlay .np-history-editor{width:100%;max-height:100%;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding:14px}
+ .np-delete-dialog{overflow:hidden}
+ .np-delete-body{min-height:0;overflow-y:auto}
+ .np-activity-dialog :is(input,select,textarea),.nf-dialog :is(input,select,textarea),.np-delete-dialog input{font-size:16px;max-width:100%}
+ .np-activity-footer,.nf-modal-actions{display:flex;flex-wrap:wrap;gap:8px}
+ .np-activity-footer button,.nf-modal-actions button{flex:1 1 110px;min-width:0;min-height:44px}
+ .nf-tabs{overflow-x:auto;flex-wrap:nowrap;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}
+ .nf-tabs button{flex:0 0 auto;min-width:max-content;min-height:44px;white-space:nowrap}
+ .np-gregorian-parts{grid-template-columns:minmax(0,.75fr) minmax(0,1.25fr) minmax(0,.85fr)}
+}
+@media (max-width:390px){
+ .np-cc-modal-backdrop .np-cc-modal-head{flex-wrap:wrap}
+ .np-cc-modal-backdrop .np-cc-modal-head button{margin-inline-start:auto}
+ .np-cc-modal-backdrop .np-cc-modal-body{padding:8px}
+ .np-cc-modal-backdrop .np-cc-modal-footer{padding:6px 8px max(8px,env(safe-area-inset-bottom,0px))}
+ .np-cc-modal-backdrop .np-form{padding:8px}
+ .np-cc-modal-backdrop .np-definition-footer-actions>.np-cc-button{font-size:12px}
+}
+@media (max-height:480px){
+ .np-cc-modal-backdrop .np-cc-modal-head{padding-block:5px}
+ .np-cc-modal-backdrop .np-cc-modal-footer{padding-block:5px}
+ .np-activity-backdrop,.nf-backdrop,.np-delete-backdrop,.np-page .np-history-overlay{align-items:flex-start;overflow-y:auto}
+}
+/* NOOR_R163_MOBILE_DIALOGS_AND_TABS_END */
+
+
 `;
 
 
@@ -1510,18 +1572,42 @@ function PermanentDeleteDialog({title,busy,onClose,onDelete}:{title:string;busy:
 }
 
 
-function DefinitionForm({busy,onCommand,onSavingChange,defaultStartDate,defaultKind="Habit",initial,categories=COMMON_CATEGORIES}:{busy:boolean;onCommand:(command:NoorPersonalCommandInput)=>Promise<boolean>;onSavingChange?:(saving:boolean)=>void;defaultStartDate:string;defaultKind?:"Habit"|"Task";initial?:DefinitionItem;categories?:readonly string[]}):ReactElement {
+export function DefinitionForm({busy,onCommand,onSavingChange,defaultStartDate,defaultKind="Habit",initial,categories=COMMON_CATEGORIES}:{busy:boolean;onCommand:(command:NoorPersonalCommandInput)=>Promise<boolean>;onSavingChange?:(saving:boolean)=>void;defaultStartDate:string;defaultKind?:"Habit"|"Task";initial?:DefinitionItem;categories?:readonly string[]}):ReactElement {
  const [scheduleKind,setScheduleKind]=useState<"OneTime"|"Daily"|"Weekdays">(initial?.scheduleKind??"Daily");
  const [selectedKind,setSelectedKind]=useState(initial?.kind??defaultKind);
  const [duration,setDuration]=useState(initial?.endDate||initial?.scheduleKind==="OneTime"?"limited":"continuous");
  const [days,setDays]=useState<readonly number[]>(initial?.weekdays??[]);
  const [error,setError]=useState("");
  const definitionSaveLock=useRef(false);
+ const categoryAddLock=useRef(false);
+ const [selectedCategory,setSelectedCategory]=useState(initial?.category??categories[0]??"");
+ const [registeredCategory,setRegisteredCategory]=useState<string|null>(null);
+ const [showCategoryAdd,setShowCategoryAdd]=useState(false);
+ const [newCategory,setNewCategory]=useState("");
+ const [categoryError,setCategoryError]=useState("");
+ const categoryChoices=noorCategoryOptions(categories,registeredCategory??initial?.category);
+ const addCategory=async()=>{
+  if(busy||categoryAddLock.current||definitionSaveLock.current)return;
+  const proposal=noorProposeCategory(newCategory,categoryChoices);
+  if(proposal.kind==="invalid"){setCategoryError(proposal.message);return;}
+  if(proposal.kind==="existing"){
+   setSelectedCategory(proposal.value);setShowCategoryAdd(false);setCategoryError("");return;
+  }
+  categoryAddLock.current=true;setCategoryError("");
+  let ok=false;
+  try{ok=await onCommand({type:"manage-category",action:"add",name:proposal.value,previousName:null});}
+  catch{ok=false;}
+  finally{categoryAddLock.current=false;}
+  if(ok){setRegisteredCategory(proposal.value);setSelectedCategory(proposal.value);setShowCategoryAdd(false);setNewCategory("");}
+  else setCategoryError("تعذر إضافة التصنيف؛ تحقق من الاتصال أو جرّب اسمًا آخر.");
+ };
  const submit=async(event:FormEvent<HTMLFormElement>)=>{
   event.preventDefault();if(busy||definitionSaveLock.current)return;const data=new FormData(event.currentTarget),text=(key:string)=>String(data.get(key)??"").trim();
   if(scheduleKind==="Weekdays"&&!days.length){setError("اختر يومًا واحدًا على الأقل.");return;}
+  if(!noorExistingCategory(selectedCategory,categoryChoices)){setError("اختر تصنيفًا مسجلًا أو أضف تصنيفًا جديدًا أولًا.");return;}
+  if(showCategoryAdd){setError("أكمل إضافة التصنيف أو ألغِ إضافة التصنيف قبل حفظ العنصر.");return;}
   const endDate=selectedKind==="Habit"&&duration==="continuous"?null:text("endDate")||null;
-  const fields={weight:Number(text("weight")||initial?.weight||1),...(selectedKind==="Habit"&&text("timeOfDay")?{timeOfDay:text("timeOfDay")}:{}),kind:selectedKind,title:text("title"),category:text("category"),startDate:text("startDate"),endDate,scheduleKind,weekdays:scheduleKind==="Weekdays"?days:[],importance:text("importance") as "Essential"|"Important"|"Supporting"|"Optional",...(selectedKind==="Task"&&text("progressTarget")?{measurement:{target:Number(text("progressTarget")),unit:text("progressUnit")}}:{})};
+  const fields={weight:Number(text("weight")||initial?.weight||1),...(selectedKind==="Habit"&&text("timeOfDay")?{timeOfDay:text("timeOfDay")}:{}),kind:selectedKind,title:text("title"),category:selectedCategory,startDate:text("startDate"),endDate,scheduleKind,weekdays:scheduleKind==="Weekdays"?days:[],importance:text("importance") as "Essential"|"Important"|"Supporting"|"Optional",...(selectedKind==="Task"&&text("progressTarget")?{measurement:{target:Number(text("progressTarget")),unit:text("progressUnit")}}:{})};
   setError("");definitionSaveLock.current=true;onSavingChange?.(true);
   let ok=false;
   try{ok=await onCommand(initial?{...fields,type:"update-definition",definitionId:initial.id,expectedRevisionId:initial.revisionId}:{...fields,type:"create-definition"});}
@@ -1532,7 +1618,7 @@ function DefinitionForm({busy,onCommand,onSavingChange,defaultStartDate,defaultK
  return <form id="np-definition-edit-form" className="np-form" onSubmit={e=>{void submit(e);}}>
   <div className="np-field"><label className="np-label" htmlFor="definition-kind">النوع *</label><select className="np-select" id="definition-kind" name="kind" disabled={!!initial||busy} value={selectedKind} onChange={e=>setSelectedKind(e.currentTarget.value as "Habit"|"Task")}><option value="Habit">عادة</option><option value="Task">مهمة</option></select></div>
   <div className="np-field"><label className="np-label" htmlFor="definition-title">الاسم *</label><input className="np-input" id="definition-title" name="title" maxLength={120} required defaultValue={initial?.title}/></div>
-  <div className="np-field"><label className="np-label" htmlFor="definition-category">التصنيف *</label><input className="np-input" id="definition-category" name="category" list="np-categories" maxLength={60} required defaultValue={initial?.category}/><datalist id="np-categories">{categories.map(c=><option value={c} key={c}/>)}</datalist></div>
+  <div className="np-field" data-testid="definition-category-guard-r163"><label className="np-label" htmlFor="definition-category">التصنيف *</label><select className="np-select" id="definition-category" name="category" required disabled={busy} value={selectedCategory} onChange={event=>{setSelectedCategory(event.currentTarget.value);setError("");}}><option value="" disabled>اختر تصنيفًا موجودًا</option>{categoryChoices.map(category=><option value={category} key={category}>{category}</option>)}</select><button className="np-category-add-trigger-r163" type="button" aria-expanded={showCategoryAdd} disabled={busy} onClick={()=>{setShowCategoryAdd(value=>!value);setNewCategory("");setCategoryError("");setError("");}}>+ التصنيف غير موجود؟ أضف تصنيفًا جديدًا</button>{showCategoryAdd?<div className="np-category-proposal-r163"><label className="np-label" htmlFor="definition-new-category">اسم التصنيف الجديد</label><input id="definition-new-category" className="np-input" maxLength={60} value={newCategory} onInput={event=>{setNewCategory(event.currentTarget.value);setCategoryError("");}} onChange={event=>{setNewCategory(event.currentTarget.value);setCategoryError("");}} placeholder="مثال: تنمية المهارات"/><div className="np-category-proposal-actions-r163"><button type="button" disabled={busy} onClick={()=>{void addCategory();}}>إضافة وتحديد التصنيف</button><button type="button" disabled={busy} onClick={()=>{setShowCategoryAdd(false);setCategoryError("");}}>إلغاء</button></div>{categoryError?<p role="alert" className="np-action-error">{categoryError}</p>:null}</div>:null}</div>
   {selectedKind==='Habit'?<div className="np-field"><label className="np-label" htmlFor="definition-time">موعد تنفيذ العادة (اختياري)</label><input className="np-input" id="definition-time" name="timeOfDay" type="time" defaultValue={initial?.timeOfDay}/><small>مناسب للأدوية والمكملات. موعد للعرض والتنظيم؛ لا يرسل تنبيهًا حاليًا.</small></div>:null}
   <div className="np-field"><label className="np-label" htmlFor="definition-importance">الأهمية *</label><select className="np-select" id="definition-importance" name="importance" defaultValue={initial?.importance??"Supporting"}><option value="Essential">أساسي</option><option value="Important">مهم</option><option value="Supporting">داعم</option><option value="Optional">اختياري</option></select></div>
   {selectedKind==="Habit"?<div className="np-field full"><label className="np-label" htmlFor="definition-duration">مدة العادة</label><select className="np-select" id="definition-duration" value={duration} onChange={e=>{setDuration(e.currentTarget.value);if(e.currentTarget.value==="continuous"&&scheduleKind==="OneTime")setScheduleKind("Daily");}}><option value="continuous">مستمرة — بدون نهاية</option><option value="limited">محددة — بداية ونهاية</option></select><small className="np-cc-help">العادة المستمرة تتكرر وفق جدولها، ويُسجّل إتمامها وملاحظاتها لكل يوم على حدة.</small></div>:null}
@@ -1813,7 +1899,7 @@ function ControlCenter({ busy, orderingPending=false, workspace, executions, onC
   return <div className="np-cc-shell" data-testid="control-center-r65">
     <header className="np-cc-header"><div className="np-cc-heading"><div className="np-logo-frame np-cc-header-logo"><img alt="شعار نور" className="np-platform-logo" src="/noor-platform-logo.jpeg" /></div><div className="np-cc-heading-copy"><h1 className="np-control-title">مركز التحكم</h1></div></div><button aria-label="العودة إلى اليوم" className="np-cc-button" onClick={onClose} type="button">العودة لليوم ←</button></header>
     <section className="np-card np-control np-cc"><div className="np-cc-layout">
-      <nav aria-label="أقسام مركز التحكم" className="np-cc-nav">{([["Habit","العادات"],["Task","المهام"],["categories","التصنيفات"],["ordering","الترتيب"],["statistics","الإحصائيات"],["finance","المالية"],["appearance","المظهر"]] as const).map(([id,label])=><button aria-current={section===id?"page":undefined} className={`np-cc-nav-item${section===id?" is-selected":""}`} key={id} onClick={()=>changeSection(id)} type="button">{icon(id)}<span>{label}</span>{(id==="Habit"||id==="Task")?<small>{definitions.filter(d=>d.kind===id&&d.state==="Active").length}</small>:null}</button>)}<p className="np-cc-nav-note">إدارة هادئة لعاداتك ومهامك.<br/>إنجاز اليوم في شاشة اليوم.</p></nav>
+      <nav aria-label="أقسام مركز التحكم" className="np-cc-nav">{([["Habit","العادات"],["Task","المهام"],["categories","التصنيفات"],["ordering","الترتيب"],["statistics","الإحصائيات"],["finance","المالية"],["appearance","المظهر"]] as const).map(([id,label])=><button aria-current={section===id?"page":undefined} className={`np-cc-nav-item${section===id?" is-selected":""}`} key={id} onClick={event=>{changeSection(id);event.currentTarget.scrollIntoView?.({block:"nearest",inline:"center"});}} type="button">{icon(id)}<span>{label}</span>{(id==="Habit"||id==="Task")?<small>{definitions.filter(d=>d.kind===id&&d.state==="Active").length}</small>:null}</button>)}<p className="np-cc-nav-note">إدارة هادئة لعاداتك ومهامك.<br/>إنجاز اليوم في شاشة اليوم.</p></nav>
       <main className="np-cc-main">
         {section==="statistics"?<StatisticsCenter workspace={workspace}/>:section==="ordering"?<DisplayOrderManager workspace={workspace} busy={busy&&!orderingPending} onCommand={onCommand}/>:section==="categories"?<CategoryManager categories={workspace?.categories??COMMON_CATEGORIES} busy={busy} onCommand={onCommand}/>:section==="finance"?<FinanceCenter ledger={workspace?.finance ?? null} busy={busy} onCommand={onCommand} today={defaultStartDate}/>:section==="appearance"?<><div className="np-cc-title"><div><h2>مظهر نور</h2><p>اختيارك يُحفظ على هذا المتصفح.</p></div></div><div aria-label="اختيار المظهر" className="np-cc-themes">{([["noor","نور","دفء كريمي ولمسات ذهبية"],["light","فاتح","أبيض ورمادي بألوان هادئة"],["dark","داكن","سطوح فحمية ونصوص واضحة"]] as const).map(([id,title,copy])=><button aria-pressed={appearance===id} className={`np-cc-theme ${id}`} key={id} onClick={()=>onAppearance(id)} type="button"><span aria-hidden="true" className="np-cc-theme-preview"><i/><i/><i/></span><strong>{title}</strong><span>{copy}</span><small>{appearance===id?"المظهر الحالي":"اختيار المظهر"}</small></button>)}</div></>:<>
           <div className="np-cc-title"><div><h2>{kind==="Habit"?"العادات":"المهام"}</h2><p>{kind==="Habit"?"ابنِ روتينك، خطوة بخطوة.":"رتّب ما تريد إنجازه."}</p></div><button className="np-cc-button primary" onClick={()=>{setEditing(undefined);setFormError(null);setFormSession(value=>value+1);setCreating(true);}} type="button" aria-expanded={creating}>{kind==="Habit"?"+ إضافة عادة":"+ إضافة مهمة"}</button></div>
@@ -2183,7 +2269,7 @@ function Dashboard({ view:providedView, workspace, busy, actionError, onCommand,
       <div className="np-day-ring" role="progressbar" aria-label="الإنجاز الموزون لليوم كاملًا" aria-valuemin={0} aria-valuemax={100} aria-valuenow={completionRate} aria-valuetext={totalToday?`${completionRate}%، ${completedToday} من ${totalToday} عناصر`:"لا توجد عناصر مستحقة اليوم"}>
         <svg viewBox="0 0 100 100" aria-hidden="true"><circle className="np-day-ring-track" cx="50" cy="50" r="42"/><circle className="np-day-ring-fill" cx="50" cy="50" r="42" strokeDasharray={263.894} strokeDashoffset={263.894*(1-completionRate/100)}/></svg><strong data-testid="today-completion-rate">{arabicNumber(completionRate)}%</strong>
       </div>
-      <div className="np-day-achievement-copy"><h2>{historyDate?`إنجاز يوم ${weekDateLabel(historyDate)}`:"إنجاز اليوم"} <small>موزون</small></h2><p>{!totalToday?"لا توجد عادات أو مهام مستحقة اليوم.":completedToday===totalToday?"اكتملت كل عادات ومهام اليوم. أحسنت الاستمرار.":`${arabicNumber(completedToday)} من ${arabicNumber(totalToday)} عادات ومهام مكتملة اليوم`}</p></div>
+      <div className="np-day-achievement-copy"><div className="np-day-achievement-text"><h2>{historyDate?`إنجاز يوم ${weekDateLabel(historyDate)}`:"إنجاز اليوم"} <small>موزون</small></h2><p>{!totalToday?"لا توجد عادات أو مهام مستحقة اليوم.":completedToday===totalToday?"اكتملت كل عادات ومهام اليوم. أحسنت الاستمرار.":`${arabicNumber(completedToday)} من ${arabicNumber(totalToday)} عادات ومهام مكتملة اليوم`}</p></div>{!historyDate?<NoorThreeSpacesR171 personalDate={view.localDate??undefined} />:null}</div>
       {totalToday?<div className="np-day-remaining"><strong>{arabicNumber(Math.max(0,totalToday-completedToday))}</strong><span>{completedToday===totalToday?"يوم مكتمل":historyDate?"متبقية في اليوم":"متبقية اليوم"}</span></div>:null}
       <div className="np-day-context">
         <section className={`np-yesterday${yesterday?.missed.length?" has-missed":""}`} aria-label="فائت أمس" data-testid="yesterday-achievement"><div className="np-yesterday-heading"><span>فائت أمس</span>{yesterday?<time dateTime={yesterday.date}>{weekDateLabel(yesterday.date)}</time>:null}</div><div className="np-yesterday-score"><strong>{arabicNumber(yesterday?.missed.length??0)}</strong><span>عادات ومهام غير مكتملة</span></div>{yesterday?.scheduled?<p>{yesterday.missed.length?"عناصر غير مكتملة" :"اكتملت كل استحقاقات أمس"} · إنجاز أمس {arabicNumber(yesterday.rate??0)}%</p>:<p>لا توجد استحقاقات مسجلة لأمس.</p>}{yesterday?.missed.length?<details className="np-yesterday-details"><summary>عرض الفائت</summary><ul>{yesterday.missed.map(row=><li key={row.id}><span>{row.title}<small>{row.kind==="Habit"?"عادة":"مهمة"} · {STATUS_LABELS[row.status]??row.status}{row.amount>0?` · ${arabicNumber(row.amount)} ${row.unit}`:""}</small></span><strong>{arabicNumber(row.weight)}<small> وزن</small></strong></li>)}</ul></details>:null}</section>
