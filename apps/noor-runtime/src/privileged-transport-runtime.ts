@@ -29,6 +29,7 @@ extends RouteAccessEvidenceExecutor {
     SessionEstablishmentExecutor;
   readonly personalToday?: import("./personal-today-operation.js").PersonalTodayExecutor;
   readonly personalControl?: import("./personal-control-operation.js").PersonalControlExecutor;
+  readonly trustedPrivateJournalR221?: import("./noor-private-journal-r185.js").NoorPrivateJournalOperationR185;
 }
 
 export interface PrivilegedTransportHost {
@@ -200,6 +201,17 @@ implements PrivilegedTransportRuntime {
         };
       }
 
+      const trustedJournalOptions: Pick<RouteAccessHttpServerOptions,"trustedPrivateJournalR221"> =
+        executor.trustedPrivateJournalR221 === undefined ? {} : {
+          trustedPrivateJournalR221: {
+            operation:executor.trustedPrivateJournalR221,
+            expectedOrigin:this.dependencies.httpConfiguration.publicOrigin,
+          },
+        };
+      if (executor.trustedPrivateJournalR221 && this.dependencies.labPrivateJournalR196) {
+        throw Error("R221_PRODUCTION_AND_LAB_JOURNAL_CONFLICT");
+      }
+
       const server =
         serverFactory(
           executor,
@@ -220,6 +232,7 @@ implements PrivilegedTransportRuntime {
             ...personalTodayOptions,
             ...personalControlOptions,
             ...labJournalOptions,
+            ...trustedJournalOptions,
           },
         );
 
