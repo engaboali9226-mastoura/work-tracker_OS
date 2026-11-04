@@ -28,6 +28,7 @@ import type {
 } from "./session-establishment-http-handler.js";
 
 import { JOURNAL_R186_PATH_PREFIX, makePrivateJournalHttpHandlerR186 } from "./noor-private-journal-http-r186.js";
+import { makeTrustedPrivateJournalHttpHandlerR221 } from "./noor-private-journal-http-r221.js";
 
 export type { IncomingMessage, ServerResponse } from "node:http";
 
@@ -107,6 +108,11 @@ export interface RouteAccessHttpServerOptions {
     }>;
   readonly personalToday?: import("./personal-today-operation.js").PersonalTodayExecutor;
   readonly personalControl?: import("./personal-control-operation.js").PersonalControlExecutor;
+  /** Explicit trusted SERVER-only HTTPS journal. No browser or default fallback. */
+  readonly trustedPrivateJournalR221?: Readonly<{
+    operation: import("./noor-private-journal-r185.js").NoorPrivateJournalOperationR185;
+    expectedOrigin: string;
+  }>;
   /** Explicit isolated-lab opt-in. Must NEVER be supplied by production launcher. */
   readonly labPrivateJournalR193?: Readonly<{
     operation: import("./noor-private-journal-r185.js").NoorPrivateJournalOperationR185;
@@ -1053,12 +1059,20 @@ export function createRouteAccessHttpServer(
   options:
     RouteAccessHttpServerOptions = {},
 ): RouteAccessHttpServer {
+  if (options.labPrivateJournalR193 && options.trustedPrivateJournalR221) {
+    throw Error("R221_JOURNAL_MODES_MUTUALLY_EXCLUSIVE");
+  }
   const labJournalHandler = options.labPrivateJournalR193
     ? makePrivateJournalHttpHandlerR186(
         options.labPrivateJournalR193.operation,
         options.labPrivateJournalR193.expectedOrigin,
       )
-    : undefined;
+    : options.trustedPrivateJournalR221
+      ? makeTrustedPrivateJournalHttpHandlerR221(
+          options.trustedPrivateJournalR221.operation,
+          options.trustedPrivateJournalR221.expectedOrigin,
+        )
+      : undefined;
 
   const sessionHandler =
     options.sessionEstablishment
