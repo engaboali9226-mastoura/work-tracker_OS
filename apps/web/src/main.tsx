@@ -218,3 +218,14 @@ createRoot(
     <ShellFoundation />
   </StrictMode>,
 );
+
+// R222: installable web app; no offline persistence of sessions or journal data.
+if (((import.meta as ImportMeta & {env?:{PROD?:boolean}}).env?.PROD) === true &&
+    typeof navigator !== "undefined" && "serviceWorker" in navigator) {
+  window.addEventListener("load",()=>{
+    void navigator.serviceWorker.register("/noor-service-worker.js",{
+      scope:"/",
+      updateViaCache:"none",
+    }).catch(()=>{/* Keep the online web app functional if registration fails. */});
+  },{once:true});
+}

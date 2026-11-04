@@ -209,7 +209,7 @@ test(
 );
 
 test(
-  "production host source composes exactly five typed privileged Supabase clients and no process runner",
+  "production host composes five baseline and one explicitly gated private journal privileged clients",
   () => {
     const source =
       readFileSync(
@@ -227,7 +227,7 @@ test(
         )
         ?? []
       ).length,
-      5,
+      6,
     );
 
     for (
@@ -238,6 +238,7 @@ test(
         "NoorEntitlementDatabase",
         "NoorAuthenticationAccountUserDatabase",
         "NoorPersonalFoundationDatabase",
+        "NoorPrivateJournalDatabaseR221",
       ]
     ) {
       assert.match(

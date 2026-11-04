@@ -7,6 +7,7 @@ import {
   SupabasePostgresAuthenticationAccountUserResolver,
   SupabasePostgresEntitlementRepository,
   SupabasePostgresSessionRepository,
+  SupabasePostgresPrivateJournalStoreR221,
   SystemClock,
   createNoorPrivilegedSupabaseClient,
 } from "@worktracker/infrastructure";
@@ -17,6 +18,7 @@ import type {
   NoorEntitlementDatabase,
   NoorProductionRuntimeConfiguration,
   NoorSessionDatabase,
+  NoorPrivateJournalDatabaseR221,
 } from "@worktracker/infrastructure";
 
 import {
@@ -47,6 +49,10 @@ import {
   PersonalTodayOperation,
 } from "./personal-today-operation.js";
 
+import { NoorPrivateJournalOperationR185 } from "./noor-private-journal-r185.js";
+import type { JournalKeyRingR188 } from "./noor-private-journal-r185.js";
+import { parseJournalServerKeyRingR198 } from "./noor-private-journal-release-guard-r198.js";
+
 import {
   PersonalControlOperation,
 } from "./personal-control-operation.js";
@@ -73,6 +79,8 @@ export interface PrivilegedPlatformRuntimeOperations {
   readonly personalControl:
     PersonalControlOperation;
 
+  readonly trustedPrivateJournalR221?: NoorPrivateJournalOperationR185 | undefined;
+
   execute(
     input:
       Parameters<
@@ -98,6 +106,8 @@ implements PrivilegedPlatformRuntimeOperations {
 
     public readonly personalControl:
       PersonalControlOperation,
+
+    public readonly trustedPrivateJournalR221?: NoorPrivateJournalOperationR185,
   ) {}
 
   public execute(
@@ -156,6 +166,9 @@ implements PrivilegedPlatformRuntimeHost {
 
     private readonly accountUserResolver:
       SupabasePostgresAuthenticationAccountUserResolver,
+
+    private readonly journalStore?: SupabasePostgresPrivateJournalStoreR221,
+    private readonly journalKeyRing?: JournalKeyRingR188,
   ) {}
 
   public getState():
@@ -357,12 +370,35 @@ implements PrivilegedPlatformRuntimeHost {
             new CryptographicIdGenerator(),
         });
 
+      // R221: explicit server-only opt-in, no implicit local/browser fallback.
+      if (this.journalStore) await this.journalStore.assertAccessible();
+      const privateJournal = this.journalStore && this.journalKeyRing
+        ? new NoorPrivateJournalOperationR185({
+            trust: {
+              resolveAuthorizedUser: async sessionId => {
+                const result = await personalControl.resolveAuthorizedJournalUser(sessionId);
+                return result.kind === "ok"
+                  ? {status:200 as const,userId:result.userId}
+                  : {status:result.status};
+              },
+              resolveAuthorizedPersonalDay: async sessionId => {
+                const result = await personalControl.resolveAuthorizedJournalPersonalDay(sessionId);
+                return result.kind === "ok"
+                  ? {status:200 as const,userId:result.userId,localDate:result.localDate}
+                  : {status:result.status};
+              },
+            },
+            store: this.journalStore,
+            keyRing: this.journalKeyRing,
+          }) : undefined;
+
       const operation =
         new DefaultPrivilegedPlatformRuntimeOperations(
           routeAccess,
           sessionEstablishment,
           personalToday,
           personalControl,
+          privateJournal,
         );
 
       this.activeOperation =
@@ -590,9 +626,28 @@ export function createPrivilegedPlatformRuntimeHost(
       personalFoundationClient,
     );
 
+  // Explicit release gate: absent/disabled must not register a journal endpoint.
+  // The privileged server already handles NOOR sessions and service-role clients.
+  // R221 does NOT claim to satisfy the separate R220D restricted-LOGIN gate:
+  // the service-role client bypasses PostgreSQL RLS, so owner-bound application
+  // enforcement and row encryption are critical and require separate QA.
+  const journalRelease = process.env.NOOR_PRIVATE_JOURNAL_RELEASE_R221;
+  if (journalRelease !== undefined && journalRelease !== "disabled" && journalRelease !== "enabled") {
+    throw new Error("R221_JOURNAL_RELEASE_CONFIGURATION_INVALID");
+  }
+  const journalKeyRing = journalRelease === "enabled"
+    ? parseJournalServerKeyRingR198(process.env)
+    : undefined;
+  const journalStore = journalKeyRing
+    ? new SupabasePostgresPrivateJournalStoreR221(
+        createNoorPrivilegedSupabaseClient<NoorPrivateJournalDatabaseR221>(configuration),
+      ) : undefined;
+
   return new DefaultPrivilegedPlatformRuntimeHost(
     root,
     personalPersistence,
     accountUserResolver,
+    journalStore,
+    journalKeyRing,
   );
 }

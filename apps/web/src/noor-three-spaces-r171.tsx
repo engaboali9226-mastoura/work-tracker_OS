@@ -262,9 +262,30 @@ const STYLES=`
 /* NOOR_R181A_ABSTRACT_ICON_FAMILY_END */
 
 `;
-export function NoorThreeSpacesR171({personalDate,storage=indexedNotesR173,trustedJournal}:{personalDate?:string|undefined;storage?:NotesPersistenceR173;trustedJournal?:NoorTrustedJournalPortR194}):ReactElement {
+export function NoorThreeSpacesR171({personalDate,storage=indexedNotesR173,trustedJournal:providedTrustedJournal}:{personalDate?:string|undefined;storage?:NotesPersistenceR173;trustedJournal?:NoorTrustedJournalPortR194}):ReactElement {
  // NOOR_R202_PRIVACY_FAIL_CLOSED: a production build never enters unscoped IndexedDB mode.
  const r202Production=(((import.meta as ImportMeta & {env?:{PROD?:boolean}}).env?.PROD)===true);
+ const [serverTrustedJournal,setServerTrustedJournal]=useState<NoorTrustedJournalPortR194|undefined>(undefined);
+ useEffect(()=>{
+   // R221: any missing API, invalid session or failed readiness leaves R202 blocked.
+   // No browser persistence, public service-role credentials or fallback is used.
+   if(!r202Production || providedTrustedJournal !== undefined ||
+      typeof window === 'undefined' || typeof window.fetch !== 'function')return;
+   let active=true;
+   const cancel=new AbortController();
+   setServerTrustedJournal(undefined);
+   void window.fetch('/api/noor/personal/journal/status',{
+     method:'POST',mode:'same-origin',credentials:'same-origin',cache:'no-store',
+     redirect:'error',headers:{'Content-Type':'application/json'},body:'{}',
+     signal:cancel.signal,
+   }).then(async response=>{
+     if(response.status!==204 || response.headers.get('cache-control')!=='no-store')return;
+     const {createNoorTrustedJournalDialogAdapterR194}=await import('./noor-trusted-journal-dialog-adapter-r194.js');
+     if(active)setServerTrustedJournal(createNoorTrustedJournalDialogAdapterR194((path,init)=>window.fetch(path,init)));
+   }).catch(()=>{/* The private journal must stay blocked on any failure. */});
+   return()=>{active=false;cancel.abort();};
+ },[r202Production,providedTrustedJournal,personalDate]);
+ const trustedJournal=providedTrustedJournal??serverTrustedJournal;
  const closed=resolveNoorJournalReleaseModeR202({production:r202Production,trustedJournalPresent:trustedJournal!==undefined})==='blocked';
  const [active,setActive]=useState<SpaceKindR171|null>(null);
  const [view,setView]=useState<'add'|'history'>('add');

@@ -3,6 +3,7 @@ export * from "./configuration/noor-production-runtime-configuration.js";
 export * from "./storage/storage-provider.js";
 export * from "./database/database-provider.js";
 export * from "./database/noor-privileged-supabase-client.js";
+export * from "./journal/supabase-postgres-private-journal-store-r221.js";
 export * from "./http/http-client.js";
 export * from "./filesystem/file-system.js";
 export * from "./cache/cache-provider.js";

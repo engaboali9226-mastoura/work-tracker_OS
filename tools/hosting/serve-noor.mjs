@@ -4,7 +4,7 @@ import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 
 const ROOT=fileURLToPath(new URL('../../',import.meta.url));
-const TYPES={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.json':'application/json; charset=utf-8','.svg':'image/svg+xml','.png':'image/png','.jpeg':'image/jpeg','.jpg':'image/jpeg','.webp':'image/webp','.ico':'image/x-icon','.woff':'font/woff','.woff2':'font/woff2'};
+const TYPES={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.json':'application/json; charset=utf-8','.webmanifest':'application/manifest+json','.svg':'image/svg+xml','.png':'image/png','.jpeg':'image/jpeg','.jpg':'image/jpeg','.webp':'image/webp','.ico':'image/x-icon','.woff':'font/woff','.woff2':'font/woff2'};
 const HOP=new Set(['connection','keep-alive','proxy-authenticate','proxy-authorization','te','trailer','transfer-encoding','upgrade']);
 function forwarded(headers){
  const omitted=new Set([...HOP,...String(headers.connection??'').split(',').map(v=>v.trim().toLowerCase())]);
@@ -56,7 +56,7 @@ export async function createHostedWebServer({staticDirectory,apiOrigin,publicOri
    if(!info.isFile())return reply(res,404,'Not found.',req.method);
    const resolved=await realpath(target);if(!resolved.startsWith(root+path.sep))return reply(res,403,'Forbidden.',req.method);
    const content=await readFile(resolved);
-   res.writeHead(200,{'Content-Type':TYPES[path.extname(resolved)]??'application/octet-stream','Content-Length':content.length,'Cache-Control':path.extname(resolved)==='.html'?'no-store':pathname.startsWith('/assets/')?'public, max-age=31536000, immutable':'public, max-age=300','X-Content-Type-Options':'nosniff'});
+   res.writeHead(200,{'Content-Type':TYPES[path.extname(resolved)]??'application/octet-stream','Content-Length':content.length,'Cache-Control':(path.extname(resolved)==='.html'||pathname==='/noor-service-worker.js'||pathname==='/noor.webmanifest')?'no-store':pathname.startsWith('/assets/')?'public, max-age=31536000, immutable':'public, max-age=300','X-Content-Type-Options':'nosniff'});
    res.end(req.method==='HEAD'?undefined:content);
   }catch{if(!res.headersSent)reply(res,503,'Service temporarily unavailable.',req.method);else res.destroy();}
  });
