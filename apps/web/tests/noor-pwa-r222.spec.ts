@@ -14,8 +14,8 @@ test("R222 PWA has Arabic standalone manifest, root scope and Noor icon",()=>{
  assert.equal(manifest.scope,"/");
  assert.equal(manifest.start_url,"/");
  assert.equal(manifest.display,"standalone");
- for (const size of [192,512]) assert.ok(manifest.icons.some((x:any)=>x.src===`/noor-app-icon-${size}.png`&&x.type==="image/png"&&x.sizes===`${size}x${size}`));
- assert.match(html,/rel="apple-touch-icon" sizes="180x180" href="\/apple-touch-icon\.png"/u);
+ for (const size of [192,512]) assert.ok(manifest.icons.some((x:any)=>x.src===`/noor-icon-transparent-r224-${size}.png`&&x.type==="image/png"&&x.sizes===`${size}x${size}`));
+ assert.match(html,/rel="apple-touch-icon" sizes="180x180" href="\/noor-apple-touch-transparent-r224\.png"/u);
  assert.match(html,/rel="manifest" href="\/noor\.webmanifest"/u);
  assert.match(html,/rel="apple-touch-icon"/u);
  assert.match(html,/lang="ar" dir="rtl"/u);
