@@ -70,7 +70,7 @@ export function NoorR232TimeWindows({prayers,nowMs,timeZone,preferences,nextFajr
    nowMs,timeZone,prayers,fridayAdhanClock:preferences.fridayAdhan,
    sunriseOffsetMinutes:preferences.afterSunrise,
  }):null;
- return <section className="np-card np-r232-section np-r246-rhythm-card np-r247-rhythm-card" data-rhythm-layout="three-visible-columns-r247" data-testid="noor-day-night-friday-r232"
+ return <section className="np-card np-r232-section np-r246-rhythm-card np-r247-rhythm-card" data-rhythm-layout="three-visible-columns-r246" data-rhythm-visual="digital-contrast-r247" data-testid="noor-day-night-friday-r232"
    aria-label="ساعات النهار والليل والضحى والجمعة">
    <div className="np-r232-heading">
     <div className="np-r234-heading-label"><span className="np-r234-orbit" aria-hidden="true">◐</span><div><h2>إيقاع اليوم</h2><p>النهار والليل والضحى، وفق مواقيت نور المعتمدة</p></div></div>
