@@ -5,7 +5,7 @@ import { parseStatisticRows, summarizeProgress, statisticPeriods, statisticDays,
 import { loadCurrentTemperature } from "./public-weather-client.js";
 import { NoorR232TimeWindows } from "./noor-time-windows-r232.js";
 import { NoorR232ControlLocation } from "./noor-time-location-control-r232.js";
-import { readNoorR232Preferences,saveNoorR232Preferences,type NoorR232Preferences } from "./noor-time-display-preferences-r232.js";
+import { readNoorR232Preferences,saveNoorR232Preferences,type NoorR232Preferences,type NoorR232City } from "./noor-time-display-preferences-r232.js";
 import { readAppearance, saveAppearance, type NoorAppearance } from "./appearance-preference-store.js";
 import { createPortal, flushSync } from "react-dom";
 import {
@@ -113,6 +113,7 @@ type TodayViewModel = Readonly<{
   }>[];
   nextFajrAt: string | null;
   location: HeaderLocation | null;
+  locationRevisionId:string|null;
   tasks: readonly ExecutionItem[];
   habits: readonly ExecutionItem[];
 }>;
@@ -1399,6 +1400,10 @@ function buildViewModel(today: unknown): TodayViewModel | null {
   const locationRaw = isRecord(today.location) ? today.location : null;
   // Only render the authenticated account's coarse city projection and only
   // when it corresponds to the Personal Day timezone from the same response.
+  const locationRevisionId=locationRaw
+    && typeof locationRaw.revisionId==="string"
+    && locationRaw.revisionId===boundary?.locationRevisionId
+    ? locationRaw.revisionId : null;
   const location:HeaderLocation|null=locationRaw
     && typeof locationRaw.name==="string" && locationRaw.name.trim().length>0
     && locationRaw.name.length<=96
@@ -1433,6 +1438,7 @@ function buildViewModel(today: unknown): TodayViewModel | null {
     prayerTimes,
     nextFajrAt,
     location,
+    locationRevisionId,
     tasks,
     habits,
   };
@@ -1839,7 +1845,7 @@ function FinanceCenter({ledger,busy,onCommand,today}:{ledger:FinanceLedger|null;
  </section>;
 }
 
-function ControlCenter({ busy, orderingPending=false, workspace, executions, onCommand, onClose, defaultStartDate, appearance, onAppearance, timeZone, timePreferences, onTimePreferences }: { busy: boolean; orderingPending?:boolean; workspace: WorkspaceViewModel | null; executions: readonly ExecutionItem[]; onCommand: (command: NoorPersonalCommandInput) => Promise<boolean>; onClose: () => void; defaultStartDate: string; appearance: NoorAppearance; onAppearance: (value: NoorAppearance) => void; timeZone:string;timePreferences:NoorR232Preferences;onTimePreferences:(value:NoorR232Preferences)=>void }): ReactElement {
+function ControlCenter({ busy, orderingPending=false, workspace, executions, onCommand, onClose, defaultStartDate, appearance, onAppearance, timeZone, timePreferences, onTimePreferences, onLocationCommit }: { busy: boolean; orderingPending?:boolean; workspace: WorkspaceViewModel | null; executions: readonly ExecutionItem[]; onCommand: (command: NoorPersonalCommandInput) => Promise<boolean>; onClose: () => void; defaultStartDate: string; appearance: NoorAppearance; onAppearance: (value: NoorAppearance) => void; timeZone:string;timePreferences:NoorR232Preferences;onTimePreferences:(value:NoorR232Preferences)=>void;onLocationCommit:(city:NoorR232City)=>Promise<boolean> }): ReactElement {
   const [section,setSection] = useState<"Habit" | "Task" | "appearance" | "finance" | "categories" | "ordering" | "statistics" | "location">("Habit");
   const [query,setQuery] = useState("");
   const [filter,setFilter] = useState("active");
@@ -1927,7 +1933,7 @@ function ControlCenter({ busy, orderingPending=false, workspace, executions, onC
     <section className="np-card np-control np-cc"><div className="np-cc-layout">
       <nav aria-label="أقسام مركز التحكم" className="np-cc-nav">{([["Habit","العادات"],["Task","المهام"],["categories","التصنيفات"],["ordering","الترتيب"],["statistics","الإحصائيات"],["finance","المالية"],["appearance","المظهر"],["location","التوقيت والموقع"]] as const).map(([id,label])=><button aria-current={section===id?"page":undefined} className={`np-cc-nav-item${section===id?" is-selected":""}`} key={id} onClick={event=>{changeSection(id);event.currentTarget.scrollIntoView?.({block:"nearest",inline:"center"});}} type="button">{icon(id)}<span>{label}</span>{(id==="Habit"||id==="Task")?<small>{definitions.filter(d=>d.kind===id&&d.state==="Active").length}</small>:null}</button>)}<p className="np-cc-nav-note">إدارة هادئة لعاداتك ومهامك.<br/>إنجاز اليوم في شاشة اليوم.</p></nav>
       <main className="np-cc-main">
-        {section==="statistics"?<StatisticsCenter workspace={workspace}/>:section==="ordering"?<DisplayOrderManager workspace={workspace} busy={busy&&!orderingPending} onCommand={onCommand}/>:section==="categories"?<CategoryManager categories={workspace?.categories??COMMON_CATEGORIES} busy={busy} onCommand={onCommand}/>:section==="finance"?<FinanceCenter ledger={workspace?.finance ?? null} busy={busy} onCommand={onCommand} today={defaultStartDate}/>:section==="location"?<NoorR232ControlLocation serverZone={timeZone} preferences={timePreferences} onChange={onTimePreferences}/>:section==="appearance"?<><div className="np-cc-title"><div><h2>مظهر نور</h2><p>اختيارك يُحفظ على هذا المتصفح.</p></div></div><div aria-label="اختيار المظهر" className="np-cc-themes">{([["noor","نور","دفء كريمي ولمسات ذهبية"],["light","فاتح","أبيض ورمادي بألوان هادئة"],["dark","داكن","سطوح فحمية ونصوص واضحة"]] as const).map(([id,title,copy])=><button aria-pressed={appearance===id} className={`np-cc-theme ${id}`} key={id} onClick={()=>onAppearance(id)} type="button"><span aria-hidden="true" className="np-cc-theme-preview"><i/><i/><i/></span><strong>{title}</strong><span>{copy}</span><small>{appearance===id?"المظهر الحالي":"اختيار المظهر"}</small></button>)}</div></>:<>
+        {section==="statistics"?<StatisticsCenter workspace={workspace}/>:section==="ordering"?<DisplayOrderManager workspace={workspace} busy={busy&&!orderingPending} onCommand={onCommand}/>:section==="categories"?<CategoryManager categories={workspace?.categories??COMMON_CATEGORIES} busy={busy} onCommand={onCommand}/>:section==="finance"?<FinanceCenter ledger={workspace?.finance ?? null} busy={busy} onCommand={onCommand} today={defaultStartDate}/>:section==="location"?<NoorR232ControlLocation serverZone={timeZone} preferences={timePreferences} onChange={onTimePreferences} onCommit={onLocationCommit}/>:section==="appearance"?<><div className="np-cc-title"><div><h2>مظهر نور</h2><p>اختيارك يُحفظ على هذا المتصفح.</p></div></div><div aria-label="اختيار المظهر" className="np-cc-themes">{([["noor","نور","دفء كريمي ولمسات ذهبية"],["light","فاتح","أبيض ورمادي بألوان هادئة"],["dark","داكن","سطوح فحمية ونصوص واضحة"]] as const).map(([id,title,copy])=><button aria-pressed={appearance===id} className={`np-cc-theme ${id}`} key={id} onClick={()=>onAppearance(id)} type="button"><span aria-hidden="true" className="np-cc-theme-preview"><i/><i/><i/></span><strong>{title}</strong><span>{copy}</span><small>{appearance===id?"المظهر الحالي":"اختيار المظهر"}</small></button>)}</div></>:<>
           <div className="np-cc-title"><div><h2>{kind==="Habit"?"العادات":"المهام"}</h2><p>{kind==="Habit"?"ابنِ روتينك، خطوة بخطوة.":"رتّب ما تريد إنجازه."}</p></div><button className="np-cc-button primary" onClick={()=>{setEditing(undefined);setFormError(null);setFormSession(value=>value+1);setCreating(true);}} type="button" aria-expanded={creating}>{kind==="Habit"?"+ إضافة عادة":"+ إضافة مهمة"}</button></div>
           <div className={`np-cc-tools${kind==="Habit"?" np-cc-tools-habit-cards-r135":""}`}><input aria-label="البحث في العناصر" className="np-input" onChange={event=>setQuery(event.target.value)} onInput={event=>setQuery(event.currentTarget.value)} placeholder="ابحث بالاسم أو القسم…" type="search" value={query}/><select aria-label="تصفية الحالة" className="np-select" onChange={event=>{setFilter(event.target.value);setConfirmArchive(null);}} value={filter}><option value="active">النشطة</option><option value="paused">المتوقفة</option><option value="all">الكل</option>{kind==="Task"?<option value="completed">المكتملة اليوم</option>:null}<option value="archived">المؤرشفة</option></select>{kind==="Habit"?<select data-testid="control-category-filter-r135" aria-label="اختيار تصنيف العادات في مركز التحكم" className="np-select" value={categoryFilter} onChange={event=>{setCategoryFilter(event.currentTarget.value);setSelectedId(null);setConfirmArchive(null);}}><option value="all">كل كروت التصنيفات</option>{categoryOptions.map(category=><option value={category} key={category}>{habitCardDisplayTitle(category)}</option>)}</select>:null}</div>
           <div className="np-cc-results" aria-live="polite">{matches.length} {kind==="Habit"?"عادة":"مهمة"}</div>
@@ -2407,11 +2413,11 @@ export function NoorPersonalApplicationView({ initialResult, initialWorkspace }:
   const commandInFlight=useRef(false);
   const [syncing,setSyncing]=useState(false);
   const syncSequence=useRef(0);
-  const refresh = async () => {
+  const refresh = async (strict=false) => {
     const epoch=++refreshEpoch.current;
     const today=await fetchNoorPersonalToday();
     if(epoch!==refreshEpoch.current)return;
-    setResult(previous=>today.kind==="unavailable" && previous?.kind==="success"?previous:today);
+    setResult(previous=>today.kind==="unavailable" && previous?.kind==="success" && !strict?previous:today);
     if(today.kind==="success" && isRecord(today.today) && buildWorkspaceViewModel(today.today.workspace)){
       setWorkspaceResult({kind:"success",workspace:today.today.workspace});return;
     }
@@ -2502,7 +2508,7 @@ export function NoorPersonalApplicationView({ initialResult, initialWorkspace }:
         if(reply.materializationRequired || !matchingDay)refreshInBackground();
       }else{
         // Compatibility with old 204 servers; new servers return the committed projection.
-        await refresh();
+        await refresh(command.type==="set-account-location");
       }
       return true;
     } finally {
@@ -2527,6 +2533,28 @@ export function NoorPersonalApplicationView({ initialResult, initialWorkspace }:
     const unsent=orderQueue.current.find(c=>c!==active&&c.scope===command.scope);
     if(unsent){orderQueue.current=orderQueue.current.map(c=>c===unsent?{...command,expected:unsent.expected}:c);}else orderQueue.current.push(command);
     setOrderError("");flushSync(()=>setOrderChanges([...orderQueue.current]));void drainOrder();return true;
+  };
+
+  const commitAccountLocation=async(city:NoorR232City):Promise<boolean>=>{
+    const token=view?.locationRevisionId;
+    if(!token || !globalThis.crypto?.randomUUID){
+      setActionError("تعذر التحقق من نسخة موقع الحساب. حدّث بيانات نور ثم أعد المحاولة.");
+      return false;
+    }
+    if(fastQueue.current.length||orderQueue.current.length||commandInFlight.current){
+      setActionError("انتظر اكتمال حفظ المهام والعادات قبل تغيير المنطقة الزمنية.");
+      return false;
+    }
+    const ok=await runCommand({
+      type:"set-account-location",requestId:globalThis.crypto.randomUUID(),
+      expectedRevisionId:token,city,
+    });
+    if(ok){
+      chooseTimePreferences({...timePreferences,selectedCity:null,displayZone:null});
+      // sendNoorPersonalCommandDetailed(204) already forced a strict,
+      // authenticated Today refresh before returning success.
+    }
+    return ok;
   };
 
   const drainFast=async()=>{
@@ -2600,7 +2628,7 @@ export function NoorPersonalApplicationView({ initialResult, initialWorkspace }:
   } else {
     const defaultStartDate = civilLocalDate(nowMs, view.timeZone);
     content = controlOpen
-      ? <>{actionError ? <p className="np-action-error" role="alert">{actionError}</p> : null}<ControlCenter orderingPending={orderChanges.length>0} appearance={appearance} onAppearance={chooseAppearance} timeZone={view.timeZone} timePreferences={timePreferences} onTimePreferences={chooseTimePreferences} executions={[...view.tasks,...view.habits]} busy={busy} defaultStartDate={defaultStartDate} onClose={() => setControlOpen(false)} onCommand={controlCommand} workspace={workspace} /></>
+      ? <>{actionError ? <p className="np-action-error" role="alert">{actionError}</p> : null}<ControlCenter orderingPending={orderChanges.length>0} appearance={appearance} onAppearance={chooseAppearance} timeZone={view.timeZone} timePreferences={timePreferences} onTimePreferences={chooseTimePreferences} onLocationCommit={commitAccountLocation} executions={[...view.tasks,...view.habits]} busy={busy} defaultStartDate={defaultStartDate} onClose={() => setControlOpen(false)} onCommand={controlCommand} workspace={workspace} /></>
       : <Dashboard actionError={actionError} busy={busy&&!fastChanges.length&&!orderChanges.length} pendingIds={fastChanges.map(c=>c.executionId)} lockedIds={fastChanges.filter(c=>c.command.type==='record-activity'&&(c.command.amount>0||c.command.endReason!==null)||c.command.type==='record-historical-progress'&&c.command.amount>0).map(c=>c.executionId)} nowMs={nowMs} timePreferences={timePreferences} onTimePreferencesChange={chooseTimePreferences} onCommand={fastCommand} onHistoryCommand={fastCommand} onOpenControl={() => setControlOpen(true)} view={view} workspace={workspace} />;
   }
 

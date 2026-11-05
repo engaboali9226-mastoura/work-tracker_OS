@@ -383,10 +383,10 @@ export function financeSummary(ledger:FinanceLedger,month?:string):FinanceSummar
  if([incomeMinor,expenseMinor,totalMinor,receivableMinor,payableMinor].some(n=>!Number.isSafeInteger(n)))throw new Error('FINANCE_AMOUNT_OVERFLOW');
  return {balances,outstanding,incomeMinor,expenseMinor,totalMinor,receivableMinor,payableMinor};
 }
-export function applyFinanceOperation(current:FinanceLedger,userId:string,input:FinanceOperation,now:string):FinanceLedger {
+export function applyFinanceOperation(current:FinanceLedger,userId:string,input:FinanceOperation,now:string,accountTimeZone="Asia/Riyadh"):FinanceLedger {
  if(current.userId!==userId || current.currency!=='SAR')throw new Error('FINANCE_OWNER_MISMATCH');
  const op=parseFinanceOperation(input);if(!op)throw new Error('FINANCE_INVALID_OPERATION');
- const financialToday=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Riyadh',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date(now));
+ const financialToday=new Intl.DateTimeFormat('en-CA',{timeZone:accountTimeZone,year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date(now));
  if('date' in op && op.date>financialToday)throw new Error('FINANCE_FUTURE_TRANSACTION');
  const body=JSON.stringify(op),previous=current.requests.find(x=>x.id===op.id);
  if(previous){if(previous.body!==body)throw new Error('FINANCE_REQUEST_CONFLICT');return current;}

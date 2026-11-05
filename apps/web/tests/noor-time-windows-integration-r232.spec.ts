@@ -68,8 +68,9 @@ test("R232 city preference is display-only and cannot change authority of prayer
  const data=readFileSync(new URL("../src/noor-time-location-control-r232.tsx",import.meta.url),"utf8");
  const view=readFileSync(new URL("../src/noor-personal-application-view.tsx",import.meta.url),"utf8");
  assert.match(data,/مواقيت نور الأساسية لن تتغير/u);
- assert.match(data,/لا يغيّر موقع الحساب أو مواقيت الصلاة/u);
- assert.match(data,/مؤقت لهذه الجلسة/u);
+ assert.match(data,/لا تتغير مواقيت الصلاة حتى تضغط/u);
+ assert.match(data,/يؤكد الخادم الحفظ/u);
+ assert.match(data,/البحث والمعاينة مؤقتان/u);
  assert.match(data,/navigator\.geolocation\.getCurrentPosition/u);
  assert.match(data,/credentials:"omit"/u);
  assert.match(view,/serverZone=\{timeZone\}/u);

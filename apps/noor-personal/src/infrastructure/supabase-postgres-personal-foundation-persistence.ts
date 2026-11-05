@@ -365,6 +365,26 @@ function createTransaction(
 ):
 FoundationTransaction {
   return {
+    replaceLocationRevision:(userId,expectedRevisionId,revision,instant)=>{
+      if(userId!==owner||revision.userId!==owner ||revision.effectiveFrom!==instant)
+        throw new ProductionAdapterError("PersistenceTransactionAborted","Location owner or effective instant mismatch.");
+      const active=effectiveAt(state.locations,owner,instant);
+      if(!active||active.id!==expectedRevisionId)
+        throw new ProductionAdapterError("PersistenceConflict","Location revision changed.");
+      if(state.locations.some(item=>item.id===revision.id)
+        ||revision.effectiveUntil!==undefined
+        ||!Number.isFinite(revision.latitude)||Math.abs(revision.latitude)>90
+        ||!Number.isFinite(revision.longitude)||Math.abs(revision.longitude)>180
+        ||revision.name.length>96)
+        throw new ProductionAdapterError("PersistenceTransactionAborted","Invalid or duplicate location revision.");
+      try{new Intl.DateTimeFormat("en",{timeZone:revision.timeZone});}
+      catch{throw new ProductionAdapterError("PersistenceTransactionAborted","Invalid IANA timezone.");}
+      const index=state.locations.findIndex(item=>item.id===active.id&&item.userId===owner);
+      if(index<0 ||state.locations[index]!.effectiveFrom>=instant)
+        throw new ProductionAdapterError("PersistenceConflict","Location revision boundaries conflict.");
+      state.locations[index]={...active,effectiveUntil:instant};
+      state.locations.push(clone(revision));
+    },
     getCategories:(userId)=>{if(userId!==owner)throw new Error("CATEGORY_OWNER_MISMATCH");return state.categories?clone(state.categories):undefined;},
     saveCategories:(userId,categories)=>{if(userId!==owner)throw new Error("CATEGORY_OWNER_MISMATCH");state.categories=[...categories];},
     getFinance:(userId)=>{if(userId!==owner || state.finance && state.finance.userId!==owner)throw new Error("FINANCE_OWNER_MISMATCH");return clone(state.finance ?? emptyFinanceLedger(owner));},

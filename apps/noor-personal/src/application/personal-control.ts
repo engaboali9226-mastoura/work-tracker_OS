@@ -27,6 +27,7 @@ function orderedDefinitions(definitions:readonly ExecutionDefinition[]):Executio
 function categoryNames(snapshot:Pick<PersonalFoundationSnapshotPort,"getCategories"|"listDefinitions">,userId:string):string[]{return [...new Set([...(snapshot.getCategories?.(userId)??DEFAULT_PERSONAL_CATEGORIES),...snapshot.listDefinitions(userId).map(d=>d.category??"عام")])];}
 
 export type PersonalCommand =
+    | Readonly<{type:"set-account-location";requestId:string;expectedRevisionId:string;city:{name:string;country:string;latitude:number;longitude:number;timeZone:string}}>
     | Readonly<{type:"correct-historical-execution";executionId:string;localDate:LocalDate;expectedStatus:ExecutionStatus;completed:boolean}>
     | Readonly<{type:"record-historical-progress";executionId:string;localDate:LocalDate;entryId:string;note:string;amount:number}>
     | Readonly<{type:"edit-activity-note";executionId:string;entryId:string;expectedNote:string;note:string|null}>
@@ -230,6 +231,25 @@ export function parsePersonalCommand(
 ): PersonalCommand | null {
     if (!isRecord(value)) {
         return null;
+    }
+
+    if(value.type==="set-account-location"){
+        if(!exactKeys(value,["type","requestId","expectedRevisionId","city"])
+          ||typeof value.requestId!=="string"
+          ||!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value.requestId)
+          ||!boundedIdentifier(value.expectedRevisionId)
+          ||!isRecord(value.city)
+          ||!exactKeys(value.city,["name","country","latitude","longitude","timeZone"]))return null;
+        const city=value.city;
+        const name=boundedText(city.name,40),country=boundedText(city.country,40);
+        if(!name||!country||typeof city.latitude!=="number"||!Number.isFinite(city.latitude)
+          ||Math.abs(city.latitude)>90||typeof city.longitude!=="number"
+          ||!Number.isFinite(city.longitude)||Math.abs(city.longitude)>180
+          ||typeof city.timeZone!=="string"||city.timeZone.length<2||city.timeZone.length>90)return null;
+        try{new Intl.DateTimeFormat("en",{timeZone:city.timeZone});}catch{return null;}
+        return {type:"set-account-location",requestId:value.requestId.toLowerCase(),
+          expectedRevisionId:value.expectedRevisionId,city:{name,country,
+          latitude:city.latitude,longitude:city.longitude,timeZone:city.timeZone}};
     }
 
     if(value.type==="finance"){
@@ -574,6 +594,9 @@ export class PersonalCommandService {
         userId: string,
         command: PersonalCommand,
     ): Promise<void> {
+        // Location changes require the separate trusted prayer/day transaction.
+        // Never let this generic mutation path treat them as checkbox edits.
+        if(command.type==="set-account-location")throw new Error("LOCATION_REQUIRES_TRUSTED_CUTOVER");
         const now = this.dependencies.clock.now();
 
         await this.dependencies.transaction.runInTransaction(
@@ -620,7 +643,11 @@ export class PersonalCommandService {
                 if(command.type==="finance"){
                     if(!transaction.getFinance || !transaction.saveFinance)throw new Error("FINANCE_STORAGE_UNAVAILABLE");
                     const ledger=transaction.getFinance(userId);
-                    const updated=applyFinanceOperation(ledger,userId,command.operation,now);
+                    // Existing finance-only accounts may have no materialized Personal Day.
+                    // When a day exists, always use its account timezone, not Riyadh.
+                    const currentDay=transaction.findOpenPersonalDayContaining(userId,now);
+                    const financialZone=currentDay?.boundary.timeZone??"Asia/Riyadh";
+                    const updated=applyFinanceOperation(ledger,userId,command.operation,now,financialZone);
                     transaction.saveFinance(userId,updated);return;
                 }
                 // NOOR_HISTORY_EDITOR_R108: corrections require a real persisted occurrence.
@@ -633,6 +660,8 @@ export class PersonalCommandService {
                     if(!instance || instance.userId!==userId) throw new PersonalControlError("EXECUTION_NOT_FOUND");
                     if(instance.scheduleOccurrenceKey!==parsed.localDate) throw new PersonalControlError("EXECUTION_NOT_CURRENT");
                     const currentDay=transaction.findOpenPersonalDayContaining(userId,now);
+                    // Historical-only corrections can run without an open day.
+                    // Active account operations use the verified Personal Day timezone.
                     const civilToday=new IntlTimeZoneAdapter().localDateForInstant(now,currentDay?.boundary.timeZone??"Asia/Riyadh");
                     if(parsed.localDate>=civilToday) throw new PersonalControlError("CURRENT_PERSONAL_DAY_REQUIRED");
                     if(instance.status==="Suppressed" || instance.status==="Cancelled" || instance.status==="Skipped" || instance.status==="Deferred")
