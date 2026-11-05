@@ -1,1 +1,3 @@
 .np-r232-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.np-r232-grid{width:100%}.np-r232-window{padding:12px;border:1px solid #ddd;border-radius:14px}
+@media(max-width:900px){.np-r232-grid{grid-template-columns:1fr}}
