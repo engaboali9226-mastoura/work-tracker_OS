@@ -1,3 +1,6 @@
+export type NoorTaskSessionDraft = Readonly<{id:string;title:string;objective:string;target:number|null;rangeStart:number|null;rangeEnd:number|null}>;
+export type NoorTaskSessionPlanDraft = Readonly<{distribution:"equal"|"custom";sessions:readonly NoorTaskSessionDraft[]}>;
+
 export type NoorPersonalTodayResult =
   | {
       readonly kind: "success";
@@ -20,6 +23,10 @@ export type NoorPersonalWorkspaceResult =
     };
 
 export type NoorPersonalCommandInput =
+  | Readonly<{type:"configure-task-sessions";definitionId:string;expectedRevisionId:string;plan:NoorTaskSessionPlanDraft|null}>
+  | Readonly<{type:"edit-task-session-note";definitionId:string;sessionId:string;expectedRevision:number;note:string}>
+  | Readonly<{type:"record-task-session-progress";executionId:string;sessionId:string;entryId:string;amount:number;note:string}>
+  | Readonly<{type:"complete-task-session";executionId:string;sessionId:string;entryId:string}>
   | Readonly<{type:"set-account-location";requestId:string;expectedRevisionId:string;city:{name:string;country:string;latitude:number;longitude:number;timeZone:string}}>
   | Readonly<{type:"rebalance-habit-weights";changes:readonly Readonly<{definitionId:string;expectedRevisionId:string;weight:number}>[]}>
   | Readonly<{type:"correct-historical-execution";executionId:string;localDate:string;expectedStatus:"Completed"|"Missed"|"Pending"|"Planned"|"InProgress";completed:boolean}>
@@ -27,7 +34,7 @@ export type NoorPersonalCommandInput =
   | Readonly<{type:"edit-activity-note";executionId:string;entryId:string;expectedNote:string;note:string|null}>
     | Readonly<{type:"reorder-display";scope:"Habit"|"Task"|"categories";expected:readonly string[];order:readonly string[]}>
     | Readonly<{type:"manage-category";action:"add"|"rename";name:string;previousName:string|null}>
-  | Readonly<{type:"update-definition";weight?:number;definitionId:string;expectedRevisionId:string;kind:"Task"|"Habit";title:string;category:string;startDate:string;endDate:string|null;scheduleKind:"OneTime"|"Daily"|"Weekdays";weekdays:readonly number[];importance:"Essential"|"Important"|"Supporting"|"Optional";timeOfDay?:string;measurement?:{target:number;unit:string}}>
+  | Readonly<{type:"update-definition";weight?:number;definitionId:string;expectedRevisionId:string;kind:"Task"|"Habit";title:string;category:string;startDate:string;endDate:string|null;scheduleKind:"OneTime"|"Daily"|"Weekdays";weekdays:readonly number[];importance:"Essential"|"Important"|"Supporting"|"Optional";timeOfDay?:string;measurement?:{target:number;unit:string};sessionPlan?:NoorTaskSessionPlanDraft|null}>
   | Readonly<{type:"finance";operation:FinanceOperation}>
   | Readonly<{ type: "record-activity"; executionId: string; entryId: string; note: string; amount: number; endReason: "achieved" | "expired" | "cancelled" | null }>
   | Readonly<{ type: "delete-definition"; definitionId: string; confirm: true }>
@@ -36,6 +43,7 @@ export type NoorPersonalCommandInput =
       weight?:number;
       timeOfDay?: string;
       measurement?: { target: number; unit: string };
+      sessionPlan?: NoorTaskSessionPlanDraft | null;
       kind: "Task" | "Habit";
       title: string;
       category: string;
