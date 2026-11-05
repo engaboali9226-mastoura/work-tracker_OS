@@ -247,7 +247,7 @@ function parseTaskSessionDraft(value: unknown): TaskSessionPlanDraft | null | un
            ||!(d.target===null||typeof d.target==="number"&&sessionQuantity(d.target)&&d.target>0)
            ||!(d.rangeStart===null&&d.rangeEnd===null||Number.isSafeInteger(d.rangeStart)&&Number.isSafeInteger(d.rangeEnd)&&
               Number(d.rangeStart)>=1&&Number(d.rangeEnd)>=Number(d.rangeStart)&&Number(d.rangeEnd)<=1e9))return undefined;
-        sessions.push({id:d.id,title:d.title.trim(),objective:d.objective.trim(),target:d.target as number|null,
+        sessions.push({id:d.id,title:(d.title as string).trim(),objective:d.objective.trim(),target:d.target as number|null,
           rangeStart:d.rangeStart as number|null,rangeEnd:d.rangeEnd as number|null});
     }
     if(new Set(sessions.map(s=>s.id)).size!==sessions.length)return undefined;
@@ -702,7 +702,7 @@ export class PersonalCommandService {
                 }
                 if(command.type==="record-task-session-progress"||command.type==="complete-task-session"){
                     const parsed=parsePersonalCommand(command);
-                    if(!parsed||!["record-task-session-progress","complete-task-session"].includes(parsed.type))
+                    if(!parsed||(parsed.type!=="record-task-session-progress"&&parsed.type!=="complete-task-session"))
                         throw new Error("TASK_SESSION_INVALID_PROGRESS");
                     const instance=transaction.findDailyExecutionById(userId,command.executionId);
                     if(!instance||instance.kind!=="Task")throw new PersonalControlError("EXECUTION_NOT_FOUND");
@@ -963,7 +963,7 @@ export class PersonalCommandService {
                         gatePolicy: "NonBlocking",
                         targets: {},
                         ...(command.measurement ? {measurement:command.measurement} : {}),
-                        ...(command.sessionPlan?{sessionPlan:prepareTaskSessionPlan(undefined,command.sessionPlan,[],command.measurement,now)}:{}),
+                        ...(command.sessionPlan?{sessionPlan:prepareTaskSessionPlan(undefined,command.sessionPlan,[],command.measurement,now)!}:{}),
                         ...(command.timeOfDay?{timeOfDay:command.timeOfDay}:{}),
                     };
 
