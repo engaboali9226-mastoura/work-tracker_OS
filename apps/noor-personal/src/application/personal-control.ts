@@ -640,7 +640,8 @@ export class PersonalCommandService {
                 if(command.type==="finance"){
                     if(!transaction.getFinance || !transaction.saveFinance)throw new Error("FINANCE_STORAGE_UNAVAILABLE");
                     const ledger=transaction.getFinance(userId);
-                    const updated=applyFinanceOperation(ledger,userId,command.operation,now);
+                    const openDay=activePersonalDay(transaction,userId,now);
+                    const updated=applyFinanceOperation(ledger,userId,command.operation,now,openDay.boundary.timeZone);
                     transaction.saveFinance(userId,updated);return;
                 }
                 // NOOR_HISTORY_EDITOR_R108: corrections require a real persisted occurrence.
@@ -653,7 +654,8 @@ export class PersonalCommandService {
                     if(!instance || instance.userId!==userId) throw new PersonalControlError("EXECUTION_NOT_FOUND");
                     if(instance.scheduleOccurrenceKey!==parsed.localDate) throw new PersonalControlError("EXECUTION_NOT_CURRENT");
                     const currentDay=transaction.findOpenPersonalDayContaining(userId,now);
-                    const civilToday=new IntlTimeZoneAdapter().localDateForInstant(now,currentDay?.boundary.timeZone??"Asia/Riyadh");
+                    if(!currentDay)throw new PersonalControlError("CURRENT_PERSONAL_DAY_REQUIRED");
+                    const civilToday=new IntlTimeZoneAdapter().localDateForInstant(now,currentDay.boundary.timeZone);
                     if(parsed.localDate>=civilToday) throw new PersonalControlError("CURRENT_PERSONAL_DAY_REQUIRED");
                     if(instance.status==="Suppressed" || instance.status==="Cancelled" || instance.status==="Skipped" || instance.status==="Deferred")
                         throw new PersonalControlError("EXECUTION_SUPPRESSED");
