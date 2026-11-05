@@ -81,6 +81,13 @@ export interface IslamicHistoryCatalogPort {
 }
 
 export interface FoundationTransaction {
+    /** R241: exclusively owner-scoped CAS. The request never supplies the user id. */
+    replaceLocationRevision?(
+        userId:string,
+        expectedRevisionId:string,
+        revision:LocationProfileRevision,
+        instant:IsoInstant,
+    ):void;
     getCategories?(userId:string): readonly string[] | undefined;
     saveCategories?(userId:string,categories:readonly string[]):void;
     getFinance?(userId:string): FinanceLedger;
