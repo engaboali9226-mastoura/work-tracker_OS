@@ -330,6 +330,7 @@ implements PersonalTodayExecutor {
         && Number.isFinite(activeLocation.longitude) && Math.abs(activeLocation.longitude)<=180
         ? {
           name:activeLocation.name.trim(),
+          revisionId:activeLocation.id,
           latitude:Math.round(activeLocation.latitude*10)/10,
           longitude:Math.round(activeLocation.longitude*10)/10,
           timeZone:activeLocation.timeZone,
