@@ -1,5 +1,8 @@
 function isRecord(value:unknown):value is Record<string,unknown>{return value!==null&&typeof value==="object"&&!Array.isArray(value);}
 export async function loadCurrentTemperature(location: Readonly<{latitude:number;longitude:number}>): Promise<number | null> {
+  // No city-location authority means no weather request, never silently use Riyadh.
+  if (!Number.isFinite(location.latitude) || Math.abs(location.latitude)>90
+      || !Number.isFinite(location.longitude) || Math.abs(location.longitude)>180) return null;
   try {
     const url = new URL("https://api.open-meteo.com/v1/forecast");
     url.searchParams.set("latitude",String(location.latitude));

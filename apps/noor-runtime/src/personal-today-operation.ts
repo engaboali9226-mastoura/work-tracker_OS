@@ -313,11 +313,33 @@ implements PersonalTodayExecutor {
             userId.toString(),
           );
 
+      // This is an account-owned, read-only projection. Never trust browser
+      // coordinates and never expose precise location-profile coordinates.
+      // Do not mix an old materialized Personal Day with a new revision.
+      const activeLocation=await scope.locations.getEffective(
+        userId.toString(),this.dependencies.ensureToday.clock.now(),
+      );
+      const sameRevision=activeLocation
+        && activeLocation.userId===userId.toString()
+        && activeLocation.id===today.personalDay.boundary.locationRevisionId
+        && activeLocation.timeZone===today.personalDay.boundary.timeZone;
+      const location=sameRevision && activeLocation
+        && typeof activeLocation.name==="string"
+        && activeLocation.name.trim().length>0 && activeLocation.name.length<=96
+        && Number.isFinite(activeLocation.latitude) && Math.abs(activeLocation.latitude)<=90
+        && Number.isFinite(activeLocation.longitude) && Math.abs(activeLocation.longitude)<=180
+        ? {
+          name:activeLocation.name.trim(),
+          latitude:Math.round(activeLocation.latitude*10)/10,
+          longitude:Math.round(activeLocation.longitude*10)/10,
+          timeZone:activeLocation.timeZone,
+        } : null;
+
       return Object.freeze({
         status:
           200 as const,
         body:
-          {...today,workspace:buildPersonalWorkspace(userId.toString(),scope.snapshot)},
+          {...today,location,workspace:buildPersonalWorkspace(userId.toString(),scope.snapshot)},
       });
     } catch (error) {
       if (

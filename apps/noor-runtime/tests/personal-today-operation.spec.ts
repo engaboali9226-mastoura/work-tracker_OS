@@ -631,6 +631,7 @@ test(
       {
         personalDay,
         islamicContext: context,
+        location: {name:"Riyadh",latitude:24.7,longitude:46.7,timeZone:"Asia/Riyadh"},
         nextPrayer: {
           name: "Dhuhr",
           at: "2026-08-22T12:00:00.000Z",
