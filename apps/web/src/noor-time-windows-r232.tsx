@@ -1,5 +1,5 @@
 import type {ReactElement} from "react";
-import {r232Countdown,r232DailyWindows,r232FridayFiveHours,r232LocalWeekday,
+import {r232Countdown,r232DailyWindows,r232FridayFiveHours,r232LocalWeekday,r232FastingCountdownEnabled,
  type R232Window} from "./noor-islamic-daylight-r232.js";
 import type {NoorR232Preferences} from "./noor-time-display-preferences-r232.js";
 
@@ -17,8 +17,9 @@ function remaining(ms:number):string{
  const hour=Math.floor(seconds/3600),min=Math.floor(seconds%3600/60),sec=seconds%60;
  return [hour,min,sec].map(n=>String(n).padStart(2,"0")).join(":");
 }
-function WindowCard({title,window:interval,nowMs,timeZone,unavailable}:{
+function WindowCard({title,window:interval,nowMs,timeZone,unavailable,showTimer=true}:{
  title:string;window:R232Window|null;nowMs:number;timeZone:string;unavailable:string;
+ showTimer?:boolean;
 }):ReactElement{
  if(!interval)return <article className="np-r232-window">
   <h3>{title}</h3><p className="np-r232-help">{unavailable}</p>
@@ -28,23 +29,28 @@ function WindowCard({title,window:interval,nowMs,timeZone,unavailable}:{
   <h3>{title}</h3>
   <p className="np-r232-time">{clock(interval.startMs,timeZone)} — {clock(interval.endMs,timeZone)}</p>
   <p className="np-r232-help">المدة: {duration(interval.durationMs)}</p>
-  <strong className="np-r232-counter" aria-label={state.phase==="finished"?"انتهت الفترة":"العد التنازلي"}>
+  {showTimer?<strong className="np-r232-counter" aria-label={state.phase==="finished"?"انتهت الفترة":"العد التنازلي"}>
    {state.phase==="finished"?"انتهى":state.phase==="upcoming"
     ?`تبدأ بعد ${remaining(interval.startMs-nowMs)}`
     :`المتبقي ${remaining(interval.endMs-nowMs)}`}
-  </strong>
-  <div className="np-r232-progress" role="progressbar" aria-label={title}
+  </strong>:<p className="np-r232-help" data-testid="fasting-timer-disabled-r232">العداد متوقف حسب اختيارك خارج رمضان.</p>}
+  {showTimer?<div className="np-r232-progress" role="progressbar" aria-label={title}
     aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(state.progress)}>
    <span style={{width:`${state.progress}%`}}/>
-  </div>
+  </div>:null}
  </article>;
 }
-export function NoorR232TimeWindows({prayers,nowMs,timeZone,preferences,nextFajrAt}:{
+export function NoorR232TimeWindows({prayers,nowMs,timeZone,preferences,nextFajrAt,onPreferencesChange}:{
  prayers:readonly Prayer[];nowMs:number;timeZone:string;
  preferences:NoorR232Preferences;nextFajrAt?:string|undefined;
+ onPreferencesChange?:(value:NoorR232Preferences)=>void;
 }):ReactElement {
  const windows=r232DailyWindows(prayers,nextFajrAt,
    preferences.afterSunrise,preferences.beforeDhuhr);
+ const fasting=r232FastingCountdownEnabled({
+   fastingStartMs:windows.fastingDay?.startMs??NaN,timeZone,
+   outsideRamadanEnabled:preferences.fastingTimerOutsideRamadan,
+ });
  const friday=r232LocalWeekday(nowMs,timeZone)===5;
  const fridayHours=friday && preferences.fridayAdhan?r232FridayFiveHours({
    nowMs,timeZone,prayers,fridayAdhanClock:preferences.fridayAdhan,
@@ -57,9 +63,21 @@ export function NoorR232TimeWindows({prayers,nowMs,timeZone,preferences,nextFajr
     <p>توقيتات شرعية محسوبة من مواقيت الصلاة المعتمدة في نور.</p>
    </div>
    <div className="np-r232-grid">
-    <WindowCard title="ساعات النهار (الصيام)" window={windows.fastingDay}
-      nowMs={nowMs} timeZone={timeZone}
-      unavailable="لا توجد مواقيت فجر ومغرب مؤكدة لهذا اليوم."/>
+    <div className="np-r232-fasting-wrapper" data-testid="fasting-timer-control-r232">
+      <div className="np-r232-fasting-options">
+        <span>{fasting.ramadan?"رمضان: المؤقت يعمل تلقائيًا":"مؤقت الصيام خارج رمضان"}</span>
+        <button type="button" className="np-cc-button"
+          disabled={fasting.ramadan||!onPreferencesChange}
+          aria-pressed={fasting.enabled}
+          onClick={()=>onPreferencesChange?.({...preferences,
+            fastingTimerOutsideRamadan:!preferences.fastingTimerOutsideRamadan})}>
+          {fasting.ramadan?"مفعّل تلقائيًا":fasting.enabled?"إيقاف المؤقت":"تشغيل المؤقت"}
+        </button>
+      </div>
+      <WindowCard title="ساعات النهار (الصيام)" window={windows.fastingDay}
+        nowMs={nowMs} timeZone={timeZone} showTimer={fasting.enabled}
+        unavailable="لا توجد مواقيت فجر ومغرب مؤكدة لهذا اليوم."/>
+    </div>
     <WindowCard title="ساعات الليل الشرعي" window={windows.islamicNight}
       nowMs={nowMs} timeZone={timeZone}
       unavailable="يلزم وقت الفجر المؤكد لليوم التالي؛ لا نستخدم فجر اليوم كتقدير."/>
