@@ -7,7 +7,7 @@ import {NoorR232TimeWindows} from "../src/noor-time-windows-r232.js";
 import {NoorR232ControlLocation} from "../src/noor-time-location-control-r232.js";
 import {NOOR_R232_DEFAULT} from "../src/noor-time-display-preferences-r232.js";
 
-test("R238 unified prayer-width strip is ordered day then Duha then night",()=>{
+test("R248 reference strip is ordered Duha then day then night",()=>{
   const html=renderToStaticMarkup(createElement(NoorR232TimeWindows,{
     prayers:[
       {key:"fajr",at:"2026-11-06T02:45:00Z"},
@@ -22,7 +22,7 @@ test("R238 unified prayer-width strip is ordered day then Duha then night",()=>{
   }));
   const day=html.indexOf("ساعات النهار"),duha=html.indexOf("وقت صلاة الضحى"),
     night=html.indexOf("ساعات الليل الشرعي");
-  assert.ok(day>=0 && day<duha && duha<night);
+  assert.ok(duha>=0 && duha<day && day<night);
   assert.match(html,/np-r238-time-order/u);
   assert.equal((html.match(/data-testid="noor-day-night-friday-r232"/gu)||[]).length,1);
   const css=readFileSync(new URL("../src/noor-time-windows-r232.css",import.meta.url),"utf8");

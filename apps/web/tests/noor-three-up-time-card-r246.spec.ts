@@ -25,7 +25,7 @@ test("R246 provides an explicitly versioned, full-width, low-height rhythm card"
  const day=html.indexOf('aria-label="ساعات النهار"');
  const duha=html.indexOf('aria-label="وقت صلاة الضحى"');
  const night=html.indexOf('aria-label="ساعات الليل الشرعي"');
- assert.ok(day>0 && day<duha && duha<night);
+ assert.ok(duha>0 && duha<day && day<night);
  for(const label of ["النهار","الضحى","الليل"]){
    assert.match(html,new RegExp(">"+label+"</h3>"));
  }

@@ -880,3 +880,240 @@
 @media (prefers-reduced-motion:reduce) {
   .np-r247-rhythm-strip .np-r234-progress span { transition:none; }
 }
+
+
+/* R248: faithful implementation of the presented three-card reference.
+   Independent of legacy rhythm visual classes; the sample never showed
+   technical from/to rows or a second progress bar. Both stay in DOM for
+   screen readers / existing tests, but visual hierarchy matches preview:
+   icon, name, descriptive subtitle, raised white digital timer. */
+.np-r232-section.np-r248-reference-card {
+  background:transparent;
+  border:0;
+  box-shadow:none;
+  padding:0;
+  overflow:hidden;
+  border-radius:0;
+}
+.np-r248-reference-card .np-r232-heading {
+  margin-bottom:8px;
+  padding:0 1px;
+}
+.np-r248-reference-card .np-r234-orbit,
+.np-r248-reference-card .np-r234-basis { display:none; }
+.np-r248-reference-card .np-r234-heading-label h2 {
+  font-size:14px; font-weight:700;
+  letter-spacing:0;
+}
+.np-r232-section .np-r235-unified-rows.np-r237-horizontal-strip.np-r246-three-up.np-r247-rhythm-strip.np-r248-reference-strip {
+  display:grid !important;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  direction:rtl;
+  gap:8px;
+  width:100%;
+  max-width:100%;
+  padding:0;
+  background:transparent;
+  border:0;
+  overflow-x:visible;
+  overflow-y:visible;
+  scroll-snap-type:none;
+  border-radius:0;
+}
+.np-r232-section .np-r248-reference-strip > .np-r232-fasting-wrapper,
+.np-r232-section .np-r248-reference-strip > .np-r232-window {
+  display:block;
+  box-sizing:border-box;
+  min-width:0 !important;
+  max-width:none !important;
+  width:100% !important;
+  flex:none !important;
+  margin:0;
+  border:0 !important;
+  border-radius:12px;
+  box-shadow:none;
+  overflow:hidden;
+}
+.np-r232-section .np-r248-reference-strip > .np-r232-window.tone-duha {
+  background:#fffaea;
+}
+.np-r232-section .np-r248-reference-strip > .np-r232-fasting-wrapper {
+  background:#fff2dc;
+}
+.np-r232-section .np-r248-reference-strip > .np-r232-window.tone-night {
+  background:#eaf5f3;
+}
+.np-r232-section .np-r248-reference-strip .np-r232-window.np-r234-window {
+  display:flex !important;
+  flex-direction:column !important;
+  justify-content:flex-start;
+  align-items:center;
+  gap:5px;
+  box-sizing:border-box;
+  min-height:150px;
+  width:100%;
+  margin:0;
+  padding:9px 7px 8px;
+  border:0;
+  border-radius:12px;
+  background:transparent !important;
+  box-shadow:none !important;
+  opacity:1;
+}
+.np-r248-reference-strip .np-r234-card-title {
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  width:100%;
+  min-width:0;
+  gap:5px;
+  flex-wrap:nowrap;
+}
+.np-r232-section .np-r248-reference-strip .np-r234-symbol {
+  display:grid;
+  place-items:center;
+  flex:0 0 20px;
+  width:20px;
+  height:20px;
+  background:transparent;
+  border-radius:0;
+  color:var(--r248-accent);
+  font-size:18px;
+  line-height:1;
+}
+.np-r248-reference-strip > .np-r232-window.tone-duha { --r248-accent:#907038; }
+.np-r248-reference-strip > .np-r232-fasting-wrapper { --r248-accent:#9b672a; }
+.np-r248-reference-strip > .np-r232-window.tone-night { --r248-accent:#346d71; }
+.np-r248-reference-strip .np-r234-card-title h3 {
+  flex:none;
+  font-size:13px;
+  font-weight:700;
+  line-height:1.35;
+  color:var(--r248-accent);
+  text-align:center;
+}
+.np-r248-reference-strip .np-r248-subtitle {
+  display:block;
+  margin:0;
+  font-size:10px;
+  line-height:1.5;
+  font-weight:400;
+  white-space:nowrap;
+  text-align:center;
+  color:var(--r248-accent);
+}
+.np-r248-reference-strip .np-r234-state,
+.np-r248-reference-strip .np-r234-times,
+.np-r248-reference-strip .np-r234-duration,
+.np-r248-reference-strip .np-r234-progress {
+  position:absolute !important;
+  width:1px !important;
+  height:1px !important;
+  overflow:hidden !important;
+  clip-path:inset(50%) !important;
+  white-space:nowrap !important;
+  margin:0 !important;
+  padding:0 !important;
+  border:0 !important;
+}
+.np-r232-section .np-r248-reference-strip .np-r234-card-bottom {
+  display:block;
+  box-sizing:border-box;
+  min-width:0;
+  width:100%;
+  margin:auto 0 0;
+  padding:0;
+}
+.np-r232-section .np-r248-reference-strip .np-r247-timer {
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  gap:3px;
+  min-height:49px;
+  width:100%;
+  padding:5px 2px 6px;
+  border:0;
+  border-radius:8px;
+  background:#fff;
+  box-shadow:none;
+}
+.np-r248-reference-strip .np-r247-timer-caption {
+  font-size:9px;
+  font-weight:400;
+  line-height:1.25;
+  color:#7b8585;
+  white-space:nowrap;
+}
+.np-r248-reference-strip .np-r247-digits {
+  width:100%;
+  display:block;
+  text-align:center;
+  direction:ltr;
+  color:var(--r248-accent);
+  font-family:ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
+  font-size:clamp(11px,2.8vw,17px);
+  font-weight:750;
+  font-variant-numeric:tabular-nums;
+  letter-spacing:-.06em;
+  line-height:1.35;
+  white-space:nowrap;
+  overflow:visible;
+}
+.np-r248-reference-strip .np-r247-finished {
+  font-size:16px;
+  color:var(--r248-accent);
+}
+.np-r232-section .np-r248-reference-strip .np-r232-fasting-wrapper .np-r234-fasting-options {
+  position:absolute !important;
+  width:1px !important;
+  height:1px !important;
+  clip-path:inset(50%) !important;
+  overflow:hidden !important;
+  margin:0 !important;
+  padding:0 !important;
+}
+.np-r248-reference-strip .np-r232-fasting-wrapper .np-r234-card-title {
+  padding:0;
+}
+.np-r248-reference-strip .np-r232-help {
+  color:var(--r248-accent);
+  text-align:center;
+  font-size:10px;
+}
+.np-r232-section .np-r248-reference-strip > .np-r237-detail-note {
+  display:none;
+}
+.np-r232-section .np-r248-reference-strip > .np-r237-friday-inline {
+  grid-column:1 / -1;
+  display:flex;
+  margin:0;
+  padding:7px 0 0;
+  max-width:100%;
+  width:100%;
+  overflow-x:auto;
+  border:0;
+  border-top:1px solid rgba(120,130,128,.14);
+}
+.np-r248-reference-strip .np-r237-friday-inline .np-r237-friday-hours {
+  display:flex !important;
+  overflow-x:auto;
+  width:100%;
+}
+@media (max-width:530px) {
+  .np-r232-section.np-r248-reference-card { padding:0; }
+  .np-r232-section .np-r248-reference-strip .np-r232-window.np-r234-window {
+    min-height:143px;
+    padding:7px 3px 7px;
+    gap:4px;
+  }
+  .np-r248-reference-strip .np-r248-subtitle {font-size:9px;}
+  .np-r248-reference-strip .np-r234-card-title h3 {font-size:12px;}
+  .np-r248-reference-strip .np-r247-digits {
+    font-size:clamp(11px,3vw,15px);
+  }
+}
+@media (prefers-reduced-motion:reduce) {
+  .np-r248-reference-strip * {transition:none !important;}
+}
