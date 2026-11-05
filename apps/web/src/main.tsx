@@ -1,3 +1,5 @@
+import "./noor-ios-viewport-r230.css";
+
 import {
   applicationCatalog,
 } from "@worktracker/core";
