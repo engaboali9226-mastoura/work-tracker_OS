@@ -99,7 +99,7 @@ test("day's weighted credit remains one parent weight; next day does not reset c
 test("roundtrips session notes and progress through a fresh managed Foundation adapter",async()=>{
  const f=fixture();await configure(f);await progress(f,"s1","evt",2);await note(f,"s1","ملخص مسترجع",0);
  const state=f.store.snapshot();let row={user_id:"owner",schema_version:1,revision:1,state:{locations:[],prayerPolicies:[],personalDays:state.personalDays,islamicContexts:[],definitions:state.definitions,dailyExecution:state.dailyExecution,outbox:[]}};
- const client={from(){return {select(){return {eq(){return {limit:async()=>({data:[structuredClone(row)],error:null})}}}}}}}};
+ const client={from:()=>({select:()=>({eq:()=>({limit:async()=>({data:[structuredClone(row)],error:null})})})})};
  const adapter=new SupabasePostgresPersonalFoundationPersistence(client);
  await adapter.initialize();
  const scope=await adapter.openOperation("owner");
