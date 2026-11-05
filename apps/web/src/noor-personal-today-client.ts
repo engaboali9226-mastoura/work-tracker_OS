@@ -21,6 +21,7 @@ export type NoorPersonalWorkspaceResult =
 
 export type NoorPersonalCommandInput =
   | Readonly<{type:"set-account-location";requestId:string;expectedRevisionId:string;city:{name:string;country:string;latitude:number;longitude:number;timeZone:string}}>
+  | Readonly<{type:"rebalance-habit-weights";changes:readonly Readonly<{definitionId:string;expectedRevisionId:string;weight:number}>[]}>
   | Readonly<{type:"correct-historical-execution";executionId:string;localDate:string;expectedStatus:"Completed"|"Missed"|"Pending"|"Planned"|"InProgress";completed:boolean}>
   | Readonly<{type:"record-historical-progress";executionId:string;localDate:string;entryId:string;note:string;amount:number}>
   | Readonly<{type:"edit-activity-note";executionId:string;entryId:string;expectedNote:string;note:string|null}>

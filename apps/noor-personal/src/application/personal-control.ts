@@ -31,6 +31,7 @@ export type PersonalCommand =
     | Readonly<{type:"correct-historical-execution";executionId:string;localDate:LocalDate;expectedStatus:ExecutionStatus;completed:boolean}>
     | Readonly<{type:"record-historical-progress";executionId:string;localDate:LocalDate;entryId:string;note:string;amount:number}>
     | Readonly<{type:"edit-activity-note";executionId:string;entryId:string;expectedNote:string;note:string|null}>
+    | Readonly<{type:"rebalance-habit-weights";changes:readonly Readonly<{definitionId:string;expectedRevisionId:string;weight:number}>[]}>
     | Readonly<{type:"reorder-display";scope:"Habit"|"Task"|"categories";expected:readonly string[];order:readonly string[]}>
     | Readonly<{type:"manage-category"; action:"add"|"rename"; name:string; previousName:string|null}>
     | Readonly<{type:"update-definition";weight?:number;definitionId:string;expectedRevisionId:string;kind:DefinitionKind;title:string;category:string;startDate:LocalDate;endDate:LocalDate|null;scheduleKind:Schedule["kind"];weekdays:readonly number[];importance:ImportanceLevel;timeOfDay?:string;measurement?:{readonly target:number;readonly unit:string}}>
@@ -273,6 +274,18 @@ export function parsePersonalCommand(
            Math.abs(value.amount*1e6-Math.round(value.amount*1e6))>0.00001 ||
            (!value.note.trim()&&value.amount===0)) return null;
         return {type:"record-historical-progress",executionId:value.executionId,localDate:value.localDate as LocalDate,entryId:value.entryId,note:value.note.trim(),amount:value.amount};
+    }
+    if(value.type==="rebalance-habit-weights"){
+        if(!exactKeys(value,["type","changes"])||!Array.isArray(value.changes)||value.changes.length<1||value.changes.length>500)return null;
+        const changes:{definitionId:string;expectedRevisionId:string;weight:number}[]=[];
+        for(const x of value.changes){
+            if(!isRecord(x)||!exactKeys(x,["definitionId","expectedRevisionId","weight"])
+              ||!boundedIdentifier(x.definitionId)||!boundedIdentifier(x.expectedRevisionId)
+              ||typeof x.weight!=="number"||!Number.isInteger(x.weight)||x.weight<1||x.weight>100)return null;
+            changes.push({definitionId:x.definitionId,expectedRevisionId:x.expectedRevisionId,weight:x.weight});
+        }
+        if(new Set(changes.map(x=>x.definitionId)).size!==changes.length)return null;
+        return {type:"rebalance-habit-weights",changes};
     }
     if(value.type==="reorder-display"){
         if(!exactKeys(value,["type","scope","expected","order"])||!["Habit","Task","categories"].includes(String(value.scope)))return null;
@@ -604,6 +617,28 @@ export class PersonalCommandService {
 
         await this.dependencies.transaction.runInTransaction(
             transaction => {
+                if(command.type==="rebalance-habit-weights"){
+                    const parsed=parsePersonalCommand(command);
+                    if(!parsed||parsed.type!=="rebalance-habit-weights")throw new Error("HABIT_WEIGHTS_INVALID");
+                    // Guard every expected revision and owner before any writes.
+                    const planned=parsed.changes.map(change=>{
+                        const definition=transaction.findDefinitionById(userId,change.definitionId);
+                        if(!definition||definition.userId!==userId||definition.kind!=="Habit"
+                         ||!["Active","Paused"].includes(definition.state)
+                         ||definition.revisionId!==change.expectedRevisionId)
+                            throw new PersonalControlError("DEFINITION_STATE_CONFLICT");
+                        return {definition,weight:change.weight};
+                    });
+                    const day=transaction.findOpenPersonalDayContaining(userId,now);
+                    const executions=day?transaction.listDailyExecution(day.id):[];
+                    for(const {definition,weight} of planned){
+                        if(definition.weight===weight)continue;
+                        transaction.saveDefinition({...definition,weight,revisionId:this.dependencies.idGenerator.next("definition-revision")});
+                        for(const e of executions)if(e.definitionId===definition.id)
+                            transaction.saveDailyExecution({...e,eligibility:{...e.eligibility,weight},version:e.version+1,updatedAt:now});
+                    }
+                    return;
+                }
                 if(command.type==="reorder-display"){
                     if(!parsePersonalCommand(command))throw new Error("DISPLAY_ORDER_INVALID");
                     const definitions=orderedDefinitions(transaction.listDefinitions(userId));
