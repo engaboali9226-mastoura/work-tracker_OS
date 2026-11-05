@@ -4,7 +4,31 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <link rel="preload" as="image" type="image/jpeg" href="/noor-platform-logo.jpeg" fetchpriority="high" />
-<meta name="theme-color" content="#21384b" />
+<meta name="theme-color" content="#f7f5ef" />
+<style>
+  /* R231: the same branded welcome is visible from the very first paint,
+     before React starts, including a hard refresh of /personal. */
+  html, body { margin: 0; min-height: 100%; background: #f7f5ef; }
+  #root:empty {
+    min-height: 100vh; min-height: 100dvh;
+    display: flex; flex-direction: column; align-items: center;
+    justify-content: center; gap: 18px;
+    padding: 24px; box-sizing: border-box;
+    background: radial-gradient(ellipse at 20% 25%,#f2e9da,#f7f5ef 55%,#f4f1ea);
+  }
+  #root:empty::before {
+    content: ""; display: block; width: 99px; height: 99px; flex: 0 0 99px;
+    border-radius: 50%; border: 1px solid #dfcfad;
+    background: #fff url("/noor-platform-logo.jpeg") center / cover no-repeat;
+    box-shadow: 0 10px 26px rgba(75,60,38,.08);
+  }
+  #root:empty::after {
+    content: "مرحبا بك في منصة نور";
+    font: 700 23px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Tahoma, sans-serif;
+    text-align: center; color: #263b45;
+  }
+  @media (prefers-reduced-motion: reduce) { #root:empty { scroll-behavior: auto; } }
+</style>
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="default" />
 <meta name="apple-mobile-web-app-title" content="نور" />
