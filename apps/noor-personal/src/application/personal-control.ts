@@ -1107,6 +1107,7 @@ function periodInsight(
     execution: readonly DailyExecutionInstance[],
     currentLocalDate: LocalDate | null,
     windowDays: number,
+    definitions: ReadonlyMap<string, ExecutionDefinition>,
 ): PersonalPeriodInsight {
     if (!currentLocalDate) {
         return {
@@ -1159,7 +1160,15 @@ function periodInsight(
         windowDays,
         scheduled: inWindow.length,
         completed,
-        completionRate: (()=>{const total=inWindow.reduce((n,e)=>n+e.eligibility.weight,0),done=inWindow.filter(e=>e.status==="Completed").reduce((n,e)=>n+e.eligibility.weight,0);return total?Math.round(done/total*100):0;})(),
+        completionRate: (()=>{const total=inWindow.reduce((n,e)=>n+e.eligibility.weight,0);
+            const done=inWindow.reduce((n,e)=>{
+                const definition=definitions.get(e.definitionId);
+                const share=definition?.sessionPlan
+                    ?Math.max(e.status==="Completed"?1:0,sessionDayCredit(definition.activityLog??[],e.scheduleOccurrenceKey))
+                    :(e.status==="Completed"?1:0);
+                return n+e.eligibility.weight*share;
+            },0);
+            return total?Math.round(done/total*100):0;})(),
         successfulDays,
     };
 }
@@ -1306,21 +1315,25 @@ export function buildPersonalWorkspace(
                     execution,
                     currentLocalDate,
                     7,
+                    defs,
                 ),
                 month: periodInsight(
                     execution,
                     currentLocalDate,
                     30,
+                    defs,
                 ),
                 quarter: periodInsight(
                     execution,
                     currentLocalDate,
                     90,
+                    defs,
                 ),
                 year: periodInsight(
                     execution,
                     currentLocalDate,
                     365,
+                    defs,
                 ),
             },
         },
