@@ -21,6 +21,16 @@ function fixture(definition=base,days=[day],instances=[execution]){
 function configure(f,p=plan,revision=f.get().revisionId){return f.service.execute("owner",{type:"configure-task-sessions",definitionId:"book",expectedRevisionId:revision,plan:p});}
 function note(f,taskSessionId,text,expectedRevision){return f.service.execute("owner",{type:"edit-task-session-note",definitionId:"book",taskSessionId,expectedRevision,note:text});}
 function progress(f,taskSessionId,entryId,amount,description=""){return f.service.execute("owner",{type:"record-task-session-progress",executionId:"execution-1",taskSessionId,entryId,amount,note:description});}
+test("new task with opt-in session plan saves through the existing create-definition command",async()=>{
+ const f=fixture();
+ const command={type:"create-definition",kind:"Task",title:"دراسة علمية",category:"التعلم",startDate:date,endDate:null,scheduleKind:"Daily",weekdays:[],importance:"Important",measurement:{target:30,unit:"صفحة"},sessionPlan:plan};
+ assert.ok(parsePersonalCommand(command));
+ await f.service.execute("owner",command);
+ const created=f.store.snapshot().definitions.find(d=>d.title==="دراسة علمية");
+ assert.ok(created);assert.equal(created.sessionPlan.sessions.length,2);
+ assert.deepEqual(created.sessionPlan.sessions.map(s=>s.order),[1,2]);
+ assert.equal(created.weight,1);
+});
 test("legacy tasks without sessions have unchanged parser and read model",async()=>{
  const f=fixture();assert.equal(f.get().sessionPlan,undefined);
  await f.service.execute("owner",{type:"record-activity",executionId:"execution-1",entryId:"old",amount:5,note:"سجل سابق",endReason:null});
