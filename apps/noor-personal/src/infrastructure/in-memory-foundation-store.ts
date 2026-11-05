@@ -1,3 +1,4 @@
+import { replaceEffectiveLocationRevision } from "../domain/location-revision-r236.js";
 import type {
     AutomationOutboxEvent,
     DailyExecutionInstance,
@@ -432,6 +433,9 @@ implements
         state: FoundationState,
     ): FoundationTransaction {
         return {
+            updateLocationProfile:(userId,expectedRevisionId,now,next)=>{
+                replaceEffectiveLocationRevision(state.locations,userId,expectedRevisionId,now,next);
+            },
             findOpenPersonalDayContaining: (
                 userId,
                 instant,
