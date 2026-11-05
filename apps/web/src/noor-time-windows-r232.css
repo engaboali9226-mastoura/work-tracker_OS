@@ -449,3 +449,58 @@
   .np-r237-horizontal-strip > .np-r232-window { flex: 0 0 210px; min-width: 210px; }
   .np-r237-horizontal-strip .np-r232-window.np-r234-window { min-height: 102px; }
 }
+
+/* R238 — consistent prayer-card width and day / Duha / night order. */
+.np-r232-section:has(.np-r238-time-order) {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+}
+.np-r232-section .np-r237-horizontal-strip.np-r238-time-order {
+  direction: rtl;
+  width: 100%;
+  max-width: 100%;
+}
+@media (min-width: 960px) {
+  .np-r238-time-order:not(:has(.np-r237-friday-inline)) > .np-r232-fasting-wrapper,
+  .np-r238-time-order:not(:has(.np-r237-friday-inline)) > .np-r232-window {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+}
+@media (max-width: 959px) {
+  .np-r238-time-order > .np-r232-fasting-wrapper,
+  .np-r238-time-order > .np-r232-window {
+    flex: 0 0 210px;
+    min-width: 210px;
+  }
+}
+.np-r238-zone-shortcuts {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  align-items: center;
+}
+.np-r238-zone-shortcuts .np-cc-button {
+  min-height: 34px;
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-size: 11px;
+  direction: ltr;
+}
+.np-r238-zone-shortcuts .np-cc-button[aria-pressed="true"] {
+  border-color: #b59b67;
+  background: rgba(192,159,101,.14);
+}
+.np-r238-privacy {
+  margin: 0;
+  font-size: 11px;
+  line-height: 1.8;
+  color: var(--np-muted,#7a8588);
+}
+.np-r238-zone-shortcuts .np-cc-button:focus-visible {
+  outline: 2px solid #876b3f;
+  outline-offset: 2px;
+}
