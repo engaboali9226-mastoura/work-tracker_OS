@@ -5,6 +5,7 @@ import {
   fetchNoorPersonalToday,
   fetchNoorPersonalWorkspace,
   sendNoorPersonalCommand,
+  sendNoorPersonalCommandDetailed,
 } from "../src/noor-personal-today-client.js";
 
 function successfulTodayResponse() {
@@ -434,5 +435,42 @@ test(
           "unavailable",
       },
     );
+  },
+);
+
+test(
+  "R243 acknowledged account location save invalidates a pre-save in-flight Today read",
+  async () => {
+    let releaseOld: (() => void) | undefined;
+    let todayCalls=0;
+    const pendingOld=new Promise<void>(resolve=>{releaseOld=resolve;});
+    const fetcher:typeof fetch=async(input,init)=>{
+      assert.equal(init?.credentials,"same-origin");
+      if(input==="/api/noor/personal/command"){
+        assert.match(String(init?.body),/"set-account-location"/);
+        return new Response(null,{status:204});
+      }
+      assert.equal(input,"/api/noor/personal/today");
+      todayCalls+=1;
+      if(todayCalls===1)await pendingOld;
+      return successfulTodayResponse();
+    };
+    const stale=fetchNoorPersonalToday(fetcher);
+    assert.equal(todayCalls,1);
+    const command=await sendNoorPersonalCommandDetailed({
+      type:"set-account-location",
+      requestId:"c70ad6d5-a90d-4e16-97ce-20539aecdb07",
+      expectedRevisionId:"location-old",
+      city:{name:"القاهرة",country:"مصر",latitude:30.04,longitude:31.24,timeZone:"Africa/Cairo"},
+    },fetcher);
+    assert.equal(command.kind,"success");
+    const fresh=fetchNoorPersonalToday(fetcher);
+    assert.notEqual(fresh,stale);
+    assert.equal(todayCalls,2);
+    assert.equal((await fresh).kind,"success");
+    releaseOld?.();
+    assert.equal((await stale).kind,"success");
+    await fetchNoorPersonalToday(fetcher);
+    assert.equal(todayCalls,3);
   },
 );
