@@ -138,11 +138,11 @@ function SmartGateway({ navigate, signIn, authenticationState }: { navigate: (pa
     <div className="launcher-bg">
       <style dangerouslySetInnerHTML={{__html: `
         body { margin: 0; background: #0f172a; }
-        .launcher-bg { background: radial-gradient(circle at 15% 50%, rgba(76, 29, 149, 0.2), transparent 50%), radial-gradient(circle at 85% 30%, rgba(15, 118, 110, 0.2), transparent 50%), #0f172a; min-height: 100vh; display: flex; align-items: center; justify-content: center; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; color: #f8fafc; margin: 0; width: 100%; }
-        .glass-panel { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 24px; padding: 48px; width: 100%; max-width: 420px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); animation: fade-in 0.5s ease-out; text-align: center; }
+        .launcher-bg { box-sizing: border-box; padding: max(18px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(18px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left)); min-height: 100dvh; background: radial-gradient(circle at 15% 50%, rgba(76, 29, 149, 0.2), transparent 50%), radial-gradient(circle at 85% 30%, rgba(15, 118, 110, 0.2), transparent 50%), #0f172a; min-height: 100vh; display: flex; align-items: center; justify-content: center; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; color: #f8fafc; margin: 0; width: 100%; }
+        .glass-panel { box-sizing: border-box; min-width: 0; background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 24px; padding: clamp(22px, 5vw, 40px); width: min(100%, 390px); max-width: 390px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); animation: fade-in 0.5s ease-out; text-align: center; }
         .glass-title { font-size: 28px; font-weight: 600; margin-top: 0; margin-bottom: 8px; background: linear-gradient(to right, #fff, #cbd5e1); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         .glass-subtitle { font-size: 15px; color: #94a3b8; margin-bottom: 32px; }
-        .glass-input { width: 100%; background: rgba(0, 0, 0, 0.2); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 14px 16px; color: white; margin-top: 8px; margin-bottom: 20px; outline: none; transition: border-color 0.2s; box-sizing: border-box; font-size: 15px; }
+        .glass-input { width: 100%; background: rgba(0, 0, 0, 0.2); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 14px 16px; color: white; margin-top: 8px; margin-bottom: 20px; outline: none; transition: border-color 0.2s; box-sizing: border-box; font-size: 16px; }
         .glass-input:focus { border-color: rgba(255, 255, 255, 0.3); background: rgba(0, 0, 0, 0.3); }
         .glass-btn { width: 100%; background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 14px; color: white; font-weight: 600; cursor: pointer; transition: all 0.2s; font-size: 16px; margin-top: 8px; }
         .glass-btn:hover:not(:disabled) { background: rgba(255, 255, 255, 0.2); }
@@ -156,6 +156,16 @@ function SmartGateway({ navigate, signIn, authenticationState }: { navigate: (pa
         .app-badge { font-size: 11px; background: rgba(255, 255, 255, 0.1); padding: 4px 8px; border-radius: 12px; margin-top: 8px; display: inline-block; }
         .label-text { display: block; text-align: left; font-size: 13px; color: #cbd5e1; margin-bottom: 4px; font-weight: 500; }
         .status-text { color: #f87171; font-size: 14px; margin-top: 16px; }
+        @media (max-width: 430px) {
+          .glass-panel { width: min(100%, 352px); max-width: 352px; padding: 24px 21px; border-radius: 19px; }
+          .glass-title { font-size: 23px; line-height: 1.42; }
+          .glass-subtitle { font-size: 13px; margin-bottom: 19px; }
+          .glass-input { min-height: 44px; padding: 10px 12px; margin-top: 6px; margin-bottom: 14px; }
+          .glass-btn { min-height: 44px; padding: 10px 12px; }
+          .app-grid { gap: 10px; margin-top: 16px; }
+          .app-card { padding: 14px 9px; border-radius: 14px; }
+          .app-icon { font-size: 27px; }
+        }
         @keyframes fade-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
       `}} />
       <div className="glass-panel">
@@ -304,7 +314,7 @@ export function PlatformShell(
         };
 
       return (
-        <main id="main-content">
+        <main id="main-content" className="noor-auth-route-r230">
           <h1>
             Sign-in required
           </h1>
