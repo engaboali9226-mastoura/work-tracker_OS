@@ -47,3 +47,20 @@
   .np-r232-section .np-cc-button { min-height: 44px; }
 }
 @media (prefers-reduced-motion: reduce) { .np-r232-progress span { transition: none; } }
+
+/* R233 — local IANA timezone preview is presentation-only. */
+.np-r233-clock-preview {
+  min-width: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px 12px;
+  align-items: baseline;
+  padding: 12px 14px;
+  border: 1px solid rgba(174,161,140,.28);
+  border-radius: 13px;
+  background: rgba(255,255,255,.65);
+  color: var(--np-text,#30434b);
+}
+.np-r233-clock-preview strong { font-size: 20px; font-variant-numeric: tabular-nums; }
+.np-r233-clock-preview span { font-size: 12px; direction: ltr; overflow-wrap: anywhere; }
+.np-r233-clock-preview small { flex-basis: 100%; font-size: 11px; line-height: 1.8; color: var(--np-muted,#7a8588); }

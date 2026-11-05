@@ -9,10 +9,12 @@ export type NoorR232City = Readonly<{
 }>;
 export type NoorR232Preferences=Readonly<{
   afterSunrise:number; beforeDhuhr:number; fridayAdhan:string; selectedCity:NoorR232City|null;
+  /** Display-clock timezone only. Never changes server prayer or account date. */
+  displayZone:string|null;
   fastingTimerOutsideRamadan:boolean;
 }>;
 export const NOOR_R232_DEFAULT:NoorR232Preferences=Object.freeze({
-  afterSunrise:20,beforeDhuhr:10,fridayAdhan:"",selectedCity:null,
+  afterSunrise:20,beforeDhuhr:10,fridayAdhan:"",selectedCity:null,displayZone:null,
   fastingTimerOutsideRamadan:false,
 });
 export function readNoorR232Preferences():NoorR232Preferences{
