@@ -96,6 +96,15 @@ test("day's weighted credit remains one parent weight; next day does not reset c
  assert.equal(workspace.insights.periods.week.completionRate,25);
  assert.equal(session.taskCumulativeProgress(state.definitions[0].activityLog),5);
 });
+test("one-time session task remains eligible on a later day, while an old one-time task does not",async()=>{
+ const domain=await import(pathToFileURL(path.join(root,"domain/materialization.js")).href);
+ const once={...base,schedule:{kind:"OneTime",localDate:"2026-11-05"}};
+ const zone={weekday:()=>4};
+ assert.equal(domain.definitionIsEligible(once,"2026-11-06",zone),false);
+ const f=fixture();await configure(f);
+ assert.equal(domain.definitionIsEligible({...f.get(),schedule:once.schedule},"2026-11-06",zone),true);
+ assert.equal(domain.definitionIsEligible({...f.get(),schedule:once.schedule,state:"Stopped"},"2026-11-06",zone),false);
+});
 test("roundtrips session notes and progress through a fresh managed Foundation adapter",async()=>{
  const f=fixture();await configure(f);await progress(f,"s1","evt",2);await note(f,"s1","ملخص مسترجع",0);
  const state=f.store.snapshot();let row={user_id:"owner",schema_version:1,revision:1,state:{locations:[],prayerPolicies:[],personalDays:state.personalDays,islamicContexts:[],definitions:state.definitions,dailyExecution:state.dailyExecution,outbox:[]}};
