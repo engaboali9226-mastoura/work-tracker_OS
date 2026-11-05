@@ -121,12 +121,21 @@ function HomeLink(
 }
 
 
-function SmartGateway({ navigate, signIn, authenticationState }: { navigate: (pathname: string) => void, signIn?: any, authenticationState?: string }) {
+function SmartGateway({
+  navigate,
+  signIn,
+  authenticationState,
+}: {
+  navigate: (pathname: string) => void;
+  signIn?: PlatformShellProps["signIn"];
+  authenticationState?: string;
+}) {
   const isAuth = authenticationState === "authenticated";
+  const submitting = authenticationState === "submitting";
 
   const submit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!signIn) return;
+    if (!signIn || submitting) return;
     const form = new FormData(event.currentTarget);
     const email = form.get("email");
     const password = form.get("password");
@@ -135,79 +144,96 @@ function SmartGateway({ navigate, signIn, authenticationState }: { navigate: (pa
   };
 
   return (
-    <div className="launcher-bg">
-      <style dangerouslySetInnerHTML={{__html: `
-        body { margin: 0; background: #0f172a; }
-        .launcher-bg { box-sizing: border-box; padding: max(18px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(18px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left)); min-height: 100dvh; background: radial-gradient(circle at 15% 50%, rgba(76, 29, 149, 0.2), transparent 50%), radial-gradient(circle at 85% 30%, rgba(15, 118, 110, 0.2), transparent 50%), #0f172a; min-height: 100vh; display: flex; align-items: center; justify-content: center; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; color: #f8fafc; margin: 0; width: 100%; }
-        .glass-panel { box-sizing: border-box; min-width: 0; background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 24px; padding: clamp(22px, 5vw, 40px); width: min(100%, 390px); max-width: 390px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); animation: fade-in 0.5s ease-out; text-align: center; }
-        .glass-title { font-size: 28px; font-weight: 600; margin-top: 0; margin-bottom: 8px; background: linear-gradient(to right, #fff, #cbd5e1); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .glass-subtitle { font-size: 15px; color: #94a3b8; margin-bottom: 32px; }
-        .glass-input { width: 100%; background: rgba(0, 0, 0, 0.2); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 14px 16px; color: white; margin-top: 8px; margin-bottom: 20px; outline: none; transition: border-color 0.2s; box-sizing: border-box; font-size: 16px; }
-        .glass-input:focus { border-color: rgba(255, 255, 255, 0.3); background: rgba(0, 0, 0, 0.3); }
-        .glass-btn { width: 100%; background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 14px; color: white; font-weight: 600; cursor: pointer; transition: all 0.2s; font-size: 16px; margin-top: 8px; }
-        .glass-btn:hover:not(:disabled) { background: rgba(255, 255, 255, 0.2); }
-        .glass-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-        .app-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 24px; }
-        .app-card { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 20px; padding: 24px 16px; text-align: center; cursor: pointer; text-decoration: none; color: white; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-        .app-card:hover:not(.disabled) { background: rgba(255, 255, 255, 0.1); transform: translateY(-4px); box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3); }
-        .app-card.disabled { opacity: 0.5; cursor: default; filter: grayscale(100%); }
-        .app-icon { font-size: 36px; margin-bottom: 12px; display: block; }
-        .app-name { font-size: 15px; font-weight: 600; margin: 0; }
-        .app-badge { font-size: 11px; background: rgba(255, 255, 255, 0.1); padding: 4px 8px; border-radius: 12px; margin-top: 8px; display: inline-block; }
-        .label-text { display: block; text-align: left; font-size: 13px; color: #cbd5e1; margin-bottom: 4px; font-weight: 500; }
-        .status-text { color: #f87171; font-size: 14px; margin-top: 16px; }
-        @media (max-width: 430px) {
-          .glass-panel { width: min(100%, 352px); max-width: 352px; padding: 24px 21px; border-radius: 19px; }
-          .glass-title { font-size: 23px; line-height: 1.42; }
-          .glass-subtitle { font-size: 13px; margin-bottom: 19px; }
-          .glass-input { min-height: 44px; padding: 10px 12px; margin-top: 6px; margin-bottom: 14px; }
-          .glass-btn { min-height: 44px; padding: 10px 12px; }
-          .app-grid { gap: 10px; margin-top: 16px; }
-          .app-card { padding: 14px 9px; border-radius: 14px; }
-          .app-icon { font-size: 27px; }
-        }
-        @keyframes fade-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-      `}} />
-      <div className="glass-panel">
+    <main id="main-content" className="noor-welcome-gateway-r231">
+      <div className="noor-welcome-ambient" aria-hidden="true" />
+      <section className="noor-welcome-panel" aria-labelledby="noor-welcome-title">
+        <div className="noor-welcome-logo-frame">
+          <img
+            className="noor-welcome-logo"
+            src="/noor-platform-logo.jpeg"
+            alt="شعار منصة نور"
+            width="104"
+            height="104"
+            fetchPriority="high"
+            decoding="async"
+          />
+        </div>
+        <p className="noor-welcome-eyebrow" lang="en">NOOR PLATFORM</p>
+        <h1 id="noor-welcome-title" className="glass-title">مرحبا بك في منصة نور</h1>
+        <p className="noor-welcome-description">
+          مساحة هادئة لتنظيم يومك، ومتابعة ما يهمك.
+        </p>
         {!isAuth ? (
-          <>
-            <h1 className="glass-title">مرحبا بك في منصة نور</h1>
-            <p className="glass-subtitle">Sign in to access your applications</p>
-            <form onSubmit={submit} style={{ textAlign: "left" }}>
-              <label>
-                <span className="label-text">Email</span>
-                <input name="email" type="email" autoComplete="username" required disabled={authenticationState === "submitting"} className="glass-input" />
-              </label>
-              <label>
-                <span className="label-text">Password</span>
-                <input name="password" type="password" autoComplete="current-password" required disabled={authenticationState === "submitting"} className="glass-input" />
-              </label>
-              <button type="submit" disabled={authenticationState === "submitting"} className="glass-btn">
-                {authenticationState === "submitting" ? "Signing in..." : "Sign in"}
-              </button>
-            </form>
-            {authenticationState === "invalid-credentials" && <p className="status-text">Invalid credentials. Please try again.</p>}
-            {authenticationState === "unavailable" && <p className="status-text">Service temporarily unavailable.</p>}
-          </>
+          <form className="noor-welcome-form" onSubmit={submit}>
+            <label className="noor-welcome-field">
+              <span>البريد الإلكتروني</span>
+              <input
+                name="email"
+                type="email"
+                dir="ltr"
+                inputMode="email"
+                autoComplete="username"
+                required
+                disabled={submitting}
+                placeholder="name@example.com"
+              />
+            </label>
+            <label className="noor-welcome-field">
+              <span>كلمة المرور</span>
+              <input
+                name="password"
+                type="password"
+                dir="ltr"
+                autoComplete="current-password"
+                required
+                disabled={submitting}
+                placeholder="••••••••"
+              />
+            </label>
+            <button
+              className="noor-welcome-submit"
+              type="submit"
+              disabled={submitting || !signIn}
+            >
+              {submitting ? "جارٍ تسجيل الدخول…" : "الدخول إلى نور"}
+              {!submitting ? <span aria-hidden="true">←</span> : null}
+            </button>
+            {authenticationState === "invalid-credentials" ? (
+              <p className="noor-welcome-error" role="alert">البريد الإلكتروني أو كلمة المرور غير صحيحة.</p>
+            ) : null}
+            {authenticationState === "unavailable" ? (
+              <p className="noor-welcome-error" role="alert">تعذر الاتصال بخدمة الدخول حاليًا. حاول مرة أخرى.</p>
+            ) : null}
+          </form>
         ) : (
-          <>
-            <h1 className="glass-title">مرحبا بك في منصة نور</h1>
-            <p className="glass-subtitle">Select an application to launch</p>
-            <div className="app-grid">
-              <a href="/personal" onClick={(e) => { e.preventDefault(); navigate("/personal"); }} className="app-card">
-                <span className="app-icon">✨</span>
-                <p className="app-name">Noor Personal</p>
-              </a>
-              <div className="app-card disabled" title="Coming soon">
-                <span className="app-icon">💼</span>
-                <p className="app-name">Noor Work</p>
-                <span className="app-badge">Planned</span>
-              </div>
+          <div className="noor-welcome-apps" aria-label="تطبيقات نور">
+            <p className="noor-welcome-apps-title">اختر مساحتك</p>
+            <a
+              href="/personal"
+              className="noor-welcome-app-card"
+              onClick={event => {
+                if (event.defaultPrevented || event.button !== 0 ||
+                    event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+                event.preventDefault();
+                navigate("/personal");
+              }}
+            >
+              <span className="noor-welcome-app-mark" aria-hidden="true">✦</span>
+              <span className="noor-welcome-app-copy"><strong>نور الشخصي</strong><small>يومك، عاداتك، وتقدمك</small></span>
+              <span className="noor-welcome-app-arrow" aria-hidden="true">←</span>
+            </a>
+            <div className="noor-welcome-app-card noor-welcome-app-disabled" aria-disabled="true">
+              <span className="noor-welcome-app-mark" aria-hidden="true">◈</span>
+              <span className="noor-welcome-app-copy"><strong>نور للأعمال</strong><small>قريبًا</small></span>
             </div>
-          </>
+          </div>
         )}
-      </div>
-    </div>
+        <p className="noor-welcome-privacy">
+          <span aria-hidden="true">✧</span> مساحتك الخاصة، بتجربة بسيطة وآمنة
+        </p>
+      </section>
+      <p className="noor-welcome-footer" lang="en">NOOR · DESIGNED FOR CLARITY</p>
+    </main>
   );
 }
 
