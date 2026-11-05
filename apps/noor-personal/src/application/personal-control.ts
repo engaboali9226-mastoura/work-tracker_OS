@@ -643,8 +643,11 @@ export class PersonalCommandService {
                 if(command.type==="finance"){
                     if(!transaction.getFinance || !transaction.saveFinance)throw new Error("FINANCE_STORAGE_UNAVAILABLE");
                     const ledger=transaction.getFinance(userId);
-                    const openDay=activePersonalDay(transaction,userId,now);
-                    const updated=applyFinanceOperation(ledger,userId,command.operation,now,openDay.boundary.timeZone);
+                    // Existing finance-only accounts may have no materialized Personal Day.
+                    // When a day exists, always use its account timezone, not Riyadh.
+                    const currentDay=transaction.findOpenPersonalDayContaining(userId,now);
+                    const financialZone=currentDay?.boundary.timeZone??"Asia/Riyadh";
+                    const updated=applyFinanceOperation(ledger,userId,command.operation,now,financialZone);
                     transaction.saveFinance(userId,updated);return;
                 }
                 // NOOR_HISTORY_EDITOR_R108: corrections require a real persisted occurrence.
