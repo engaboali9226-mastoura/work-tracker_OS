@@ -1461,39 +1461,38 @@ function formatTime(instant: string, timeZone: string): string {
   return new Intl.DateTimeFormat("ar-SA-u-nu-latn", { hour: "numeric", minute: "2-digit", hour12: true, timeZone }).format(date);
 }
 
-export function nightMilestones(prayerTimes: readonly Readonly<{ key: string; label: string; at: string }>[]): Readonly<{ midnight: string; lastThird: string }> | null {
-  const maghrib = prayerTimes.find(prayer => prayer.key === "maghrib");
-  const fajr = prayerTimes.find(prayer => prayer.key === "fajr");
-  if (!maghrib || !fajr) return null;
-  const maghribMs = new Date(maghrib.at).getTime();
-  let nextFajrMs = new Date(fajr.at).getTime();
-  if (!Number.isFinite(maghribMs) || !Number.isFinite(nextFajrMs)) return null;
-  while (nextFajrMs <= maghribMs) nextFajrMs += 24 * 60 * 60 * 1000;
+/** The night is Maghrib → trusted *following* Fajr, never today-Fajr + 24h.
+ * A client time zone change, DST or missing server snapshot cannot create
+ * an artificial prayer instant. The same authority drives the compact strip.
+ */
+export function nightMilestones(
+  prayerTimes: readonly Readonly<{ key: string; label: string; at: string }>[],
+  nextFajrAt?: string | null,
+): Readonly<{ midnight: string; lastThird: string }> | null {
+  const maghribMs = Date.parse(prayerTimes.find(prayer => prayer.key === "maghrib")?.at ?? "");
+  const nextFajrMs = Date.parse(nextFajrAt ?? "");
   const nightDuration = nextFajrMs - maghribMs;
+  if (!Number.isFinite(maghribMs) || !Number.isFinite(nextFajrMs)
+      || !Number.isFinite(nightDuration) || nightDuration <= 0
+      || nightDuration > 30 * 60 * 60 * 1000) return null;
   return {
     midnight: new Date(maghribMs + nightDuration / 2).toISOString(),
     lastThird: new Date(maghribMs + (nightDuration * 2) / 3).toISOString(),
   };
 }
-
-export function nightCountdownState(prayerTimes: readonly Readonly<{ key: string; label: string; at: string }>[], nowMs: number): Readonly<{ midnight: string; lastThird: string; enabled: boolean }> | null {
-  const milestones = nightMilestones(prayerTimes);
+export function nightCountdownState(
+  prayerTimes: readonly Readonly<{ key: string; label: string; at: string }>[],
+  nowMs: number,
+  nextFajrAt?: string | null,
+): Readonly<{ midnight: string; lastThird: string; enabled: boolean }> | null {
+  const milestones = nightMilestones(prayerTimes,nextFajrAt);
+  if (!milestones) return null;
   const maghribMs = Date.parse(prayerTimes.find(prayer => prayer.key === "maghrib")?.at ?? "");
   const ishaMs = Date.parse(prayerTimes.find(prayer => prayer.key === "isha")?.at ?? "");
-  let fajrMs = Date.parse(prayerTimes.find(prayer => prayer.key === "fajr")?.at ?? "");
-  if (!milestones) return null;
-  if (![nowMs,maghribMs,ishaMs,fajrMs].every(Number.isFinite)) return { ...milestones, enabled:false };
-  const dayMs = 24 * 60 * 60 * 1000;
-  while (fajrMs <= maghribMs) fajrMs += dayMs;
-  if (ishaMs < maghribMs || ishaMs >= fajrMs) return { ...milestones, enabled:false };
-  // Reuse the displayed schedule across civil midnight without opening tonight's counters early.
-  const shift = [0,-dayMs,dayMs].find(offset => nowMs >= ishaMs + offset && nowMs < fajrMs + offset);
-  const offset = shift ?? 0;
-  return {
-    midnight:new Date(Date.parse(milestones.midnight) + offset).toISOString(),
-    lastThird:new Date(Date.parse(milestones.lastThird) + offset).toISOString(),
-    enabled:shift !== undefined,
-  };
+  const nextFajrMs = Date.parse(nextFajrAt ?? "");
+  const valid = [nowMs,maghribMs,ishaMs,nextFajrMs].every(Number.isFinite)
+    && ishaMs >= maghribMs && ishaMs < nextFajrMs;
+  return { ...milestones, enabled: valid && nowMs >= ishaMs && nowMs < nextFajrMs };
 }
 
 // NOOR_COUNTDOWN_ROLLOVER_R81
@@ -2170,7 +2169,7 @@ function Dashboard({ view:providedView, workspace, busy, actionError, onCommand,
 
   const nextKey = nextPrayer?.key ?? null;
 
-  const night = nightCountdownState(view.prayerTimes,nowMs);
+  const night = nightCountdownState(view.prayerTimes,nowMs,view.nextFajrAt);
   const eventTimes = [
     ...view.prayerTimes.map(p=>p.key===nextPrayer?.key?{...p,at:nextPrayer.at}:p),
     ...(night ? [
