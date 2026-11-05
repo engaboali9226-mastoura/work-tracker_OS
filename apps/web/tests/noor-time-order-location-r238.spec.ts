@@ -20,8 +20,8 @@ test("R248 reference strip is ordered Duha then day then night",()=>{
     nextFajrAt:"2026-11-07T02:46:00Z",
     preferences:NOOR_R232_DEFAULT,
   }));
-  const day=html.indexOf("ساعات النهار"),duha=html.indexOf("وقت صلاة الضحى"),
-    night=html.indexOf("ساعات الليل الشرعي");
+  const day=html.indexOf('aria-label="ساعات النهار"'),duha=html.indexOf('aria-label="وقت صلاة الضحى"'),
+    night=html.indexOf('aria-label="ساعات الليل الشرعي"');
   assert.ok(duha>=0 && duha<day && day<night);
   assert.match(html,/np-r238-time-order/u);
   assert.equal((html.match(/data-testid="noor-day-night-friday-r232"/gu)||[]).length,1);
