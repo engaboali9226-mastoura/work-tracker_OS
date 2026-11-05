@@ -22,10 +22,11 @@ function scheduleApplies(
         definition.schedule.kind
     ) {
         case "OneTime":
-            return definition
-                .schedule
-                .localDate
-                === localDate;
+            // Opt-in segmented tasks remain actionable on later days until the
+            // parent is ended. Existing one-time tasks retain their old schedule.
+            return definition.schedule.localDate === localDate
+                || (definition.kind === "Task" && definition.sessionPlan !== undefined
+                    && localDate > definition.schedule.localDate);
 
         case "Daily":
             return true;
