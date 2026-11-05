@@ -30,11 +30,17 @@ export function r232DailyWindows(prayers:readonly R232Prayer[],nextFajrAt?:strin
     duhaBeforeDhuhrMinutes<5||duhaBeforeDhuhrMinutes>30)throw Error("R232_INVALID_DUHA_POLICY");
   const fajr=time(prayers,"fajr"),sunrise=time(prayers,"sunrise"),dhuhr=time(prayers,"dhuhr"),maghrib=time(prayers,"maghrib");
   const nextFajr=nextFajrAt?Date.parse(nextFajrAt):NaN;
+  // Never publish misleading windows from a contradictory prayer snapshot.
+  // Missing independent boundaries remain independently unavailable.
+  const dayOrdered=!Number.isFinite(fajr)||!Number.isFinite(sunrise)||sunrise>fajr;
+  const noonOrdered=!Number.isFinite(sunrise)||!Number.isFinite(dhuhr)||dhuhr>sunrise;
+  const eveningOrdered=!Number.isFinite(dhuhr)||!Number.isFinite(maghrib)||maghrib>dhuhr;
   return Object.freeze({
-    fastingDay:windowFrom(fajr,maghrib),
-    islamicNight:windowFrom(maghrib,nextFajr,MAX_NIGHT),
-    duha:windowFrom(sunrise+sunriseOffsetMinutes*MINUTE,
-      dhuhr-duhaBeforeDhuhrMinutes*MINUTE),
+    fastingDay:dayOrdered&&noonOrdered&&eveningOrdered?windowFrom(fajr,maghrib):null,
+    islamicNight:eveningOrdered?windowFrom(maghrib,nextFajr,MAX_NIGHT):null,
+    duha:dayOrdered&&noonOrdered&&eveningOrdered
+      ?windowFrom(sunrise+sunriseOffsetMinutes*MINUTE,
+        dhuhr-duhaBeforeDhuhrMinutes*MINUTE):null,
   });
 }
 export function r232LocalWeekday(nowMs:number,timeZone:string):number{
