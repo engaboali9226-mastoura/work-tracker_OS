@@ -560,6 +560,9 @@ export interface PersonalCommandServiceDependencies {
     readonly clock: ClockPort;
     readonly idGenerator: IdGeneratorPort;
     readonly transaction: LocalTransactionPort;
+    /** Verified, owner-scoped effective account timezone from the server.
+     * Used when no Personal Day has yet materialized (finance-only accounts). */
+    readonly accountTimeZone?: string;
 }
 
 function commandSchedule(
@@ -646,7 +649,7 @@ export class PersonalCommandService {
                     // Existing finance-only accounts may have no materialized Personal Day.
                     // When a day exists, always use its account timezone, not Riyadh.
                     const currentDay=transaction.findOpenPersonalDayContaining(userId,now);
-                    const financialZone=currentDay?.boundary.timeZone??"Asia/Riyadh";
+                    const financialZone=currentDay?.boundary.timeZone??this.dependencies.accountTimeZone??"Asia/Riyadh";
                     const updated=applyFinanceOperation(ledger,userId,command.operation,now,financialZone);
                     transaction.saveFinance(userId,updated);return;
                 }
@@ -662,7 +665,7 @@ export class PersonalCommandService {
                     const currentDay=transaction.findOpenPersonalDayContaining(userId,now);
                     // Historical-only corrections can run without an open day.
                     // Active account operations use the verified Personal Day timezone.
-                    const civilToday=new IntlTimeZoneAdapter().localDateForInstant(now,currentDay?.boundary.timeZone??"Asia/Riyadh");
+                    const civilToday=new IntlTimeZoneAdapter().localDateForInstant(now,currentDay?.boundary.timeZone??this.dependencies.accountTimeZone??"Asia/Riyadh");
                     if(parsed.localDate>=civilToday) throw new PersonalControlError("CURRENT_PERSONAL_DAY_REQUIRED");
                     if(instance.status==="Suppressed" || instance.status==="Cancelled" || instance.status==="Skipped" || instance.status==="Deferred")
                         throw new PersonalControlError("EXECUTION_SUPPRESSED");

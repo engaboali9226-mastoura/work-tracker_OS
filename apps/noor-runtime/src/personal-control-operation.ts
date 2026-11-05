@@ -404,6 +404,22 @@ implements PersonalControlExecutor {
         }
       }
 
+      // Finance-only and historical accounts may lack an active Personal Day.
+      // In that case use the actual authenticated location revision, not an
+      // implicit Riyadh zone. No browser-provided timezone is accepted.
+      let accountTimeZone:string|undefined;
+      if(command.type==="finance"
+        ||command.type==="correct-historical-execution"
+        ||command.type==="record-historical-progress"){
+        const active=await scope.locations?.getEffective(resolved.userId,this.dependencies.clock.now());
+        if(active){
+          if(active.userId!==resolved.userId)return empty(503);
+          try{new Intl.DateTimeFormat("en-US",{timeZone:active.timeZone});}
+          catch{return empty(503);}
+          accountTimeZone=active.timeZone;
+        }
+      }
+
       const service =
         new PersonalCommandService({
           clock:
@@ -414,6 +430,7 @@ implements PersonalControlExecutor {
               .idGenerator,
           transaction:
             scope.transaction,
+          ...(accountTimeZone?{accountTimeZone}:{}),
         });
 
       try {
