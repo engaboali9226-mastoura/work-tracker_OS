@@ -4,9 +4,11 @@ export type NoorR232City = Readonly<{
 }>;
 export type NoorR232Preferences=Readonly<{
   afterSunrise:number; beforeDhuhr:number; fridayAdhan:string; selectedCity:NoorR232City|null;
+  fastingTimerOutsideRamadan:boolean;
 }>;
 export const NOOR_R232_DEFAULT:NoorR232Preferences=Object.freeze({
   afterSunrise:20,beforeDhuhr:10,fridayAdhan:"",selectedCity:null,
+  fastingTimerOutsideRamadan:false,
 });
 const KEY="noor:r232:time-display:v1";
 function validCity(c:unknown):c is NoorR232City{
@@ -28,6 +30,7 @@ export function readNoorR232Preferences():NoorR232Preferences{
     beforeDhuhr:typeof before==="number"&&Number.isInteger(before)&&before>=5&&before<=30?before:10,
     fridayAdhan:typeof friday==="string"&&/^([01][0-9]|2[0-3]):[0-5][0-9]$/.test(friday)?friday:"",
     selectedCity:validCity(value.selectedCity)?value.selectedCity:null,
+    fastingTimerOutsideRamadan:value.fastingTimerOutsideRamadan===true,
   };
  }catch{return NOOR_R232_DEFAULT;}
 }
