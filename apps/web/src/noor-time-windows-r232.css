@@ -1286,3 +1286,64 @@
     grid-column:1 !important;
   }
 }
+
+
+/* R253 — owner-approved rhythm: color accent belongs to the CURRENT phase,
+   never a static daytime tile. Day is nested in the fasting wrapper, whereas
+   Duha and night are direct grid cells. Scope selectors to R248 rhythm only. */
+.np-r232-section .np-r248-reference-strip > .np-r232-window.tone-duha,
+.np-r232-section .np-r248-reference-strip > .np-r232-fasting-wrapper,
+.np-r232-section .np-r248-reference-strip > .np-r232-window.tone-night {
+  transition: background-color 200ms ease, box-shadow 200ms ease;
+  box-shadow: none;
+}
+.np-r232-section .np-r248-reference-strip > .np-r232-window.tone-duha {
+  background: #fffbf3;
+}
+.np-r232-section .np-r248-reference-strip > .np-r232-fasting-wrapper {
+  background: #fffaf4;
+}
+.np-r232-section .np-r248-reference-strip > .np-r232-window.tone-night {
+  background: #f3faf9;
+}
+/* Upcoming/finished days remain visible with original palette cues, but never
+   masquerade as the currently active period. */
+.np-r232-section .np-r248-reference-strip > .np-r232-fasting-wrapper:has(> .tone-day[data-phase="finished"]) {
+  background: #fffaf5;
+  box-shadow: none !important;
+}
+.np-r232-section .np-r248-reference-strip > .np-r232-window.tone-duha[data-phase="finished"] {
+  background: #fffcf5;
+  box-shadow: none !important;
+}
+.np-r232-section .np-r248-reference-strip > .np-r232-window.tone-night[data-phase="finished"] {
+  background: #f5faf9;
+  box-shadow: none !important;
+}
+/* The only emphasized card is the one with a running countdown.
+   Warm golden Duha, amber day, and subdued moonlit teal night. */
+.np-r232-section .np-r248-reference-strip > .np-r232-window.tone-duha[data-phase="active"] {
+  background: #fffaea;
+  box-shadow: 0 0 0 1px rgba(144,112,56,.45), 0 6px 18px rgba(144,112,56,.10) !important;
+}
+.np-r232-section .np-r248-reference-strip > .np-r232-fasting-wrapper:has(> .tone-day[data-phase="active"]) {
+  background: #fff2dc;
+  box-shadow: 0 0 0 1px rgba(155,103,42,.46), 0 6px 18px rgba(155,103,42,.10) !important;
+}
+.np-r232-section .np-r248-reference-strip > .np-r232-window.tone-night[data-phase="active"] {
+  background: #eaf5f3;
+  box-shadow: 0 0 0 1px rgba(52,109,113,.50), 0 7px 20px rgba(52,109,113,.16) !important;
+}
+/* Keep the white countdown well and original legibility, even when active.
+   Inset borders of legacy R247 must not bleed through completed periods. */
+.np-r232-section .np-r248-reference-strip > .np-r232-fasting-wrapper:not(:has(> .tone-day[data-phase="active"])),
+.np-r232-section .np-r248-reference-strip > .np-r232-window.tone-night:not([data-phase="active"]),
+.np-r232-section .np-r248-reference-strip > .np-r232-window.tone-duha:not([data-phase="active"]) {
+  box-shadow: none !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  .np-r232-section .np-r248-reference-strip > .np-r232-fasting-wrapper,
+  .np-r232-section .np-r248-reference-strip > .np-r232-window {
+    transition: none;
+  }
+}
