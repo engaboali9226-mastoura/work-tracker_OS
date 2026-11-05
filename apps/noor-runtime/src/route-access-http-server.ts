@@ -44,6 +44,12 @@ export const PERSONAL_COMMAND_HTTP_PATH = "/api/noor/personal/command";
 export const MAX_ROUTE_ACCESS_REQUEST_BODY_BYTES =
   8_192;
 
+// R252: The review-confirmed habit-weight operation carries many owner-scoped
+// definition revision tokens in one atomic command. It must not share the
+// unrelated 8 KiB route-evidence limit. Parsing/authorization still validate
+// every item and the command retains a finite independent size cap.
+export const MAX_PERSONAL_COMMAND_REQUEST_BODY_BYTES = 131_072;
+
 const ROUTE_ACCESS_EVIDENCE_KINDS =
   new Set<RouteAccessEvidenceResponse["kind"]>([
     "authenticated-authorized",
@@ -455,6 +461,7 @@ export function sessionIdFromCookieHeader(
 async function readRequestBody(
   request:
     IncomingMessage,
+  limitBytes: number = MAX_ROUTE_ACCESS_REQUEST_BODY_BYTES,
 ): Promise<
   Readonly<
     | {
@@ -482,7 +489,7 @@ async function readRequestBody(
     && Number(
       declaredLength,
     )
-      > MAX_ROUTE_ACCESS_REQUEST_BODY_BYTES
+      > limitBytes
   ) {
     request.resume();
 
@@ -517,7 +524,7 @@ async function readRequestBody(
 
     if (
       bytes
-      > MAX_ROUTE_ACCESS_REQUEST_BODY_BYTES
+      > limitBytes
     ) {
       request.resume();
 
@@ -776,7 +783,7 @@ async function handlePersonalCommand(
     return;
   }
 
-  const bodyResult = await readRequestBody(request);
+  const bodyResult = await readRequestBody(request, MAX_PERSONAL_COMMAND_REQUEST_BODY_BYTES);
 
   if (bodyResult.kind === "too-large") {
     writeEmpty(response, 413);

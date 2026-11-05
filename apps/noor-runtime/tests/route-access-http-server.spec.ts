@@ -7,6 +7,7 @@ import {
 
 import {
   MAX_ROUTE_ACCESS_REQUEST_BODY_BYTES,
+  MAX_PERSONAL_COMMAND_REQUEST_BODY_BYTES,
   createRouteAccessHttpServer,
 } from "../src/route-access-http-server.js";
 
@@ -636,3 +637,40 @@ test(
     );
   },
 );
+
+
+// R252 regression: large reviewed batches may exceed route-evidence 8 KiB.
+// The generic privileged route retains its original 8 KiB limit.
+test("R252 personal command accepts bounded atomic weight batch over 8 KiB, rejects over 128 KiB",async()=>{
+  let calls=0,seen:unknown=null;
+  const executor:RouteAccessEvidenceExecutor={async execute(){return evidence();}};
+  const server=createRouteAccessHttpServer(executor,{personalControl:{
+    async executeCommand(input){calls++;seen=input.command;return {status:204 as const};}
+  }});
+  await server.listen({host:"127.0.0.1",port:0});
+  const address=server.address();assert.ok(address&&typeof address!=="string");
+  if(!address||typeof address==="string")throw Error("NO_ADDRESS");
+  const origin=`http://127.0.0.1:${address.port}`;
+  const postBody=(body:string,path:string)=>fetch(origin+path,{
+    method:"POST",headers:{"Content-Type":"application/json"},body
+  });
+  try{
+    const batch={type:"rebalance-habit-weights",changes:Array.from({length:95},(_,index)=>({
+      definitionId:`owner-habit-${index}-${"x".repeat(29)}`,
+      expectedRevisionId:`owner-revision-${index}-${"r".repeat(32)}`,weight:25
+    }))};
+    const json=JSON.stringify(batch);
+    assert.ok(Buffer.byteLength(json)>MAX_ROUTE_ACCESS_REQUEST_BODY_BYTES);
+    assert.ok(Buffer.byteLength(json)<MAX_PERSONAL_COMMAND_REQUEST_BODY_BYTES);
+    const ok=await postBody(json,"/api/noor/personal/command");
+    assert.equal(ok.status,204);
+    assert.equal(calls,1);
+    assert.deepEqual(seen,batch);
+    const tooLarge=await postBody(JSON.stringify({...batch,padding:"a".repeat(MAX_PERSONAL_COMMAND_REQUEST_BODY_BYTES)}),"/api/noor/personal/command");
+    assert.equal(tooLarge.status,413);
+    assert.equal(calls,1);
+    const oldCap=await postBody(json,"/api/noor/route-access-evidence");
+    assert.equal(oldCap.status,413);
+    assert.equal(calls,1);
+  }finally{await server.close();}
+});
