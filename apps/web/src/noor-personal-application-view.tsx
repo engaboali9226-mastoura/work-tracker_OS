@@ -111,6 +111,7 @@ type TodayViewModel = Readonly<{
     label: string;
     at: string;
   }>[];
+  nextFajrAt: string | null;
   tasks: readonly ExecutionItem[];
   habits: readonly ExecutionItem[];
 }>;
@@ -1386,6 +1387,12 @@ function buildViewModel(today: unknown): TodayViewModel | null {
   const boundary = personalDay && isRecord(personalDay.boundary) ? personalDay.boundary : null;
   const islamicContext = isRecord(today.islamicContext) ? today.islamicContext : null;
   const rawPrayerTimes = islamicContext && isRecord(islamicContext.prayerTimes) ? islamicContext.prayerTimes : null;
+  // R234: the server already computes tomorrow's Fajr using the authenticated
+  // account location, calculation method and date. Read that canonical value.
+  // Never guess from today's Fajr or the optional next-prayer snapshot.
+  const nextFajrRaw=rawPrayerTimes?stringValue(rawPrayerTimes.nextFajr):null;
+  const nextFajrAt=nextFajrRaw&&Number.isFinite(Date.parse(nextFajrRaw))
+    ?nextFajrRaw:null;
   const timeZone = boundary ? stringValue(boundary.timeZone) : null;
   if (!timeZone) return null;
   const tasks = executionItems(today.tasks);
@@ -1410,6 +1417,7 @@ function buildViewModel(today: unknown): TodayViewModel | null {
     personalDayState: personalDay ? stringValue(personalDay.state) ?? "Open" : "Open",
     nextPrayer,
     prayerTimes,
+    nextFajrAt,
     tasks,
     habits,
   };
@@ -2267,7 +2275,7 @@ function Dashboard({ view:providedView, workspace, busy, actionError, onCommand,
       </div>
     </section>
 
-    <NoorR232TimeWindows prayers={view.prayerTimes} nowMs={nowMs} timeZone={view.timeZone} preferences={timePreferences} onPreferencesChange={onTimePreferencesChange} nextFajrAt={(view.nextPrayer?.name==="Fajr"||view.nextPrayer?.name==="الفجر") ? view.nextPrayer.at : undefined}/>
+    <NoorR232TimeWindows prayers={view.prayerTimes} nowMs={nowMs} timeZone={view.timeZone} preferences={timePreferences} onPreferencesChange={onTimePreferencesChange} nextFajrAt={view.nextFajrAt??undefined}/>
 
     {actionError ? <p className="np-action-error" role="alert">{actionError}</p> : null}
 
