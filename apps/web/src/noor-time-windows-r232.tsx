@@ -75,7 +75,7 @@ export function NoorR232TimeWindows({prayers,nowMs,timeZone,preferences,nextFajr
     <div className="np-r234-heading-label"><span className="np-r234-orbit" aria-hidden="true">◐</span><div><h2>إيقاع يومك</h2><p>النهار والليل والضحى، وفق مواقيت نور المعتمدة</p></div></div>
     <span className="np-r234-basis">من مواقيت الصلاة المعتمدة</span>
    </div>
-   <div className="np-r232-grid np-r234-grid np-r235-unified-rows np-r237-horizontal-strip" role="group" aria-label="النهار والليل والضحى وساعات الجمعة في صف واحد">
+   <div className="np-r232-grid np-r234-grid np-r235-unified-rows np-r237-horizontal-strip np-r238-time-order" role="group" aria-label="النهار والضحى والليل وساعات الجمعة في صف واحد">
     <div className="np-r232-fasting-wrapper" data-testid="fasting-timer-control-r232">
       <div className="np-r232-fasting-options np-r234-fasting-options">
         <span>{fasting.ramadan?"رمضان: المؤقت يعمل تلقائيًا":"مؤقت الصيام خارج رمضان"}</span>
@@ -91,12 +91,12 @@ export function NoorR232TimeWindows({prayers,nowMs,timeZone,preferences,nextFajr
         nowMs={nowMs} timeZone={timeZone} showTimer={fasting.enabled}
         unavailable="لا توجد مواقيت فجر ومغرب مؤكدة لهذا اليوم."/>
     </div>
-    <WindowCard title="ساعات الليل الشرعي" tone="night" window={windows.islamicNight}
-      nowMs={nowMs} timeZone={timeZone}
-      unavailable="لم تتوفر مواقيت الغد من مصدر نور المعتمد."/>
     <WindowCard title="وقت صلاة الضحى" tone="duha" window={windows.duha}
       nowMs={nowMs} timeZone={timeZone}
       unavailable="يلزم موعد الشروق والظهر المؤكد."/>
+    <WindowCard title="ساعات الليل الشرعي" tone="night" window={windows.islamicNight}
+      nowMs={nowMs} timeZone={timeZone}
+      unavailable="لم تتوفر مواقيت الغد من مصدر نور المعتمد."/>
    <p className="np-r232-note np-r237-detail-note">بداية الضحى تقديرية بعد الشروق بـ{preferences.afterSunrise} دقيقة، والنهاية قبل الظهر بـ{preferences.beforeDhuhr} دقائق. يمكن تغيير الهامش من مركز التحكم.</p>
    {friday?<div className="np-r232-friday np-r235-friday-inline np-r237-friday-inline" data-testid="friday-five-hours-r232">
     <h3>ساعات الجمعة الخمس</h3>

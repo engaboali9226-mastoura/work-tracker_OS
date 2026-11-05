@@ -16,6 +16,7 @@ export function NoorR232ControlLocation({serverZone,preferences,onChange}:{
  const lastSearch=useRef(0);
  const [previewNow,setPreviewNow]=useState(()=>Date.now());
  const [zoneInput,setZoneInput]=useState(preferences.displayZone??"");
+ useEffect(()=>{setZoneInput(preferences.displayZone??"");},[preferences.displayZone]);
  useEffect(()=>{
    const tick=()=>setPreviewNow(Date.now());
    const timer=window.setInterval(tick,30000);
@@ -27,13 +28,17 @@ export function NoorR232ControlLocation({serverZone,preferences,onChange}:{
  const previewClock=new Intl.DateTimeFormat("ar-SA-u-nu-latn",{
    timeZone:previewZone,hour:"numeric",minute:"2-digit",hour12:true,
  }).format(new Date(previewNow));
+ const previewDate=new Intl.DateTimeFormat("ar-SA-u-ca-gregory-nu-latn",{
+   timeZone:previewZone,weekday:"long",day:"numeric",month:"long",
+ }).format(new Date(previewNow));
  const commitZone=(candidate:string)=>{
    const zone=candidate.trim();
-   if(!zone){onChange({...preferences,displayZone:null});setMessage("عاد عرض الساعة إلى المنطقة الزمنية المعتمدة في نور.");return;}
+   if(!zone){onChange({...preferences,displayZone:null,selectedCity:null});setZoneInput("");setMessage("عادت معاينة الساعة إلى المنطقة الزمنية المعتمدة في نور.");return;}
    if(zone.length>90||!validZone(zone)){setMessage("اختر منطقة زمنية صحيحة من القائمة أو أدخل اسم IANA مثل Asia/Riyadh.");return;}
-   onChange({...preferences,displayZone:zone});
+   onChange({...preferences,displayZone:zone,
+     selectedCity:preferences.selectedCity?.timeZone===zone?preferences.selectedCity:null});
    setZoneInput(zone);
-   setMessage("تم تغيير ساعة العرض فقط. مواقيت الصلاة واليوم الشخصي يتبعان إعداد الخادم المعتمد.");
+   setMessage("تم تحديث معاينة التوقيت لهذه الجلسة. تغيير موقع الحساب ومواقيت الصلاة يتطلب إعدادًا معتمدًا على الخادم.");
  };
  const suggestedZones=["Asia/Riyadh","Africa/Cairo","Asia/Dubai",
    "Asia/Kuwait","Asia/Qatar","Asia/Bahrain","Europe/London",
@@ -43,6 +48,7 @@ export function NoorR232ControlLocation({serverZone,preferences,onChange}:{
    onChange({...preferences,selectedCity:city,displayZone:city.timeZone});
    setZoneInput(city.timeZone);
    setResults([]);
+   setQuery("");
    setMessage("تم اختيار المدينة مؤقتًا لهذه الجلسة. مواقيت نور الأساسية لن تتغير حتى تحديث سياسة الموقع على الخادم.");
  };
  const search=async()=>{
@@ -121,12 +127,12 @@ export function NoorR232ControlLocation({serverZone,preferences,onChange}:{
  };
  const selected=preferences.selectedCity;
  return <section data-testid="noor-r232-location-settings" className="np-r232-control">
-   <div className="np-cc-title"><div><h2>التوقيت والموقع</h2><p>تخصيص العرض والعد التنازلي، مع الحفاظ على مواقيت نور المعتمدة.</p></div></div>
+   <div className="np-cc-title"><div><h2>التوقيت والموقع</h2><p>اختيار المدينة ومعاينة توقيتها قبل اعتماد تغيير موقع الحساب؛ مواقيت الصلاة الحالية لا تتبدل بمعاينة ساعة أخرى.</p></div></div>
    <div className="np-r232-setting-grid">
     <label>المنطقة الزمنية المعتمدة للحسابات
      <input className="np-input" value={serverZone} readOnly aria-readonly="true"/>
     </label>
-    <label>المنطقة الزمنية لساعة العرض فقط
+    <label>المنطقة الزمنية لمعاينة الساعة فقط
      <input aria-label="منطقة زمنية للعرض" className="np-input"
       type="text" list="np-r233-zones" value={zoneInput} maxLength={90}
       onChange={e=>setZoneInput(e.target.value)}
@@ -135,11 +141,19 @@ export function NoorR232ControlLocation({serverZone,preferences,onChange}:{
      <datalist id="np-r233-zones">{suggestedZones.map(zone=>
        <option key={zone} value={zone}/>)}</datalist>
     </label>
+    <div className="np-r238-zone-shortcuts" role="group" aria-label="اختيار سريع للمنطقة الزمنية">
+      {suggestedZones.slice(0,8).map(zone=><button key={zone} type="button"
+        className="np-cc-button" aria-pressed={previewZone===zone}
+        onClick={()=>commitZone(zone)}>{zone.replaceAll("_"," ")}</button>)}
+      <button className="np-cc-button" type="button"
+        onClick={()=>commitZone("")}>استعادة توقيت الحساب</button>
+    </div>
     <div className="np-r233-clock-preview" role="status"
       aria-label="معاينة الساعة في المنطقة الزمنية المختارة">
       <strong>{previewClock}</strong>
-      <span>{previewZone}</span>
-      <small>هذه معاينة لساعة العرض فقط؛ مواقيت الصلاة واليوم الشخصي لا يتغيران.</small>
+      <span dir="ltr">{previewZone}</span>
+      <span>{previewDate}</span>
+      <small>هذه معاينة لساعة العرض فقط؛ مواقيت الصلاة واليوم الشخصي لا يتغيران. اختيار المدينة لا يغير سجل العادات أو تاريخ المهام.</small>
     </div>
     <label>بداية الضحى بعد الشروق
      <select className="np-select" value={preferences.afterSunrise}
@@ -167,16 +181,20 @@ export function NoorR232ControlLocation({serverZone,preferences,onChange}:{
     <label htmlFor="np-r232-city-search">البحث عن المدينة والمنطقة الزمنية</label>
     <div className="np-r232-search-row">
      <input id="np-r232-city-search" className="np-input" type="search" value={query}
-      onChange={e=>setQuery(e.target.value)} placeholder="مثال: الرياض، القاهرة، جدة"/>
+      onChange={e=>{setQuery(e.target.value);lastSearch.current++;setResults([]);setSearching(false);}}
+      onKeyDown={e=>{if(e.key==="Enter"){e.preventDefault();void search();}}}
+      placeholder="مثال: الرياض، القاهرة، جدة"/>
      <button className="np-cc-button" type="button" disabled={searching}
       onClick={()=>{void search();}}>{searching?"جارٍ البحث…":"بحث"}</button>
-     <button className="np-cc-button" type="button" onClick={gps}>GPS</button>
+     <button className="np-cc-button" type="button" onClick={gps}
+       title="يُرسل موقع الجهاز إلى خدمة خارجية لتحديد المدينة بعد موافقتك">تحديد عبر GPS</button>
     </div>
+    <p className="np-r238-privacy">البحث يتم بخدمة Open-Meteo. عند استخدام GPS تُرسل الإحداثيات لخدمة BigDataCloud لتحديد المدينة فقط، ولا تُحفظ الإحداثيات الدقيقة في نور.</p>
     {results.length?<div className="np-r232-city-results" aria-label="نتائج البحث عن المدن">
       {results.map((city,i)=><button type="button" className="np-cc-button" key={i}
         onClick={()=>select(city)}>{city.name}، {city.country} — {city.timeZone}</button>)}
     </div>:null}
-    {selected?<p className="np-r232-note">مدينة العرض المختارة مؤقتًا: <strong>{selected.name}، {selected.country}</strong> ({selected.timeZone})
+    {selected?<p className="np-r232-note">مدينة معاينة التوقيت المختارة مؤقتًا: <strong>{selected.name}، {selected.country}</strong> ({selected.timeZone})
       <button type="button" className="np-cc-button" onClick={()=>{onChange({...preferences,selectedCity:null,displayZone:null});setZoneInput("");}}>إلغاء اختيار المدينة</button>
     </p>:null}
     {message?<p role="status" className="np-r232-note">{message}</p>:null}
