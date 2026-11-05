@@ -107,13 +107,69 @@ function makeTransparent(png,expected){
   ihdr[8]=8;ihdr[9]=6; // 8-bit RGBA
   return {bytes:Buffer.concat([signature,chunk('IHDR',ihdr),
     chunk('IDAT',deflateSync(raw,{level:9})),chunk('IEND',Buffer.alloc(0))]),
-    clear,solid,w,h};
+    clear,solid,w,h,rgba:raw};
+}
+
+// R230: only the Apple 180px icon gets larger artwork; Android 192/512
+// retain R224 exact output. No newly drawn logo or alteration of brand colors.
+function expandAppleArtworkR230(original){
+  const {rgba:src,w,h}=original;
+  if(w!==180||h!==180)fail();
+  let minX=w,minY=h,maxX=-1,maxY=-1;
+  for(let y=0;y<h;y++)for(let x=0;x<w;x++){
+    const a=src[y*(w*4+1)+1+x*4+3];
+    if(a>=70){minX=Math.min(minX,x);minY=Math.min(minY,y);
+      maxX=Math.max(maxX,x);maxY=Math.max(maxY,y);}
+  }
+  if(maxX<=minX||maxY<=minY)fail();
+  const diameter=Math.max(maxX-minX+1,maxY-minY+1);
+  const scale=Math.min(1.95,Math.max(1.1,(w*.87)/diameter));
+  const centerX=(minX+maxX)/2,centerY=(minY+maxY)/2;
+  const scan=w*4+1,out=Buffer.alloc(h*scan);
+  function pixel(x,y) {
+    if(x<0||y<0||x>=w||y>=h)return [0,0,0,0];
+    const p=y*scan+1+x*4;
+    return [src[p],src[p+1],src[p+2],src[p+3]];
+  }
+  let nontransparent=0;
+  for(let y=0;y<h;y++)for(let x=0;x<w;x++){
+    const sx=(x-(w-1)/2)/scale+centerX;
+    const sy=(y-(h-1)/2)/scale+centerY;
+    const x0=Math.floor(sx),y0=Math.floor(sy),fx=sx-x0,fy=sy-y0;
+    const neighbors=[
+      [x0,y0,(1-fx)*(1-fy)], [x0+1,y0,fx*(1-fy)],
+      [x0,y0+1,(1-fx)*fy],[x0+1,y0+1,fx*fy]];
+    let a=0,r=0,g=0,b=0;
+    for(const [xx,yy,weight] of neighbors){
+      const p=pixel(xx,yy),part=p[3]/255*weight;
+      a+=part; r+=part*p[0];g+=part*p[1];b+=part*p[2];
+    }
+    const pos=y*scan+1+x*4,alpha=Math.min(255,Math.round(a*255));
+    out[pos+3]=alpha;
+    if(alpha>0){out[pos]=Math.min(255,Math.round(r/a));
+      out[pos+1]=Math.min(255,Math.round(g/a));
+      out[pos+2]=Math.min(255,Math.round(b/a));
+      nontransparent++;}
+  }
+  if(nontransparent<w*h*.025||out[4]!==0)fail();
+  const ihdr=Buffer.alloc(13);ihdr.writeUInt32BE(w,0);ihdr.writeUInt32BE(h,4);
+  ihdr[8]=8;ihdr[9]=6;
+  return {bytes:Buffer.concat([signature,chunk('IHDR',ihdr),
+    chunk('IDAT',deflateSync(out,{level:9})),chunk('IEND',Buffer.alloc(0))]),
+    sourceDiameter:diameter,finalDiameter:diameter*scale};
 }
 
 for(const [source,target,size] of jobs){
   const result=makeTransparent(readFileSync(join(PUBLIC,source)),size);
   // Each target is a new, versioned filename to bypass pinned iOS icon cache.
   writeFileSync(join(PUBLIC,target),result.bytes,{flag:'w',mode:0o644});
+  if(size===180){
+    const expanded=expandAppleArtworkR230(result);
+    writeFileSync(join(PUBLIC,'noor-apple-touch-expanded-r230.png'),expanded.bytes,
+      {flag:'w',mode:0o644});
+    process.stdout.write('R230_IPHONE_ARTWORK_EXPANDED '+Math.round(expanded.sourceDiameter)+
+      'px_to_'+Math.round(expanded.finalDiameter)+'px\n');
+  }
   process.stdout.write('R224_TRANSPARENT_LOGO_OK '+target+
     ' '+result.w+'x'+result.h+
     ' transparent_pixels='+result.clear+'\n');
