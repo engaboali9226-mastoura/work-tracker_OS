@@ -15,8 +15,8 @@ function validCity(c:unknown):c is NoorR232City{
  if(!c||typeof c!=="object"||Array.isArray(c))return false;
  const v=c as Record<string,unknown>;
  if(typeof v.name!=="string"||v.name.length>100||typeof v.country!=="string"||
-  typeof v.latitude!=="number"||v.latitude< -90||v.latitude>90||
-  typeof v.longitude!=="number"||v.longitude< -180||v.longitude>180||
+  typeof v.latitude!=="number"||!Number.isFinite(v.latitude)||v.latitude< -90||v.latitude>90||
+  typeof v.longitude!=="number"||!Number.isFinite(v.longitude)||v.longitude< -180||v.longitude>180||
   typeof v.timeZone!=="string")return false;
  try{new Intl.DateTimeFormat("en-US",{timeZone:v.timeZone});return true;}catch{return false;}
 }
