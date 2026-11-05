@@ -19,11 +19,13 @@ const view=(at:number,fridayAdhan:string,nextFajrAt?:string)=>renderToStaticMark
  nextFajrAt,
  onPreferencesChange:()=>{},
 }));
-test("R235 one unified timeline surface groups day night Duha without three bordered tiles",()=>{
+test("R235 unified timeline retains one surface while R238 orders day Duha night",()=>{
  const markup=view(friday,"","2026-11-07T02:50:00.000Z");
  assert.equal((markup.match(/data-testid="noor-day-night-friday-r232"/gu)||[]).length,1);
  assert.equal((markup.match(/np-r235-unified-rows/gu)||[]).length,1);
- assert.match(markup,/role="group" aria-label="النهار والليل والضحى وساعات الجمعة في صف واحد"/u);
+ assert.match(markup,/role="group" aria-label="النهار والضحى والليل وساعات الجمعة في صف واحد"/u);
+ const day=markup.indexOf("ساعات النهار"),duha=markup.indexOf("وقت صلاة الضحى"),night=markup.indexOf("ساعات الليل الشرعي");
+ assert.ok(day>=0&&day<duha&&duha<night);
  assert.match(markup,/ساعات النهار/u);
  assert.match(markup,/ساعات الليل الشرعي/u);
  assert.match(markup,/وقت صلاة الضحى/u);
