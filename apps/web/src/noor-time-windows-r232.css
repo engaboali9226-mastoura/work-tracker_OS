@@ -1255,3 +1255,34 @@
     letter-spacing:-.055em;
   }
 }
+
+
+/* R250 — Fix verified Mac screenshot: legacy @media (max-width:1030px)
+   gave the Duha tile grid-column: span 2, pushing night to a second row.
+   Explicitly reset only this approved R248 rhythm, across ALL widths. */
+.np-r232-section .np-r235-unified-rows.np-r237-horizontal-strip.np-r246-three-up.np-r247-rhythm-strip.np-r248-reference-strip {
+  display:grid !important;
+  grid-template-columns:repeat(3,minmax(0,1fr)) !important;
+  grid-template-rows:auto;
+  grid-auto-flow:row;
+  align-items:stretch;
+}
+.np-r232-section .np-r248-reference-strip > .np-r232-window.tone-duha,
+.np-r232-section .np-r248-reference-strip > .np-r232-fasting-wrapper,
+.np-r232-section .np-r248-reference-strip > .np-r232-window.tone-night {
+  grid-column:auto !important;
+  grid-row:auto !important;
+  min-width:0;
+  width:100%;
+  align-self:stretch;
+}
+.np-r232-section .np-r248-reference-strip > .np-r232-window.tone-duha { grid-column:1 !important; }
+.np-r232-section .np-r248-reference-strip > .np-r232-fasting-wrapper { grid-column:2 !important; }
+.np-r232-section .np-r248-reference-strip > .np-r232-window.tone-night { grid-column:3 !important; }
+.np-r232-section .np-r248-reference-strip > .np-r237-detail-note {display:none !important;}
+@media (max-width:1030px) {
+  /* This overrides the historical .np-r234-grid > .tone-duha span-2 rule. */
+  .np-r232-section .np-r248-reference-strip > .np-r232-window.tone-duha {
+    grid-column:1 !important;
+  }
+}
