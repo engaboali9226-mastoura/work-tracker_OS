@@ -23,7 +23,7 @@ test("R235 one unified timeline surface groups day night Duha without three bord
  const markup=view(friday,"","2026-11-07T02:50:00.000Z");
  assert.equal((markup.match(/data-testid="noor-day-night-friday-r232"/gu)||[]).length,1);
  assert.equal((markup.match(/np-r235-unified-rows/gu)||[]).length,1);
- assert.match(markup,/role="group" aria-label="النهار والليل والضحى"/u);
+ assert.match(markup,/role="group" aria-label="النهار والليل والضحى وساعات الجمعة في صف واحد"/u);
  assert.match(markup,/ساعات النهار/u);
  assert.match(markup,/ساعات الليل الشرعي/u);
  assert.match(markup,/وقت صلاة الضحى/u);

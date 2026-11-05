@@ -279,3 +279,173 @@
   .np-r235-unified-rows .np-r232-window.np-r234-window,
   .np-r235-five-rows .np-r232-window.np-r234-window { transition: none; }
 }
+
+/* R237: a SINGLE shallow horizontal strip, never a vertical stack.
+   Mobile scrolls sideways with visible next-item affordance. */
+.np-r232-section:has(.np-r237-horizontal-strip) {
+  padding: 11px 13px 12px;
+  border-radius: 17px;
+  overflow: hidden;
+}
+.np-r232-section:has(.np-r237-horizontal-strip) .np-r232-heading {
+  margin-bottom: 7px; padding: 0 3px;
+  gap: 8px; min-height: 0;
+}
+.np-r232-section:has(.np-r237-horizontal-strip) .np-r234-heading-label h2 {
+  font-size: 15px; line-height: 1.35; margin: 0;
+}
+.np-r232-section:has(.np-r237-horizontal-strip) .np-r234-heading-label p,
+.np-r232-section:has(.np-r237-horizontal-strip) .np-r234-basis {
+  display: none;
+}
+.np-r232-section .np-r235-unified-rows.np-r237-horizontal-strip {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: stretch;
+  gap: 0;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  border: 1px solid rgba(186,172,146,.18);
+  border-radius: 13px;
+  background: rgba(255,255,255,.53);
+  scroll-snap-type: x proximity;
+  overscroll-behavior-inline: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+}
+.np-r237-horizontal-strip > .np-r232-fasting-wrapper,
+.np-r237-horizontal-strip > .np-r232-window,
+.np-r237-horizontal-strip > .np-r237-friday-inline {
+  position: relative;
+  flex: 1 0 224px;
+  width: auto;
+  min-width: 206px;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  scroll-snap-align: start;
+  border: 0;
+  border-inline-start: 1px solid rgba(167,151,126,.18);
+}
+.np-r237-horizontal-strip > :first-child { border-inline-start: 0; }
+.np-r237-horizontal-strip > .np-r232-fasting-wrapper {
+  display: block;
+}
+.np-r237-horizontal-strip .np-r232-window.np-r234-window,
+.np-r237-horizontal-strip .np-r235-five-rows .np-r232-window.np-r234-window {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  height: 100%;
+  min-height: 103px;
+  margin: 0;
+  padding: 9px 12px 12px;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  background: transparent;
+}
+.np-r237-horizontal-strip .np-r234-card-title { gap: 6px; flex-wrap: nowrap; }
+.np-r237-horizontal-strip .np-r234-card-title h3 {
+  font-size: 12px; line-height: 1.35; flex: 1;
+}
+.np-r237-horizontal-strip .np-r234-symbol {
+  width: 22px; height: 22px; flex-basis: 22px;
+  font-size: 14px; border-radius: 7px;
+}
+.np-r237-horizontal-strip .np-r234-state {
+  font-size: 9px; padding: 2px 5px; white-space: nowrap;
+}
+.np-r237-horizontal-strip .np-r234-times {
+  justify-content: space-between; gap: 5px; margin: 0;
+}
+.np-r237-horizontal-strip .np-r234-time-point { gap: 1px; }
+.np-r237-horizontal-strip .np-r234-time-point small { font-size: 9px; }
+.np-r237-horizontal-strip .np-r234-time-point strong {
+  font-size: 12px; white-space: nowrap; line-height: 1.3;
+}
+.np-r237-horizontal-strip .np-r234-time-line { height: 1px; flex-basis: 10px; }
+.np-r237-horizontal-strip .np-r234-card-bottom {
+  display: flex; justify-content: space-between; gap: 4px;
+  margin: 0; grid-column: auto; align-items: center;
+  white-space: nowrap;
+}
+.np-r237-horizontal-strip .np-r234-duration { font-size: 9px; }
+.np-r237-horizontal-strip .np-r234-counter { font-size: 10px; }
+.np-r237-horizontal-strip .np-r234-progress {
+  height: 2px; margin: 0; flex: 0 0 2px; grid-column: auto;
+}
+.np-r237-horizontal-strip .np-r232-fasting-wrapper .np-r234-fasting-options {
+  position: absolute; z-index: 2; inset-block-end: 3px;
+  inset-inline-end: 9px; inset-inline-start: auto; order: initial;
+  width: auto; padding: 0; margin: 0;
+  background: transparent; opacity: 1;
+}
+.np-r237-horizontal-strip .np-r234-fasting-options > span { display: none; }
+.np-r237-horizontal-strip .np-r234-fasting-options .np-cc-button {
+  padding: 2px 5px; min-height: 20px; font-size: 9px;
+  background: #fffaf0; border-radius: 6px;
+}
+.np-r237-horizontal-strip .np-r232-fasting-wrapper .np-r234-card-bottom {
+  padding-inline-end: 65px;
+}
+.np-r237-horizontal-strip > .np-r237-detail-note {
+  display: none; /* Detail and offsets remain in Control Center settings. */
+}
+.np-r237-horizontal-strip > .np-r237-friday-inline {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  border-top: 0; margin-top: 0; padding-top: 0;
+  min-height: 0;
+  max-width: none;
+}
+.np-r237-horizontal-strip .np-r237-friday-inline > h3,
+.np-r237-horizontal-strip .np-r237-friday-inline > .np-r232-note {
+  display: none;
+}
+.np-r237-horizontal-strip .np-r237-friday-inline > .np-r232-help {
+  flex: 0 0 220px;
+  align-self: center; padding: 12px; margin: 0;
+  font-size: 11px;
+}
+.np-r237-horizontal-strip .np-r235-five-rows.np-r237-friday-hours {
+  display: flex !important;
+  flex-direction: row !important;
+  gap: 0;
+  border: 0; border-radius: 0;
+  background: transparent;
+  overflow: visible;
+}
+.np-r237-horizontal-strip .np-r237-friday-hours > .np-r232-window {
+  flex: 0 0 192px;
+  min-width: 192px; width: 192px;
+  height: auto; min-height: 103px;
+  border-inline-start: 1px solid rgba(167,151,126,.18) !important;
+  scroll-snap-align: start;
+}
+.np-r237-horizontal-strip .np-r232-window[data-phase="active"],
+.np-r237-horizontal-strip .np-r237-friday-hours .np-r232-window[data-phase="active"] {
+  background: rgba(207,184,133,.1);
+}
+.np-r237-horizontal-strip .np-r232-window[data-phase="unavailable"] {
+  min-height: 103px;
+}
+.np-r237-horizontal-strip .np-r232-help { margin: 0; font-size: 10px; line-height: 1.5; }
+@media (max-width: 750px) {
+  .np-r232-section:has(.np-r237-horizontal-strip) { padding: 9px 10px; }
+  .np-r232-section .np-r235-unified-rows.np-r237-horizontal-strip {
+    scrollbar-width: none;
+  }
+  .np-r237-horizontal-strip::-webkit-scrollbar { display: none; }
+  .np-r237-horizontal-strip > .np-r232-fasting-wrapper,
+  .np-r237-horizontal-strip > .np-r232-window { flex: 0 0 210px; min-width: 210px; }
+  .np-r237-horizontal-strip .np-r232-window.np-r234-window { min-height: 102px; }
+}
