@@ -32,7 +32,7 @@ export function sessionQuantity(amount: number): boolean {
         Math.abs(amount * SCALE - Math.round(amount * SCALE)) < 0.00001;
 }
 export function sessionProgress(log: readonly ActivityEntry[], id: string): number {
-    return Math.round(log.filter(entry => entry.sessionId === id)
+    return Math.round(log.filter(entry => entry.taskSessionId === id)
         .reduce((sum, entry) => sum + entry.amount, 0) * SCALE) / SCALE;
 }
 export function taskCumulativeProgress(log: readonly ActivityEntry[]): number {
@@ -67,7 +67,7 @@ export function prepareTaskSessionPlan(
 ): TaskSessionPlan | undefined {
     const existing = new Map((current?.sessions ?? []).map(s => [s.id, s]));
     const protectedSession = (session: TaskSession): boolean =>
-        !!session.note || !!session.completedAt || log.some(e => e.sessionId === session.id);
+        !!session.note || !!session.completedAt || log.some(e => e.taskSessionId === session.id);
     if (proposed === null) {
         if ([...existing.values()].some(protectedSession)) throw new Error("TASK_SESSION_HISTORY_PROTECTED");
         return undefined;
@@ -104,7 +104,7 @@ export function prepareTaskSessionPlan(
         if (ranged[i]!.rangeStart! <= ranged[i - 1]!.rangeEnd!) throw new Error("TASK_SESSION_RANGES_OVERLAP");
     if (measurement) {
         const planned = Math.round(sessions.reduce((sum, s) => sum + (s.target ?? 0), 0) * SCALE);
-        const unassigned = Math.round(log.filter(e => !e.sessionId).reduce((sum, e) => sum + e.amount, 0) * SCALE);
+        const unassigned = Math.round(log.filter(e => !e.taskSessionId).reduce((sum, e) => sum + e.amount, 0) * SCALE);
         if (planned + unassigned > Math.round(measurement.target * SCALE))
             throw new Error("TASK_SESSION_TARGET_EXCEEDS_TASK");
     }
@@ -114,6 +114,6 @@ export function prepareTaskSessionPlan(
 /** Fixed daily share. Each session credit is recorded at event time so later replanning
  * cannot silently rewrite historical weighted achievement. */
 export function sessionDayCredit(log: readonly ActivityEntry[], localDate: string): number {
-    return Math.min(1, Math.max(0, log.filter(e => e.localDate === localDate && e.sessionId)
+    return Math.min(1, Math.max(0, log.filter(e => e.localDate === localDate && e.taskSessionId)
         .reduce((sum, e) => sum + (e.sessionDayCredit ?? 0), 0)));
 }
