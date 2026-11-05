@@ -1,5 +1,6 @@
 const DEFAULT_PERSONAL_CATEGORIES=["الصحة والرياضة","العبادات","العمل","التعلم","الأسرة","الشؤون الشخصية","الأدوية والمكملات الغذائية"] as const;
 import { IntlTimeZoneAdapter } from "../domain/time.js";
+import { prepareTaskSessionPlan, sessionProgress, sessionStatus, sessionQuantity, sessionDayCredit, type TaskSessionPlanDraft } from "../domain/task-sessions.js";
 import { applyFinanceOperation, emptyFinanceLedger, parseFinanceOperation, type FinanceOperation, type FinanceLedger } from "../domain/model.js";
 import type {
     AutomationOutboxEvent,
@@ -27,6 +28,10 @@ function orderedDefinitions(definitions:readonly ExecutionDefinition[]):Executio
 function categoryNames(snapshot:Pick<PersonalFoundationSnapshotPort,"getCategories"|"listDefinitions">,userId:string):string[]{return [...new Set([...(snapshot.getCategories?.(userId)??DEFAULT_PERSONAL_CATEGORIES),...snapshot.listDefinitions(userId).map(d=>d.category??"عام")])];}
 
 export type PersonalCommand =
+    | Readonly<{type:"configure-task-sessions";definitionId:string;expectedRevisionId:string;plan:TaskSessionPlanDraft|null}>
+    | Readonly<{type:"edit-task-session-note";definitionId:string;sessionId:string;expectedRevision:number;note:string}>
+    | Readonly<{type:"record-task-session-progress";executionId:string;sessionId:string;entryId:string;amount:number;note:string}>
+    | Readonly<{type:"complete-task-session";executionId:string;sessionId:string;entryId:string}>
     | Readonly<{type:"set-account-location";requestId:string;expectedRevisionId:string;city:{name:string;country:string;latitude:number;longitude:number;timeZone:string}}>
     | Readonly<{type:"correct-historical-execution";executionId:string;localDate:LocalDate;expectedStatus:ExecutionStatus;completed:boolean}>
     | Readonly<{type:"record-historical-progress";executionId:string;localDate:LocalDate;entryId:string;note:string;amount:number}>
@@ -34,7 +39,7 @@ export type PersonalCommand =
     | Readonly<{type:"rebalance-habit-weights";changes:readonly Readonly<{definitionId:string;expectedRevisionId:string;weight:number}>[]}>
     | Readonly<{type:"reorder-display";scope:"Habit"|"Task"|"categories";expected:readonly string[];order:readonly string[]}>
     | Readonly<{type:"manage-category"; action:"add"|"rename"; name:string; previousName:string|null}>
-    | Readonly<{type:"update-definition";weight?:number;definitionId:string;expectedRevisionId:string;kind:DefinitionKind;title:string;category:string;startDate:LocalDate;endDate:LocalDate|null;scheduleKind:Schedule["kind"];weekdays:readonly number[];importance:ImportanceLevel;timeOfDay?:string;measurement?:{readonly target:number;readonly unit:string}}>
+    | Readonly<{type:"update-definition";weight?:number;definitionId:string;expectedRevisionId:string;kind:DefinitionKind;title:string;category:string;startDate:LocalDate;endDate:LocalDate|null;scheduleKind:Schedule["kind"];weekdays:readonly number[];importance:ImportanceLevel;timeOfDay?:string;measurement?:{readonly target:number;readonly unit:string};sessionPlan?:TaskSessionPlanDraft|null}>
     | Readonly<{type:"finance";operation:FinanceOperation}>
     | Readonly<{ type: "record-activity"; executionId: string; entryId: string; note: string; amount: number; endReason: "achieved" | "expired" | "cancelled" | null }>
     | Readonly<{ readonly type: "delete-definition"; readonly definitionId: string; readonly confirm: true }>
@@ -43,6 +48,7 @@ export type PersonalCommand =
         readonly weight?: number;
         readonly timeOfDay?: string;
         readonly measurement?: { readonly target: number; readonly unit: string };
+        readonly sessionPlan?: TaskSessionPlanDraft | null;
         readonly kind: DefinitionKind;
         readonly title: string;
         readonly category: string;
@@ -227,6 +233,27 @@ function importance(
         : null;
 }
 
+
+function parseTaskSessionDraft(value: unknown): TaskSessionPlanDraft | null | undefined {
+    if(value===null)return null;
+    if(!isRecord(value)||!exactKeys(value,["distribution","sessions"])
+       ||!["equal","custom"].includes(String(value.distribution))
+       ||!Array.isArray(value.sessions)||value.sessions.length>200)return undefined;
+    const sessions: TaskSessionPlanDraft["sessions"][number][]=[];
+    for(const d of value.sessions) {
+        if(!isRecord(d)||!exactKeys(d,["id","title","objective","target","rangeStart","rangeEnd"])
+           ||!boundedIdentifier(d.id)||!boundedText(d.title,120)
+           ||typeof d.objective!=="string"||d.objective.length>500
+           ||!(d.target===null||typeof d.target==="number"&&sessionQuantity(d.target)&&d.target>0)
+           ||!(d.rangeStart===null&&d.rangeEnd===null||Number.isSafeInteger(d.rangeStart)&&Number.isSafeInteger(d.rangeEnd)&&
+              Number(d.rangeStart)>=1&&Number(d.rangeEnd)>=Number(d.rangeStart)&&Number(d.rangeEnd)<=1e9))return undefined;
+        sessions.push({id:d.id,title:d.title.trim(),objective:d.objective.trim(),target:d.target as number|null,
+          rangeStart:d.rangeStart as number|null,rangeEnd:d.rangeEnd as number|null});
+    }
+    if(new Set(sessions.map(s=>s.id)).size!==sessions.length)return undefined;
+    return {distribution:value.distribution as "equal"|"custom",sessions};
+}
+
 export function parsePersonalCommand(
     value: unknown,
 ): PersonalCommand | null {
@@ -253,6 +280,31 @@ export function parsePersonalCommand(
           latitude:city.latitude,longitude:city.longitude,timeZone:city.timeZone}};
     }
 
+    if(value.type==="configure-task-sessions"){
+        if(!exactKeys(value,["type","definitionId","expectedRevisionId","plan"]) ||
+          !boundedIdentifier(value.definitionId)||!boundedIdentifier(value.expectedRevisionId))return null;
+        const plan=parseTaskSessionDraft(value.plan);
+        return plan===undefined?null:{type:"configure-task-sessions",definitionId:value.definitionId,expectedRevisionId:value.expectedRevisionId,plan};
+    }
+    if(value.type==="edit-task-session-note"){
+        if(!exactKeys(value,["type","definitionId","sessionId","expectedRevision","note"]) ||
+           !boundedIdentifier(value.definitionId)||!boundedIdentifier(value.sessionId) ||
+           !Number.isSafeInteger(value.expectedRevision)||Number(value.expectedRevision)<0 ||
+           typeof value.note!=="string"||value.note.length>10000)return null;
+        return {type:"edit-task-session-note",definitionId:value.definitionId,sessionId:value.sessionId,expectedRevision:value.expectedRevision as number,note:value.note.trim()};
+    }
+    if(value.type==="record-task-session-progress"){
+        if(!exactKeys(value,["type","executionId","sessionId","entryId","amount","note"]) ||
+           !boundedIdentifier(value.executionId)||!boundedIdentifier(value.sessionId)||!boundedIdentifier(value.entryId) ||
+           typeof value.amount!=="number"||!sessionQuantity(value.amount)||value.amount<=0 ||
+           typeof value.note!=="string"||value.note.length>2000)return null;
+        return {type:"record-task-session-progress",executionId:value.executionId,sessionId:value.sessionId,entryId:value.entryId,amount:value.amount,note:value.note.trim()};
+    }
+    if(value.type==="complete-task-session"){
+        if(!exactKeys(value,["type","executionId","sessionId","entryId"]) ||
+           !boundedIdentifier(value.executionId)||!boundedIdentifier(value.sessionId)||!boundedIdentifier(value.entryId))return null;
+        return {type:"complete-task-session",executionId:value.executionId,sessionId:value.sessionId,entryId:value.entryId};
+    }
     if(value.type==="finance"){
         if(!exactKeys(value,["type","operation"]))return null;
         const operation=parseFinanceOperation(value.operation);
@@ -319,6 +371,7 @@ export function parsePersonalCommand(
                     "importance",
                     ...(Object.hasOwn(value,"weight")?["weight"]:[]),
                     ...(Object.hasOwn(value,"measurement") ? ["measurement"] : []),
+                    ...(Object.hasOwn(value,"sessionPlan") ? ["sessionPlan"] : []),
                     ...(Object.hasOwn(value,"timeOfDay") ? ["timeOfDay"] : []),
                 ],
             )
@@ -342,6 +395,8 @@ export function parsePersonalCommand(
             if(value.kind!=="Task" || !isRecord(m) || !exactKeys(m,["target","unit"]) || typeof m.target!=="number" || !Number.isFinite(m.target) || m.target<=0 || m.target>1e9 || Math.abs(m.target*1e6-Math.round(m.target*1e6))>0.00001 || !boundedText(m.unit,30)) return null;
             measurement={target:m.target,unit:(m.unit as string).trim()};
         }
+        const sessionPlan=Object.hasOwn(value,"sessionPlan")?parseTaskSessionDraft(value.sessionPlan):undefined;
+        if(Object.hasOwn(value,"sessionPlan")&&(value.kind!=="Task"||sessionPlan===undefined))return null;
         const title = boundedText(value.title, 120);
         const category = boundedText(value.category, 60);
         const startDate = localDate(value.startDate);
@@ -385,6 +440,7 @@ export function parsePersonalCommand(
             ...(typeof value.weight==="number"?{weight:value.weight}:{}),
             kind: value.kind,
             ...(measurement ? {measurement} : {}),
+            ...(Object.hasOwn(value,"sessionPlan") ? {sessionPlan:sessionPlan!} : {}),
             ...(typeof value.timeOfDay==='string'?{timeOfDay:value.timeOfDay}:{}),
             title,
             category,
