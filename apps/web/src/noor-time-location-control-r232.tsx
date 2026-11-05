@@ -49,14 +49,46 @@ export function NoorR232ControlLocation({serverZone,preferences,onChange}:{
  };
  const gps=()=>{
    if(!navigator.geolocation){setMessage("الجهاز لا يدعم تحديد الموقع.");return;}
-   setMessage("جارٍ طلب إذن تحديد الموقع من الجهاز…");
+   setMessage("سيُرسل موقعك إلى خدمة تحديد المدينة بعد موافقتك. لن نحفظ إحداثيات GPS الدقيقة.");
    navigator.geolocation.getCurrentPosition(position=>{
-     const zone=Intl.DateTimeFormat().resolvedOptions().timeZone;
-     if(!validZone(zone)){setMessage("تعذر تحديد المنطقة الزمنية. استخدم البحث عن المدينة.");return;}
-     const {latitude,longitude}=position.coords;
-     // Geolocation permission is explicit. Do not persist raw GPS coordinates;
-     // this is a session-only location preview, not a trusted prayer-policy edit.
-     setMessage(`الموقع متاح لهذا الطلب فقط: ${latitude.toFixed(2)}، ${longitude.toFixed(2)}. استخدم البحث عن المدينة لحفظ المنطقة الزمنية بدون تخزين إحداثيات GPS الدقيقة.`);
+     const latitude=position.coords.latitude,longitude=position.coords.longitude;
+     void (async()=>{
+       try{
+         const url=new URL("https://api.bigdatacloud.net/data/reverse-geocode-client");
+         url.searchParams.set("latitude",String(latitude));
+         url.searchParams.set("longitude",String(longitude));
+         url.searchParams.set("localityLanguage","ar");
+         const response=await fetch(url.toString(),{credentials:"omit",cache:"no-store"});
+         if(!response.ok)throw Error("REVERSE_LOOKUP_UNAVAILABLE");
+         const body=await response.json() as Record<string,unknown>;
+         const place=typeof body.city==="string"&&body.city?body.city:
+           typeof body.locality==="string"&&body.locality?body.locality:null;
+         if(!place)throw Error("CITY_NOT_IDENTIFIED");
+         // Save only the city's public geocoding centroid. Raw GPS is discarded.
+         const searchUrl=new URL("https://geocoding-api.open-meteo.com/v1/search");
+         searchUrl.searchParams.set("name",place);
+         searchUrl.searchParams.set("count","5");
+         searchUrl.searchParams.set("format","json");
+         const cityResponse=await fetch(searchUrl.toString(),{credentials:"omit",cache:"no-store"});
+         if(!cityResponse.ok)throw Error("CITY_TIMEZONE_UNAVAILABLE");
+         const json=await cityResponse.json() as {results?:unknown};
+         const rows=Array.isArray(json.results)?json.results:[];
+         const candidates=rows.flatMap((item):Result[]=>{
+           if(!item||typeof item!=="object")return [];
+           const e=item as Record<string,unknown>;
+           if(typeof e.name!=="string"||typeof e.country!=="string"||
+             typeof e.latitude!=="number"||typeof e.longitude!=="number"||
+             typeof e.timezone!=="string"||!validZone(e.timezone))return [];
+           return [{name:e.name,country:e.country,latitude:e.latitude,
+             longitude:e.longitude,timeZone:e.timezone}];
+         });
+         // If name search cannot identify a city unambiguously, allow manual selection.
+         setResults(candidates);
+         setMessage(candidates.length?
+           "تم العثور على مدن محتملة. اختر مدينتك من النتائج لحفظ المنطقة الزمنية، دون إحداثيات GPS.":
+           "لم نتمكن من مطابقة مدينتك. ابحث عنها بالاسم.");
+       }catch{setMessage("تعذر تحديد المدينة تلقائيًا. ابحث عنها بالاسم.");}
+     })();
    },()=>setMessage("لم تُمنح صلاحية الموقع أو تعذر تحديده؛ يمكنك البحث يدويًا."),{
      enableHighAccuracy:false,timeout:12000,maximumAge:60000,
    });
