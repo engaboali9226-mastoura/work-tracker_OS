@@ -1,5 +1,6 @@
 import {useEffect,useRef,useState,type ReactElement} from "react";
 import {r232ParseFridayClock} from "./noor-islamic-daylight-r232.js";
+import {noorSharedCivilDateWindow} from "./noor-shared-date-window-r245.js";
 import {type NoorR232City,type NoorR232Preferences} from "./noor-time-display-preferences-r232.js";
 type Result=Readonly<{name:string;country:string;latitude:number;longitude:number;timeZone:string}>;
 /** A manual IANA zone is never an account mutation by itself. If a user
@@ -143,9 +144,17 @@ export function NoorR232ControlLocation({serverZone,preferences,onChange,onCommi
    setMessage("");
    try{
      const success=await onCommit(selected);
-     setMessage(success
-       ?"تم تأكيد حفظ موقع الحساب ومنطقته الزمنية. تُعرض المواقيت الجديدة بعد استرجاعها من الخادم؛ لا تعتمد على المواقيت السابقة عند تعذّر الاتصال."
-       :"تعذر اعتماد الموقع. ربما اختلف تاريخ اليوم بين المنطقتين أو تغيّر الحساب؛ حدّث الصفحة وتحقق من مواقيتك قبل إعادة المحاولة.");
+     if(success){
+       setMessage("تم تأكيد حفظ موقع الحساب ومنطقته الزمنية. تُعرض المواقيت الجديدة بعد استرجاعها من الخادم؛ لا تعتمد على المواقيت السابقة عند تعذّر الاتصال.");
+     }else{
+       const window=noorSharedCivilDateWindow(serverZone,selected.timeZone,Date.now());
+       const hint=window.datesDiffer
+         ?window.nextAtMs!==null
+           ?` تاريخ اليوم مختلف الآن. قد تتمكن من إعادة المحاولة بعد ${new Intl.DateTimeFormat("ar-SA-u-nu-latn",{timeZone:serverZone,hour:"numeric",minute:"2-digit",hour12:true}).format(new Date(window.nextAtMs))} بتوقيت الحساب، لكن هذا موعد تقديري وليس ضمانًا لقبول الخادم.`
+           :" تاريخ اليوم مختلف بين المنطقتين، ولا توجد نافذة آمنة محددة خلال الأيام الثلاثة القادمة. اختر مدينة أقرب أو احتفظ بالموقع الحالي."
+         :"";
+       setMessage("تعذر اعتماد الموقع. ربما تغيّر سجل الحساب أو تعذّر الاتصال؛ حدّث البيانات وتحقق من مواقيتك قبل إعادة المحاولة."+hint);
+     }
    }catch{setMessage("تعذر اعتماد الموقع الآن. لا تعتبر المعاينة مواقيت صلاة معتمدة.");}
    finally{setSaving(false);}
  };
