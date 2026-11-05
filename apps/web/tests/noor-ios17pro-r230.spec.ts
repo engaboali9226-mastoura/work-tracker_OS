@@ -8,6 +8,7 @@ const web=new URL("../",import.meta.url);
 const read=(relative:string)=>readFileSync(new URL(relative,web),"utf8");
 const shell=read("src/platform-shell.tsx");
 const css=read("src/noor-ios-viewport-r230.css");
+const welcome=read("src/noor-welcome-gateway-r231.css");
 const main=read("src/main.tsx");
 const html=read("index.html");
 const manifest=JSON.parse(read("public/noor.webmanifest"));
@@ -50,13 +51,14 @@ test("R230 iPhone logo visibly larger within same 180px Home Screen icon",()=>{
  for(const size of [192,512])assert.ok(manifest.icons.some((x:any)=>
    x.src==="/noor-icon-transparent-r224-"+size+".png"));
 });
-test("R230 login card fits a narrow iPhone with no fixed content-box overflow",()=>{
- assert.match(shell,/\.glass-panel \{ box-sizing: border-box; min-width: 0;/u);
- assert.match(shell,/width: min\(100%, 390px\)/u);
- assert.match(shell,/\.glass-panel \{ width: min\(100%, 352px\)/u);
- assert.match(shell,/\.glass-input:[^\n]+/u);
- assert.match(shell,/box-sizing: border-box; font-size: 16px/u);
- assert.match(shell,/className="noor-auth-route-r230"/u);
+test("R230/R231 single sign-in gateway fits a narrow iPhone with no Safari focus zoom",()=>{
+ assert.match(shell,/className="noor-welcome-panel"/u);
+ assert.doesNotMatch(shell,/className="noor-auth-route-r230"/u);
+ assert.match(welcome,/box-sizing: border-box/u);
+ assert.match(welcome,/width: min\(100%, 420px\)/u);
+ assert.match(welcome,/width: min\(100%, 358px\)/u);
+ assert.match(welcome,/font-size: 16px/u);
+ assert.match(welcome,/\.noor-welcome-field input:focus-visible/u);
  assert.match(css,/\.noor-auth-route-r230 \{/u);
 });
 test("R230 iOS compact mode is WebKit/mobile scoped without disabling user zoom",()=>{

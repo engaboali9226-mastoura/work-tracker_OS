@@ -363,16 +363,6 @@ test(
       [
         {
           kind:
-            "authentication-required",
-          application:
-            personal,
-        },
-        "Sign-in required",
-        /sign in is required/iu,
-      ],
-      [
-        {
-          kind:
             "session-access-unavailable",
           application:
             personal,

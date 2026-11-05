@@ -1,4 +1,5 @@
 import "./noor-ios-viewport-r230.css";
+import "./noor-welcome-gateway-r231.css";
 
 import {
   applicationCatalog,
