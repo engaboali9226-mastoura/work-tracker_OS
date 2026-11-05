@@ -24,7 +24,7 @@ test("R235 unified timeline retains one surface while R238 orders day Duha night
  assert.equal((markup.match(/data-testid="noor-day-night-friday-r232"/gu)||[]).length,1);
  assert.equal((markup.match(/np-r235-unified-rows/gu)||[]).length,1);
  assert.match(markup,/role="group" aria-label="الضحى والنهار والليل وساعات الجمعة في صف واحد"/u);
- const day=markup.indexOf("ساعات النهار"),duha=markup.indexOf("وقت صلاة الضحى"),night=markup.indexOf("ساعات الليل الشرعي");
+ const day=markup.indexOf('aria-label="ساعات النهار"'),duha=markup.indexOf('aria-label="وقت صلاة الضحى"'),night=markup.indexOf('aria-label="ساعات الليل الشرعي"');
  assert.ok(duha>=0&&duha<day&&day<night);
  assert.match(markup,/ساعات النهار/u);
  assert.match(markup,/ساعات الليل الشرعي/u);
