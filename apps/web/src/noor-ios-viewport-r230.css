@@ -1,8 +1,6 @@
 /* NOOR R230 — scoped iPhone/WebKit fit without altering Android layouts.
  * Do not use CSS zoom / transform scale or disable pinch-to-zoom.
  */
-html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
-*, *::before, *::after { box-sizing: border-box; }
 
 /* Deep-link sign-in is a modest centered card, not a full-screen form. */
 .noor-auth-route-r230 {
@@ -32,6 +30,7 @@ html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
  * zoom, touch hit targets, Android/desktop styling, and normal readable text.
  */
 @supports (-webkit-touch-callout: none) {
+  html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
   @media (max-width: 430px) {
     .np-page { max-width: 100%; overflow-x: clip; }
     .np-page .np-wrap { width: calc(100% - 24px); padding-top: 10px; }
