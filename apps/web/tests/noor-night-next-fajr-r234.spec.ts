@@ -31,7 +31,7 @@ test("R234 presentation is compact unified rhythm and renders confirmed night in
   prayers,nowMs:Date.parse("2026-11-06T18:00:00Z"),
   timeZone:"Asia/Riyadh",preferences:NOOR_R232_DEFAULT,nextFajrAt:nextFajr,
  }));
- assert.match(html,/إيقاع يومك/u);
+ assert.match(html,/إيقاع اليوم/u);
  assert.match(html,/np-r234-grid/u);
  assert.match(html,/tone-night/u);
  assert.match(html,/ساعات الليل الشرعي/u);
