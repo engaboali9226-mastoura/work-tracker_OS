@@ -22,15 +22,16 @@ function WindowCard({title,window:interval,nowMs,timeZone,unavailable,showTimer=
  showTimer?:boolean;tone?:"day"|"night"|"duha"|"friday";
 }):ReactElement{
  const icon=tone==="day"?"☀":tone==="night"?"☾":tone==="duha"?"✦":"◷";
+ const shortTitle=tone==="day"?"النهار":tone==="night"?"الليل":tone==="duha"?"الضحى":title;
  if(!interval)return <article className={`np-r232-window np-r234-window tone-${tone}`} data-phase="unavailable">
-  <div className="np-r234-card-title"><span className="np-r234-symbol" aria-hidden="true">{icon}</span><h3 aria-label={title}>{tone==="day"?"النهار":tone==="duha"?"الضحى":tone==="night"?"الليل":title}</h3></div>
+  <div className="np-r234-card-title"><span className="np-r234-symbol" aria-hidden="true">{icon}</span><h3 aria-label={title}>{shortTitle}</h3></div>
   <p className="np-r232-help">{unavailable}</p>
  </article>;
  const state=r232Countdown(interval,nowMs);
  return <article className={`np-r232-window np-r234-window tone-${tone}`} data-phase={state.phase}>
   <div className="np-r234-card-title">
     <span className="np-r234-symbol" aria-hidden="true">{icon}</span>
-    <h3 aria-label={title}>{tone==="day"?"النهار":tone==="duha"?"الضحى":tone==="night"?"الليل":title}</h3>
+    <h3 aria-label={title}>{shortTitle}</h3>
     <span className="np-r234-state">{state.phase==="active"?"جارٍ الآن":state.phase==="finished"?"انتهت":"قادمة"}</span>
   </div>
   <div className="np-r234-times" dir="rtl">
@@ -40,11 +41,11 @@ function WindowCard({title,window:interval,nowMs,timeZone,unavailable,showTimer=
   </div>
   <div className="np-r234-card-bottom">
     <span className="np-r234-duration">المدة {duration(interval.durationMs)}</span>
-    {showTimer?<strong className="np-r232-counter np-r234-counter" aria-label={state.phase==="finished"?"انتهت الفترة":"العد التنازلي"}>
-      {state.phase==="finished"?"انتهت":state.phase==="upcoming"
-       ?`تبدأ بعد ${remaining(interval.startMs-nowMs)}`
-       :`المتبقي ${remaining(interval.endMs-nowMs)}`}
-    </strong>:<span className="np-r234-muted" data-testid="fasting-timer-disabled-r232">المؤقت متوقف</span>}
+    {showTimer?<div className="np-r247-timer" role="timer" aria-label={state.phase==="finished"?"انتهت الفترة":state.phase==="upcoming"?"الوقت حتى بداية الفترة":"الوقت المتبقي"}>
+      <span className="np-r247-timer-caption">{state.phase==="finished"?"اكتملت":state.phase==="upcoming"?"تبدأ بعد":"متبقٍ"}</span>
+      {state.phase==="finished"?<span className="np-r247-finished" aria-hidden="true">✓</span>
+        :<strong className="np-r232-counter np-r234-counter np-r247-digits" dir="ltr">{remaining(state.phase==="upcoming"?interval.startMs-nowMs:interval.endMs-nowMs)}</strong>}
+    </div>:<span className="np-r234-muted np-r247-inactive" data-testid="fasting-timer-disabled-r232">مؤقت الصيام متوقف</span>}
   </div>
   {showTimer?<div className="np-r232-progress np-r234-progress" role="progressbar"
     aria-label={title} aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(state.progress)}>
@@ -69,13 +70,13 @@ export function NoorR232TimeWindows({prayers,nowMs,timeZone,preferences,nextFajr
    nowMs,timeZone,prayers,fridayAdhanClock:preferences.fridayAdhan,
    sunriseOffsetMinutes:preferences.afterSunrise,
  }):null;
- return <section className="np-card np-r232-section np-r246-rhythm-card" data-rhythm-layout="three-visible-columns-r246" data-testid="noor-day-night-friday-r232"
+ return <section className="np-card np-r232-section np-r246-rhythm-card np-r247-rhythm-card" data-rhythm-layout="three-visible-columns-r246" data-rhythm-visual="digital-contrast-r247" data-testid="noor-day-night-friday-r232"
    aria-label="ساعات النهار والليل والضحى والجمعة">
    <div className="np-r232-heading">
     <div className="np-r234-heading-label"><span className="np-r234-orbit" aria-hidden="true">◐</span><div><h2>إيقاع اليوم</h2><p>النهار والليل والضحى، وفق مواقيت نور المعتمدة</p></div></div>
     <span className="np-r234-basis">من مواقيت الصلاة المعتمدة</span>
    </div>
-   <div className="np-r232-grid np-r234-grid np-r235-unified-rows np-r237-horizontal-strip np-r238-time-order np-r246-three-up" role="group" aria-label="النهار والضحى والليل وساعات الجمعة في صف واحد">
+   <div className="np-r232-grid np-r234-grid np-r235-unified-rows np-r237-horizontal-strip np-r238-time-order np-r246-three-up np-r247-rhythm-strip" role="group" aria-label="النهار والضحى والليل وساعات الجمعة في صف واحد">
     <div className="np-r232-fasting-wrapper" data-testid="fasting-timer-control-r232">
       <div className="np-r232-fasting-options np-r234-fasting-options">
         <span>{fasting.ramadan?"رمضان: المؤقت يعمل تلقائيًا":"مؤقت الصيام خارج رمضان"}</span>
