@@ -47,9 +47,11 @@ test('R180 four accessible icon-only buttons and functioning journal/wellbeing d
   previous.set(key,Object.getOwnPropertyDescriptor(globalThis,key));
   Object.defineProperty(globalThis,key,{configurable:true,writable:true,value});
  }
+ const viewport=Object.assign(new dom.window.EventTarget(),{height:667,offsetTop:0});
+ Object.defineProperty(dom.window,'visualViewport',{configurable:true,value:viewport});
  const root=createRoot(dom.window.document.getElementById('root')!);
  try{
-  await act(async()=>root.render(createElement('section',{className:'np-page','data-appearance':'dark'},
+  await act(async()=>root.render(createElement('section',{className:'np-page','data-appearance':'dark',style:{transform:'translateZ(0)',overflow:'hidden',height:180}},
     createElement(NoorThreeSpacesR171,{storage:{read:async()=>[],write:async()=>{}}}),
     createElement(NoorWellbeingLabR165))));
   const strip=dom.window.document.querySelector('[data-testid="noor-three-spaces-r171"]');
@@ -72,10 +74,24 @@ test('R180 four accessible icon-only buttons and functioning journal/wellbeing d
   await act(async()=>fourth.click());
   const dialog=dom.window.document.querySelector('.nw165-dialog');
   assert.ok(dialog);
+  const overlay=dom.window.document.querySelector<HTMLElement>('.nw165-backdrop')!;
+  assert.equal(overlay.parentElement,dom.window.document.body,'dialog must escape clipped/transformed application ancestors');
+  assert.equal(overlay.style.height,'667px');
+  viewport.height=280;viewport.offsetTop=95;
+  await act(async()=>viewport.dispatchEvent(new dom.window.Event('resize')));
+  assert.equal(overlay.style.height,'280px');assert.equal(overlay.style.top,'95px');assert.equal(overlay.style.bottom,'auto');
+  const tabs=dialog.querySelectorAll<HTMLButtonElement>('[role="tab"]');
+  await act(async()=>tabs[1]!.click());
+  assert.ok([...dialog.querySelectorAll('button')].some(b=>b.textContent==='حفظ مؤشرات تجريبية لهذا اليوم'));
+  viewport.height=667;viewport.offsetTop=0;
+  await act(async()=>viewport.dispatchEvent(new dom.window.Event('scroll')));
+  assert.equal(overlay.style.height,'667px');assert.equal(overlay.style.top,'0px');
   assert.equal(dialog.querySelectorAll('.nw165-tabs [role="tab"]').length,3);
   assert.equal(dom.window.document.querySelector('.nw165-backdrop')?.getAttribute('data-noor-theme'),'dark');
   await act(async()=>{(dialog.querySelector('button[aria-label="إغلاق مساحتي"]') as HTMLButtonElement).click();});
   assert.equal(dom.window.document.querySelector('.nw165-dialog'),null);
+  assert.equal(dom.window.document.body.style.overflow,'');
+  assert.equal(dom.window.document.activeElement,fourth);
  }finally{
   try{await act(async()=>root.unmount());}catch{}
   for(const [key,descriptor] of previous){if(descriptor)Object.defineProperty(globalThis,key,descriptor);else Reflect.deleteProperty(globalThis,key);}
