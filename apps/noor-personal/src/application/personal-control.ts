@@ -29,9 +29,9 @@ function categoryNames(snapshot:Pick<PersonalFoundationSnapshotPort,"getCategori
 
 export type PersonalCommand =
     | Readonly<{type:"configure-task-sessions";definitionId:string;expectedRevisionId:string;plan:TaskSessionPlanDraft|null}>
-    | Readonly<{type:"edit-task-session-note";definitionId:string;sessionId:string;expectedRevision:number;note:string}>
-    | Readonly<{type:"record-task-session-progress";executionId:string;sessionId:string;entryId:string;amount:number;note:string}>
-    | Readonly<{type:"complete-task-session";executionId:string;sessionId:string;entryId:string}>
+    | Readonly<{type:"edit-task-session-note";definitionId:string;taskSessionId:string;expectedRevision:number;note:string}>
+    | Readonly<{type:"record-task-session-progress";executionId:string;taskSessionId:string;entryId:string;amount:number;note:string}>
+    | Readonly<{type:"complete-task-session";executionId:string;taskSessionId:string;entryId:string}>
     | Readonly<{type:"set-account-location";requestId:string;expectedRevisionId:string;city:{name:string;country:string;latitude:number;longitude:number;timeZone:string}}>
     | Readonly<{type:"correct-historical-execution";executionId:string;localDate:LocalDate;expectedStatus:ExecutionStatus;completed:boolean}>
     | Readonly<{type:"record-historical-progress";executionId:string;localDate:LocalDate;entryId:string;note:string;amount:number}>
@@ -287,23 +287,23 @@ export function parsePersonalCommand(
         return plan===undefined?null:{type:"configure-task-sessions",definitionId:value.definitionId,expectedRevisionId:value.expectedRevisionId,plan};
     }
     if(value.type==="edit-task-session-note"){
-        if(!exactKeys(value,["type","definitionId","sessionId","expectedRevision","note"]) ||
-           !boundedIdentifier(value.definitionId)||!boundedIdentifier(value.sessionId) ||
+        if(!exactKeys(value,["type","definitionId","taskSessionId","expectedRevision","note"]) ||
+           !boundedIdentifier(value.definitionId)||!boundedIdentifier(value.taskSessionId) ||
            !Number.isSafeInteger(value.expectedRevision)||Number(value.expectedRevision)<0 ||
            typeof value.note!=="string"||value.note.length>10000)return null;
-        return {type:"edit-task-session-note",definitionId:value.definitionId,sessionId:value.sessionId,expectedRevision:value.expectedRevision as number,note:value.note.trim()};
+        return {type:"edit-task-session-note",definitionId:value.definitionId,taskSessionId:value.taskSessionId,expectedRevision:value.expectedRevision as number,note:value.note.trim()};
     }
     if(value.type==="record-task-session-progress"){
-        if(!exactKeys(value,["type","executionId","sessionId","entryId","amount","note"]) ||
-           !boundedIdentifier(value.executionId)||!boundedIdentifier(value.sessionId)||!boundedIdentifier(value.entryId) ||
+        if(!exactKeys(value,["type","executionId","taskSessionId","entryId","amount","note"]) ||
+           !boundedIdentifier(value.executionId)||!boundedIdentifier(value.taskSessionId)||!boundedIdentifier(value.entryId) ||
            typeof value.amount!=="number"||!sessionQuantity(value.amount)||value.amount<=0 ||
            typeof value.note!=="string"||value.note.length>2000)return null;
-        return {type:"record-task-session-progress",executionId:value.executionId,sessionId:value.sessionId,entryId:value.entryId,amount:value.amount,note:value.note.trim()};
+        return {type:"record-task-session-progress",executionId:value.executionId,taskSessionId:value.taskSessionId,entryId:value.entryId,amount:value.amount,note:value.note.trim()};
     }
     if(value.type==="complete-task-session"){
-        if(!exactKeys(value,["type","executionId","sessionId","entryId"]) ||
-           !boundedIdentifier(value.executionId)||!boundedIdentifier(value.sessionId)||!boundedIdentifier(value.entryId))return null;
-        return {type:"complete-task-session",executionId:value.executionId,sessionId:value.sessionId,entryId:value.entryId};
+        if(!exactKeys(value,["type","executionId","taskSessionId","entryId"]) ||
+           !boundedIdentifier(value.executionId)||!boundedIdentifier(value.taskSessionId)||!boundedIdentifier(value.entryId))return null;
+        return {type:"complete-task-session",executionId:value.executionId,taskSessionId:value.taskSessionId,entryId:value.entryId};
     }
     if(value.type==="finance"){
         if(!exactKeys(value,["type","operation"]))return null;
@@ -692,7 +692,7 @@ export class PersonalCommandService {
                     const definition=transaction.findDefinitionById(userId,command.definitionId);
                     if(!definition||definition.kind!=="Task"||!definition.sessionPlan)
                         throw new PersonalControlError("DEFINITION_NOT_FOUND");
-                    const session=definition.sessionPlan.sessions.find(s=>s.id===command.sessionId);
+                    const session=definition.sessionPlan.sessions.find(s=>s.id===command.taskSessionId);
                     if(!session)throw new Error("TASK_SESSION_NOT_FOUND");
                     if(session.note===parsed.note)return;
                     if(session.revision!==command.expectedRevision)throw new PersonalControlError("DEFINITION_STATE_CONFLICT");
@@ -708,11 +708,11 @@ export class PersonalCommandService {
                     if(!instance||instance.kind!=="Task")throw new PersonalControlError("EXECUTION_NOT_FOUND");
                     const definition=transaction.findDefinitionById(userId,instance.definitionId);
                     if(!definition?.sessionPlan)throw new Error("TASK_SESSION_NOT_ENABLED");
-                    const session=definition.sessionPlan.sessions.find(s=>s.id===command.sessionId);
+                    const session=definition.sessionPlan.sessions.find(s=>s.id===command.taskSessionId);
                     if(!session)throw new Error("TASK_SESSION_NOT_FOUND");
                     const log=definition.activityLog??[],prior=log.find(e=>e.id===command.entryId);
                     if(prior){
-                        if(prior.sessionId!==command.sessionId||prior.executionId!==command.executionId ||
+                        if(prior.taskSessionId!==command.taskSessionId||prior.executionId!==command.executionId ||
                            prior.amount!==(parsed.type==="record-task-session-progress"?parsed.amount:0) ||
                            prior.note!==(parsed.type==="record-task-session-progress"?parsed.note:""))
                             throw new Error("TASK_SESSION_ACTIVITY_ID_CONFLICT");
@@ -736,7 +736,7 @@ export class PersonalCommandService {
                         throw new Error("PROGRESS_EXCEEDS_TARGET");
                     const finished=parsed.type==="complete-task-session" || session.target!==null &&
                         Math.round((previous+amount)*1e6)>=Math.round(session.target*1e6);
-                    const entry={id:parsed.entryId,executionId:instance.id,sessionId:session.id,
+                    const entry={id:parsed.entryId,executionId:instance.id,taskSessionId:session.id,
                       localDate:day.boundary.localDate,at:now,
                       amount,note:parsed.type==="record-task-session-progress"?parsed.note:"",
                       endReason:null,
@@ -803,7 +803,7 @@ export class PersonalCommandService {
                       ?prepareTaskSessionPlan(definition.sessionPlan,command.sessionPlan??null,definition.activityLog??[],command.measurement,now)
                       :definition.sessionPlan;
                     if(nextPlan&&command.measurement&&nextPlan.sessions.reduce((n,s)=>n+(s.target??0),0)+
-                       (definition.activityLog??[]).filter(e=>!e.sessionId).reduce((n,e)=>n+e.amount,0)>command.measurement.target)
+                       (definition.activityLog??[]).filter(e=>!e.taskSessionId).reduce((n,e)=>n+e.amount,0)>command.measurement.target)
                         throw new Error("TASK_SESSION_TARGET_EXCEEDS_TASK");
                     if(definition.measurement && (!command.measurement || command.measurement.unit!==definition.measurement.unit || command.measurement.target<total))throw new Error("EDIT_PROGRESS_CONFLICT");
                     const {effectiveUntilDate:_end,measurement:_measurement,timeOfDay:_timeOfDay,sessionPlan:_sessionPlan,...preserved}=definition;
