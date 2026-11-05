@@ -14,6 +14,8 @@ import type {
 
 import {
   PersonalCommandService,
+  applyAccountLocationChange,
+  AccountLocationChangeConflict,
   PersonalControlError,
   ProductionAdapterError,
   buildPersonalWorkspace,
@@ -23,6 +25,10 @@ import {
 import type {
   ClockPort,
   IdGeneratorPort,
+  TimeZonePort,
+  PrayerTimeCalculatorPort,
+  HijriDateCalculatorPort,
+  IslamicHistoryCatalogPort,
   PersonalCommand,
   PersonalFoundationOperationScopeProvider,
 } from "@noor/personal";
@@ -84,6 +90,13 @@ export interface PersonalControlOperationDependencies {
   };
   readonly clock: ClockPort;
   readonly idGenerator: IdGeneratorPort;
+  /** Required for a location mutation; omitted in legacy fake fixtures. */
+  readonly locationChange?: {
+    readonly timeZone:TimeZonePort;
+    readonly prayerCalculator:PrayerTimeCalculatorPort;
+    readonly hijriCalculator:HijriDateCalculatorPort;
+    readonly historyCatalog:IslamicHistoryCatalogPort;
+  };
 }
 
 function empty<
@@ -372,6 +385,24 @@ implements PersonalControlExecutor {
       const scope=await (attempt===0 && foundation.openCommandOperation
         ? foundation.openCommandOperation(resolved.userId)
         : foundation.openOperation(resolved.userId));
+
+      if(command.type==="set-account-location"){
+        if(!this.dependencies.locationChange)return empty(503);
+        try{
+          await applyAccountLocationChange({
+            userId:resolved.userId,command,scope,
+            clock:this.dependencies.clock,
+            ...this.dependencies.locationChange,
+          });
+          // 204 forces a new authorized Today fetch; never project old prayers.
+          return empty(204);
+        }catch(error){
+          if(error instanceof AccountLocationChangeConflict
+            ||error instanceof ProductionAdapterError && error.code==="PersistenceConflict")
+            return empty(409);
+          return empty(503);
+        }
+      }
 
       const service =
         new PersonalCommandService({
