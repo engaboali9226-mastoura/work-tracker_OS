@@ -58,7 +58,7 @@ type ExecutionItem = Readonly<{
   kind: "Task" | "Habit";
 }>;
 
-type ActivityEntry = Readonly<{ id:string; executionId:string; localDate:string; at:string; note:string; amount:number; endReason:"achieved"|"expired"|"cancelled"|null; sessionId?:string; sessionDayCredit?:number }>;
+type ActivityEntry = Readonly<{ id:string; executionId:string; localDate:string; at:string; note:string; amount:number; endReason:"achieved"|"expired"|"cancelled"|null; taskSessionId?:string; sessionDayCredit?:number }>;
 type DefinitionItem = Readonly<{
   weight:number;
   displayOrder?:number;
@@ -1989,7 +1989,7 @@ function ActivityCard({item,definition,busy,pending=false,historicalDate=null,on
  const ended=definition?.state==="Stopped";
  const canRecord=historicalDate ? !!definition && ["Completed","Pending","Planned","InProgress","Missed"].includes(item.status) : item.status!=="Suppressed" && definition?.state==="Active";
  const disabled=busy || !canRecord;
- const relevant=historicalDate ? log.filter(e=>e.executionId===item.id&&!e.sessionId) : task ? log.filter(e=>!e.sessionId) : log.filter(e=>e.executionId===item.id);
+ const relevant=historicalDate ? log.filter(e=>e.executionId===item.id&&!e.taskSessionId) : task ? log.filter(e=>!e.taskSessionId) : log.filter(e=>e.executionId===item.id);
  const latest=relevant.at(-1);
  const visibleHistory=relevant.filter(e=>e.note||e.amount>0||e.endReason);
  const latestNote=relevant.slice().reverse().find(e=>e.note);
@@ -2144,7 +2144,7 @@ function Dashboard({ view:providedView, workspace, busy, actionError, onCommand,
   const todayWeight=[...view.tasks,...view.habits].filter(e=>e.status!=="Cancelled").reduce((n,e)=>n+e.weight,0),doneWeight=[...view.tasks,...view.habits].filter(e=>e.status==="Completed").reduce((n,e)=>n+e.weight,0);
   const dayWeighted=[...view.tasks,...view.habits].filter(e=>e.status!=="Cancelled").reduce((n,e)=>{
     const definition=definitionsById.get(e.definitionId);
-    const fraction=definition?.sessionPlan?Math.max(e.status==="Completed"?1:0,Math.min(1,definition.activityLog.filter(a=>a.sessionId&&a.localDate===view.localDate).reduce((sum,a)=>sum+(a.sessionDayCredit??0),0))):(e.status==="Completed"?1:0);
+    const fraction=definition?.sessionPlan?Math.max(e.status==="Completed"?1:0,Math.min(1,definition.activityLog.filter(a=>a.taskSessionId&&a.localDate===view.localDate).reduce((sum,a)=>sum+(a.sessionDayCredit??0),0))):(e.status==="Completed"?1:0);
     return n+e.weight*fraction;
   },0);
   const completionRate=todayWeight?Math.round(dayWeighted/todayWeight*100):0;
