@@ -17,15 +17,15 @@ test("R251 validates bounded unique weight batch",async()=>{
 test("R251 updates today's snapshot and future habit definition, but never past day or task",async()=>{
  const {InMemoryFoundationStore,PersonalCommandService,SequenceIdGenerator}=await import(moduleUrl);
  const past={...day,id:"past",state:"Closed",boundary:{...day.boundary,localDate:"2026-11-04",startAt:"2026-11-03T21:00:00.000Z",endAt:"2026-11-04T21:00:00.000Z"}};
- const store=new InMemoryFoundationStore({personalDays:[past,day],definitions:[def("fajr"),def("quran"),def("task","Task")],dailyExecutions:[exe("fajr","past"),exe("fajr","today"),exe("quran","today")]});
+ const store=new InMemoryFoundationStore({personalDays:[past,day],definitions:[def("fajr"),def("quran"),def("task","Task")],dailyExecution:[exe("fajr","past"),exe("fajr","today"),exe("quran","today")]});
  const service=new PersonalCommandService({clock:{now:()=>now},idGenerator:new SequenceIdGenerator(),transaction:store});
  await service.execute("owner",{type:"rebalance-habit-weights",changes:[{definitionId:"fajr",expectedRevisionId:"fajr-rev",weight:25},{definitionId:"quran",expectedRevisionId:"quran-rev",weight:12}]});
  const snapshot=store.snapshot();
  assert.equal(snapshot.definitions.find(d=>d.id==="fajr").weight,25);
  assert.equal(snapshot.definitions.find(d=>d.id==="quran").weight,12);
  assert.equal(snapshot.definitions.find(d=>d.id==="task").weight,1);
- assert.equal(snapshot.dailyExecutions.find(d=>d.id==="fajr-past").eligibility.weight,1);
- assert.equal(snapshot.dailyExecutions.find(d=>d.id==="fajr-today").eligibility.weight,25);
+ assert.equal(snapshot.dailyExecution.find(d=>d.id==="fajr-past").eligibility.weight,1);
+ assert.equal(snapshot.dailyExecution.find(d=>d.id==="fajr-today").eligibility.weight,25);
 });
 test("R251 rejects stale revision for all-or-nothing batch",async()=>{
  const {InMemoryFoundationStore,PersonalCommandService,SequenceIdGenerator}=await import(moduleUrl);
