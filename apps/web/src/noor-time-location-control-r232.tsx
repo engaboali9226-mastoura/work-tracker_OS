@@ -17,7 +17,7 @@ export function NoorR232ControlLocation({serverZone,preferences,onChange}:{
  const select=(city:NoorR232City)=>{
    onChange({...preferences,selectedCity:city});
    setResults([]);
-   setMessage("تم حفظ المدينة للعرض. مواقيت نور الأساسية لن تتغير حتى تحديث سياسة الموقع على الخادم.");
+   setMessage("تم اختيار المدينة مؤقتًا لهذه الجلسة. مواقيت نور الأساسية لن تتغير حتى تحديث سياسة الموقع على الخادم.");
  };
  const search=async()=>{
    if(query.trim().length<2||query.length>80){setMessage("اكتب حرفين على الأقل للبحث.");return;}
@@ -135,11 +135,11 @@ export function NoorR232ControlLocation({serverZone,preferences,onChange}:{
       {results.map((city,i)=><button type="button" className="np-cc-button" key={i}
         onClick={()=>select(city)}>{city.name}، {city.country} — {city.timeZone}</button>)}
     </div>:null}
-    {selected?<p className="np-r232-note">مدينة العرض المختارة: <strong>{selected.name}، {selected.country}</strong> ({selected.timeZone})
+    {selected?<p className="np-r232-note">مدينة العرض المختارة مؤقتًا: <strong>{selected.name}، {selected.country}</strong> ({selected.timeZone})
       <button type="button" className="np-cc-button" onClick={()=>onChange({...preferences,selectedCity:null})}>إلغاء اختيار المدينة</button>
     </p>:null}
     {message?<p role="status" className="np-r232-note">{message}</p>:null}
    </div>
-   <p className="np-r232-warning"><strong>تنبيه مهم:</strong> تغيير المدينة في هذه المرحلة خاص بالعرض وحفظ تفضيلها على هذا الجهاز، ولا يغيّر موقع الحساب ولا مواقيت الصلاة المحسوبة على الخادم. لن نعرض أوقات صلاة لمدينة جديدة على أنها معتمدة قبل تفعيل الربط الآمن.</p>
+   <p className="np-r232-warning"><strong>تنبيه مهم:</strong> تغيير المدينة في هذه المرحلة مؤقت لهذه الجلسة فقط، ولا يُحفظ بعد تحديث الصفحة، ولا يغيّر موقع الحساب أو مواقيت الصلاة المحسوبة على الخادم. لن نعرض أوقات صلاة لمدينة جديدة على أنها معتمدة قبل تفعيل الربط الآمن.</p>
  </section>;
 }
