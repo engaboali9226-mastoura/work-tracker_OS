@@ -673,6 +673,79 @@ export class PersonalCommandService {
 
         await this.dependencies.transaction.runInTransaction(
             transaction => {
+
+                if(command.type==="configure-task-sessions"){
+                    const parsed=parsePersonalCommand(command);
+                    if(!parsed||parsed.type!=="configure-task-sessions")throw new Error("TASK_SESSION_INVALID_COMMAND");
+                    const definition=transaction.findDefinitionById(userId,command.definitionId);
+                    if(!definition)throw new PersonalControlError("DEFINITION_NOT_FOUND");
+                    if(definition.kind!=="Task"||definition.revisionId!==command.expectedRevisionId)
+                        throw new PersonalControlError("DEFINITION_STATE_CONFLICT");
+                    const plan=prepareTaskSessionPlan(definition.sessionPlan,parsed.plan,definition.activityLog??[],definition.measurement,now);
+                    const {sessionPlan:_old,...base}=definition;
+                    transaction.saveDefinition({...base,...(plan?{sessionPlan:plan}:{}),revisionId:this.dependencies.idGenerator.next("definition-revision")});
+                    return;
+                }
+                if(command.type==="edit-task-session-note"){
+                    const parsed=parsePersonalCommand(command);
+                    if(!parsed||parsed.type!=="edit-task-session-note")throw new Error("TASK_SESSION_INVALID_NOTE");
+                    const definition=transaction.findDefinitionById(userId,command.definitionId);
+                    if(!definition||definition.kind!=="Task"||!definition.sessionPlan)
+                        throw new PersonalControlError("DEFINITION_NOT_FOUND");
+                    const session=definition.sessionPlan.sessions.find(s=>s.id===command.sessionId);
+                    if(!session)throw new Error("TASK_SESSION_NOT_FOUND");
+                    if(session.note===parsed.note)return;
+                    if(session.revision!==command.expectedRevision)throw new PersonalControlError("DEFINITION_STATE_CONFLICT");
+                    transaction.saveDefinition({...definition,revisionId:this.dependencies.idGenerator.next("definition-revision"),
+                      sessionPlan:{...definition.sessionPlan,sessions:definition.sessionPlan.sessions.map(s=>s.id!==session.id?s:{...s,note:parsed.note,revision:s.revision+1,updatedAt:now})}});
+                    return;
+                }
+                if(command.type==="record-task-session-progress"||command.type==="complete-task-session"){
+                    const parsed=parsePersonalCommand(command);
+                    if(!parsed||!["record-task-session-progress","complete-task-session"].includes(parsed.type))
+                        throw new Error("TASK_SESSION_INVALID_PROGRESS");
+                    const instance=transaction.findDailyExecutionById(userId,command.executionId);
+                    if(!instance||instance.kind!=="Task")throw new PersonalControlError("EXECUTION_NOT_FOUND");
+                    const definition=transaction.findDefinitionById(userId,instance.definitionId);
+                    if(!definition?.sessionPlan)throw new Error("TASK_SESSION_NOT_ENABLED");
+                    const session=definition.sessionPlan.sessions.find(s=>s.id===command.sessionId);
+                    if(!session)throw new Error("TASK_SESSION_NOT_FOUND");
+                    const log=definition.activityLog??[],prior=log.find(e=>e.id===command.entryId);
+                    if(prior){
+                        if(prior.sessionId!==command.sessionId||prior.executionId!==command.executionId ||
+                           prior.amount!==(parsed.type==="record-task-session-progress"?parsed.amount:0) ||
+                           prior.note!==(parsed.type==="record-task-session-progress"?parsed.note:""))
+                            throw new Error("TASK_SESSION_ACTIVITY_ID_CONFLICT");
+                        return;
+                    }
+                    const day=activePersonalDay(transaction,userId,now);
+                    if(instance.personalDayId!==day.id)throw new PersonalControlError("EXECUTION_NOT_CURRENT");
+                    if(instance.status==="Suppressed"||definition.state!=="Active")
+                        throw new PersonalControlError("DEFINITION_STATE_CONFLICT");
+                    if(log.length>=10000)throw new Error("ACTIVITY_LIMIT_REACHED");
+                    const previous=sessionProgress(log,session.id);
+                    const amount=parsed.type==="record-task-session-progress"?parsed.amount:0;
+                    if(parsed.type==="record-task-session-progress"&&
+                       (session.target===null||session.completedAt!==null||Math.round((previous+amount)*1e6)>Math.round(session.target*1e6)))
+                        throw new Error("TASK_SESSION_EXCEEDS_TARGET");
+                    if(parsed.type==="complete-task-session"&&session.target!==null&&previous<session.target)
+                        throw new Error("TASK_SESSION_TARGET_NOT_REACHED");
+                    if(parsed.type==="complete-task-session"&&session.completedAt)return;
+                    if(definition.measurement &&
+                       Math.round(((log.reduce((sum,e)=>sum+e.amount,0))+amount)*1e6)>Math.round(definition.measurement.target*1e6))
+                        throw new Error("PROGRESS_EXCEEDS_TARGET");
+                    const finished=parsed.type==="complete-task-session" || session.target!==null &&
+                        Math.round((previous+amount)*1e6)>=Math.round(session.target*1e6);
+                    const entry={id:parsed.entryId,executionId:instance.id,sessionId:session.id,
+                      localDate:day.boundary.localDate,at:now,
+                      amount,note:parsed.type==="record-task-session-progress"?parsed.note:"",
+                      endReason:null,
+                      sessionDayCredit:parsed.type==="record-task-session-progress"?Math.min(1,amount/session.target!):1};
+                    transaction.saveDefinition({...definition,activityLog:[...log,entry],
+                       sessionPlan:{...definition.sessionPlan,sessions:definition.sessionPlan.sessions.map(s=>s.id!==session.id?s:
+                          {...s,updatedAt:now,...(finished?{completedAt:now}:{})})}});
+                    return;
+                }
                 if(command.type==="rebalance-habit-weights"){
                     const parsed=parsePersonalCommand(command);
                     if(!parsed||parsed.type!=="rebalance-habit-weights")throw new Error("HABIT_WEIGHTS_INVALID");
@@ -726,9 +799,15 @@ export class PersonalCommandService {
                     if(!definition)throw new PersonalControlError("DEFINITION_NOT_FOUND");
                     if(definition.revisionId!==command.expectedRevisionId || definition.kind!==command.kind)throw new PersonalControlError("DEFINITION_STATE_CONFLICT");
                     const total=(definition.activityLog??[]).reduce((n,e)=>n+e.amount,0);
+                    const nextPlan=Object.hasOwn(command,"sessionPlan")
+                      ?prepareTaskSessionPlan(definition.sessionPlan,command.sessionPlan??null,definition.activityLog??[],command.measurement,now)
+                      :definition.sessionPlan;
+                    if(nextPlan&&command.measurement&&nextPlan.sessions.reduce((n,s)=>n+(s.target??0),0)+
+                       (definition.activityLog??[]).filter(e=>!e.sessionId).reduce((n,e)=>n+e.amount,0)>command.measurement.target)
+                        throw new Error("TASK_SESSION_TARGET_EXCEEDS_TASK");
                     if(definition.measurement && (!command.measurement || command.measurement.unit!==definition.measurement.unit || command.measurement.target<total))throw new Error("EDIT_PROGRESS_CONFLICT");
-                    const {effectiveUntilDate:_end,measurement:_measurement,timeOfDay:_timeOfDay,...preserved}=definition;
-                    transaction.saveDefinition({...preserved,revisionId:this.dependencies.idGenerator.next("definition-revision"),title:command.title,category:command.category,schedule:commandSchedule(command),effectiveFromDate:command.startDate,...(command.endDate?{effectiveUntilDate:command.endDate}:{}),importance:command.importance,...(command.weight!==undefined?{weight:command.weight}:{}),...(command.measurement?{measurement:command.measurement}:{}),...(command.timeOfDay?{timeOfDay:command.timeOfDay}:{})});
+                    const {effectiveUntilDate:_end,measurement:_measurement,timeOfDay:_timeOfDay,sessionPlan:_sessionPlan,...preserved}=definition;
+                    transaction.saveDefinition({...preserved,revisionId:this.dependencies.idGenerator.next("definition-revision"),title:command.title,category:command.category,schedule:commandSchedule(command),effectiveFromDate:command.startDate,...(command.endDate?{effectiveUntilDate:command.endDate}:{}),importance:command.importance,...(command.weight!==undefined?{weight:command.weight}:{}),...(command.measurement?{measurement:command.measurement}:{}),...(command.timeOfDay?{timeOfDay:command.timeOfDay}:{}),...(nextPlan?{sessionPlan:nextPlan}:{})});
                     if(command.weight!==undefined&&command.weight!==definition.weight){
                         const day=transaction.findOpenPersonalDayContaining(userId,now);
                         if(day)for(const item of transaction.listDailyExecution(day.id))if(item.definitionId===definition.id)transaction.saveDailyExecution({...item,eligibility:{...item.eligibility,weight:command.weight},version:item.version+1,updatedAt:now});
@@ -780,6 +859,7 @@ export class PersonalCommandService {
                     }
                     if(log.length>=10000)throw new Error("ACTIVITY_LIMIT_REACHED");
                     if(instance.kind!=="Task"&&parsed.amount!==0)throw new Error("HABIT_NOTE_ONLY");
+                    if(parsed.amount>0&&definition.sessionPlan)throw new Error("TASK_SESSIONS_REQUIRE_SESSION_PROGRESS");
                     if(parsed.amount>0){
                         if(!definition.measurement || instance.kind!=="Task")throw new Error("MEASUREMENT_REQUIRED");
                         const total=Math.round((log.reduce((sum,e)=>sum+e.amount,0)+parsed.amount)*1e6)/1e6;
@@ -821,6 +901,9 @@ export class PersonalCommandService {
                     if(definition.state!=="Active") throw new PersonalControlError("DEFINITION_STATE_CONFLICT");
                     if(log.length>=10000) throw new Error("ACTIVITY_LIMIT_REACHED");
                     if(definition.kind!=="Task" && (command.amount!==0 || command.endReason!==null)) throw new Error("HABIT_NOTE_ONLY");
+                    if(definition.sessionPlan&&command.amount>0)throw new Error("TASK_SESSIONS_REQUIRE_SESSION_PROGRESS");
+                    if(definition.sessionPlan&&command.endReason==="achieved"&&definition.sessionPlan.sessions.some(s=>sessionStatus(s,log)!=="Completed"))
+                        throw new Error("TASK_SESSIONS_NOT_COMPLETED");
                     if(command.amount>0 && !definition.measurement) throw new Error("MEASUREMENT_REQUIRED");
                     const total=Math.round((log.reduce((sum,e)=>sum+e.amount,0)+command.amount)*1e6)/1e6;
                     if(!Number.isFinite(total) || total>1e9) throw new Error("PROGRESS_LIMIT");
@@ -880,6 +963,7 @@ export class PersonalCommandService {
                         gatePolicy: "NonBlocking",
                         targets: {},
                         ...(command.measurement ? {measurement:command.measurement} : {}),
+                        ...(command.sessionPlan?{sessionPlan:prepareTaskSessionPlan(undefined,command.sessionPlan,[],command.measurement,now)}:{}),
                         ...(command.timeOfDay?{timeOfDay:command.timeOfDay}:{}),
                     };
 
@@ -961,7 +1045,11 @@ export class PersonalCommandService {
                     );
                 }
 
-                if(transaction.findDefinitionById(userId,instance.definitionId)?.state === "Stopped") throw new PersonalControlError("DEFINITION_STATE_CONFLICT");
+                const toggledDefinition=transaction.findDefinitionById(userId,instance.definitionId);
+                if(toggledDefinition?.state === "Stopped") throw new PersonalControlError("DEFINITION_STATE_CONFLICT");
+                if(command.completed&&toggledDefinition?.sessionPlan&&
+                   toggledDefinition.sessionPlan.sessions.some(s=>sessionStatus(s,toggledDefinition.activityLog??[])!=="Completed"))
+                   throw new Error("TASK_SESSIONS_NOT_COMPLETED");
                 const status: ExecutionStatus =
                     command.completed
                         ? "Completed"
