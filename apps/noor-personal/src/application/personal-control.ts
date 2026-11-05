@@ -594,6 +594,9 @@ export class PersonalCommandService {
         userId: string,
         command: PersonalCommand,
     ): Promise<void> {
+        // Location changes require the separate trusted prayer/day transaction.
+        // Never let this generic mutation path treat them as checkbox edits.
+        if(command.type==="set-account-location")throw new Error("LOCATION_REQUIRES_TRUSTED_CUTOVER");
         const now = this.dependencies.clock.now();
 
         await this.dependencies.transaction.runInTransaction(
