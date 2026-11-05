@@ -5,13 +5,15 @@ type Result=Readonly<{name:string;country:string;latitude:number;longitude:numbe
 function validZone(zone:string):boolean{
  try{new Intl.DateTimeFormat("en-US",{timeZone:zone});return true;}catch{return false;}
 }
-export function NoorR232ControlLocation({serverZone,preferences,onChange}:{
+export function NoorR232ControlLocation({serverZone,preferences,onChange,onCommit}:{
  serverZone:string;preferences:NoorR232Preferences;
  onChange:(p:NoorR232Preferences)=>void;
+ onCommit?:(city:NoorR232City)=>Promise<boolean>;
 }):ReactElement{
  const [query,setQuery]=useState("");
  const [results,setResults]=useState<readonly Result[]>([]);
  const [searching,setSearching]=useState(false);
+ const [saving,setSaving]=useState(false);
  const [message,setMessage]=useState("");
  const lastSearch=useRef(0);
  const [previewNow,setPreviewNow]=useState(()=>Date.now());
@@ -126,6 +128,18 @@ export function NoorR232ControlLocation({serverZone,preferences,onChange}:{
    });
  };
  const selected=preferences.selectedCity;
+ const save=async()=>{
+   if(!selected||!onCommit||saving)return;
+   setSaving(true);
+   setMessage("");
+   try{
+     const success=await onCommit(selected);
+     setMessage(success
+       ?"تم اعتماد المدينة والمنطقة الزمنية للحساب وحفظهما. أُعيد تحميل مواقيت الصلاة من المصدر المعتمد."
+       :"تعذر اعتماد الموقع. ربما اختلف تاريخ اليوم بين المنطقتين أو تغيّر الحساب؛ حدّث الصفحة وتحقق من مواقيتك قبل إعادة المحاولة.");
+   }catch{setMessage("تعذر اعتماد الموقع الآن. لا تعتبر المعاينة مواقيت صلاة معتمدة.");}
+   finally{setSaving(false);}
+ };
  return <section data-testid="noor-r232-location-settings" className="np-r232-control">
    <div className="np-cc-title"><div><h2>التوقيت والموقع</h2><p>اختيار المدينة ومعاينة توقيتها قبل اعتماد تغيير موقع الحساب؛ مواقيت الصلاة الحالية لا تتبدل بمعاينة ساعة أخرى.</p></div></div>
    <div className="np-r232-setting-grid">
@@ -194,11 +208,18 @@ export function NoorR232ControlLocation({serverZone,preferences,onChange}:{
       {results.map((city,i)=><button type="button" className="np-cc-button" key={i}
         onClick={()=>select(city)}>{city.name}، {city.country} — {city.timeZone}</button>)}
     </div>:null}
-    {selected?<p className="np-r232-note">مدينة معاينة التوقيت المختارة مؤقتًا: <strong>{selected.name}، {selected.country}</strong> ({selected.timeZone})
-      <button type="button" className="np-cc-button" onClick={()=>{onChange({...preferences,selectedCity:null,displayZone:null});setZoneInput("");}}>إلغاء اختيار المدينة</button>
-    </p>:null}
+    {selected?<div className="np-r232-note">
+      <p>المدينة المختارة: <strong>{selected.name}، {selected.country}</strong> ({selected.timeZone})</p>
+      <div className="np-r232-search-row">
+       <button type="button" className="np-cc-button" disabled={saving||!onCommit}
+         onClick={()=>{void save();}}>{saving?"جارٍ اعتماد الموقع…":"اعتماد المدينة والتوقيت للحساب"}</button>
+       <button type="button" className="np-cc-button" disabled={saving}
+         onClick={()=>{onChange({...preferences,selectedCity:null,displayZone:null});setZoneInput("");}}>إلغاء الاختيار</button>
+      </div>
+      <small>الاعتماد ينقل المنطقة الزمنية ومواقيت الصلاة إلى حسابك على الأجهزة الأخرى. إذا اختلف التاريخ الميلادي الحالي بين المدينتين، يُرفض التغيير حمايةً لإنجازات الأيام السابقة.</small>
+    </div>:null}
     {message?<p role="status" className="np-r232-note">{message}</p>:null}
    </div>
-   <p className="np-r232-warning"><strong>تنبيه مهم:</strong> تغيير المدينة في هذه المرحلة مؤقت لهذه الجلسة فقط، ولا يُحفظ بعد تحديث الصفحة، ولا يغيّر موقع الحساب أو مواقيت الصلاة المحسوبة على الخادم. لن نعرض أوقات صلاة لمدينة جديدة على أنها معتمدة قبل تفعيل الربط الآمن.</p>
+   <p className="np-r232-warning"><strong>تنبيه:</strong> البحث والمعاينة مؤقتان؛ لا تتغير مواقيت الصلاة حتى تضغط «اعتماد المدينة والتوقيت للحساب» ويؤكد الخادم الحفظ. تغييرات المنطقة الزمنية التي تسبب اختلاف تاريخ اليوم الحالي تُرفض بأمان دون تعديل الإنجازات. اختيار منطقة زمنية يدويًا دون مدينة يظل معاينة فقط.</p>
  </section>;
 }
