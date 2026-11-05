@@ -33,8 +33,8 @@ test("R247 digital timer is separate from label and all three periods remain in 
 });
 test("R247 fasting timer off is explicit and other countdowns remain enabled",()=>{
  const html=render(Date.parse("2026-11-06T18:00:00Z"));
- assert.match(html,/data-testid="fasting-timer-disabled-r232">مؤقت الصيام متوقف/);
- assert.equal((html.match(/class="np-r247-timer"/g)||[]).length,2);
+ assert.match(html,/aria-pressed="false" aria-label="تشغيل مؤقت الصيام"/);
+ assert.equal((html.match(/class="np-r247-timer"/g)||[]).length,3);
  assert.match(html,/12 س 21 د/);
 });
 test("R247 calm color identity and mobile width equal thirds with tabular digital countdown",()=>{
