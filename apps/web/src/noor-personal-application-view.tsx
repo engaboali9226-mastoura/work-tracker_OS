@@ -2413,11 +2413,11 @@ export function NoorPersonalApplicationView({ initialResult, initialWorkspace }:
   const commandInFlight=useRef(false);
   const [syncing,setSyncing]=useState(false);
   const syncSequence=useRef(0);
-  const refresh = async () => {
+  const refresh = async (strict=false) => {
     const epoch=++refreshEpoch.current;
     const today=await fetchNoorPersonalToday();
     if(epoch!==refreshEpoch.current)return;
-    setResult(previous=>today.kind==="unavailable" && previous?.kind==="success"?previous:today);
+    setResult(previous=>today.kind==="unavailable" && previous?.kind==="success" && !strict?previous:today);
     if(today.kind==="success" && isRecord(today.today) && buildWorkspaceViewModel(today.today.workspace)){
       setWorkspaceResult({kind:"success",workspace:today.today.workspace});return;
     }
@@ -2508,7 +2508,7 @@ export function NoorPersonalApplicationView({ initialResult, initialWorkspace }:
         if(reply.materializationRequired || !matchingDay)refreshInBackground();
       }else{
         // Compatibility with old 204 servers; new servers return the committed projection.
-        await refresh();
+        await refresh(command.type==="set-account-location");
       }
       return true;
     } finally {
@@ -2551,9 +2551,8 @@ export function NoorPersonalApplicationView({ initialResult, initialWorkspace }:
     });
     if(ok){
       chooseTimePreferences({...timePreferences,selectedCity:null,displayZone:null});
-      // R241: never retain stale trusted prayers or a stale day after a
-      // location cutover. Re-read the entire authorized account projection.
-      await refresh();
+      // sendNoorPersonalCommandDetailed(204) already forced a strict,
+      // authenticated Today refresh before returning success.
     }
     return ok;
   };
