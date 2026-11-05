@@ -7,7 +7,7 @@ export interface StoredTaskSessionR254 extends NoorTaskSessionDraft {
 export interface StoredTaskSessionPlanR254 {
   distribution:"equal"|"custom"; sessions:readonly StoredTaskSessionR254[];
 }
-export interface SessionEntryR254 {id:string;executionId:string;localDate:string;at:string;note:string;amount:number;sessionId?:string;sessionDayCredit?:number}
+export interface SessionEntryR254 {id:string;executionId:string;localDate:string;at:string;note:string;amount:number;taskSessionId?:string;sessionDayCredit?:number}
 const round=(n:number)=>Math.round(n*1e6)/1e6;
 export function equalSessionTargetsR254(total:number,count:number):number[]{
   if(!Number.isFinite(total)||total<=0||total>1e9||!Number.isInteger(count)||count<1||count>200)throw Error("INVALID_SPLIT");
@@ -16,7 +16,7 @@ export function equalSessionTargetsR254(total:number,count:number):number[]{
   return Array.from({length:count},(_,i)=>(unit+(i<rem?1:0))/1e6);
 }
 export function sessionProgressR254(log:readonly SessionEntryR254[],id:string):number{
-  return round(log.filter(e=>e.sessionId===id).reduce((n,e)=>n+e.amount,0));
+  return round(log.filter(e=>e.taskSessionId===id).reduce((n,e)=>n+e.amount,0));
 }
 export function sessionFinishedR254(s:StoredTaskSessionR254,log:readonly SessionEntryR254[]):boolean{
   return !!s.completedAt||s.target!==null&&sessionProgressR254(log,s.id)>=s.target;
@@ -64,7 +64,7 @@ function OneSessionR254({session,log,definitionId,executionId,busy,onCommand,rea
   useEffect(()=>{setNote(s.note);},[s.note]);
   const saveNote=async()=>{
     if(busy)return;setError("");
-    if(!await onCommand({type:"edit-task-session-note",definitionId,sessionId:s.id,expectedRevision:s.revision,note}))
+    if(!await onCommand({type:"edit-task-session-note",definitionId,taskSessionId:s.id,expectedRevision:s.revision,note}))
       setError("تعذر حفظ الملاحظة؛ النص باقٍ هنا. تحقق من الاتصال أو أعد تحميل أحدث نسخة.");
   };
   const saveProgress=async()=>{
@@ -72,13 +72,13 @@ function OneSessionR254({session,log,definitionId,executionId,busy,onCommand,rea
     if(busy||done)return;
     if(s.target===null||!Number.isFinite(n)||n<=0||round(progress+n)>s.target){setError("تحقق من الكمية المتبقية لهذه الجلسة.");return;}
     setError("");
-    if(await onCommand({type:"record-task-session-progress",executionId,sessionId:s.id,entryId:entryId.current,amount:n,note:activityNote})){
+    if(await onCommand({type:"record-task-session-progress",executionId,taskSessionId:s.id,entryId:entryId.current,amount:n,note:activityNote})){
       entryId.current=globalThis.crypto.randomUUID();setAmount("");setActivityNote("");
     }else setError("لم يتأكد حفظ التقدم؛ الكمية والملاحظة محفوظتان داخل النموذج.");
   };
   const complete=async()=>{
     if(busy||done)return;setError("");
-    if(await onCommand({type:"complete-task-session",executionId,sessionId:s.id,entryId:entryId.current}))
+    if(await onCommand({type:"complete-task-session",executionId,taskSessionId:s.id,entryId:entryId.current}))
       entryId.current=globalThis.crypto.randomUUID();
     else setError("تعذر تسجيل الإتمام؛ حاول مرة أخرى.");
   };
@@ -94,7 +94,7 @@ function OneSessionR254({session,log,definitionId,executionId,busy,onCommand,rea
       {reading?<button type="button" onClick={()=>setNote(v=>v+(v?"\n\n":"")+"أهم فكرة فهمتها:\n\nمعلومات جديدة:\n\nفوائد عملية:\n\nأسئلة للبحث:\n")}>قالب تلخيص اختياري</button>:null}
       <button type="button" disabled={busy||note===s.note} onClick={()=>{void saveNote();}}>حفظ الملاحظة</button></div>
       {error?<p className="nts-error" role="alert">{error}</p>:null}
-      {log.some(e=>e.sessionId===s.id)?<details className="nts-history"><summary>سجل الإنجاز</summary>{log.filter(e=>e.sessionId===s.id).slice().reverse().map(e=><p key={e.id}><time dateTime={e.at}>{e.localDate}</time> {e.amount>0?"+"+e.amount:"إتمام"} {e.note}</p>)}</details>:null}
+      {log.some(e=>e.taskSessionId===s.id)?<details className="nts-history"><summary>سجل الإنجاز</summary>{log.filter(e=>e.taskSessionId===s.id).slice().reverse().map(e=><p key={e.id}><time dateTime={e.at}>{e.localDate}</time> {e.amount>0?"+"+e.amount:"إتمام"} {e.note}</p>)}</details>:null}
     </div>
   </details>;
 }
