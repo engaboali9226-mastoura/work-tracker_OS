@@ -95,3 +95,24 @@ export function r232Countdown(window:R232Window,nowMs:number):Readonly<{
     progress:Math.max(0,Math.min(100,100*(nowMs-window.startMs)/window.durationMs)),
   });
 }
+
+/** Ramadan by configured account timezone and Umm al-Qura civil date.
+ * The reference instant is the fasting day's Fajr (not arbitrary UTC midnight).
+ * Official announced start/end may differ by jurisdiction; label the basis.
+ */
+export function r232IsRamadan(atMs:number,timeZone:string):boolean{
+ if(!Number.isFinite(atMs))return false;
+ try{
+  const parts=new Intl.DateTimeFormat("en-u-ca-islamic-umalqura",{
+    month:"numeric",year:"numeric",timeZone,
+  }).formatToParts(new Date(atMs));
+  const month=parts.find(p=>p.type==="month")?.value;
+  return Number(month)===9;
+ }catch{return false;}
+}
+export function r232FastingCountdownEnabled(input:Readonly<{
+  fastingStartMs:number;timeZone:string;outsideRamadanEnabled:boolean;
+}>):Readonly<{enabled:boolean;ramadan:boolean}>{
+ const ramadan=r232IsRamadan(input.fastingStartMs,input.timeZone);
+ return Object.freeze({ramadan,enabled:ramadan||input.outsideRamadanEnabled});
+}
