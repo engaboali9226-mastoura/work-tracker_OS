@@ -73,7 +73,7 @@ test('prayer selection advances exactly at zero, skips sunrise and uses only sup
  assert.equal(liveNextPrayer(times,old,Date.parse('2026-10-31T01:39:59.999Z'))?.key,'fajr');assert.equal(remainingPrayerSeconds(times[0]!.at,Date.parse('2026-10-31T01:39:59.999Z')),1);
  assert.equal(liveNextPrayer(times,old,Date.parse(times[0]!.at))?.key,'dhuhr');assert.equal(liveNextPrayer(times,old,Date.parse(times[2]!.at))?.key,'asr');assert.equal(liveNextPrayer(times,old,Date.parse(times[5]!.at)),null);
  assert.equal(liveNextPrayer(times,{name:'Fajr',at:'2026-11-01T01:41:00Z'},Date.parse('2026-10-31T20:00:00Z'))?.at,'2026-11-01T01:41:00Z');assert.equal(liveNextPrayer([{key:'asr',at:'invalid'}],null,Date.now()),null);
- const night=nightCountdownState(times,Date.parse(times[5]!.at))!;assert.equal(night.enabled,true);assert.equal(remainingPrayerSeconds(night.midnight,Date.parse(night.midnight)),0);assert.ok(remainingPrayerSeconds(night.lastThird,Date.parse(night.midnight))>0);
+ const night=nightCountdownState(times,Date.parse(times[5]!.at),"2026-11-01T01:41:00Z")!;assert.equal(night.enabled,true);assert.equal(remainingPrayerSeconds(night.midnight,Date.parse(night.midnight)),0);assert.ok(remainingPrayerSeconds(night.lastThird,Date.parse(night.midnight))>0);
 });
 test('open dashboard advances despite a failed refresh and retries without flooding on tick or resume',async()=>{
  const t=installDom(),root=createRoot(t.container);const originalNow=Date.now,originalInterval=t.dom.window.setInterval;let now=Date.parse('2026-10-25T08:37:59Z'),tick:(()=>void)|undefined,reads=0,commands=0;
