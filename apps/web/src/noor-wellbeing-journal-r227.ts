@@ -57,12 +57,12 @@ export function createNoorWellbeingPortR227(transport:NoorJournalFetchR193,write
    }
    return {reflections:docs.filter((d):d is Extract<Document,{type:'reflection'}>=>d.type==='reflection').sort((a,b)=>b.entry.createdAt.localeCompare(a.entry.createdAt)||b.entry.id.localeCompare(a.entry.id)).map(d=>d.value),signals:[...latest.values()].map(d=>d.value)};
   },
-  async addReflection(value){
+  async addReflection(value:Reflection){
    const {id:ignored,...raw}=value;const checked=reflection(raw,'draft');
    const {id:unused,...data}=checked;
    const id=await create({version:1,type:'reflection',value:data});return {...checked,id};
   },
-  async saveSignals(value){
+  async saveSignals(value:DailySignals){
    const checked=signals(value),old=(await documents()).filter((d):d is Extract<Document,{type:'signals'}>=>d.type==='signals'&&d.value.date===checked.date);
    const revision=Math.max(0,...old.map(d=>d.revision))+1;
    if(!Number.isSafeInteger(revision))throw Error('WELLBEING_REVISION_INVALID');
@@ -71,7 +71,7 @@ export function createNoorWellbeingPortR227(transport:NoorJournalFetchR193,write
    await create({version:1,type:'signals',value:checked,revision});
    await Promise.allSettled(old.map(d=>client.remove(d.entry.id)));
   },
-  async removeReflection(id){
+  async removeReflection(id:string){
    const docs=await documents();
    if(!docs.some(d=>d.type==='reflection'&&d.entry.id===id))throw Error('WELLBEING_REFLECTION_NOT_FOUND');
    await client.remove(id);
