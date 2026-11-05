@@ -112,6 +112,7 @@ type TodayViewModel = Readonly<{
     at: string;
   }>[];
   nextFajrAt: string | null;
+  location: HeaderLocation | null;
   tasks: readonly ExecutionItem[];
   habits: readonly ExecutionItem[];
 }>;
@@ -1395,6 +1396,19 @@ function buildViewModel(today: unknown): TodayViewModel | null {
     ?nextFajrRaw:null;
   const timeZone = boundary ? stringValue(boundary.timeZone) : null;
   if (!timeZone) return null;
+  const locationRaw = isRecord(today.location) ? today.location : null;
+  // Only render the authenticated account's coarse city projection and only
+  // when it corresponds to the Personal Day timezone from the same response.
+  const location:HeaderLocation|null=locationRaw
+    && typeof locationRaw.name==="string" && locationRaw.name.trim().length>0
+    && locationRaw.name.length<=96
+    && locationRaw.timeZone===timeZone
+    && typeof locationRaw.latitude==="number" && Number.isFinite(locationRaw.latitude)
+    && Math.abs(locationRaw.latitude)<=90
+    && typeof locationRaw.longitude==="number" && Number.isFinite(locationRaw.longitude)
+    && Math.abs(locationRaw.longitude)<=180
+    ? {city:locationRaw.name.trim(),country:"",latitude:locationRaw.latitude,
+       longitude:locationRaw.longitude} : null;
   const tasks = executionItems(today.tasks);
   const habits = executionItems(today.habits);
   if (!tasks || !habits) return null;
@@ -1418,6 +1432,7 @@ function buildViewModel(today: unknown): TodayViewModel | null {
     nextPrayer,
     prayerTimes,
     nextFajrAt,
+    location,
     tasks,
     habits,
   };
@@ -1524,8 +1539,8 @@ export function headerLocationForTimeZone(timeZone: string): HeaderLocation {
   return HEADER_LOCATIONS[timeZone] ?? {
     city: timeZone.split("/").at(-1)?.replaceAll("_"," ") ?? timeZone,
     country: "",
-    latitude: 24.7136,
-    longitude: 46.6753,
+    latitude: Number.NaN,
+    longitude: Number.NaN,
   };
 }
 
@@ -2098,7 +2113,7 @@ function Dashboard({ view:providedView, workspace, busy, actionError, onCommand,
     return {...providedView,tasks:providedView.tasks.filter(visible),habits:providedView.habits.filter(visible)};
   },[providedView,workspace,historyDate]);
   const dates = civilDateLabels(nowMs, view.timeZone);
-  const location = headerLocationForTimeZone(view.timeZone);
+  const location = view.location ?? headerLocationForTimeZone(view.timeZone);
   const [temperature,setTemperature] = useState<number | null>(null);
   const taskCompleted = completedCount(view.tasks);
   const habitCompleted = completedCount(view.habits);
