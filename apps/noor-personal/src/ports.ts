@@ -81,6 +81,9 @@ export interface IslamicHistoryCatalogPort {
 }
 
 export interface FoundationTransaction {
+    /** Owner-scoped, compare-and-set effective location revision; never rewrites prior days. */
+    updateLocationProfile?(userId:string,expectedRevisionId:string,now:IsoInstant,
+      next:Readonly<{id:string;name:string;latitude:number;longitude:number;timeZone:string}>):void;
     getCategories?(userId:string): readonly string[] | undefined;
     saveCategories?(userId:string,categories:readonly string[]):void;
     getFinance?(userId:string): FinanceLedger;
