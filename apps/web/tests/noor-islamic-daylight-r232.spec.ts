@@ -45,7 +45,8 @@ test("R232 fasting timer controls do not disable other timers",async()=>{
  assert.match(ui,/fastingTimerOutsideRamadan/u);
  assert.match(ui,/onPreferencesChange/u);
  assert.match(ui,/disabled=\{fasting\.ramadan/u);
- assert.match(ui,/showTimer=\{fasting\.enabled\}/u);
+ assert.match(ui,/showTimer=\{true\}/u);
+ assert.match(ui,/fastingTimerOutsideRamadan:!preferences\.fastingTimerOutsideRamadan/u);
  assert.match(ui,/title="ساعات الليل الشرعي"/u);
  assert.match(ui,/title="وقت صلاة الضحى"/u);
 });

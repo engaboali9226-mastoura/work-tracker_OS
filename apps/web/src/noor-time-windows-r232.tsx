@@ -21,10 +21,11 @@ function WindowCard({title,window:interval,nowMs,timeZone,unavailable,showTimer=
  title:string;window:R232Window|null;nowMs:number;timeZone:string;unavailable:string;
  showTimer?:boolean;tone?:"day"|"night"|"duha"|"friday";
 }):ReactElement{
- const icon=tone==="day"?"☀":tone==="night"?"☾":tone==="duha"?"✦":"◷";
+ const icon=tone==="day"?"☀":tone==="night"?"☾":tone==="duha"?"☀":"◷";
+ const subtitle=tone==="day"?"من الفجر للمغرب":tone==="duha"?"بعد الشروق":tone==="night"?"حتى فجر الغد":"حتى أذان الجمعة";
  const shortTitle=tone==="day"?"النهار":tone==="night"?"الليل":tone==="duha"?"الضحى":title;
  if(!interval)return <article className={`np-r232-window np-r234-window tone-${tone}`} data-phase="unavailable">
-  <div className="np-r234-card-title"><span className="np-r234-symbol" aria-hidden="true">{icon}</span><h3 aria-label={title}>{shortTitle}</h3></div>
+  <div className="np-r234-card-title"><span className="np-r234-symbol" aria-hidden="true">{icon}</span><h3 aria-label={title}>{shortTitle}</h3></div><p className="np-r248-subtitle">{subtitle}</p>
   <p className="np-r232-help">{unavailable}</p>
  </article>;
  const state=r232Countdown(interval,nowMs);
@@ -34,6 +35,7 @@ function WindowCard({title,window:interval,nowMs,timeZone,unavailable,showTimer=
     <h3 aria-label={title}>{shortTitle}</h3>
     <span className="np-r234-state">{state.phase==="active"?"جارٍ الآن":state.phase==="finished"?"انتهت":"قادمة"}</span>
   </div>
+  <p className="np-r248-subtitle">{subtitle}</p>
   <div className="np-r234-times" dir="rtl">
     <span className="np-r234-time-point"><small>من</small><strong>{clock(interval.startMs,timeZone)}</strong></span>
     <span className="np-r234-time-line" aria-hidden="true"/>
@@ -70,13 +72,16 @@ export function NoorR232TimeWindows({prayers,nowMs,timeZone,preferences,nextFajr
    nowMs,timeZone,prayers,fridayAdhanClock:preferences.fridayAdhan,
    sunriseOffsetMinutes:preferences.afterSunrise,
  }):null;
- return <section className="np-card np-r232-section np-r246-rhythm-card np-r247-rhythm-card" data-rhythm-layout="three-visible-columns-r246" data-rhythm-visual="digital-contrast-r247" data-testid="noor-day-night-friday-r232"
+ return <section className="np-card np-r232-section np-r246-rhythm-card np-r247-rhythm-card np-r248-reference-card" data-rhythm-layout="three-visible-columns-r246" data-reference-design="preview-r248" data-rhythm-visual="digital-contrast-r247" data-testid="noor-day-night-friday-r232"
    aria-label="ساعات النهار والليل والضحى والجمعة">
    <div className="np-r232-heading">
-    <div className="np-r234-heading-label"><span className="np-r234-orbit" aria-hidden="true">◐</span><div><h2>إيقاع اليوم</h2><p>النهار والليل والضحى، وفق مواقيت نور المعتمدة</p></div></div>
+    <div className="np-r234-heading-label"><span className="np-r234-orbit" aria-hidden="true">◐</span><div><h2>إيقاع اليوم</h2><p>الضحى، النهار، الليل وفق مواقيت نور المعتمدة</p></div></div>
     <span className="np-r234-basis">من مواقيت الصلاة المعتمدة</span>
    </div>
-   <div className="np-r232-grid np-r234-grid np-r235-unified-rows np-r237-horizontal-strip np-r238-time-order np-r246-three-up np-r247-rhythm-strip" role="group" aria-label="النهار والضحى والليل وساعات الجمعة في صف واحد">
+   <div className="np-r232-grid np-r234-grid np-r235-unified-rows np-r237-horizontal-strip np-r238-time-order np-r246-three-up np-r247-rhythm-strip np-r248-reference-strip" role="group" aria-label="الضحى والنهار والليل وساعات الجمعة في صف واحد">
+    <WindowCard title="وقت صلاة الضحى" tone="duha" window={windows.duha}
+      nowMs={nowMs} timeZone={timeZone}
+      unavailable="يلزم موعد الشروق والظهر المؤكد."/>
     <div className="np-r232-fasting-wrapper" data-testid="fasting-timer-control-r232">
       <div className="np-r232-fasting-options np-r234-fasting-options">
         <span>{fasting.ramadan?"رمضان: المؤقت يعمل تلقائيًا":"مؤقت الصيام خارج رمضان"}</span>
@@ -92,12 +97,9 @@ export function NoorR232TimeWindows({prayers,nowMs,timeZone,preferences,nextFajr
         </button>
       </div>
       <WindowCard title="ساعات النهار" tone="day" window={windows.fastingDay}
-        nowMs={nowMs} timeZone={timeZone} showTimer={fasting.enabled}
+        nowMs={nowMs} timeZone={timeZone} showTimer={true}
         unavailable="لا توجد مواقيت فجر ومغرب مؤكدة لهذا اليوم."/>
     </div>
-    <WindowCard title="وقت صلاة الضحى" tone="duha" window={windows.duha}
-      nowMs={nowMs} timeZone={timeZone}
-      unavailable="يلزم موعد الشروق والظهر المؤكد."/>
     <WindowCard title="ساعات الليل الشرعي" tone="night" window={windows.islamicNight}
       nowMs={nowMs} timeZone={timeZone}
       unavailable="لم تتوفر مواقيت الغد من مصدر نور المعتمد."/>
