@@ -166,7 +166,7 @@ export interface ActivityEntry {
     readonly note: string;
     readonly amount: number;
     readonly endReason: "achieved" | "expired" | "cancelled" | null;
-    readonly sessionId?: string;
+    readonly taskSessionId?: string;
     readonly sessionDayCredit?: number;
 }
 export interface ProgressMeasurement { readonly target: number; readonly unit: string; }
