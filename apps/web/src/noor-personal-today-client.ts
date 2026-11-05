@@ -24,9 +24,9 @@ export type NoorPersonalWorkspaceResult =
 
 export type NoorPersonalCommandInput =
   | Readonly<{type:"configure-task-sessions";definitionId:string;expectedRevisionId:string;plan:NoorTaskSessionPlanDraft|null}>
-  | Readonly<{type:"edit-task-session-note";definitionId:string;sessionId:string;expectedRevision:number;note:string}>
-  | Readonly<{type:"record-task-session-progress";executionId:string;sessionId:string;entryId:string;amount:number;note:string}>
-  | Readonly<{type:"complete-task-session";executionId:string;sessionId:string;entryId:string}>
+  | Readonly<{type:"edit-task-session-note";definitionId:string;taskSessionId:string;expectedRevision:number;note:string}>
+  | Readonly<{type:"record-task-session-progress";executionId:string;taskSessionId:string;entryId:string;amount:number;note:string}>
+  | Readonly<{type:"complete-task-session";executionId:string;taskSessionId:string;entryId:string}>
   | Readonly<{type:"set-account-location";requestId:string;expectedRevisionId:string;city:{name:string;country:string;latitude:number;longitude:number;timeZone:string}}>
   | Readonly<{type:"rebalance-habit-weights";changes:readonly Readonly<{definitionId:string;expectedRevisionId:string;weight:number}>[]}>
   | Readonly<{type:"correct-historical-execution";executionId:string;localDate:string;expectedStatus:"Completed"|"Missed"|"Pending"|"Planned"|"InProgress";completed:boolean}>
