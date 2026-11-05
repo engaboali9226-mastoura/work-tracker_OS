@@ -2,6 +2,13 @@ import {useEffect,useRef,useState,type ReactElement} from "react";
 import {r232ParseFridayClock} from "./noor-islamic-daylight-r232.js";
 import {type NoorR232City,type NoorR232Preferences} from "./noor-time-display-preferences-r232.js";
 type Result=Readonly<{name:string;country:string;latitude:number;longitude:number;timeZone:string}>;
+/** A manual IANA zone is never an account mutation by itself. If a user
+ * explicitly chose a city, preserve that city's centroid while preparing an
+ * opt-in, authenticated location+zone submission. */
+export function noorCityWithManualZone(city:NoorR232City|null,zone:string):NoorR232City|null{
+ if(!city||!validZone(zone))return null;
+ return {...city,timeZone:zone};
+}
 function validZone(zone:string):boolean{
  try{new Intl.DateTimeFormat("en-US",{timeZone:zone});return true;}catch{return false;}
 }
@@ -37,10 +44,12 @@ export function NoorR232ControlLocation({serverZone,preferences,onChange,onCommi
    const zone=candidate.trim();
    if(!zone){onChange({...preferences,displayZone:null,selectedCity:null});setZoneInput("");setMessage("عادت معاينة الساعة إلى المنطقة الزمنية المعتمدة في نور.");return;}
    if(zone.length>90||!validZone(zone)){setMessage("اختر منطقة زمنية صحيحة من القائمة أو أدخل اسم IANA مثل Asia/Riyadh.");return;}
-   onChange({...preferences,displayZone:zone,
-     selectedCity:preferences.selectedCity?.timeZone===zone?preferences.selectedCity:null});
+   const preparedCity=noorCityWithManualZone(preferences.selectedCity,zone);
+   onChange({...preferences,displayZone:zone,selectedCity:preparedCity});
    setZoneInput(zone);
-   setMessage("تم تحديث معاينة التوقيت لهذه الجلسة. تغيير موقع الحساب ومواقيت الصلاة يتطلب إعدادًا معتمدًا على الخادم.");
+   setMessage(preparedCity
+     ?"تم تجهيز المنطقة الزمنية اليدوية للمدينة المختارة. لا تتغير الصلاة أو توقيت الحساب إلا بعد الضغط على «اعتماد المدينة والتوقيت للحساب» وتأكيد الخادم."
+     :"تم تغيير ساعة المعاينة فقط. اختر مدينة أولًا إن أردت حفظ هذه المنطقة الزمنية لكل حساب نور.");
  };
  const suggestedZones=["Asia/Riyadh","Africa/Cairo","Asia/Dubai",
    "Asia/Kuwait","Asia/Qatar","Asia/Bahrain","Europe/London",
@@ -146,7 +155,7 @@ export function NoorR232ControlLocation({serverZone,preferences,onChange,onCommi
     <label>المنطقة الزمنية المعتمدة للحسابات
      <input className="np-input" value={serverZone} readOnly aria-readonly="true"/>
     </label>
-    <label>المنطقة الزمنية لمعاينة الساعة فقط
+    <label>المنطقة الزمنية (معاينة، ثم اعتماد مع المدينة)
      <input aria-label="منطقة زمنية للعرض" className="np-input"
       type="text" list="np-r233-zones" value={zoneInput} maxLength={90}
       onChange={e=>setZoneInput(e.target.value)}
@@ -210,6 +219,7 @@ export function NoorR232ControlLocation({serverZone,preferences,onChange,onCommi
     </div>:null}
     {selected?<div className="np-r232-note">
       <p>المدينة المختارة: <strong>{selected.name}، {selected.country}</strong> ({selected.timeZone})</p>
+      <small>يمكنك تعديل منطقة IANA الزمنية يدويًا مع إبقاء إحداثيات المدينة المختارة. تحقق من صحة المنطقة قبل الاعتماد لأنها ستؤثر على تاريخ نور ومواقيت الصلاة.</small>
       <div className="np-r232-search-row">
        <button type="button" className="np-cc-button" disabled={saving||!onCommit}
          onClick={()=>{void save();}}>{saving?"جارٍ اعتماد الموقع…":"اعتماد المدينة والتوقيت للحساب"}</button>
@@ -220,6 +230,6 @@ export function NoorR232ControlLocation({serverZone,preferences,onChange,onCommi
     </div>:null}
     {message?<p role="status" className="np-r232-note">{message}</p>:null}
    </div>
-   <p className="np-r232-warning"><strong>تنبيه:</strong> البحث والمعاينة مؤقتان؛ لا تتغير مواقيت الصلاة حتى تضغط «اعتماد المدينة والتوقيت للحساب» ويؤكد الخادم الحفظ. تغييرات المنطقة الزمنية التي تسبب اختلاف تاريخ اليوم الحالي تُرفض بأمان دون تعديل الإنجازات. اختيار منطقة زمنية يدويًا دون مدينة يظل معاينة فقط.</p>
+   <p className="np-r232-warning"><strong>تنبيه:</strong> البحث والمعاينة مؤقتان؛ لا تتغير مواقيت الصلاة حتى تضغط «اعتماد المدينة والتوقيت للحساب» ويؤكد الخادم الحفظ. تغييرات المنطقة الزمنية التي تسبب اختلاف تاريخ اليوم الحالي تُرفض بأمان دون تعديل الإنجازات. اختيار منطقة زمنية يدويًا دون مدينة يظل معاينة فقط. عند اختيار مدينة، يمكن اعتماد المنطقة اليدوية معها من الزر الصريح، وليس بمجرد معاينة الساعة.</p>
  </section>;
 }

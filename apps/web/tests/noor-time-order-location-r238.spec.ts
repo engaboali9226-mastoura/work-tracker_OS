@@ -43,6 +43,6 @@ test("R238 timezone previews local date and offers quick presets without changin
   assert.match(html,/تحديد عبر GPS/u);
   const source=readFileSync(new URL("../src/noor-time-location-control-r232.tsx",import.meta.url),"utf8");
   assert.match(source,/lastSearch\.current\+\+/u);
-  assert.match(source,/selectedCity:preferences\.selectedCity\?\.timeZone===zone/u);
+  assert.match(source,/selectedCity:preparedCity/u);
   assert.match(source,/credentials:"omit"/u);
 });
