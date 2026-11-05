@@ -1,3 +1,4 @@
+import { replaceEffectiveLocationRevision } from "../domain/location-revision-r236.js";
 import { emptyFinanceLedger, financeSummary, type FinanceLedger } from "../domain/model.js";
 import type {
   SupabaseClient,
@@ -365,6 +366,10 @@ function createTransaction(
 ):
 FoundationTransaction {
   return {
+    updateLocationProfile:(userId,expectedRevisionId,now,next)=>{
+      if(userId!==owner)throw Error("LOCATION_OWNER_MISMATCH");
+      replaceEffectiveLocationRevision(state.locations,userId,expectedRevisionId,now,next);
+    },
     getCategories:(userId)=>{if(userId!==owner)throw new Error("CATEGORY_OWNER_MISMATCH");return state.categories?clone(state.categories):undefined;},
     saveCategories:(userId,categories)=>{if(userId!==owner)throw new Error("CATEGORY_OWNER_MISMATCH");state.categories=[...categories];},
     getFinance:(userId)=>{if(userId!==owner || state.finance && state.finance.userId!==owner)throw new Error("FINANCE_OWNER_MISMATCH");return clone(state.finance ?? emptyFinanceLedger(owner));},
