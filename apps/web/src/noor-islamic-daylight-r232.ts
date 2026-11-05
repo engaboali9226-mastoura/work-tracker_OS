@@ -50,7 +50,7 @@ export function r232LocalClockMinutes(atMs:number,timeZone:string):number {
   return hour*60+minute;
 }
 export function r232ParseFridayClock(input:string):number|null {
-  if(!/^(?:[01]\\d|2[0-3]):[0-5]\\d$/.test(input))return null;
+  if(!/^(?:[01]\d|2[0-3]):[0-5]\d$/.test(input))return null;
   const [hour,minute]=input.split(":").map(Number);
   return hour!*60+minute!;
 }
