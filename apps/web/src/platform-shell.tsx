@@ -258,7 +258,7 @@ export function PlatformShell(
 
     case "not-found":
       return (
-        <main id="main-content">
+        <main id="main-content" className="noor-route-state-r231">
           <h1>
             Route not found
           </h1>
@@ -271,7 +271,7 @@ export function PlatformShell(
 
     case "planned-application":
       return (
-        <main id="main-content">
+        <main id="main-content" className="noor-route-state-r231">
           <h1>
             Application planned
           </h1>
@@ -284,7 +284,7 @@ export function PlatformShell(
 
     case "platform-failed-closed":
       return (
-        <main id="main-content">
+        <main id="main-content" className="noor-route-state-r231">
           <h1>
             Application unavailable
           </h1>
@@ -312,7 +312,7 @@ export function PlatformShell(
 
     case "session-access-unavailable":
       return (
-        <main id="main-content">
+        <main id="main-content" className="noor-route-state-r231">
           <h1>
             Access unavailable
           </h1>
@@ -325,7 +325,7 @@ export function PlatformShell(
 
     case "authorization-denied":
       return (
-        <main id="main-content">
+        <main id="main-content" className="noor-route-state-r231">
           <h1>
             Access denied
           </h1>
@@ -338,7 +338,7 @@ export function PlatformShell(
 
     case "authorization-unavailable":
       return (
-        <main id="main-content">
+        <main id="main-content" className="noor-route-state-r231">
           <h1>
             Access unavailable
           </h1>
@@ -351,7 +351,7 @@ export function PlatformShell(
 
     case "known-view-unavailable":
       return (
-        <main id="main-content">
+        <main id="main-content" className="noor-route-state-r231">
           <h1>
             Known view unavailable
           </h1>
@@ -564,7 +564,7 @@ export function PlatformShell(
       }
 
       return (
-        <main id="main-content">
+        <main id="main-content" className="noor-route-state-r231">
           <h1>
             Application unavailable
           </h1>
@@ -577,7 +577,7 @@ export function PlatformShell(
 
     case "application-view-failure":
       return (
-        <main id="main-content">
+        <main id="main-content" className="noor-route-state-r231">
           <h1>
             Application view unavailable
           </h1>
