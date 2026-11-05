@@ -19,8 +19,8 @@ function fixture(definition=base,days=[day],instances=[execution]){
  return {store,service,get:()=>store.snapshot().definitions.find(d=>d.id==="book")};
 }
 function configure(f,p=plan,revision=f.get().revisionId){return f.service.execute("owner",{type:"configure-task-sessions",definitionId:"book",expectedRevisionId:revision,plan:p});}
-function note(f,sessionId,text,expectedRevision){return f.service.execute("owner",{type:"edit-task-session-note",definitionId:"book",sessionId,expectedRevision,note:text});}
-function progress(f,sessionId,entryId,amount,description=""){return f.service.execute("owner",{type:"record-task-session-progress",executionId:"execution-1",sessionId,entryId,amount,note:description});}
+function note(f,taskSessionId,text,expectedRevision){return f.service.execute("owner",{type:"edit-task-session-note",definitionId:"book",taskSessionId,expectedRevision,note:text});}
+function progress(f,taskSessionId,entryId,amount,description=""){return f.service.execute("owner",{type:"record-task-session-progress",executionId:"execution-1",taskSessionId,entryId,amount,note:description});}
 test("legacy tasks without sessions have unchanged parser and read model",async()=>{
  const f=fixture();assert.equal(f.get().sessionPlan,undefined);
  await f.service.execute("owner",{type:"record-activity",executionId:"execution-1",entryId:"old",amount:5,note:"سجل سابق",endReason:null});
@@ -81,7 +81,7 @@ test("replanning future sessions preserves historical notes/progress and stable 
 test("owner isolation denies cross-account session mutation",async()=>{
  const f=fixture();await configure(f);
  const before=f.get();
- await assert.rejects(()=>f.service.execute("attacker",{type:"edit-task-session-note",definitionId:"book",sessionId:"s1",expectedRevision:0,note:"tamper"}));
+ await assert.rejects(()=>f.service.execute("attacker",{type:"edit-task-session-note",definitionId:"book",taskSessionId:"s1",expectedRevision:0,note:"tamper"}));
  await assert.rejects(()=>f.service.execute("attacker",{type:"configure-task-sessions",definitionId:"book",expectedRevisionId:before.revisionId,plan:null}));
  assert.deepEqual(f.get(),before);
 });
