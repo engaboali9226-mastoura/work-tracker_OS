@@ -11,7 +11,7 @@ test("R254: fractional equal split conserves exactly the requested total",()=>{
  assert.throws(()=>equalSessionTargetsR254(0,2));
 });
 test("R254: client progress and session-completion projection remain independent",()=>{
- const log=[{id:"entry-1",executionId:"today",localDate:"2026-11-05",at:"2026-11-05T10:00:00Z",note:"فهمت الدرس",amount:5,sessionId:"s1"}];
+ const log=[{id:"entry-1",executionId:"today",localDate:"2026-11-05",at:"2026-11-05T10:00:00Z",note:"فهمت الدرس",amount:5,taskSessionId:"s1"}];
  assert.equal(sessionProgressR254(log,"s1"),5);
  assert.equal(sessionFinishedR254(s,log),false);
  assert.equal(sessionFinishedR254({...s,completedAt:"2026-11-05T11:00:00Z"},log),true);
