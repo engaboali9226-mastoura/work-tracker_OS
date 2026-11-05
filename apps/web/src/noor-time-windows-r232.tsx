@@ -17,29 +17,42 @@ function remaining(ms:number):string{
  const hour=Math.floor(seconds/3600),min=Math.floor(seconds%3600/60),sec=seconds%60;
  return [hour,min,sec].map(n=>String(n).padStart(2,"0")).join(":");
 }
-function WindowCard({title,window:interval,nowMs,timeZone,unavailable,showTimer=true}:{
+function WindowCard({title,window:interval,nowMs,timeZone,unavailable,showTimer=true,tone="day"}:{
  title:string;window:R232Window|null;nowMs:number;timeZone:string;unavailable:string;
- showTimer?:boolean;
+ showTimer?:boolean;tone?:"day"|"night"|"duha"|"friday";
 }):ReactElement{
- if(!interval)return <article className="np-r232-window">
-  <h3>{title}</h3><p className="np-r232-help">{unavailable}</p>
+ const icon=tone==="day"?"☀":tone==="night"?"☾":tone==="duha"?"✦":"◷";
+ if(!interval)return <article className={`np-r232-window np-r234-window tone-${tone}`} data-phase="unavailable">
+  <div className="np-r234-card-title"><span className="np-r234-symbol" aria-hidden="true">{icon}</span><h3>{title}</h3></div>
+  <p className="np-r232-help">{unavailable}</p>
  </article>;
  const state=r232Countdown(interval,nowMs);
- return <article className="np-r232-window" data-phase={state.phase}>
-  <h3>{title}</h3>
-  <p className="np-r232-time">{clock(interval.startMs,timeZone)} — {clock(interval.endMs,timeZone)}</p>
-  <p className="np-r232-help">المدة: {duration(interval.durationMs)}</p>
-  {showTimer?<strong className="np-r232-counter" aria-label={state.phase==="finished"?"انتهت الفترة":"العد التنازلي"}>
-   {state.phase==="finished"?"انتهى":state.phase==="upcoming"
-    ?`تبدأ بعد ${remaining(interval.startMs-nowMs)}`
-    :`المتبقي ${remaining(interval.endMs-nowMs)}`}
-  </strong>:<p className="np-r232-help" data-testid="fasting-timer-disabled-r232">العداد متوقف حسب اختيارك خارج رمضان.</p>}
-  {showTimer?<div className="np-r232-progress" role="progressbar" aria-label={title}
-    aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(state.progress)}>
-   <span style={{width:`${state.progress}%`}}/>
+ return <article className={`np-r232-window np-r234-window tone-${tone}`} data-phase={state.phase}>
+  <div className="np-r234-card-title">
+    <span className="np-r234-symbol" aria-hidden="true">{icon}</span>
+    <h3>{title}</h3>
+    <span className="np-r234-state">{state.phase==="active"?"جارٍ الآن":state.phase==="finished"?"انتهت":"قادمة"}</span>
+  </div>
+  <div className="np-r234-times" dir="rtl">
+    <span className="np-r234-time-point"><small>من</small><strong>{clock(interval.startMs,timeZone)}</strong></span>
+    <span className="np-r234-time-line" aria-hidden="true"/>
+    <span className="np-r234-time-point"><small>إلى</small><strong>{clock(interval.endMs,timeZone)}</strong></span>
+  </div>
+  <div className="np-r234-card-bottom">
+    <span className="np-r234-duration">المدة {duration(interval.durationMs)}</span>
+    {showTimer?<strong className="np-r232-counter np-r234-counter" aria-label={state.phase==="finished"?"انتهت الفترة":"العد التنازلي"}>
+      {state.phase==="finished"?"انتهت":state.phase==="upcoming"
+       ?`تبدأ بعد ${remaining(interval.startMs-nowMs)}`
+       :`المتبقي ${remaining(interval.endMs-nowMs)}`}
+    </strong>:<span className="np-r234-muted" data-testid="fasting-timer-disabled-r232">المؤقت متوقف</span>}
+  </div>
+  {showTimer?<div className="np-r232-progress np-r234-progress" role="progressbar"
+    aria-label={title} aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(state.progress)}>
+    <span style={{width:`${state.progress}%`}}/>
   </div>:null}
  </article>;
 }
+
 export function NoorR232TimeWindows({prayers,nowMs,timeZone,preferences,nextFajrAt,onPreferencesChange}:{
  prayers:readonly Prayer[];nowMs:number;timeZone:string;
  preferences:NoorR232Preferences;nextFajrAt?:string|undefined;
@@ -59,12 +72,12 @@ export function NoorR232TimeWindows({prayers,nowMs,timeZone,preferences,nextFajr
  return <section className="np-card np-r232-section" data-testid="noor-day-night-friday-r232"
    aria-label="ساعات النهار والليل والضحى والجمعة">
    <div className="np-r232-heading">
-    <h2>ساعات النهار والليل</h2>
-    <p>توقيتات شرعية محسوبة من مواقيت الصلاة المعتمدة في نور.</p>
+    <div className="np-r234-heading-label"><span className="np-r234-orbit" aria-hidden="true">◐</span><div><h2>إيقاع يومك</h2><p>النهار والليل والضحى، وفق مواقيت نور المعتمدة</p></div></div>
+    <span className="np-r234-basis">حساب فلكي دقيق</span>
    </div>
-   <div className="np-r232-grid">
+   <div className="np-r232-grid np-r234-grid">
     <div className="np-r232-fasting-wrapper" data-testid="fasting-timer-control-r232">
-      <div className="np-r232-fasting-options">
+      <div className="np-r232-fasting-options np-r234-fasting-options">
         <span>{fasting.ramadan?"رمضان: المؤقت يعمل تلقائيًا":"مؤقت الصيام خارج رمضان"}</span>
         <button type="button" className="np-cc-button"
           disabled={fasting.ramadan||!onPreferencesChange}
@@ -74,14 +87,14 @@ export function NoorR232TimeWindows({prayers,nowMs,timeZone,preferences,nextFajr
           {fasting.ramadan?"مفعّل تلقائيًا":fasting.enabled?"إيقاف المؤقت":"تشغيل المؤقت"}
         </button>
       </div>
-      <WindowCard title="ساعات النهار (الصيام)" window={windows.fastingDay}
+      <WindowCard title="ساعات النهار" tone="day" window={windows.fastingDay}
         nowMs={nowMs} timeZone={timeZone} showTimer={fasting.enabled}
         unavailable="لا توجد مواقيت فجر ومغرب مؤكدة لهذا اليوم."/>
     </div>
-    <WindowCard title="ساعات الليل الشرعي" window={windows.islamicNight}
+    <WindowCard title="ساعات الليل الشرعي" tone="night" window={windows.islamicNight}
       nowMs={nowMs} timeZone={timeZone}
-      unavailable="يلزم وقت الفجر المؤكد لليوم التالي؛ لا نستخدم فجر اليوم كتقدير."/>
-    <WindowCard title="وقت صلاة الضحى" window={windows.duha}
+      unavailable="لم تتوفر مواقيت الغد من مصدر نور المعتمد."/>
+    <WindowCard title="وقت صلاة الضحى" tone="duha" window={windows.duha}
       nowMs={nowMs} timeZone={timeZone}
       unavailable="يلزم موعد الشروق والظهر المؤكد."/>
    </div>
@@ -92,6 +105,7 @@ export function NoorR232TimeWindows({prayers,nowMs,timeZone,preferences,nextFajr
     {fridayHours?<div className="np-r232-five-grid">
      {fridayHours.map(hour=><WindowCard key={hour.number}
        title={`الساعة ${["الأولى","الثانية","الثالثة","الرابعة","الخامسة"][hour.number-1]}`}
+       tone="friday"
        window={hour} nowMs={nowMs} timeZone={timeZone} unavailable="—"/>)}
     </div>:<p role="status" className="np-r232-help">
      اضبط موعد أذان الجمعة من مركز التحكم لعرض الفترات ومؤقت كل ساعة.
