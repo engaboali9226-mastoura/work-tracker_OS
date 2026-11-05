@@ -38,3 +38,14 @@ test("R232 countdown never becomes negative",()=>{
  assert.equal(r232Countdown(w,w.endMs+1).remainingSeconds,0);
  assert.equal(r232Countdown(w,w.startMs-1).phase,"upcoming");
 });
+
+test("R232 fasting timer controls do not disable other timers",async()=>{
+ const {readFileSync}=await import("node:fs");
+ const ui=readFileSync(new URL("../src/noor-time-windows-r232.tsx",import.meta.url),"utf8");
+ assert.match(ui,/fastingTimerOutsideRamadan/u);
+ assert.match(ui,/onPreferencesChange/u);
+ assert.match(ui,/disabled=\{fasting\.ramadan/u);
+ assert.match(ui,/showTimer=\{fasting\.enabled\}/u);
+ assert.match(ui,/title="ساعات الليل الشرعي"/u);
+ assert.match(ui,/title="وقت صلاة الضحى"/u);
+});
