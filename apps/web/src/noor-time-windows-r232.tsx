@@ -23,14 +23,14 @@ function WindowCard({title,window:interval,nowMs,timeZone,unavailable,showTimer=
 }):ReactElement{
  const icon=tone==="day"?"☀":tone==="night"?"☾":tone==="duha"?"✦":"◷";
  if(!interval)return <article className={`np-r232-window np-r234-window tone-${tone}`} data-phase="unavailable">
-  <div className="np-r234-card-title"><span className="np-r234-symbol" aria-hidden="true">{icon}</span><h3>{title}</h3></div>
+  <div className="np-r234-card-title"><span className="np-r234-symbol" aria-hidden="true">{icon}</span><h3 aria-label={title}>{tone==="day"?"النهار":tone==="duha"?"الضحى":tone==="night"?"الليل":title}</h3></div>
   <p className="np-r232-help">{unavailable}</p>
  </article>;
  const state=r232Countdown(interval,nowMs);
  return <article className={`np-r232-window np-r234-window tone-${tone}`} data-phase={state.phase}>
   <div className="np-r234-card-title">
     <span className="np-r234-symbol" aria-hidden="true">{icon}</span>
-    <h3>{title}</h3>
+    <h3 aria-label={title}>{tone==="day"?"النهار":tone==="duha"?"الضحى":tone==="night"?"الليل":title}</h3>
     <span className="np-r234-state">{state.phase==="active"?"جارٍ الآن":state.phase==="finished"?"انتهت":"قادمة"}</span>
   </div>
   <div className="np-r234-times" dir="rtl">
@@ -69,22 +69,25 @@ export function NoorR232TimeWindows({prayers,nowMs,timeZone,preferences,nextFajr
    nowMs,timeZone,prayers,fridayAdhanClock:preferences.fridayAdhan,
    sunriseOffsetMinutes:preferences.afterSunrise,
  }):null;
- return <section className="np-card np-r232-section" data-testid="noor-day-night-friday-r232"
+ return <section className="np-card np-r232-section np-r246-rhythm-card" data-rhythm-layout="three-visible-columns-r246" data-testid="noor-day-night-friday-r232"
    aria-label="ساعات النهار والليل والضحى والجمعة">
    <div className="np-r232-heading">
-    <div className="np-r234-heading-label"><span className="np-r234-orbit" aria-hidden="true">◐</span><div><h2>إيقاع يومك</h2><p>النهار والليل والضحى، وفق مواقيت نور المعتمدة</p></div></div>
+    <div className="np-r234-heading-label"><span className="np-r234-orbit" aria-hidden="true">◐</span><div><h2>إيقاع اليوم</h2><p>النهار والليل والضحى، وفق مواقيت نور المعتمدة</p></div></div>
     <span className="np-r234-basis">من مواقيت الصلاة المعتمدة</span>
    </div>
-   <div className="np-r232-grid np-r234-grid np-r235-unified-rows np-r237-horizontal-strip np-r238-time-order" role="group" aria-label="النهار والضحى والليل وساعات الجمعة في صف واحد">
+   <div className="np-r232-grid np-r234-grid np-r235-unified-rows np-r237-horizontal-strip np-r238-time-order np-r246-three-up" role="group" aria-label="النهار والضحى والليل وساعات الجمعة في صف واحد">
     <div className="np-r232-fasting-wrapper" data-testid="fasting-timer-control-r232">
       <div className="np-r232-fasting-options np-r234-fasting-options">
         <span>{fasting.ramadan?"رمضان: المؤقت يعمل تلقائيًا":"مؤقت الصيام خارج رمضان"}</span>
         <button type="button" className="np-cc-button"
           disabled={fasting.ramadan||!onPreferencesChange}
           aria-pressed={fasting.enabled}
+          aria-label={fasting.ramadan?"مؤقت الصيام يعمل تلقائيًا":fasting.enabled?"إيقاف مؤقت الصيام":"تشغيل مؤقت الصيام"}
+          title={fasting.ramadan?"رمضان: يعمل المؤقت تلقائيًا":fasting.enabled?"إيقاف مؤقت الصيام":"تشغيل مؤقت الصيام"}
           onClick={()=>onPreferencesChange?.({...preferences,
             fastingTimerOutsideRamadan:!preferences.fastingTimerOutsideRamadan})}>
-          {fasting.ramadan?"مفعّل تلقائيًا":fasting.enabled?"إيقاف المؤقت":"تشغيل المؤقت"}
+          <span className="np-r246-fasting-symbol" aria-hidden="true">◷</span>
+          <span className="np-r246-fasting-label">{fasting.ramadan?"مفعّل تلقائيًا":fasting.enabled?"إيقاف المؤقت":"تشغيل المؤقت"}</span>
         </button>
       </div>
       <WindowCard title="ساعات النهار" tone="day" window={windows.fastingDay}
