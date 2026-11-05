@@ -368,6 +368,13 @@ implements PrivilegedPlatformRuntimeHost {
 
           idGenerator:
             new CryptographicIdGenerator(),
+
+          locationChange:{
+            timeZone:new IntlTimeZoneAdapter(),
+            prayerCalculator:new AdhanPrayerTimeCalculator(),
+            hijriCalculator:new IntlUmmAlQuraHijriDateCalculator(),
+            historyCatalog:new VersionedApprovedIslamicHistoryCatalog(),
+          },
         });
 
       // R221: explicit server-only opt-in, no implicit local/browser fallback.
