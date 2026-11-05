@@ -295,124 +295,20 @@ export function PlatformShell(
         </main>
       );
 
-    case "authentication-required": {
-      const authenticationState =
-        state.authenticationState
-        ?? "idle";
-
-      const submit =
-        (
-          event:
-            FormEvent<HTMLFormElement>,
-        ) => {
-          event.preventDefault();
-
-          if (!signIn) {
-            return;
-          }
-
-          const form =
-            new FormData(
-              event.currentTarget,
-            );
-
-          const email =
-            form.get(
-              "email",
-            );
-
-          const password =
-            form.get(
-              "password",
-            );
-
-          if (
-            typeof email !== "string"
-            || typeof password !== "string"
-          ) {
-            return;
-          }
-
-          void signIn({
-            email,
-            password,
-          });
-        };
-
+    case "authentication-required":
+      // R231: deep links and refresh use the exact same protected Noor gateway.
+      // Authentication checks remain server-enforced; no /personal view is mounted.
       return (
-        <main id="main-content" className="noor-auth-route-r230">
-          <h1>
-            Sign-in required
-          </h1>
-          <p>
-            Sign in is required before this application can be opened.
-          </p>
-
-          {signIn
-            ? (
-                <form onSubmit={submit}>
-                  <label>
-                    Email
-                    <input
-                      name="email"
-                      type="email"
-                      autoComplete="username"
-                      required
-                      disabled={authenticationState === "submitting"}
-                    />
-                  </label>
-
-                  <label>
-                    Password
-                    <input
-                      name="password"
-                      type="password"
-                      autoComplete="current-password"
-                      required
-                      disabled={authenticationState === "submitting"}
-                    />
-                  </label>
-
-                  <button
-                    type="submit"
-                    disabled={authenticationState === "submitting"}
-                  >
-                    {authenticationState === "submitting"
-                      ? "Signing in…"
-                      : "Sign in"}
-                  </button>
-                </form>
-              )
-            : null}
-
-          {authenticationState === "invalid-credentials"
-            ? (
-                <p role="alert">
-                  Sign-in could not be completed with those credentials.
-                </p>
-              )
-            : null}
-
-          {authenticationState === "unavailable"
-            ? (
-                <p role="alert">
-                  Sign-in is temporarily unavailable.
-                </p>
-              )
-            : null}
-
-          {authenticationState === "authenticated"
-            ? (
-                <p>
-                  Session established. Checking access…
-                </p>
-              )
-            : null}
-
-          <HomeLink navigate={navigate} />
-        </main>
+        <SmartGateway
+          navigate={navigate}
+          signIn={signIn}
+          authenticationState={
+            (state.authenticationState ?? authenticationState) === "authenticated"
+              ? "idle"
+              : state.authenticationState ?? authenticationState
+          }
+        />
       );
-    }
 
     case "session-access-unavailable":
       return (
