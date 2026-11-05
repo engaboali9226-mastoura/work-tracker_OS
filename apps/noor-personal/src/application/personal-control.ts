@@ -657,8 +657,9 @@ export class PersonalCommandService {
                     if(!instance || instance.userId!==userId) throw new PersonalControlError("EXECUTION_NOT_FOUND");
                     if(instance.scheduleOccurrenceKey!==parsed.localDate) throw new PersonalControlError("EXECUTION_NOT_CURRENT");
                     const currentDay=transaction.findOpenPersonalDayContaining(userId,now);
-                    if(!currentDay)throw new PersonalControlError("CURRENT_PERSONAL_DAY_REQUIRED");
-                    const civilToday=new IntlTimeZoneAdapter().localDateForInstant(now,currentDay.boundary.timeZone);
+                    // Historical-only corrections can run without an open day.
+                    // Active account operations use the verified Personal Day timezone.
+                    const civilToday=new IntlTimeZoneAdapter().localDateForInstant(now,currentDay?.boundary.timeZone??"Asia/Riyadh");
                     if(parsed.localDate>=civilToday) throw new PersonalControlError("CURRENT_PERSONAL_DAY_REQUIRED");
                     if(instance.status==="Suppressed" || instance.status==="Cancelled" || instance.status==="Skipped" || instance.status==="Deferred")
                         throw new PersonalControlError("EXECUTION_SUPPRESSED");
