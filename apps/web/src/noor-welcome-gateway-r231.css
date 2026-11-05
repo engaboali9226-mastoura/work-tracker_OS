@@ -223,3 +223,38 @@
   .noor-welcome-panel { animation: none; }
   .noor-welcome-gateway-r231 *, .noor-welcome-gateway-r231 *::before, .noor-welcome-gateway-r231 *::after { transition: none !important; }
 }
+/* Error, denial and unavailable routes retain their truthful messages,
+   but never revert to an unbranded blank white page. */
+.noor-route-state-r231 {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 28px max(18px, env(safe-area-inset-right,0px)) 28px max(18px, env(safe-area-inset-left,0px));
+  background:
+    radial-gradient(ellipse at 20% 22%,rgba(218,196,154,.22),transparent 60%),
+    linear-gradient(170deg,#faf9f5,#f2eee7);
+  color: #263b45;
+  font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Tahoma,sans-serif;
+  text-align: center;
+  gap: 12px;
+}
+.noor-route-state-r231::before {
+  content: "";
+  display: block;
+  width: 86px;
+  height: 86px;
+  flex: 0 0 86px;
+  border-radius: 50%;
+  border: 1px solid #e0ceab;
+  background: white url("/noor-platform-logo.jpeg") center / cover no-repeat;
+  box-shadow: 0 10px 26px rgba(75,60,38,.07);
+}
+.noor-route-state-r231 h1 { margin: 0; color: #263b45; font-size: clamp(20px,4.5vw,26px); }
+.noor-route-state-r231 p { max-width: 380px; margin: 0; color: #697a80; line-height: 1.7; font-size: 14px; }
+.noor-route-state-r231 a { color: #8d6f3f; font-weight: 700; text-underline-offset: 4px; }
+.noor-route-state-r231 a:focus-visible { outline: 3px solid #b99559; outline-offset: 4px; }
