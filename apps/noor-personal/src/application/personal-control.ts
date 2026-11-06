@@ -1,6 +1,6 @@
 const DEFAULT_PERSONAL_CATEGORIES=["الصحة والرياضة","العبادات","العمل","التعلم","الأسرة","الشؤون الشخصية","الأدوية والمكملات الغذائية"] as const;
 import { IntlTimeZoneAdapter } from "../domain/time.js";
-import { prepareTaskSessionPlan, sessionProgress, sessionStatus, sessionQuantity, sessionDayCredit, sessionEventCredit, type TaskSessionPlanDraft } from "../domain/task-sessions.js";
+import { prepareTaskSessionPlan, sessionProgress, sessionStatus, sessionQuantity, sessionDayCredit, sessionEventCredit, isPageUnit, type TaskSessionPlanDraft } from "../domain/task-sessions.js";
 import { applyFinanceOperation, emptyFinanceLedger, parseFinanceOperation, type FinanceOperation, type FinanceLedger } from "../domain/model.js";
 import type {
     AutomationOutboxEvent,
@@ -740,11 +740,14 @@ export class PersonalCommandService {
                     }
                     const day=activePersonalDay(transaction,userId,now);
                     if(instance.personalDayId!==day.id)throw new PersonalControlError("EXECUTION_NOT_CURRENT");
-                    if(instance.status==="Suppressed"||definition.state!=="Active")
+                    if(!["Pending","Planned","InProgress"].includes(instance.status)||definition.state!=="Active")
                         throw new PersonalControlError("DEFINITION_STATE_CONFLICT");
                     if(log.length>=10000)throw new Error("ACTIVITY_LIMIT_REACHED");
                     const previous=sessionProgress(log,session.id);
                     const amount=parsed.type==="record-task-session-progress"?parsed.amount:0;
+                    if(parsed.type==="record-task-session-progress"&&definition.measurement&&
+                       isPageUnit(definition.measurement.unit)&&!Number.isSafeInteger(amount))
+                        throw new Error("TASK_SESSION_PAGES_MUST_BE_WHOLE");
                     if(parsed.type==="record-task-session-progress"&&
                        (session.target===null||session.completedAt!==null||Math.round((previous+amount)*1e6)>Math.round(session.target*1e6)))
                         throw new Error("TASK_SESSION_EXCEEDS_TARGET");
