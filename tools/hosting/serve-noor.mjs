@@ -94,6 +94,19 @@ async function main(){
      console.error('NOOR_REVIEWER_AUTH_SETUP='+code);
    }
  }
+ // R261: opt-in creation of dedicated friends accounts; never run during ordinary startup.
+ if(process.env.NOOR_INVITE_CREATE_ONCE==='YES'){
+   try{
+     const {provisionFriendsOnce}=await import('./provision-friends-r261.mjs');
+     const result=await provisionFriendsOnce();
+     console.log('NOOR_FRIENDS_PROVISION='+result);
+   }catch(error){
+     const messages=['FRIENDS_CONFIG_INVALID','FRIENDS_PASSWORD_CONFIG_INVALID','FRIENDS_ADMIN_LOOKUP_FAILED','FRIENDS_IDENTITY_AMBIGUOUS','FRIENDS_IDENTITY_ALREADY_OCCUPIED'];
+     for(const key of ['abusufyan','abdulghani','noor'])messages.push('FRIENDS_CREATE_FAILED_'+key,'FRIENDS_MARKER_MISMATCH_'+key,'FRIENDS_LOGIN_FAILED_'+key);
+     const code=error instanceof Error&&messages.includes(error.message)?error.message:'FRIENDS_PROVISION_UNAVAILABLE';
+     console.error('NOOR_FRIENDS_PROVISION='+code);
+   }
+ }
  console.log('NOOR hosted web service ready.');
 }
 if(process.argv[1]&&path.resolve(process.argv[1])===fileURLToPath(import.meta.url))await main().catch(()=>{console.error('NOOR hosted startup failed; verify service configuration.');process.exitCode=1;});
