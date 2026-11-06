@@ -62,7 +62,7 @@ export function TaskSessionPlannerR254({enabled,setEnabled,distribution,setDistr
     </div>:null}
   </section>;
 }
-function OneSessionR254({session,log,definitionId,executionId,busy,onCommand,reading}:{session:StoredTaskSessionR254;log:readonly SessionEntryR254[];definitionId:string;executionId:string;busy:boolean;onCommand:(c:NoorPersonalCommandInput)=>Promise<boolean>;reading:boolean}):ReactElement{
+function OneSessionR254({session,log,definitionId,executionId,busy,onCommand,reading}:{session:StoredTaskSessionR254;log:readonly SessionEntryR254[];definitionId:string;executionId:string|null;busy:boolean;onCommand:(c:NoorPersonalCommandInput)=>Promise<boolean>;reading:boolean}):ReactElement{
   const s=session,progress=sessionProgressR254(log,s.id),done=sessionFinishedR254(s,log);
   const [note,setNote]=useState(s.note),[amount,setAmount]=useState(""),[activityNote,setActivityNote]=useState(""),[error,setError]=useState("");
   const entryId=useRef(globalThis.crypto.randomUUID());
@@ -74,7 +74,7 @@ function OneSessionR254({session,log,definitionId,executionId,busy,onCommand,rea
   };
   const saveProgress=async()=>{
     const n=Number(amount);
-    if(busy||done)return;
+    if(busy||done||!executionId)return;
     if(s.target===null||!Number.isFinite(n)||n<=0||round(progress+n)>s.target){setError("تحقق من الكمية المتبقية لهذه الجلسة.");return;}
     setError("");
     if(await onCommand({type:"record-task-session-progress",executionId,taskSessionId:s.id,entryId:entryId.current,amount:n,note:activityNote})){
@@ -82,7 +82,7 @@ function OneSessionR254({session,log,definitionId,executionId,busy,onCommand,rea
     }else setError("لم يتأكد حفظ التقدم؛ الكمية والملاحظة محفوظتان داخل النموذج.");
   };
   const complete=async()=>{
-    if(busy||done)return;setError("");
+    if(busy||done||!executionId)return;setError("");
     if(await onCommand({type:"complete-task-session",executionId,taskSessionId:s.id,entryId:entryId.current}))
       entryId.current=globalThis.crypto.randomUUID();
     else setError("تعذر تسجيل الإتمام؛ حاول مرة أخرى.");
@@ -93,8 +93,8 @@ function OneSessionR254({session,log,definitionId,executionId,busy,onCommand,rea
       {s.rangeStart!==null?<p>النطاق: {s.rangeStart}–{s.rangeEnd}</p>:null}
       {s.target!==null?<progress value={progress} max={s.target} aria-label={"تقدم "+s.title}/>:null}
       {s.completedAt?<time dateTime={s.completedAt}>الإتمام: {s.completedAt.slice(0,10)}</time>:null}
-      {!done&&s.target!==null?<div className="nts-stack"><label>الإنجاز الجديد<input type="number" step="0.000001" min="0.000001" max={round(s.target-progress)} value={amount} onChange={e=>setAmount(e.currentTarget.value)}/></label><label>ملاحظة النشاط (اختيارية)<textarea rows={2} maxLength={2000} value={activityNote} onChange={e=>setActivityNote(e.currentTarget.value)}/></label><button type="button" disabled={busy} onClick={()=>{void saveProgress();}}>حفظ التقدم</button></div>:null}
-      {!done&&s.target===null?<button type="button" disabled={busy} onClick={()=>{void complete();}}>إكمال هذه الجلسة</button>:null}
+      {!done&&s.target!==null&&executionId?<div className="nts-stack"><label>الإنجاز الجديد<input type="number" step="0.000001" min="0.000001" max={round(s.target-progress)} value={amount} onChange={e=>setAmount(e.currentTarget.value)}/></label><label>ملاحظة النشاط (اختيارية)<textarea rows={2} maxLength={2000} value={activityNote} onChange={e=>setActivityNote(e.currentTarget.value)}/></label><button type="button" disabled={busy} onClick={()=>{void saveProgress();}}>حفظ التقدم</button></div>:null}
+      {!done&&s.target===null&&executionId?<button type="button" disabled={busy} onClick={()=>{void complete();}}>إكمال هذه الجلسة</button>:null}
       <div className="nts-stack"><label>ملاحظات الجلسة<textarea rows={4} maxLength={10000} value={note} onChange={e=>setNote(e.currentTarget.value)} placeholder="تلخيص المعرفة والملاحظات والأسئلة…"/></label>
       {reading?<button type="button" onClick={()=>setNote(v=>v+(v?"\n\n":"")+"أهم فكرة فهمتها:\n\nمعلومات جديدة:\n\nفوائد عملية:\n\nأسئلة للبحث:\n")}>قالب تلخيص اختياري</button>:null}
       <button type="button" disabled={busy||note===s.note} onClick={()=>{void saveNote();}}>حفظ الملاحظة</button></div>
@@ -103,15 +103,32 @@ function OneSessionR254({session,log,definitionId,executionId,busy,onCommand,rea
     </div>
   </details>;
 }
-export function TaskSessionListR254({plan,log,definitionId,executionId,busy,onCommand,title}:{plan:StoredTaskSessionPlanR254;log:readonly SessionEntryR254[];definitionId:string;executionId:string;busy:boolean;onCommand:(c:NoorPersonalCommandInput)=>Promise<boolean>;title:string}):ReactElement{
+function TaskGeneralNoteR254({definitionId,revisionId,storedNote,busy,onCommand}:{definitionId:string;revisionId:string;storedNote:string;busy:boolean;onCommand:(c:NoorPersonalCommandInput)=>Promise<boolean>}):ReactElement{
+  const [body,setBody]=useState(storedNote),[error,setError]=useState("");
+  useEffect(()=>{setBody(storedNote);},[storedNote]);
+  const save=async()=>{
+    if(busy||body===storedNote)return;setError("");
+    const success=await onCommand({type:"edit-task-general-note",definitionId,expectedRevisionId:revisionId,note:body});
+    if(!success)setError("تعذر تأكيد حفظ الملاحظة العامة. النص باقٍ هنا؛ راجع أحدث بيانات المهمة قبل المحاولة.");
+  };
+  return <div className="nts-general-note"><label>ملاحظة عامة للمهمة<textarea maxLength={10000} rows={4} value={body} onChange={e=>setBody(e.currentTarget.value)} placeholder="خلاصة عامة ومراجعات مستقلة عن جلسات التنفيذ…"/></label>
+    <button type="button" disabled={busy||body===storedNote} onClick={()=>{void save();}}>حفظ الملاحظة العامة</button>
+    {error?<p className="nts-error" role="alert">{error}</p>:null}
+  </div>;
+}
+
+export function TaskSessionListR254({plan,log,definitionId,executionId,busy,onCommand,title,revisionId,taskGeneralNote=""}:{plan:StoredTaskSessionPlanR254;log:readonly SessionEntryR254[];definitionId:string;executionId:string|null;busy:boolean;onCommand:(c:NoorPersonalCommandInput)=>Promise<boolean>;title:string;revisionId?:string;taskGeneralNote?:string}):ReactElement{
   const count=plan.sessions.filter(s=>sessionFinishedR254(s,log)).length;
   return <details className="nts-list" data-testid="task-sessions-r254">
     <summary>الجلسات: {count} / {plan.sessions.length} مكتملة <small>التفاصيل والملاحظات</small></summary>
     <div className="nts-list-body">
       {plan.sessions.length?plan.sessions.map(s=><OneSessionR254 key={s.id} session={s} log={log} definitionId={definitionId} executionId={executionId} busy={busy} onCommand={onCommand} reading={/قراء|كتاب|reading|book/i.test(title)}/>):<p>يمكنك إضافة جلسات لاحقًا من تعديل المهمة.</p>}
-      <details className="nts-summary"><summary>الملاحظات والإنجازات</summary>{plan.sessions.filter(s=>s.note).sort((a,b)=>a.updatedAt.localeCompare(b.updatedAt)).map(s=><div key={s.id}><strong>{s.title}</strong><time dateTime={s.updatedAt}>{s.updatedAt.slice(0,10)}</time><p>{s.note}</p></div>)}</details>
+      <details className="nts-summary"><summary>الملاحظات والإنجازات</summary>
+        {revisionId?<TaskGeneralNoteR254 definitionId={definitionId} revisionId={revisionId} storedNote={taskGeneralNote} busy={busy} onCommand={onCommand}/>:null}
+        {plan.sessions.filter(s=>s.note).slice().sort((a,b)=>a.updatedAt.localeCompare(b.updatedAt)).map(s=><div key={s.id}><strong>{s.title}</strong><time dateTime={s.updatedAt}>{s.updatedAt.slice(0,10)}</time><p>{s.note}</p></div>)}
+      </details>
     </div>
   </details>;
 }
 
-export const TASK_SESSION_STYLES_R254 = "\n.np-page .np-activity-item:has(.nts-list){flex-wrap:wrap}\n.np-page .nts-list{flex-basis:100%;width:100%;min-width:0;border-top:1px solid var(--border);margin-top:5px;padding:3px}\n.np-page .nts-list>summary{cursor:pointer;display:flex;justify-content:space-between;gap:8px;font-size:12px;padding:9px;font-weight:650;color:var(--text)}\n.np-page .nts-list-body{display:grid;gap:9px;max-height:65dvh;overflow-y:auto;overscroll-behavior:contain;padding:5px 2px 12px}\n.np-page .nts-session{border:1px solid var(--border);border-radius:12px;background:var(--panel-soft);min-width:0}\n.np-page .nts-session>summary{display:flex;align-items:flex-start;flex-wrap:wrap;justify-content:space-between;gap:7px;cursor:pointer;padding:10px;font-size:12px}\n.np-page .nts-session>summary span:first-child{display:grid;gap:3px;min-width:0;flex:1}\n.np-page .nts-session>summary small{color:var(--muted);overflow-wrap:anywhere}\n.np-page .nts-session-body{display:grid;gap:9px;padding:12px;border-top:1px solid var(--border)}\n.np-page .nts-stack,.np-page .nts-planner-body{display:grid;gap:9px;min-width:0}\n.np-page .nts-session-body progress{width:100%;accent-color:var(--gold)}\n.np-page .nts-session-body label,.np-page .nts-plan label{display:grid;gap:5px;font-size:12px;min-width:0}\n.np-page .nts-session-body :is(input,textarea),.np-page .nts-plan :is(input:not([type=checkbox]),select){width:100%;min-width:0;border:1px solid var(--border-strong);background:var(--panel);color:var(--text);border-radius:9px;padding:9px;font:inherit}\n.np-page .nts-plan{display:grid;grid-column:1/-1;gap:10px;border:1px solid var(--border);border-radius:13px;padding:12px}\n.np-page .nts-plan .nts-toggle{display:flex;align-items:center;gap:8px}\n.np-page .nts-plan .nts-toggle input{width:auto}\n.np-page .nts-editor{min-width:0;display:grid;gap:8px;border:1px solid var(--border);border-radius:10px;padding:12px}\n.np-page .nts-three{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}\n.np-page .nts-actions,.np-page .nts-split{display:flex;align-items:end;gap:7px;flex-wrap:wrap}\n.np-page .nts-split small{flex-basis:100%}\n.np-page .nts-session-body button,.np-page .nts-plan button{border:1px solid var(--border-strong);background:var(--panel);color:var(--text);border-radius:9px;padding:9px 12px;font:inherit;min-height:40px;cursor:pointer}\n.np-page .nts-session-body button:disabled,.np-page .nts-plan button:disabled{opacity:.55;cursor:default}\n.np-page .nts-error{color:#a43f49}\n.np-page .nts-summary{border-top:1px solid var(--border);padding:10px}\n.np-page .nts-summary p{white-space:pre-wrap;overflow-wrap:anywhere}\n.np-page .nts-summary div{border-bottom:1px solid var(--border);padding:8px}\n.np-page .nts-summary time{display:block;color:var(--muted)}\n@media(max-width:700px){.np-page .nts-list-body{max-height:62dvh}.np-page .nts-three input{padding:8px 4px!important}}\n";
+export const TASK_SESSION_STYLES_R254 = "\n.np-page .np-activity-item:has(.nts-list){flex-wrap:wrap}\n.np-page .nts-list{flex-basis:100%;width:100%;min-width:0;border-top:1px solid var(--border);margin-top:5px;padding:3px}\n.np-page .nts-list>summary{cursor:pointer;display:flex;justify-content:space-between;gap:8px;font-size:12px;padding:9px;font-weight:650;color:var(--text)}\n.np-page .nts-list-body{display:grid;gap:9px;max-height:65dvh;overflow-y:auto;overscroll-behavior:contain;padding:5px 2px 12px}\n.np-page .nts-session{border:1px solid var(--border);border-radius:12px;background:var(--panel-soft);min-width:0}\n.np-page .nts-session>summary{display:flex;align-items:flex-start;flex-wrap:wrap;justify-content:space-between;gap:7px;cursor:pointer;padding:10px;font-size:12px}\n.np-page .nts-session>summary span:first-child{display:grid;gap:3px;min-width:0;flex:1}\n.np-page .nts-session>summary small{color:var(--muted);overflow-wrap:anywhere}\n.np-page .nts-session-body{display:grid;gap:9px;padding:12px;border-top:1px solid var(--border)}\n.np-page .nts-stack,.np-page .nts-planner-body{display:grid;gap:9px;min-width:0}\n.np-page .nts-session-body progress{width:100%;accent-color:var(--gold)}\n.np-page .nts-session-body label,.np-page .nts-plan label{display:grid;gap:5px;font-size:12px;min-width:0}\n.np-page .nts-session-body :is(input,textarea),.np-page .nts-plan :is(input:not([type=checkbox]),select){width:100%;min-width:0;border:1px solid var(--border-strong);background:var(--panel);color:var(--text);border-radius:9px;padding:9px;font:inherit}\n.np-page .nts-plan{display:grid;grid-column:1/-1;gap:10px;border:1px solid var(--border);border-radius:13px;padding:12px}\n.np-page .nts-plan .nts-toggle{display:flex;align-items:center;gap:8px}\n.np-page .nts-plan .nts-toggle input{width:auto}\n.np-page .nts-editor{min-width:0;display:grid;gap:8px;border:1px solid var(--border);border-radius:10px;padding:12px}\n.np-page .nts-three{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}\n.np-page .nts-actions,.np-page .nts-split{display:flex;align-items:end;gap:7px;flex-wrap:wrap}\n.np-page .nts-split small{flex-basis:100%}\n.np-page .nts-session-body button,.np-page .nts-plan button{border:1px solid var(--border-strong);background:var(--panel);color:var(--text);border-radius:9px;padding:9px 12px;font:inherit;min-height:40px;cursor:pointer}\n.np-page .nts-session-body button:disabled,.np-page .nts-plan button:disabled{opacity:.55;cursor:default}\n.np-page .nts-error{color:#a43f49}\n.np-page .nts-summary{border-top:1px solid var(--border);padding:10px}\n.np-page .nts-summary p{white-space:pre-wrap;overflow-wrap:anywhere}\n.np-page .nts-summary div{border-bottom:1px solid var(--border);padding:8px}\n.np-page .nts-summary time{display:block;color:var(--muted)}\n.np-page .nts-general-note{display:grid;gap:8px;padding:8px 0}\n.np-page .nts-general-note label{display:grid;gap:6px}\n.np-page .nts-general-note textarea{width:100%;min-width:0;resize:vertical;min-height:104px;padding:9px;border-radius:9px;border:1px solid var(--border-strong);background:var(--panel);color:var(--text);font:inherit}\n.np-page .nts-general-note button{min-height:40px;padding:9px;border-radius:9px;background:var(--panel);border:1px solid var(--border-strong);color:var(--text);cursor:pointer}\n@media(max-width:700px){.np-page .nts-list-body{max-height:62dvh}.np-page .nts-three input{padding:8px 4px!important}}\n";
