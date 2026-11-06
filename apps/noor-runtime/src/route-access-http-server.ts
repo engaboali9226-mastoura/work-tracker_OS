@@ -29,6 +29,8 @@ import type {
 
 import { JOURNAL_R186_PATH_PREFIX, makePrivateJournalHttpHandlerR186 } from "./noor-private-journal-http-r186.js";
 import { makeTrustedPrivateJournalHttpHandlerR221 } from "./noor-private-journal-http-r221.js";
+import {NOOR_WORK_TEACHER_PATH_R264} from "./noor-work-teacher-operation-r264.js";
+import type {NoorWorkTeacherOperationR264} from "./noor-work-teacher-operation-r264.js";
 
 export type { IncomingMessage, ServerResponse } from "node:http";
 
@@ -114,6 +116,10 @@ export interface RouteAccessHttpServerOptions {
     }>;
   readonly personalToday?: import("./personal-today-operation.js").PersonalTodayExecutor;
   readonly personalControl?: import("./personal-control-operation.js").PersonalControlExecutor;
+  readonly teacherWorkR264?: Readonly<{
+    operation:NoorWorkTeacherOperationR264;
+    expectedOrigin:string;
+  }>;
   /** Explicit trusted SERVER-only HTTPS journal. No browser or default fallback. */
   readonly trustedPrivateJournalR221?: Readonly<{
     operation: import("./noor-private-journal-r185.js").NoorPrivateJournalOperationR185;
@@ -815,6 +821,33 @@ async function handlePersonalCommand(
 }
 
 
+async function handleTeacherWorkR264(
+  work:Readonly<{operation:NoorWorkTeacherOperationR264;expectedOrigin:string}>,
+  request:IncomingMessage,
+  response:ServerResponse,
+):Promise<void>{
+  if(request.method!=="GET"&&request.method!=="PUT"){
+    writeEmpty(response,405,{Allow:"GET, PUT"});return;
+  }
+  const sessionId=sessionIdFromCookieHeader(request.headers.cookie);
+  if(request.method==="GET"){
+    const result=await work.operation.read(sessionId);
+    if(result.status===200)writeJson(response,200,result.body);
+    else writeEmpty(response,result.status);
+    return;
+  }
+  // A browser may only update teacher records from the exact Noor origin.
+  if(request.headers.origin!==work.expectedOrigin){writeEmpty(response,403);return;}
+  if(!isSupportedContentType(request.headers["content-type"])){writeEmpty(response,415);return;}
+  const body=await readRequestBody(request,524288);
+  if(body.kind==="too-large"){writeEmpty(response,413);return;}
+  let input:unknown;
+  try{input=JSON.parse(body.body);}catch{writeEmpty(response,400);return;}
+  const result=await work.operation.write(sessionId,input);
+  if(result.status===200)writeJson(response,200,result.body);
+  else writeEmpty(response,result.status);
+}
+
 async function handleRequest(
   executor:
     RouteAccessEvidenceExecutor,
@@ -824,12 +857,17 @@ async function handleRequest(
     import("./personal-today-operation.js").PersonalTodayExecutor | undefined,
   personalControl:
     import("./personal-control-operation.js").PersonalControlExecutor | undefined,
+  teacherWorkR264: RouteAccessHttpServerOptions["teacherWorkR264"],
   labJournalHandler: ((request:IncomingMessage,response:ServerResponse)=>Promise<void>) | undefined,
   request:
     IncomingMessage,
   response:
     ServerResponse,
 ): Promise<void> {
+  if(request.url===NOOR_WORK_TEACHER_PATH_R264){
+    if(!teacherWorkR264){writeEmpty(response,404);return;}
+    await handleTeacherWorkR264(teacherWorkR264,request,response);return;
+  }
   // R193: fail closed when the synthetic lab journal route is not opted in.
   if (typeof request.url === "string" && request.url.startsWith(JOURNAL_R186_PATH_PREFIX)) {
     if (!labJournalHandler) {writeEmpty(response,404);return;}
@@ -1099,6 +1137,7 @@ export function createRouteAccessHttpServer(
           sessionHandler,
           options.personalToday,
           options.personalControl,
+          options.teacherWorkR264,
           labJournalHandler,
           request,
           response,
