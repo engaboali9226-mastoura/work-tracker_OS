@@ -140,6 +140,7 @@ test("R258: a lost progress acknowledgement retains the same activity ID for saf
    const number=doc.querySelector<HTMLInputElement>('.nts-session-body input[type="number"]')!;
    const note=doc.querySelector<HTMLTextAreaElement>('.nts-session-body textarea[maxlength="2000"]')!;
    await act(async()=>{
+     number.focus();
      Object.getOwnPropertyDescriptor(t.dom.window.HTMLInputElement.prototype,"value")!.set!.call(number,"4");
      number.dispatchEvent(new t.dom.window.Event("input",{bubbles:true}));
      number.dispatchEvent(new t.dom.window.Event("change",{bubbles:true}));
