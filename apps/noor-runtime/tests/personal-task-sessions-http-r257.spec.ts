@@ -131,10 +131,20 @@ test("R257 authenticated real localhost HTTP: two browser cookies, cross-device 
   const sessionNote=await command("cookie-mac",{type:"edit-task-session-note",definitionId:"book-a",
    taskSessionId:"chapter-one",expectedRevision:0,note:"استنتاج من الفصل الأول"});
   assert.equal(sessionNote.status,200);
+  // Invalid page fractions are validation conflicts, not infrastructure outages.
+  const fractional=await command("cookie-phone",{type:"record-task-session-progress",
+   executionId:"execution-a",taskSessionId:"chapter-one",entryId:"invalid-fraction",
+   amount:0.5,note:""});
+  assert.equal(fractional.status,409);
+  assert.equal(fractional.raw,"");
+
   const progress={type:"record-task-session-progress",executionId:"execution-a",
    taskSessionId:"chapter-one",entryId:"r257-fixed-event",amount:4,note:"قرأت 4 صفحات"};
   assert.equal((await command("cookie-phone",progress)).status,200);
   assert.equal((await command("cookie-phone",progress)).status,200);
+  const reusedId=await command("cookie-phone",{...progress,amount:7});
+  assert.equal(reusedId.status,409);
+  assert.equal(reusedId.raw,"");
   const after=await read("cookie-mac");
   const d=after.data.definitions[0];
   assert.equal(d.taskGeneralNote,"ملخص الكتاب");
