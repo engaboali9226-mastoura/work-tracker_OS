@@ -29,6 +29,7 @@ function categoryNames(snapshot:Pick<PersonalFoundationSnapshotPort,"getCategori
 
 export type PersonalCommand =
     | Readonly<{type:"configure-task-sessions";definitionId:string;expectedRevisionId:string;plan:TaskSessionPlanDraft|null}>
+    | Readonly<{type:"edit-task-general-note";definitionId:string;expectedRevisionId:string;note:string}>
     | Readonly<{type:"edit-task-session-note";definitionId:string;taskSessionId:string;expectedRevision:number;note:string}>
     | Readonly<{type:"record-task-session-progress";executionId:string;taskSessionId:string;entryId:string;amount:number;note:string}>
     | Readonly<{type:"complete-task-session";executionId:string;taskSessionId:string;entryId:string}>
@@ -280,6 +281,12 @@ export function parsePersonalCommand(
           latitude:city.latitude,longitude:city.longitude,timeZone:city.timeZone}};
     }
 
+    if(value.type==="edit-task-general-note"){
+        if(!exactKeys(value,["type","definitionId","expectedRevisionId","note"])||
+           !boundedIdentifier(value.definitionId)||!boundedIdentifier(value.expectedRevisionId)||
+           typeof value.note!=="string"||value.note.length>10000)return null;
+        return {type:"edit-task-general-note",definitionId:value.definitionId,expectedRevisionId:value.expectedRevisionId,note:value.note.trim()};
+    }
     if(value.type==="configure-task-sessions"){
         if(!exactKeys(value,["type","definitionId","expectedRevisionId","plan"]) ||
           !boundedIdentifier(value.definitionId)||!boundedIdentifier(value.expectedRevisionId))return null;
@@ -674,6 +681,19 @@ export class PersonalCommandService {
         await this.dependencies.transaction.runInTransaction(
             transaction => {
 
+                if(command.type==="edit-task-general-note"){
+                    const parsed=parsePersonalCommand(command);
+                    if(!parsed||parsed.type!=="edit-task-general-note")throw new Error("TASK_NOTE_INVALID");
+                    const definition=transaction.findDefinitionById(userId,parsed.definitionId);
+                    if(!definition||definition.kind!=="Task")throw new PersonalControlError("DEFINITION_NOT_FOUND");
+                    if((definition.taskGeneralNote??"")===parsed.note)return;
+                    if(definition.revisionId!==parsed.expectedRevisionId)
+                        throw new PersonalControlError("DEFINITION_STATE_CONFLICT");
+                    const {taskGeneralNote:_previous,...preserved}=definition;
+                    transaction.saveDefinition({...preserved,...(parsed.note?{taskGeneralNote:parsed.note}:{}),
+                        revisionId:this.dependencies.idGenerator.next("definition-revision")});
+                    return;
+                }
                 if(command.type==="configure-task-sessions"){
                     const parsed=parsePersonalCommand(command);
                     if(!parsed||parsed.type!=="configure-task-sessions")throw new Error("TASK_SESSION_INVALID_COMMAND");
