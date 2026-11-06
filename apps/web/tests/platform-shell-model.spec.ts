@@ -139,7 +139,7 @@ test(
 );
 
 test(
-  "planned applications remain non-mountable before lifecycle or access evaluation",
+  "a failed platform remains closed before access evaluation on Work",
   () => {
     let lookups =
       0;
@@ -170,7 +170,7 @@ test(
             work,
           ),
       }).kind,
-      "planned-application",
+      "platform-failed-closed",
     );
 
     assert.equal(
@@ -236,7 +236,7 @@ test(
 );
 
 test(
-  "registry rejects duplicate, unknown, and planned registrations",
+  "registry rejects duplicate or unknown and accepts enabled Work",
   () => {
     const factory =
       () =>
@@ -289,24 +289,11 @@ test(
           === "UNKNOWN_APPLICATION",
     );
 
-    assert.throws(
-      () =>
-        createApplicationViewRegistry(
-          applicationCatalog,
-          [
-            {
-              appKey:
-                work.appKey,
-              factory,
-            },
-          ],
-        ),
-      error =>
-        error
-          instanceof ApplicationViewRegistrationError
-        && error.code
-          === "NON_MOUNTABLE_APPLICATION",
+    const workViews=createApplicationViewRegistry(
+      applicationCatalog,
+      [{appKey:work.appKey,factory}],
     );
+    assert.equal(workViews.find(work.appKey),factory);
   },
 );
 
@@ -963,7 +950,7 @@ test(
             work,
           ),
       }).kind,
-      "planned-application",
+      "known-view-unavailable",
     );
 
     assert.equal(

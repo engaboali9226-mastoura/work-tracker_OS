@@ -98,7 +98,7 @@ function sourceFilesUnder(
 }
 
 test(
-  "production web composition registers exactly one truthful Noor Personal view without crossing privileged or fake-data boundaries",
+  "production web composition registers Personal and Work without privileged or fake-data boundaries",
   () => {
     const main =
       readRepositoryFile(
@@ -129,7 +129,7 @@ test(
       /factory:\s*\(\)\s*=>\s*\(\s*<NoorPersonalApplicationView\s*\/>\s*\)/u,
     );
 
-    assert.doesNotMatch(
+    assert.match(
       main,
       /appKey:\s*"noor-work"/u,
     );

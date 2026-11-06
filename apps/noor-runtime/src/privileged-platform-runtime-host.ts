@@ -48,6 +48,9 @@ import type {
 import {
   PersonalTodayOperation,
 } from "./personal-today-operation.js";
+import type {SupabaseClient} from "@supabase/supabase-js";
+import {NoorWorkTeacherOperationR264} from "./noor-work-teacher-operation-r264.js";
+import type {NoorWorkTeacherDatabaseR264} from "./noor-work-teacher-operation-r264.js";
 
 import { NoorPrivateJournalOperationR185 } from "./noor-private-journal-r185.js";
 import type { JournalKeyRingR188 } from "./noor-private-journal-r185.js";
@@ -79,6 +82,8 @@ export interface PrivilegedPlatformRuntimeOperations {
   readonly personalControl:
     PersonalControlOperation;
 
+  readonly teacherWork: NoorWorkTeacherOperationR264;
+
   readonly trustedPrivateJournalR221?: NoorPrivateJournalOperationR185 | undefined;
 
   execute(
@@ -106,6 +111,8 @@ implements PrivilegedPlatformRuntimeOperations {
 
     public readonly personalControl:
       PersonalControlOperation,
+
+    public readonly teacherWork: NoorWorkTeacherOperationR264,
 
     public readonly trustedPrivateJournalR221?: NoorPrivateJournalOperationR185,
   ) {}
@@ -166,6 +173,8 @@ implements PrivilegedPlatformRuntimeHost {
 
     private readonly accountUserResolver:
       SupabasePostgresAuthenticationAccountUserResolver,
+
+    private readonly workClient: SupabaseClient<NoorWorkTeacherDatabaseR264>,
 
     private readonly journalStore?: SupabasePostgresPrivateJournalStoreR221,
     private readonly journalKeyRing?: JournalKeyRingR188,
@@ -377,6 +386,14 @@ implements PrivilegedPlatformRuntimeHost {
           },
         });
 
+      const teacherWork=new NoorWorkTeacherOperationR264({
+        isRuntimeRunning,
+        resolveSession:platform.services.session.resolve,
+        authorize:platform.services.authorization.authorize,
+        accountUserResolver:this.accountUserResolver,
+        client:this.workClient,
+      });
+
       // R221: explicit server-only opt-in, no implicit local/browser fallback.
       if (this.journalStore) await this.journalStore.assertAccessible();
       const privateJournal = this.journalStore && this.journalKeyRing
@@ -405,6 +422,7 @@ implements PrivilegedPlatformRuntimeHost {
           sessionEstablishment,
           personalToday,
           personalControl,
+          teacherWork,
           privateJournal,
         );
 
@@ -654,6 +672,7 @@ export function createPrivilegedPlatformRuntimeHost(
     root,
     personalPersistence,
     accountUserResolver,
+    createNoorPrivilegedSupabaseClient<NoorWorkTeacherDatabaseR264>(configuration),
     journalStore,
     journalKeyRing,
   );

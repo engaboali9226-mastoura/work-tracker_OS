@@ -103,7 +103,7 @@ test("canonical catalog lists only the two approved applications in deterministi
         route:
           "/work",
         status:
-          "planned",
+          "experimental",
       },
     ],
   );

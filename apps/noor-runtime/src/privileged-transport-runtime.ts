@@ -29,6 +29,7 @@ extends RouteAccessEvidenceExecutor {
     SessionEstablishmentExecutor;
   readonly personalToday?: import("./personal-today-operation.js").PersonalTodayExecutor;
   readonly personalControl?: import("./personal-control-operation.js").PersonalControlExecutor;
+  readonly teacherWork?: import("./noor-work-teacher-operation-r264.js").NoorWorkTeacherOperationR264;
   readonly trustedPrivateJournalR221?: import("./noor-private-journal-r185.js").NoorPrivateJournalOperationR185 | undefined;
 }
 
@@ -165,6 +166,9 @@ implements PrivilegedTransportRuntime {
                 executor.personalToday,
             };
 
+      const teacherWorkOptions: Pick<RouteAccessHttpServerOptions,"teacherWorkR264"> =
+        executor.teacherWork===undefined ? {} : {teacherWorkR264:{operation:executor.teacherWork,expectedOrigin:this.dependencies.httpConfiguration.publicOrigin}};
+
       const personalControlOptions =
         executor.personalControl
           === undefined
@@ -231,6 +235,7 @@ implements PrivilegedTransportRuntime {
             },
             ...personalTodayOptions,
             ...personalControlOptions,
+            ...teacherWorkOptions,
             ...labJournalOptions,
             ...trustedJournalOptions,
           },

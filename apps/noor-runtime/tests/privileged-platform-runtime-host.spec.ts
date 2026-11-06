@@ -209,7 +209,7 @@ test(
 );
 
 test(
-  "production host composes five baseline and one explicitly gated private journal privileged clients",
+  "production host composes isolated teacher client in addition to baseline and gated journal clients",
   () => {
     const source =
       readFileSync(
@@ -227,7 +227,7 @@ test(
         )
         ?? []
       ).length,
-      6,
+      7,
     );
 
     for (
@@ -238,6 +238,7 @@ test(
         "NoorEntitlementDatabase",
         "NoorAuthenticationAccountUserDatabase",
         "NoorPersonalFoundationDatabase",
+        "NoorWorkTeacherDatabaseR264",
         "NoorPrivateJournalDatabaseR221",
       ]
     ) {
