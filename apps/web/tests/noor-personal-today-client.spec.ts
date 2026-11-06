@@ -4,6 +4,7 @@ import test from "node:test";
 import {
   fetchNoorPersonalToday,
   fetchNoorPersonalWorkspace,
+  fetchLatestNoorPersonalWorkspaceAfterConflict,
   sendNoorPersonalCommand,
   sendNoorPersonalCommandDetailed,
 } from "../src/noor-personal-today-client.js";
@@ -474,3 +475,31 @@ test(
     assert.equal(todayCalls,3);
   },
 );
+
+test("R258: a rejected note edit forces a fresh workspace read instead of reusing an in-flight stale snapshot",async()=>{
+ let calls=0,releaseOld:(()=>void)|undefined;
+ const oldGate=new Promise<void>(resolve=>{releaseOld=resolve;});
+ const fetcher:typeof fetch=async(input,init)=>{
+   assert.equal(input,"/api/noor/personal/workspace");
+   assert.equal(init?.credentials,"same-origin");
+   const current=++calls;
+   if(current===1)await oldGate;
+   return new Response(JSON.stringify({
+     definitions:[{id:"task",taskGeneralNote:current===1?"OLD NOTE":"REMOTE EDIT FROM PHONE"}],
+     insights:{currentLocalDate:"2026-11-06"},
+   }),{status:200,headers:{"Content-Type":"application/json"}});
+ };
+ const stale=fetchNoorPersonalWorkspace(fetcher);
+ const fresh=fetchLatestNoorPersonalWorkspaceAfterConflict(fetcher);
+ assert.equal(calls,2,"conflict refresh must not coalesce with a pending stale fetch");
+ const result=await fresh;
+ assert.equal(result.kind,"success");
+ if(result.kind==="success")assert.equal((result.workspace as any).definitions[0].taskGeneralNote,"REMOTE EDIT FROM PHONE");
+ releaseOld?.();
+ const older=await stale;assert.equal(older.kind,"success");
+ if(older.kind==="success")assert.equal((older.workspace as any).definitions[0].taskGeneralNote,"OLD NOTE");
+ const again=await fetchNoorPersonalWorkspace(fetcher);
+ assert.equal(calls,3,"stale completion must not replace future workspace reads");
+ assert.equal(again.kind,"success");
+ if(again.kind==="success")assert.equal((again.workspace as any).definitions[0].taskGeneralNote,"REMOTE EDIT FROM PHONE");
+});
