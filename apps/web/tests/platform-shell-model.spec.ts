@@ -950,7 +950,7 @@ test(
             work,
           ),
       }).kind,
-      "planned-application",
+      "known-view-unavailable",
     );
 
     assert.equal(
