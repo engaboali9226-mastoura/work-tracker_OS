@@ -1938,7 +1938,12 @@ function ControlCenter({ busy, orderingPending=false, workspace, executions, onC
   const renderControlRow=(item:DefinitionItem)=><div className="np-cc-expandable" key={item.id}><button aria-expanded={selected?.id===item.id} aria-controls={`np-detail-${item.id}`} className={`np-cc-row${selected?.id===item.id?" is-selected":""}`} onClick={()=>{setSelectedId(selectedId===item.id?null:item.id);setConfirmArchive(null);}} type="button"><span className="np-cc-row-icon">{icon(item.kind)}</span><span className="np-cc-row-copy"><strong>{item.title}</strong><span>{item.category} · {scheduleLabel(item)}</span></span><span className={`np-cc-status ${item.state.toLowerCase()}`}>{item.state==="Paused"?"متوقفة":item.state==="Archived"?"مؤرشفة":currentExecution(item.id)?.status==="Completed"?"مكتملة اليوم":"نشطة"}</span></button>{selected?.id===item.id?<div aria-label="تفاصيل العنصر" className="np-cc-inline-detail" id={`np-detail-${item.id}`}><p className="np-cc-kicker">{selected.kind==="Habit"?"تفاصيل العادة":"تفاصيل المهمة"}</p><h2>{selected.title}</h2><dl><dt>القسم</dt><dd>{selected.category}</dd><dt>الحالة</dt><dd>{selected.state==="Active"?"نشطة":selected.state==="Paused"?"متوقفة مؤقتًا":selected.state==="Stopped"?"متوقفة نهائيًا":"مؤرشفة"}</dd><dt>تاريخ البداية</dt><dd>{selected.startDate}</dd><dt>تاريخ النهاية</dt><dd>{selected.endDate??"غير محدد"}</dd><dt>الجدول</dt><dd>{scheduleLabel(selected)}</dd>{selected.timeOfDay?<><dt>موعد التنفيذ</dt><dd>{selected.timeOfDay}</dd></>:null}<dt>الأهمية</dt><dd>{({Essential:"أساسي",Important:"مهم",Supporting:"داعم",Optional:"اختياري"} as Record<string,string>)[selected.importance]??selected.importance}</dd></dl>{selected.kind==="Task"&&selected.sessionPlan?<TaskSessionListR254 plan={selected.sessionPlan} log={selected.activityLog} definitionId={selected.id} executionId={currentExecution(selected.id)?.id??null} busy={busy} onCommand={onCommand} title={selected.title} revisionId={selected.revisionId} taskGeneralNote={selected.taskGeneralNote??""}/>:null}<div className="np-cc-actions">
         <button className="np-cc-button primary" disabled={busy||!selected.revisionId} type="button" onClick={()=>{setEditing(selected);setFormError(null);setFormSession(v=>v+1);setCreating(true);}}>تعديل البيانات والجدول</button>
         {selected.state!=="Archived"?<button className="np-cc-button" disabled={busy} onClick={()=>{void apply({type:"set-definition-state",definitionId:selected.id,state:selected.state==="Paused"?"Active":"Paused"});}} type="button">{selected.state==="Paused"?"إعادة التشغيل":"إيقاف مؤقت"}</button>:null}
-        {selected.kind==="Task"&&selected.state!=="Archived"&&currentExecution(selected.id)?<button className="np-cc-button primary" disabled={busy||currentExecution(selected.id)?.status==="Suppressed"} onClick={()=>{const item=currentExecution(selected.id);if(item)void apply({type:"set-execution-completed",executionId:item.id,completed:item.status!=="Completed"});}} type="button">{currentExecution(selected.id)?.status==="Completed"?"إعادة فتح المهمة":"إنهاء مهمة اليوم"}</button>:selected.kind==="Task"&&selected.state!=="Archived"?<p className="np-cc-help">يظهر زر الإنجاز عندما يكون للمهمة تنفيذ مجدول اليوم.</p>:null}
+        {selected.kind==="Task"&&selected.state!=="Archived"&&currentExecution(selected.id)?<button className="np-cc-button primary" disabled={busy||currentExecution(selected.id)?.status==="Suppressed"||
+           (!!selected.sessionPlan&&currentExecution(selected.id)?.status!=="Completed"&&
+             (selected.sessionPlan.sessions.length===0||
+              selected.sessionPlan.sessions.some(s=>!sessionFinishedR254(s,selected.activityLog))||
+              !!selected.measurement&&selected.activityLog.reduce((n,e)=>n+e.amount,0)<selected.measurement.target))}
+         onClick={()=>{const item=currentExecution(selected.id);if(item)void apply({type:"set-execution-completed",executionId:item.id,completed:item.status!=="Completed"});}} type="button">{currentExecution(selected.id)?.status==="Completed"?"إعادة فتح المهمة":"إنهاء مهمة اليوم"}</button>:selected.kind==="Task"&&selected.state!=="Archived"?<p className="np-cc-help">يظهر زر الإنجاز عندما يكون للمهمة تنفيذ مجدول اليوم.</p>:null}
         {selected.state!=="Archived"?<button className="np-cc-button danger" disabled={busy} onClick={()=>setConfirmArchive(selected.id)} type="button">أرشفة {selected.kind==="Habit"?"العادة":"المهمة"}</button>:<p className="np-cc-help">العنصر مؤرشف، وسجله محفوظ.</p>}
         <button className="np-cc-button danger" disabled={busy} onClick={()=>{setDeleteId(selected.id);}} type="button">حذف نهائي من قاعدة البيانات</button>
 
@@ -1985,7 +1990,9 @@ function ActivityCard({item,definition,busy,pending=false,historicalDate=null,on
  const log=definition?.activityLog ?? [];
  const total=Math.round(log.reduce((sum,e)=>sum+e.amount,0)*1e6)/1e6;
  const completed=item.status==="Completed";
- const sessionsDone=definition?.sessionPlan?.sessions.every(s=>sessionFinishedR254(s,log))??true;
+ const sessionsDone=!definition?.sessionPlan || (definition.sessionPlan.sessions.length>0 &&
+   definition.sessionPlan.sessions.every(s=>sessionFinishedR254(s,log)));
+ const parentTargetDone=!definition?.sessionPlan||!definition.measurement||total>=definition.measurement.target;
  const task=item.kind==="Task";
  const displayTitle=definition?.title??item.title;
  const ended=definition?.state==="Stopped";
@@ -2011,7 +2018,7 @@ function ActivityCard({item,definition,busy,pending=false,historicalDate=null,on
   const endReason=mode==="finish" ? String(data.get("endReason")) as "achieved"|"expired"|"cancelled" : null;
   if(!note && !amount && !endReason){setError("اكتب ملاحظة أو أضف كمية منجزة.");return;}
   if(definition?.measurement && Math.round((total+amount)*1e6)/1e6>definition.measurement.target){setError("الكمية الجديدة تتجاوز الهدف المتبقي.");return;}
-  if(endReason==="achieved"&&!sessionsDone){setError("أكمل جميع الجلسات قبل اختيار تم الإنجاز، أو اختر سبب إنهاء آخر.");return;}
+  if(endReason==="achieved"&&(!sessionsDone||!parentTargetDone)){setError("أكمل جميع الجلسات قبل اختيار تم الإنجاز، أو اختر سبب إنهاء آخر.");return;}
   if(endReason==="achieved" && definition?.measurement && Math.round((total+amount)*1e6)/1e6<definition.measurement.target){setError("سجّل الكمية المتبقية أولًا، أو اختر سبب إنهاء آخر.");return;}
   setError("");
   if(await onCommand({type:"record-activity",executionId:item.id,entryId,note,amount,endReason}))setMode(null);
@@ -2036,7 +2043,7 @@ function ActivityCard({item,definition,busy,pending=false,historicalDate=null,on
   }}><h2>{mode==="finish"?"إنهاء المهمة":"تسجيل ملاحظة أو إنجاز"}</h2><p>{displayTitle}</p>
   {canRecord ? <form onSubmit={event=>{void save(event);}}>
   {task && definition?.measurement && !definition.sessionPlan ? <label>الكمية المنجزة الجديدة ({definition.measurement.unit})<input name="amount" type="number" min="0" max={Math.max(0,definition.measurement.target-total)} step="0.000001" defaultValue="0" disabled={busy}/><small>المسجل سابقًا: {arabicNumber(total)} — أضف إنجاز هذه المرة فقط.</small></label> : null}
-  {mode==="finish" ? <label>سبب الإنهاء<select name="endReason" required disabled={busy} defaultValue=""><option disabled value="">اختر السبب</option><option value="achieved" disabled={!!definition?.sessionPlan&&!sessionsDone}>تم الإنجاز</option><option value="expired">انتهى الوقت دون اكتمال</option><option value="cancelled">إلغاء المهمة</option></select></label> : null}
+  {mode==="finish" ? <label>سبب الإنهاء<select name="endReason" required disabled={busy} defaultValue=""><option disabled value="">اختر السبب</option><option value="achieved" disabled={!!definition?.sessionPlan&&(!sessionsDone||!parentTargetDone)}>تم الإنجاز</option><option value="expired">انتهى الوقت دون اكتمال</option><option value="cancelled">إلغاء المهمة</option></select></label> : null}
   <label>{task?"تفاصيل الإنجاز / الملاحظة":historicalDate?"ملاحظة اليوم المختار":"ملاحظة اليوم"}<textarea name="note" rows={3} maxLength={2000} disabled={busy}/></label>
   {mode==="finish" ? <p className="np-activity-help">سيُحفظ السبب وتتوقف المهمة عن الظهور في الأيام التالية. الإنهاء دون إنجاز لا يُحسب إنجازًا.</p> : null}
   {error ? <p role="alert" className="np-action-error">{error}</p> : null}
