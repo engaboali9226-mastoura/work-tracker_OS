@@ -66,7 +66,13 @@ function OneSessionR254({session,log,definitionId,executionId,busy,onCommand,rea
   const s=session,progress=sessionProgressR254(log,s.id),done=sessionFinishedR254(s,log);
   const [note,setNote]=useState(s.note),[amount,setAmount]=useState(""),[activityNote,setActivityNote]=useState(""),[error,setError]=useState("");
   const entryId=useRef(globalThis.crypto.randomUUID());
-  useEffect(()=>{setNote(s.note);},[s.note]);
+  // Refresh server notes without erasing an unsaved local draft after a background sync.
+  const previousServerNote=useRef(s.note);
+  useEffect(()=>{
+    const previous=previousServerNote.current;
+    previousServerNote.current=s.note;
+    setNote(local=>local===previous?s.note:local);
+  },[s.note]);
   const saveNote=async()=>{
     if(busy)return;setError("");
     if(!await onCommand({type:"edit-task-session-note",definitionId,taskSessionId:s.id,expectedRevision:s.revision,note}))
@@ -105,7 +111,12 @@ function OneSessionR254({session,log,definitionId,executionId,busy,onCommand,rea
 }
 function TaskGeneralNoteR254({definitionId,revisionId,storedNote,busy,onCommand}:{definitionId:string;revisionId:string;storedNote:string;busy:boolean;onCommand:(c:NoorPersonalCommandInput)=>Promise<boolean>}):ReactElement{
   const [body,setBody]=useState(storedNote),[error,setError]=useState("");
-  useEffect(()=>{setBody(storedNote);},[storedNote]);
+  const previousServerNote=useRef(storedNote);
+  useEffect(()=>{
+    const previous=previousServerNote.current;
+    previousServerNote.current=storedNote;
+    setBody(local=>local===previous?storedNote:local);
+  },[storedNote]);
   const save=async()=>{
     if(busy||body===storedNote)return;setError("");
     const success=await onCommand({type:"edit-task-general-note",definitionId,expectedRevisionId:revisionId,note:body});
