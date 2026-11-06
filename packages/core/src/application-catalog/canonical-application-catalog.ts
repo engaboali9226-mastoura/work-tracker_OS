@@ -43,7 +43,7 @@ const CANONICAL_APPLICATIONS = [
     route:
       "/work",
     status:
-      "planned",
+      "experimental",
     requiredEntitlement: {
       action:
         "access",
