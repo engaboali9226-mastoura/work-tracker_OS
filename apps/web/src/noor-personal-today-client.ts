@@ -24,6 +24,7 @@ export type NoorPersonalWorkspaceResult =
 
 export type NoorPersonalCommandInput =
   | Readonly<{type:"configure-task-sessions";definitionId:string;expectedRevisionId:string;plan:NoorTaskSessionPlanDraft|null}>
+  | Readonly<{type:"edit-task-general-note";definitionId:string;expectedRevisionId:string;note:string}>
   | Readonly<{type:"edit-task-session-note";definitionId:string;taskSessionId:string;expectedRevision:number;note:string}>
   | Readonly<{type:"record-task-session-progress";executionId:string;taskSessionId:string;entryId:string;amount:number;note:string}>
   | Readonly<{type:"complete-task-session";executionId:string;taskSessionId:string;entryId:string}>
