@@ -1,4 +1,5 @@
 import {TaskSessionPlannerR254,TaskSessionListR254,sessionFinishedR254,TASK_SESSION_STYLES_R254,type StoredTaskSessionPlanR254,type StoredTaskSessionR254} from "./noor-task-sessions-r254.js";
+import {shouldRefreshNoorOnResume} from "./noor-resume-sync-r259.js";
 import type {NoorTaskSessionDraft} from "./noor-personal-today-client.js";
 import { noorCategoryOptions, noorExistingCategory, noorProposeCategory } from "./category-selection-r163.js";
 import { NoorThreeSpacesR171 } from "./noor-three-spaces-r171.js";
@@ -26,6 +27,7 @@ import {
   financeEditToken,
   fetchNoorPersonalToday,
   fetchNoorPersonalWorkspace,
+  invalidateNoorPersonalReads,
   fetchLatestNoorPersonalWorkspaceAfterConflict,
   sendNoorPersonalCommandDetailed,
 } from "./noor-personal-today-client.js";
@@ -2445,6 +2447,7 @@ export function NoorPersonalApplicationView({ initialResult, initialWorkspace }:
   const commandInFlight=useRef(false);
   const [syncing,setSyncing]=useState(false);
   const syncSequence=useRef(0);
+  const resumeRefreshRef=useRef({lastAttemptAt:Date.now(),pending:false});
   const refresh = async (strict=false) => {
     const epoch=++refreshEpoch.current;
     const today=await fetchNoorPersonalToday();
@@ -2467,10 +2470,39 @@ export function NoorPersonalApplicationView({ initialResult, initialWorkspace }:
 
   useEffect(() => {
     const tick=()=>setNowMs(Date.now());
-    const visible=()=>{if(document.visibilityState==='visible')tick();};
-    const timer = window.setInterval(tick,1000);
-    window.addEventListener('focus',tick);window.addEventListener('pageshow',tick);document.addEventListener('visibilitychange',visible);
-    return () => {window.clearInterval(timer);window.removeEventListener('focus',tick);window.removeEventListener('pageshow',tick);document.removeEventListener('visibilitychange',visible);};
+    const resume=()=>{
+      tick();
+      const at=Date.now(),state=resumeRefreshRef.current;
+      if(!shouldRefreshNoorOnResume({
+        nowMs:at,
+        lastAttemptAt:state.lastAttemptAt,
+        visible:document.visibilityState==="visible",
+        writesPending:commandInFlight.current||fastQueue.current.length>0||orderQueue.current.length>0,
+        refreshPending:state.pending||prayerRefreshRef.current.pending,
+      }))return;
+      state.lastAttemptAt=at;
+      state.pending=true;
+      // A pre-resume read may predate the other device's commit: never reuse it.
+      invalidateNoorPersonalReads();
+      const sequence=++syncSequence.current;
+      setSyncing(true);
+      // Preserve dirty editors by refreshing state, never navigating/reloading.
+      void refresh().catch(()=>{}).finally(()=>{
+        state.pending=false;
+        if(alive.current&&sequence===syncSequence.current)setSyncing(false);
+      });
+    };
+    const visible=()=>{if(document.visibilityState==="visible")resume();};
+    const timer=window.setInterval(tick,1000);
+    window.addEventListener("focus",resume);
+    window.addEventListener("pageshow",resume);
+    document.addEventListener("visibilitychange",visible);
+    return ()=>{
+      window.clearInterval(timer);
+      window.removeEventListener("focus",resume);
+      window.removeEventListener("pageshow",resume);
+      document.removeEventListener("visibilitychange",visible);
+    };
   }, []);
 
   const baseView = useMemo(()=>result?.kind === "success" ? buildViewModel(result.today) : null,[result]);
