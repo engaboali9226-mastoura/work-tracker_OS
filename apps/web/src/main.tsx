@@ -1,6 +1,7 @@
 import "./noor-ios-viewport-r230.css";
 import "./noor-welcome-gateway-r231.css";
 import "./noor-time-windows-r232.css";
+import "./noor-work-teacher-r264.css";
 
 import {
   applicationCatalog,
@@ -23,6 +24,7 @@ import {
 import {
   NoorPersonalApplicationView,
 } from "./noor-personal-application-view.js";
+import {NoorWorkTeacherViewR264} from "./noor-work-teacher-view-r264.js";
 import {
   createAuthenticationSessionController,
 } from "./authentication-session-controller.js";
@@ -71,6 +73,7 @@ const applicationViews =
             <NoorPersonalApplicationView />
           ),
       },
+      {appKey:"noor-work",factory:()=> <NoorWorkTeacherViewR264 />},
     ],
   );
 
