@@ -33,6 +33,16 @@ test("R254: task form shows optional session toggle and custom mode without forc
  const enabled=renderToStaticMarkup(React.createElement(TaskSessionPlannerR254,{enabled:true,setEnabled:()=>{},distribution:"custom",setDistribution:()=>{},sessions:[s],setSessions:()=>{},target:300,unit:"صفحة",busy:false}));
  assert.match(enabled,/فهم الموضوع الأول/);assert.match(enabled,/إضافة جلسة/);
 });
+test("R254: archived task keeps independent overall note and session note accessible without current-day execution",()=>{
+ const html=renderToStaticMarkup(React.createElement(TaskSessionListR254,{
+   plan:{distribution:"custom",sessions:[s]},log:[],definitionId:"archived-book",executionId:null,
+   busy:false,onCommand:async()=>true,title:"قراءة كتاب",revisionId:"rev-2",taskGeneralNote:"خلاصة عامة محفوظة",
+ }));
+ assert.match(html,/خلاصة عامة محفوظة/);
+ assert.match(html,/ملاحظتي محفوظة/);
+ assert.match(html,/حفظ الملاحظة العامة/);
+ assert.doesNotMatch(html,/حفظ التقدم/);
+});
 test("R254: main task exposes succinct expandable sessions, individual notes and history",()=>{
  const markup=renderToStaticMarkup(React.createElement(TaskSessionListR254,{plan:{distribution:"custom",sessions:[s]},log:[],definitionId:"task",executionId:"today",busy:false,onCommand:async()=>true,title:"قراءة كتاب"}));
  assert.match(markup,/الجلسات: 0 \/ 1 مكتملة/);
