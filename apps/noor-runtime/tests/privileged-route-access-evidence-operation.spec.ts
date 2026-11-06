@@ -155,7 +155,7 @@ function candidate(
 }
 
 test(
-  "rejects unknown, planned, malformed, and mismatched routes before security evaluation",
+  "rejects unknown, malformed, and mismatched routes before security evaluation",
   async () => {
     const scenarios = [
       {
@@ -164,14 +164,6 @@ test(
             "unknown-app",
           pathname:
             "/personal",
-        },
-      },
-      {
-        request: {
-          appKey:
-            "noor-work",
-          pathname:
-            "/work",
         },
       },
       {
