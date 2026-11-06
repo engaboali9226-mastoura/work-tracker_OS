@@ -97,6 +97,15 @@ test("R256: a page session rejects fractional pages at the server, without corru
  assert.equal(session.sessionProgress(f.get().activityLog,"s1"),1);
  assert.equal(f.get().activityLog.length,1);
 });
+test("R256: fractional page session targets without ranges and fractional page parent totals are invalid",async()=>{
+ const f=fixture();
+ const bad={distribution:"custom",sessions:[item("half",1,0.5,null,null)]};
+ await assert.rejects(()=>configure(f,bad),/TASK_SESSION_PAGES_MUST_BE_WHOLE/);
+ assert.equal(f.get().sessionPlan,undefined);
+ const invalidParent=fixture({...base,measurement:{target:10.5,unit:"صفحات"}});
+ await assert.rejects(()=>configure(invalidParent,{distribution:"custom",sessions:[item("s1",1,10,null,null)]}),/TASK_SESSION_PAGES_MUST_BE_WHOLE/);
+ assert.equal(invalidParent.get().sessionPlan,undefined);
+});
 test("R256: fractional non-page targets remain supported for legitimate measurable units",async()=>{
  const f=fixture({...base,measurement:{target:1.5,unit:"ساعة"}});
  const fractional={distribution:"custom",sessions:[item("t1",1,1.5,null,null)]};
