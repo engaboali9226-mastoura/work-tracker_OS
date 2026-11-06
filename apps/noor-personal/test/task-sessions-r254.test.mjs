@@ -88,6 +88,31 @@ test("replanning future sessions preserves historical notes/progress and stable 
  await assert.rejects(()=>configure(f,{distribution:"custom",sessions:[item("s1",1,9,1,9),item("s3",2,9,10,18),item("s2",3,12,19,30)]}));
  await assert.rejects(()=>configure(f,{distribution:"custom",sessions:[item("s2",1,30,1,30)]}));
 });
+test("R256: a page session rejects fractional pages at the server, without corrupting cumulative progress",async()=>{
+ const f=fixture();await configure(f);
+ const before=structuredClone(f.get());
+ await assert.rejects(()=>progress(f,"s1","fractional",0.5),/TASK_SESSION_PAGES_MUST_BE_WHOLE/);
+ assert.deepEqual(f.get(),before,"a rejected half-page request must not write a partial event");
+ await progress(f,"s1","whole-one",1);
+ assert.equal(session.sessionProgress(f.get().activityLog,"s1"),1);
+ assert.equal(f.get().activityLog.length,1);
+});
+test("R256: fractional non-page targets remain supported for legitimate measurable units",async()=>{
+ const f=fixture({...base,measurement:{target:1.5,unit:"ساعة"}});
+ const fractional={distribution:"custom",sessions:[item("t1",1,1.5,null,null)]};
+ await configure(f,fractional);
+ await progress(f,"t1","partial-hours",0.5);
+ assert.equal(session.sessionProgress(f.get().activityLog,"t1"),0.5);
+ assert.ok(Math.abs(session.sessionDayCredit(f.get().activityLog,date)-1/3)<1e-12);
+});
+test("R256: previously cancelled, completed or skipped daily executions cannot record session progress",async()=>{
+ for(const status of ["Completed","Cancelled","Skipped","Deferred","Suppressed"]){
+  const f=fixture(base,[day],[{...execution,status}]);
+  await configure(f);
+  await assert.rejects(()=>progress(f,"s1","invalid-"+status,1),/DEFINITION_STATE_CONFLICT/);
+  assert.equal(f.get().activityLog?.length??0,0);
+ }
+});
 test("R254 review: quantified session credit is proportional to parent target, not session target",async()=>{
  const f=fixture();await configure(f);
  await progress(f,"s1","part-1",5);
