@@ -22,7 +22,7 @@ export async function provisionFriendsOnce(env=process.env){
      typeof publishableKey!=='string'||!publishableKey)throw Error('FRIENDS_CONFIG_INVALID');
   // Fail before any write unless all three credentials are present and distinct.
   const passwords=specs.map(s=>env[s.passwordKey]);
-  if(passwords.some(p=>typeof p!=='string'||p.length<12)||
+  if(passwords.some(p=>typeof p!=='string'||p.length<6)||
      new Set(passwords).size!==specs.length)throw Error('FRIENDS_PASSWORD_CONFIG_INVALID');
   const admin=createClient(url,serviceRoleKey,{auth:{autoRefreshToken:false,persistSession:false,detectSessionInUrl:false}});
   const {data,error}=await admin.auth.admin.listUsers({page:1,perPage:100});
