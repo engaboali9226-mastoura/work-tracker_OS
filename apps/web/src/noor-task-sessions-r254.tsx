@@ -65,12 +65,12 @@ export function TaskSessionPlannerR254({enabled,setEnabled,distribution,setDistr
 function OneSessionR254({session,log,definitionId,executionId,busy,onCommand,reading,pageUnit}:{session:StoredTaskSessionR254;log:readonly SessionEntryR254[];definitionId:string;executionId:string|null;busy:boolean;onCommand:(c:NoorPersonalCommandInput)=>Promise<boolean>;reading:boolean;pageUnit:boolean}):ReactElement{
   const s=session,progress=sessionProgressR254(log,s.id),done=sessionFinishedR254(s,log);
   const [note,setNote]=useState(s.note),[amount,setAmount]=useState(""),[activityNote,setActivityNote]=useState(""),[error,setError]=useState("");
-  const noteBaseRevision=useRef(s.revision);
+  const [noteBaseRevision,setNoteBaseRevision]=useState(s.revision);
   const savingCommand=useRef(false);
   const [saving,setSaving]=useState(false);
   const acquire=()=>{if(busy||savingCommand.current)return false;savingCommand.current=true;setSaving(true);return true;};
   const release=()=>{savingCommand.current=false;setSaving(false);};
-  const updateNote=(value:string)=>{if(note===s.note)noteBaseRevision.current=s.revision;setNote(value);};
+  const updateNote=(value:string)=>{if(note===s.note)setNoteBaseRevision(s.revision);setNote(value);};
   const entryId=useRef(globalThis.crypto.randomUUID());
   // Refresh server notes without erasing an unsaved local draft after a background sync.
   const previousServerNote=useRef({text:s.note,revision:s.revision});
@@ -79,13 +79,13 @@ function OneSessionR254({session,log,definitionId,executionId,busy,onCommand,rea
     previousServerNote.current={text:s.note,revision:s.revision};
     // Rebase local note drafts when only session metadata changed elsewhere.
     // A different remote note is a true conflict and must never be overwritten.
-    if(previous.text===s.note&&noteBaseRevision.current===previous.revision){
-      noteBaseRevision.current=s.revision;
+    if(previous.text===s.note&&noteBaseRevision===previous.revision){
+      setNoteBaseRevision(s.revision);
     }
     setNote(local=>local===previous.text?s.note:local);
   },[s.note,s.revision]);
-  const noteConflict=note!==s.note&&noteBaseRevision.current!==s.revision;
-  const restoreSavedNote=()=>{noteBaseRevision.current=s.revision;setNote(s.note);setError("");};
+  const noteConflict=note!==s.note&&noteBaseRevision!==s.revision;
+  const restoreSavedNote=()=>{setNoteBaseRevision(s.revision);setNote(s.note);setError("");};
   const copyDraft=async()=>{
     try{
       if(!globalThis.navigator?.clipboard?.writeText)throw Error("CLIPBOARD_UNAVAILABLE");
@@ -95,12 +95,12 @@ function OneSessionR254({session,log,definitionId,executionId,busy,onCommand,rea
   };
   const saveNote=async()=>{
     if(busy||savingCommand.current)return;setError("");
-    if(noteBaseRevision.current!==s.revision){
+    if(noteBaseRevision!==s.revision){
       setError("تغيّرت هذه الجلسة على جهاز آخر أثناء التحرير؛ احتفظ بنصك وراجع النسخة الحديثة قبل الاستبدال.");return;
     }
     if(!acquire())return;
     try{
-      if(!await onCommand({type:"edit-task-session-note",definitionId,taskSessionId:s.id,expectedRevision:noteBaseRevision.current,note}))
+      if(!await onCommand({type:"edit-task-session-note",definitionId,taskSessionId:s.id,expectedRevision:noteBaseRevision,note}))
         setError("تعذر حفظ الملاحظة؛ النص باقٍ هنا. تحقق من الاتصال أو أعد تحميل أحدث نسخة.");
     }catch{setError("تعذر الاتصال لحفظ الملاحظة؛ النص ما زال هنا.");}
     finally{release();}
@@ -157,20 +157,20 @@ function OneSessionR254({session,log,definitionId,executionId,busy,onCommand,rea
 function TaskGeneralNoteR254({definitionId,revisionId,storedNote,busy,onCommand}:{definitionId:string;revisionId:string;storedNote:string;busy:boolean;onCommand:(c:NoorPersonalCommandInput)=>Promise<boolean>}):ReactElement{
   const [body,setBody]=useState(storedNote),[error,setError]=useState("");
   const savingCommand=useRef(false),[saving,setSaving]=useState(false);
-  const noteBaseRevision=useRef(revisionId);
-  const updateBody=(value:string)=>{if(body===storedNote)noteBaseRevision.current=revisionId;setBody(value);};
+  const [noteBaseRevision,setNoteBaseRevision]=useState(revisionId);
+  const updateBody=(value:string)=>{if(body===storedNote)setNoteBaseRevision(revisionId);setBody(value);};
   const previousServerNote=useRef({text:storedNote,revisionId});
   useEffect(()=>{
     const previous=previousServerNote.current;
     previousServerNote.current={text:storedNote,revisionId};
     // Saving another session can change the parent revision without editing this note.
-    if(previous.text===storedNote&&noteBaseRevision.current===previous.revisionId){
-      noteBaseRevision.current=revisionId;
+    if(previous.text===storedNote&&noteBaseRevision===previous.revisionId){
+      setNoteBaseRevision(revisionId);
     }
     setBody(local=>local===previous.text?storedNote:local);
   },[storedNote,revisionId]);
-  const noteConflict=body!==storedNote&&noteBaseRevision.current!==revisionId;
-  const restoreSavedNote=()=>{noteBaseRevision.current=revisionId;setBody(storedNote);setError("");};
+  const noteConflict=body!==storedNote&&noteBaseRevision!==revisionId;
+  const restoreSavedNote=()=>{setNoteBaseRevision(revisionId);setBody(storedNote);setError("");};
   const copyDraft=async()=>{
     try{
       if(!globalThis.navigator?.clipboard?.writeText)throw Error("CLIPBOARD_UNAVAILABLE");
@@ -180,12 +180,12 @@ function TaskGeneralNoteR254({definitionId,revisionId,storedNote,busy,onCommand}
   };
   const save=async()=>{
     if(busy||savingCommand.current||body===storedNote)return;setError("");
-    if(noteBaseRevision.current!==revisionId){
+    if(noteBaseRevision!==revisionId){
       setError("تغيّرت المهمة على جهاز آخر أثناء تحرير الملاحظة؛ احتفظ بنصك وراجع النسخة الحديثة.");return;
     }
     savingCommand.current=true;setSaving(true);
     try{
-      const success=await onCommand({type:"edit-task-general-note",definitionId,expectedRevisionId:noteBaseRevision.current,note:body});
+      const success=await onCommand({type:"edit-task-general-note",definitionId,expectedRevisionId:noteBaseRevision,note:body});
       if(!success)setError("تعذر تأكيد حفظ الملاحظة العامة. النص باقٍ هنا؛ راجع أحدث بيانات المهمة قبل المحاولة.");
     }catch{setError("تعذر الاتصال؛ الملاحظة العامة لا تزال في المحرر.");}
     finally{savingCommand.current=false;setSaving(false);}
