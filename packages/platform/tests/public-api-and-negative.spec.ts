@@ -285,7 +285,7 @@ test(
             applicationBindings: [
               {
                 appKey:
-                  "noor-work",
+                  "unknown-app",
                 components: [],
               },
             ],
