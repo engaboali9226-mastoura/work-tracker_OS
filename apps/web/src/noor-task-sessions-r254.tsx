@@ -93,9 +93,9 @@ function OneSessionR254({session,log,definitionId,executionId,busy,onCommand,rea
       {s.rangeStart!==null?<p>النطاق: {s.rangeStart}–{s.rangeEnd}</p>:null}
       {s.target!==null?<progress value={progress} max={s.target} aria-label={"تقدم "+s.title}/>:null}
       {s.completedAt?<time dateTime={s.completedAt}>الإتمام: {s.completedAt.slice(0,10)}</time>:null}
-      {!done&&s.target!==null&&executionId?<div className="nts-stack"><label>الإنجاز الجديد<input type="number" step="0.000001" min="0.000001" max={round(s.target-progress)} value={amount} onChange={e=>setAmount(e.currentTarget.value)}/></label><label>ملاحظة النشاط (اختيارية)<textarea rows={2} maxLength={2000} value={activityNote} onChange={e=>setActivityNote(e.currentTarget.value)}/></label><button type="button" disabled={busy} onClick={()=>{void saveProgress();}}>حفظ التقدم</button></div>:null}
+      {!done&&s.target!==null&&executionId?<div className="nts-stack"><label>الإنجاز الجديد<input type="number" step="0.000001" min="0.000001" max={round(s.target-progress)} value={amount} onChange={e=>setAmount(e.currentTarget.value)}/></label><label>ملاحظة النشاط (اختيارية)<textarea rows={2} maxLength={2000} value={activityNote} onInput={e=>setActivityNote(e.currentTarget.value)} onChange={e=>setActivityNote(e.currentTarget.value)}/></label><button type="button" disabled={busy} onClick={()=>{void saveProgress();}}>حفظ التقدم</button></div>:null}
       {!done&&s.target===null&&executionId?<button type="button" disabled={busy} onClick={()=>{void complete();}}>إكمال هذه الجلسة</button>:null}
-      <div className="nts-stack"><label>ملاحظات الجلسة<textarea rows={4} maxLength={10000} value={note} onChange={e=>setNote(e.currentTarget.value)} placeholder="تلخيص المعرفة والملاحظات والأسئلة…"/></label>
+      <div className="nts-stack"><label>ملاحظات الجلسة<textarea rows={4} maxLength={10000} value={note} onInput={e=>setNote(e.currentTarget.value)} onChange={e=>setNote(e.currentTarget.value)} placeholder="تلخيص المعرفة والملاحظات والأسئلة…"/></label>
       {reading?<button type="button" onClick={()=>setNote(v=>v+(v?"\n\n":"")+"أهم فكرة فهمتها:\n\nمعلومات جديدة:\n\nفوائد عملية:\n\nأسئلة للبحث:\n")}>قالب تلخيص اختياري</button>:null}
       <button type="button" disabled={busy||note===s.note} onClick={()=>{void saveNote();}}>حفظ الملاحظة</button></div>
       {error?<p className="nts-error" role="alert">{error}</p>:null}
@@ -111,7 +111,7 @@ function TaskGeneralNoteR254({definitionId,revisionId,storedNote,busy,onCommand}
     const success=await onCommand({type:"edit-task-general-note",definitionId,expectedRevisionId:revisionId,note:body});
     if(!success)setError("تعذر تأكيد حفظ الملاحظة العامة. النص باقٍ هنا؛ راجع أحدث بيانات المهمة قبل المحاولة.");
   };
-  return <div className="nts-general-note"><label>ملاحظة عامة للمهمة<textarea maxLength={10000} rows={4} value={body} onChange={e=>setBody(e.currentTarget.value)} placeholder="خلاصة عامة ومراجعات مستقلة عن جلسات التنفيذ…"/></label>
+  return <div className="nts-general-note"><label>ملاحظة عامة للمهمة<textarea maxLength={10000} rows={4} value={body} onInput={e=>setBody(e.currentTarget.value)} onChange={e=>setBody(e.currentTarget.value)} placeholder="خلاصة عامة ومراجعات مستقلة عن جلسات التنفيذ…"/></label>
     <button type="button" disabled={busy||body===storedNote} onClick={()=>{void save();}}>حفظ الملاحظة العامة</button>
     {error?<p className="nts-error" role="alert">{error}</p>:null}
   </div>;
