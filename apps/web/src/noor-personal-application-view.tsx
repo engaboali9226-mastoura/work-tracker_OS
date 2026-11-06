@@ -26,6 +26,7 @@ import {
   financeEditToken,
   fetchNoorPersonalToday,
   fetchNoorPersonalWorkspace,
+  fetchLatestNoorPersonalWorkspaceAfterConflict,
   sendNoorPersonalCommandDetailed,
 } from "./noor-personal-today-client.js";
 
@@ -2526,6 +2527,16 @@ export function NoorPersonalApplicationView({ initialResult, initialWorkspace }:
     try {
       const reply = await sendNoorPersonalCommandDetailed(command);
       if (reply.kind !== "success") {
+        if(reply.kind==="conflict" &&
+          (command.type==="edit-task-general-note"||command.type==="edit-task-session-note")){
+          // Keep mounted dirty editors intact. Fetch only the newer workspace:
+          // a full-page reload could discard unsaved private notes.
+          const epoch=++refreshEpoch.current;
+          const newer=await fetchLatestNoorPersonalWorkspaceAfterConflict();
+          if(epoch===refreshEpoch.current&&newer.kind==="success"){
+            setWorkspaceResult(newer);
+          }
+        }
         setActionError(reply.kind === "conflict" ? "تعذر تنفيذ التغيير بسبب تعارض في الحالة الحالية." : "تعذر تنفيذ التغيير الآن. حاول مرة أخرى.");
         return false;
       }
