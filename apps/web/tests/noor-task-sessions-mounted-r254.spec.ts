@@ -129,6 +129,36 @@ test("R255: task overview note preserves a dirty draft and rejects stale cross-d
    assert.match(doc.body.textContent??"",/تغيّرت المهمة على جهاز آخر/);
  }finally{await t.close();}
 });
+test("R258: a lost progress acknowledgement retains the same activity ID for safe replay without erasing amount or note",async()=>{
+ const t=mount(),commands:any[]=[];let succeed=false;
+ try{
+   await act(async()=>t.root.render(createElement(TaskSessionListR254,{
+     plan:{distribution:"custom",sessions:[record]},log:[],definitionId:"book",executionId:"today",
+     busy:false,title:"Book",unit:"صفحة",onCommand:async(command:unknown)=>{commands.push(command);return succeed;},
+   })));
+   const doc=t.dom.window.document;
+   const number=doc.querySelector<HTMLInputElement>('.nts-session-body input[type="number"]')!;
+   const note=doc.querySelector<HTMLTextAreaElement>('.nts-session-body textarea[maxlength="2000"]')!;
+   await act(async()=>{
+     Object.getOwnPropertyDescriptor(t.dom.window.HTMLInputElement.prototype,"value")!.set!.call(number,"4");
+     number.dispatchEvent(new t.dom.window.Event("input",{bubbles:true}));
+     number.dispatchEvent(new t.dom.window.Event("change",{bubbles:true}));
+     note.focus();input(t.dom,note,"These 4 pages were read");
+   });
+   const save=[...doc.querySelectorAll<HTMLButtonElement>(".nts-session-body button")].find(b=>b.textContent?.includes("حفظ التقدم"))!;
+   assert.ok(save);
+   await act(async()=>save.click());
+   assert.equal(commands.length,1);
+   assert.equal(number.value,"4");
+   assert.equal(note.value,"These 4 pages were read");
+   succeed=true;
+   await act(async()=>save.click());
+   assert.equal(commands.length,2);
+   assert.deepEqual(commands[1],commands[0],"replay must preserve event ID, quantity and note exactly");
+   assert.equal(number.value,"");
+   assert.equal(note.value,"");
+ }finally{await t.close();}
+});
 test("R258: session metadata refresh rebases an unsaved note without falsely calling it a note conflict",async()=>{
  const t=mount(),commands:unknown[]=[];
  const render=(server=record)=>act(async()=>t.root.render(createElement(TaskSessionListR254,{
