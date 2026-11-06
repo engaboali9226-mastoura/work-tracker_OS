@@ -39,7 +39,9 @@ test("R254 mobile scroll: independent expandable sessions remain inside a bounde
  assert.match(TASK_SESSION_STYLES_R254,/\.nts-list-body\{[^}]*max-height:65dvh;overflow-y:auto/);
  assert.match(TASK_SESSION_STYLES_R254,/@media\(max-width:700px\)\{\.np-page \.nts-list-body\{max-height:62dvh/);
  assert.match(TASK_SESSION_STYLES_R254,/\.nts-session-body button/);
- assert.match(TASK_SESSION_STYLES_R254,/min-height:40px/);
+ assert.match(TASK_SESSION_STYLES_R254,/min-height:44px/);
+ assert.match(TASK_SESSION_STYLES_R254,/-webkit-overflow-scrolling:touch/);
+ assert.match(TASK_SESSION_STYLES_R254,/env\(safe-area-inset-bottom/);
 });
 test("R254 mounted session note remains in editor on network failure, then sends owner-verified command",async()=>{
  const t=mount();let success=false;const commands:unknown[]=[];
