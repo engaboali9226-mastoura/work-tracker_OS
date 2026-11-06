@@ -108,10 +108,14 @@ export function prepareTaskSessionPlan(
     if ([...existing.values()].some(s => !ids.has(s.id) && protectedSession(s)))
         throw new Error("TASK_SESSION_HISTORY_PROTECTED");
     const ranged = sessions.filter(s => s.rangeStart !== null).sort((a, b) => a.rangeStart! - b.rangeStart!);
-    if (measurement && isPageUnit(measurement.unit) &&
-        ranged.some(s => s.target === null || !Number.isSafeInteger(s.target) ||
+    if (measurement && isPageUnit(measurement.unit)) {
+        if (!Number.isSafeInteger(measurement.target) ||
+            sessions.some(s => s.target !== null && !Number.isSafeInteger(s.target)))
+            throw new Error("TASK_SESSION_PAGES_MUST_BE_WHOLE");
+        if (ranged.some(s => s.target === null ||
             s.target !== s.rangeEnd! - s.rangeStart! + 1))
-        throw new Error("TASK_SESSION_PAGE_RANGE_TARGET_MISMATCH");
+            throw new Error("TASK_SESSION_PAGE_RANGE_TARGET_MISMATCH");
+    }
     for (let i = 1; i < ranged.length; i++)
         if (ranged[i]!.rangeStart! <= ranged[i - 1]!.rangeEnd!) throw new Error("TASK_SESSION_RANGES_OVERLAP");
     if (measurement) {
