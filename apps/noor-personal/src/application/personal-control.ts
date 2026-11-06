@@ -928,7 +928,8 @@ export class PersonalCommandService {
                     if(log.length>=10000) throw new Error("ACTIVITY_LIMIT_REACHED");
                     if(definition.kind!=="Task" && (command.amount!==0 || command.endReason!==null)) throw new Error("HABIT_NOTE_ONLY");
                     if(definition.sessionPlan&&command.amount>0)throw new Error("TASK_SESSIONS_REQUIRE_SESSION_PROGRESS");
-                    if(definition.sessionPlan&&command.endReason==="achieved"&&definition.sessionPlan.sessions.some(s=>sessionStatus(s,log)!=="Completed"))
+                    if(definition.sessionPlan&&command.endReason==="achieved"&&
+                       (definition.sessionPlan.sessions.length===0 || definition.sessionPlan.sessions.some(s=>sessionStatus(s,log)!=="Completed")))
                         throw new Error("TASK_SESSIONS_NOT_COMPLETED");
                     if(command.amount>0 && !definition.measurement) throw new Error("MEASUREMENT_REQUIRED");
                     const total=Math.round((log.reduce((sum,e)=>sum+e.amount,0)+command.amount)*1e6)/1e6;
@@ -1073,9 +1074,14 @@ export class PersonalCommandService {
 
                 const toggledDefinition=transaction.findDefinitionById(userId,instance.definitionId);
                 if(toggledDefinition?.state === "Stopped") throw new PersonalControlError("DEFINITION_STATE_CONFLICT");
-                if(command.completed&&toggledDefinition?.sessionPlan&&
-                   toggledDefinition.sessionPlan.sessions.some(s=>sessionStatus(s,toggledDefinition.activityLog??[])!=="Completed"))
-                   throw new Error("TASK_SESSIONS_NOT_COMPLETED");
+                if(command.completed&&toggledDefinition?.sessionPlan){
+                    const plan=toggledDefinition.sessionPlan,log=toggledDefinition.activityLog??[];
+                    if(plan.sessions.length===0||plan.sessions.some(s=>sessionStatus(s,log)!=="Completed"))
+                        throw new Error("TASK_SESSIONS_NOT_COMPLETED");
+                    if(toggledDefinition.measurement&&Math.round(log.reduce((n,e)=>n+e.amount,0)*1e6)<
+                       Math.round(toggledDefinition.measurement.target*1e6))
+                        throw new Error("TARGET_NOT_REACHED");
+                }
                 const status: ExecutionStatus =
                     command.completed
                         ? "Completed"
