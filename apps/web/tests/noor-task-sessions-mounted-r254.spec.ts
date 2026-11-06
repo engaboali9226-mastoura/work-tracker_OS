@@ -70,6 +70,26 @@ test("R254 mounted session note remains in editor on network failure, then sends
    assert.equal(doc.querySelector<HTMLTextAreaElement>('.nts-session-body textarea[maxlength="10000"]')!.value,"ملاحظة تعليمية مستقلة");
  }finally{await t.close();}
 });
+test("R256: repeated taps submit one note mutation until its network response resolves",async()=>{
+ const t=mount(),commands:unknown[]=[],callbacks:Array<(ok:boolean)=>void>=[];
+ try{
+   await act(async()=>t.root.render(createElement(TaskSessionListR254,{
+     plan:{distribution:"custom",sessions:[record]},log:[],definitionId:"task",executionId:"today",busy:false,title:"Book",
+     onCommand:(command:unknown)=>{commands.push(command);return new Promise<boolean>(resolve=>{callbacks.push(resolve);});},
+   })));
+   const doc=t.dom.window.document;
+   const editor=doc.querySelector<HTMLTextAreaElement>('.nts-session-body textarea[maxlength="10000"]')!;
+   await act(async()=>{editor.focus();input(t.dom,editor,"Unsaved after double tap");});
+   const save=[...doc.querySelectorAll<HTMLButtonElement>(".nts-session-body button")].find(el=>el.textContent?.includes("حفظ الملاحظة"))!;
+   await act(async()=>{save.click();save.click();});
+   assert.equal(commands.length,1);
+   assert.equal(save.disabled,true);
+   await act(async()=>{callbacks[0]!(false);await Promise.resolve();});
+   assert.equal(save.disabled,false);
+   assert.equal(editor.value,"Unsaved after double tap");
+   assert.match(doc.body.textContent??"",/تعذر حفظ الملاحظة/);
+ }finally{await t.close();}
+});
 test("R255: a background device update preserves unsaved session text and blocks stale overwrite",async()=>{
  const t=mount(),commands:unknown[]=[];
  const render=async(server=record)=>act(async()=>t.root.render(createElement(TaskSessionListR254,{
