@@ -177,6 +177,7 @@ export interface ExecutionDefinition {
     readonly measurement?: ProgressMeasurement;
     readonly activityLog?: readonly ActivityEntry[];
     readonly sessionPlan?: TaskSessionPlan;
+    readonly taskGeneralNote?: string;
     readonly id: string;
     readonly userId: string;
     readonly kind: DefinitionKind;
