@@ -20,6 +20,17 @@ test("R254: fractional equal split conserves exactly the requested total",()=>{
  assert.ok(pages.every(Number.isSafeInteger));
  assert.throws(()=>equalSessionTargetsR254(15.5,4,true));
 });
+test("R256: page quantities are integers in iPhone input, other units remain fractional",()=>{
+ const props={plan:{distribution:"custom" as const,sessions:[s]},log:[],definitionId:"book",executionId:"today",
+   busy:false,onCommand:async()=>true,title:"Study",revisionId:"rev"};
+ const pages=renderToStaticMarkup(React.createElement(TaskSessionListR254,{...props,unit:"صفحة"}));
+ assert.match(pages,/input[^>]*type="number"[^>]*inputMode="numeric"[^>]*step="1"[^>]*min="1"/);
+ const hours=renderToStaticMarkup(React.createElement(TaskSessionListR254,{...props,unit:"ساعة"}));
+ assert.match(hours,/input[^>]*type="number"[^>]*inputMode="decimal"[^>]*step="0.000001"/);
+ const historical=renderToStaticMarkup(React.createElement(TaskSessionListR254,{...props,executionId:null,unit:"صفحة"}));
+ assert.doesNotMatch(historical,/حفظ التقدم/);
+ assert.match(historical,/ملاحظات الجلسة/);
+});
 test("R254: client progress and session-completion projection remain independent",()=>{
  const log=[{id:"entry-1",executionId:"today",localDate:"2026-11-05",at:"2026-11-05T10:00:00Z",note:"فهمت الدرس",amount:5,taskSessionId:"s1"}];
  assert.equal(sessionProgressR254(log,"s1"),5);
