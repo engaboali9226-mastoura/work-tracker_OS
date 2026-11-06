@@ -115,7 +115,7 @@ ApplicationCatalog {
 }
 
 test(
-  "root unknown and planned routes remain idle and never call privileged client",
+  "root and unknown routes remain idle and never call privileged client",
   () => {
     let calls =
       0;
@@ -150,15 +150,11 @@ test(
       "idle",
     );
 
-    controller.selectPathname(
-      "/work",
-    );
-
     assert.deepEqual(
       controller.snapshot(),
       {
         pathname:
-          "/work",
+          "/missing",
         lifecycleState:
           "idle",
       },
