@@ -17,6 +17,7 @@
     "test": "(cd ../.. && npm --workspace apps/noor-personal run build) && node --import tsx --test tests/*.spec.ts"
   },
   "dependencies": {
+    "@supabase/supabase-js": "2.112.3",
     "@worktracker/contracts": "0.0.1",
     "@worktracker/core": "0.0.1",
     "@worktracker/infrastructure": "0.0.1",
