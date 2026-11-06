@@ -88,6 +88,53 @@ test("replanning future sessions preserves historical notes/progress and stable 
  await assert.rejects(()=>configure(f,{distribution:"custom",sessions:[item("s1",1,9,1,9),item("s3",2,9,10,18),item("s2",3,12,19,30)]}));
  await assert.rejects(()=>configure(f,{distribution:"custom",sessions:[item("s2",1,30,1,30)]}));
 });
+test("R254 review: quantified session credit is proportional to parent target, not session target",async()=>{
+ const f=fixture();await configure(f);
+ await progress(f,"s1","part-1",5);
+ await progress(f,"s1","part-2",5);
+ assert.ok(Math.abs(session.sessionDayCredit(f.get().activityLog,date)-1/3)<1e-12);
+ assert.equal(f.get().activityLog.length,2);
+ await assert.rejects(()=>f.service.execute("owner",{type:"complete-task-session",executionId:"execution-1",taskSessionId:"s1",entryId:"manual-duplicate"}));
+ assert.equal(f.get().activityLog.length,2);
+});
+test("R254 review: manual unquantified session completion credits one session, not full parent weight",async()=>{
+ const f=fixture({...base,measurement:undefined});
+ const unquantified={distribution:"custom",sessions:[item("u1",1,null,null,null),item("u2",2,null,null,null)]};
+ await configure(f,unquantified);
+ const complete={type:"complete-task-session",executionId:"execution-1",taskSessionId:"u1",entryId:"complete-1"};
+ await f.service.execute("owner",complete);
+ await f.service.execute("owner",complete);
+ const log=f.get().activityLog;
+ assert.equal(log.length,1);
+ assert.equal(session.sessionDayCredit(log,date),0.5);
+ assert.equal(f.get().sessionPlan.sessions[0].completedAt,now);
+ assert.equal(f.get().sessionPlan.sessions[1].completedAt,null);
+});
+test("R254 review: completed session without a new event does not grant another day's weight",async()=>{
+ const f=fixture();await configure(f);await progress(f,"s1","part1",10);
+ const activity=f.get().activityLog;
+ assert.equal(session.sessionDayCredit(activity,"2026-11-06"),0);
+});
+test("R254 review: reject historical parent completion without recorded session work",async()=>{
+ const oldDay={...day,id:"old-day",boundary:{...day.boundary,key:"old-day",localDate:"2026-11-04"}};
+ const oldInstance={...execution,id:"old-execution",personalDayId:"old-day",scheduleOccurrenceKey:"2026-11-04"};
+ const f=fixture(base,[day,oldDay],[execution,oldInstance]);await configure(f);
+ await assert.rejects(()=>f.service.execute("owner",{type:"correct-historical-execution",executionId:"old-execution",localDate:"2026-11-04",expectedStatus:"Planned",completed:true}));
+ assert.equal(f.store.snapshot().dailyExecution.find(e=>e.id==="old-execution").status,"Planned");
+});
+test("R254 review: whole pages never become fractional or overlap in equal plans",()=>{
+ const targets=session.equalSessionTargets(300,18,true);
+ assert.equal(targets.reduce((a,b)=>a+b,0),300);
+ assert.equal(targets.length,18);
+ assert.ok(targets.every(n=>Number.isSafeInteger(n)&&n>=1));
+ assert.deepEqual(targets.slice(0,3),[17,17,17]);
+ assert.deepEqual(targets.slice(-3),[16,16,16]);
+ assert.throws(()=>session.equalSessionTargets(10,12,true));
+ assert.throws(()=>session.equalSessionTargets(10.5,3,true));
+ assert.equal(session.isPageUnit("صفحة"),true);
+ const invalid={distribution:"custom",sessions:[item("s1",1,10,1,11)]};
+ assert.throws(()=>session.prepareTaskSessionPlan(undefined,invalid,[],{target:30,unit:"صفحة"},now),/PAGE_RANGE/);
+});
 test("owner isolation denies cross-account session mutation",async()=>{
  const f=fixture();await configure(f);
  const before=f.get();
@@ -98,12 +145,12 @@ test("owner isolation denies cross-account session mutation",async()=>{
 test("day's weighted credit remains one parent weight; next day does not reset cumulative progress",async()=>{
  const f=fixture();await configure(f);await progress(f,"s1","event1",5);
  const state=f.store.snapshot();
- assert.equal(session.sessionDayCredit(state.definitions[0].activityLog,date),0.5);
+ assert.ok(Math.abs(session.sessionDayCredit(state.definitions[0].activityLog,date)-1/6)<1e-12);
  const nextDay={...day,id:"day-2",boundary:{...day.boundary,key:"day-2",localDate:"2026-11-06"},state:"Open"};
  const nextExec={...execution,id:"execution-2",personalDayId:"day-2",scheduleOccurrenceKey:"2026-11-06",status:"Planned"};
  const snapshot={listDefinitions:()=>state.definitions,listPersonalDays:()=>[day,nextDay],listDailyExecutionForUser:()=>[execution,nextExec]};
  const workspace=buildPersonalWorkspace("owner",snapshot);
- assert.equal(workspace.insights.periods.week.completionRate,25);
+ assert.equal(workspace.insights.periods.week.completionRate,8);
  assert.equal(session.taskCumulativeProgress(state.definitions[0].activityLog),5);
 });
 test("one-time session task remains eligible on a later day, while an old one-time task does not",async()=>{
