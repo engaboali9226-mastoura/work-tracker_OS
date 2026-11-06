@@ -135,6 +135,18 @@ test("R254 review: whole pages never become fractional or overlap in equal plans
  const invalid={distribution:"custom",sessions:[item("s1",1,10,1,11)]};
  assert.throws(()=>session.prepareTaskSessionPlan(undefined,invalid,[],{target:30,unit:"صفحة"},now),/PAGE_RANGE/);
 });
+test("R254: parent task general note is independently editable, owner protected and revision guarded",async()=>{
+ const f=fixture();await configure(f);
+ const revision=f.get().revisionId;
+ await f.service.execute("owner",{type:"edit-task-general-note",definitionId:"book",expectedRevisionId:revision,note:"خلاصة المهمة العامة"});
+ assert.equal(f.get().taskGeneralNote,"خلاصة المهمة العامة");
+ assert.equal(f.get().sessionPlan.sessions[0].note,"");
+ assert.equal(f.get().activityLog?.length??0,0);
+ await assert.rejects(()=>f.service.execute("owner",{type:"edit-task-general-note",definitionId:"book",expectedRevisionId:revision,note:"نص متعارض"}));
+ await assert.rejects(()=>f.service.execute("another-user",{type:"edit-task-general-note",definitionId:"book",expectedRevisionId:f.get().revisionId,note:"محاولة غير مصرح بها"}));
+ await f.service.execute("owner",{type:"edit-task-general-note",definitionId:"book",expectedRevisionId:f.get().revisionId,note:""});
+ assert.equal(f.get().taskGeneralNote,undefined);
+});
 test("owner isolation denies cross-account session mutation",async()=>{
  const f=fixture();await configure(f);
  const before=f.get();
