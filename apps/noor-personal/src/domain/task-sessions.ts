@@ -44,14 +44,19 @@ export function sessionStatus(session: TaskSession, log: readonly ActivityEntry[
 }
 
 /** Exact fixed-point split, including the remainder. No rounding loss or hidden extra pages. */
-export function equalSessionTargets(total: number, count: number): number[] {
+export function isPageUnit(unit: string): boolean {
+    return /^(?:صفحة|صفحه|صفحات|page|pages)$/iu.test(unit.trim());
+}
+export function equalSessionTargets(total: number, count: number, discrete = false): number[] {
     if (!sessionQuantity(total) || total <= 0 || !Number.isInteger(count) || count < 1 || count > 200)
         throw new Error("TASK_SESSION_SPLIT_INVALID");
-    const micro = Math.round(total * SCALE);
-    if (micro < count) throw new Error("TASK_SESSION_SPLIT_TOO_SMALL");
-    const each = Math.floor(micro / count);
-    const remainder = micro % count;
-    return Array.from({ length: count }, (_, i) => (each + (i < remainder ? 1 : 0)) / SCALE);
+    const units = discrete ? total : Math.round(total * SCALE);
+    if (discrete && !Number.isSafeInteger(total)) throw new Error("TASK_SESSION_PAGES_MUST_BE_WHOLE");
+    if (units < count) throw new Error("TASK_SESSION_SPLIT_TOO_SMALL");
+    const each = Math.floor(units / count);
+    const remainder = units % count;
+    return Array.from({ length: count }, (_, i) =>
+        (each + (i < remainder ? 1 : 0)) / (discrete ? 1 : SCALE));
 }
 
 function sameDraft(session: TaskSession, input: TaskSessionDraft): boolean {
@@ -90,16 +95,23 @@ export function prepareTaskSessionPlan(
         const old = existing.get(d.id);
         if (old && protectedSession(old) && !sameDraft(old, d))
             throw new Error("TASK_SESSION_HISTORY_PROTECTED");
+        const altered = !old || old.title !== d.title.trim() || old.objective !== d.objective.trim() ||
+            !sameDraft(old, d) || old.order !== index + 1;
         return {
             id: d.id, title: d.title.trim(), objective: d.objective.trim(),
             target: d.target, rangeStart: d.rangeStart, rangeEnd: d.rangeEnd,
             order: index + 1, note: old?.note ?? "", completedAt: old?.completedAt ?? null,
-            createdAt: old?.createdAt ?? now, updatedAt: now, revision: (old?.revision ?? 0) + (old ? 1 : 0),
+            createdAt: old?.createdAt ?? now, updatedAt: altered ? now : old!.updatedAt,
+            revision: (old?.revision ?? 0) + (old && altered ? 1 : 0),
         };
     });
     if ([...existing.values()].some(s => !ids.has(s.id) && protectedSession(s)))
         throw new Error("TASK_SESSION_HISTORY_PROTECTED");
     const ranged = sessions.filter(s => s.rangeStart !== null).sort((a, b) => a.rangeStart! - b.rangeStart!);
+    if (measurement && isPageUnit(measurement.unit) &&
+        ranged.some(s => s.target === null || !Number.isSafeInteger(s.target) ||
+            s.target !== s.rangeEnd! - s.rangeStart! + 1))
+        throw new Error("TASK_SESSION_PAGE_RANGE_TARGET_MISMATCH");
     for (let i = 1; i < ranged.length; i++)
         if (ranged[i]!.rangeStart! <= ranged[i - 1]!.rangeEnd!) throw new Error("TASK_SESSION_RANGES_OVERLAP");
     if (measurement) {
