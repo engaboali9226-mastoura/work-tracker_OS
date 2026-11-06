@@ -37,6 +37,14 @@ test("R254: client progress and session-completion projection remain independent
  assert.equal(sessionFinishedR254(s,log),false);
  assert.equal(sessionFinishedR254({...s,completedAt:"2026-11-05T11:00:00Z"},log),true);
 });
+test("R256: page planner refuses fractional page targets in the input, time targets stay decimal",()=>{
+ const params={enabled:true,setEnabled:()=>{},distribution:"custom" as const,setDistribution:()=>{},
+  sessions:[s],setSessions:()=>{},target:15,unit:"صفحة",busy:false};
+ const pages=renderToStaticMarkup(React.createElement(TaskSessionPlannerR254,params));
+ assert.match(pages,/type="number"[^>]*inputMode="numeric"[^>]*step="1"[^>]*min="1"/);
+ const hours=renderToStaticMarkup(React.createElement(TaskSessionPlannerR254,{...params,unit:"ساعة"}));
+ assert.match(hours,/type="number"[^>]*inputMode="decimal"[^>]*step="0.000001"/);
+});
 test("R254: task form shows optional session toggle and custom mode without forcing sessions",()=>{
  const markup=renderToStaticMarkup(React.createElement(TaskSessionPlannerR254,{enabled:false,setEnabled:()=>{},distribution:"custom",setDistribution:()=>{},sessions:[],setSessions:()=>{},target:null,unit:"صفحة",busy:false}));
  assert.match(markup,/تقسيم المهمة إلى جلسات/);
