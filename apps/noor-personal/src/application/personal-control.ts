@@ -1,6 +1,6 @@
 const DEFAULT_PERSONAL_CATEGORIES=["الصحة والرياضة","العبادات","العمل","التعلم","الأسرة","الشؤون الشخصية","الأدوية والمكملات الغذائية"] as const;
 import { IntlTimeZoneAdapter } from "../domain/time.js";
-import { prepareTaskSessionPlan, sessionProgress, sessionStatus, sessionQuantity, sessionDayCredit, type TaskSessionPlanDraft } from "../domain/task-sessions.js";
+import { prepareTaskSessionPlan, sessionProgress, sessionStatus, sessionQuantity, sessionDayCredit, sessionEventCredit, type TaskSessionPlanDraft } from "../domain/task-sessions.js";
 import { applyFinanceOperation, emptyFinanceLedger, parseFinanceOperation, type FinanceOperation, type FinanceLedger } from "../domain/model.js";
 import type {
     AutomationOutboxEvent,
@@ -734,13 +734,17 @@ export class PersonalCommandService {
                     if(definition.measurement &&
                        Math.round(((log.reduce((sum,e)=>sum+e.amount,0))+amount)*1e6)>Math.round(definition.measurement.target*1e6))
                         throw new Error("PROGRESS_EXCEEDS_TARGET");
+                    if(parsed.type==="complete-task-session" && session.target!==null)
+                        throw new Error("TASK_SESSION_QUANTIFIED_COMPLETION_IS_AUTOMATIC");
+                    if(parsed.type==="complete-task-session" && sessionStatus(session,log)==="Completed")return;
                     const finished=parsed.type==="complete-task-session" || session.target!==null &&
                         Math.round((previous+amount)*1e6)>=Math.round(session.target*1e6);
                     const entry={id:parsed.entryId,executionId:instance.id,taskSessionId:session.id,
                       localDate:day.boundary.localDate,at:now,
                       amount,note:parsed.type==="record-task-session-progress"?parsed.note:"",
                       endReason:null,
-                      sessionDayCredit:parsed.type==="record-task-session-progress"?Math.min(1,amount/session.target!):1};
+                      sessionDayCredit:sessionEventCredit(definition.measurement,definition.sessionPlan,session,amount,
+                        parsed.type==="complete-task-session")};
                     transaction.saveDefinition({...definition,activityLog:[...log,entry],
                        sessionPlan:{...definition.sessionPlan,sessions:definition.sessionPlan.sessions.map(s=>s.id!==session.id?s:
                           {...s,updatedAt:now,...(finished?{completedAt:now}:{})})}});
@@ -842,6 +846,8 @@ export class PersonalCommandService {
                     const definition=transaction.findDefinitionById(userId,instance.definitionId);
                     if(!definition) throw new PersonalControlError("DEFINITION_NOT_FOUND");
                     if(parsed.type==="correct-historical-execution"){
+                        if(parsed.completed && definition.sessionPlan)
+                            throw new Error("SEGMENTED_TASK_HISTORICAL_COMPLETION_REQUIRES_SESSION_ACTIVITY");
                         const status:ExecutionStatus=parsed.completed?"Completed":"Missed";
                         if(instance.status===status)return; // retry of an already-applied correction
                         if(instance.status!==parsed.expectedStatus) throw new PersonalControlError("DEFINITION_STATE_CONFLICT");
@@ -1164,7 +1170,7 @@ function periodInsight(
             const done=inWindow.reduce((n,e)=>{
                 const definition=definitions.get(e.definitionId);
                 const share=definition?.sessionPlan
-                    ?Math.max(e.status==="Completed"?1:0,sessionDayCredit(definition.activityLog??[],e.scheduleOccurrenceKey))
+                    ?sessionDayCredit(definition.activityLog??[],e.scheduleOccurrenceKey)
                     :(e.status==="Completed"?1:0);
                 return n+e.eligibility.weight*share;
             },0);
