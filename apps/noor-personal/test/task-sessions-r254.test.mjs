@@ -110,6 +110,14 @@ test("R254 review: manual unquantified session completion credits one session, n
  assert.equal(f.get().sessionPlan.sessions[0].completedAt,now);
  assert.equal(f.get().sessionPlan.sessions[1].completedAt,null);
 });
+test("R254: parent task can be cancelled without completing remaining sessions; achieved reason remains forbidden",async()=>{
+ const f=fixture();await configure(f);
+ await assert.rejects(()=>f.service.execute("owner",{type:"record-activity",executionId:"execution-1",entryId:"premature",amount:0,note:"",endReason:"achieved"}));
+ await f.service.execute("owner",{type:"record-activity",executionId:"execution-1",entryId:"cancelled",amount:0,note:"",endReason:"cancelled"});
+ assert.equal(f.get().state,"Stopped");
+ assert.equal(f.get().activityLog.at(-1).endReason,"cancelled");
+ assert.equal(f.get().sessionPlan.sessions.length,2);
+});
 test("R254 review: completed session without a new event does not grant another day's weight",async()=>{
  const f=fixture();await configure(f);await progress(f,"s1","part1",10);
  const activity=f.get().activityLog;
