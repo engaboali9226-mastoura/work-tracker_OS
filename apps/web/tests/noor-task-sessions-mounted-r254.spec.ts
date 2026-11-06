@@ -129,6 +129,80 @@ test("R255: task overview note preserves a dirty draft and rejects stale cross-d
    assert.match(doc.body.textContent??"",/تغيّرت المهمة على جهاز آخر/);
  }finally{await t.close();}
 });
+test("R258: session metadata refresh rebases an unsaved note without falsely calling it a note conflict",async()=>{
+ const t=mount(),commands:unknown[]=[];
+ const render=(server=record)=>act(async()=>t.root.render(createElement(TaskSessionListR254,{
+   plan:{distribution:"custom",sessions:[server]},log:[],definitionId:"book",executionId:"today",
+   busy:false,title:"Book",onCommand:async(value:unknown)=>{commands.push(value);return true;},
+ })));
+ try{
+   await render();
+   const doc=t.dom.window.document,editor=doc.querySelector<HTMLTextAreaElement>('.nts-session-body textarea[maxlength="10000"]')!;
+   await act(async()=>{editor.focus();input(t.dom,editor,"Private notes while title is edited remotely");});
+   await render({...record,title:"Updated title on phone",revision:1});
+   assert.equal(editor.value,"Private notes while title is edited remotely");
+   assert.equal(doc.querySelector(".nts-conflict"),null,"metadata-only update must not display false note conflict");
+   const save=[...doc.querySelectorAll<HTMLButtonElement>(".nts-session-body button")].find(x=>x.textContent?.includes("حفظ الملاحظة"))!;
+   await act(async()=>save.click());
+   assert.equal(commands.length,1);
+   assert.deepEqual(commands[0],{type:"edit-task-session-note",definitionId:"book",
+     taskSessionId:"chapter-1",expectedRevision:1,note:"Private notes while title is edited remotely"});
+ }finally{await t.close();}
+});
+test("R258: parent metadata refresh can rebase a dirty overall note while actual remote note change still blocks overwrite",async()=>{
+ const t=mount(),commands:unknown[]=[];
+ const render=(note:string,revisionId:string)=>act(async()=>t.root.render(createElement(TaskSessionListR254,{
+   plan:{distribution:"custom",sessions:[record]},log:[],definitionId:"book",executionId:"today",
+   busy:false,title:"Book",revisionId,taskGeneralNote:note,
+   onCommand:async(value:unknown)=>{commands.push(value);return true;},
+ })));
+ try{
+   await render("initial saved overview","rev1");
+   const doc=t.dom.window.document,editor=doc.querySelector<HTMLTextAreaElement>(".nts-general-note textarea")!;
+   await act(async()=>{editor.focus();input(t.dom,editor,"Draft that should survive concurrent session note");});
+   await render("initial saved overview","rev2");
+   assert.equal(editor.value,"Draft that should survive concurrent session note");
+   assert.equal(doc.querySelector(".nts-general-note .nts-conflict"),null);
+   const save=doc.querySelector<HTMLButtonElement>(".nts-general-note button")!;
+   await act(async()=>save.click());
+   assert.equal(commands.length,1);
+   assert.deepEqual(commands[0],{type:"edit-task-general-note",definitionId:"book",
+     expectedRevisionId:"rev2",note:"Draft that should survive concurrent session note"});
+   await render("REMOTE OVERVIEW","rev3");
+   assert.equal(editor.value,"Draft that should survive concurrent session note");
+   const panel=doc.querySelector(".nts-general-note .nts-conflict")!;
+   assert.ok(panel);
+   assert.match(panel.textContent??"",/REMOTE OVERVIEW/);
+   await act(async()=>save.click());
+   assert.equal(commands.length,1,"changed remote note must block a stale overwrite");
+   const restore=[...panel.querySelectorAll<HTMLButtonElement>("button")].find(x=>x.textContent?.includes("استخدام النسخة المحفوظة"))!;
+   await act(async()=>restore.click());
+   assert.equal(editor.value,"REMOTE OVERVIEW","restoring a saved note must be an explicit choice");
+   assert.equal(doc.querySelector(".nts-general-note .nts-conflict"),null);
+   assert.equal(commands.length,1);
+ }finally{await t.close();}
+});
+test("R258: a conflicting session note stays editable until the user explicitly restores the saved version",async()=>{
+ const t=mount();
+ const render=(server=record)=>act(async()=>t.root.render(createElement(TaskSessionListR254,{
+   plan:{distribution:"custom",sessions:[server]},log:[],definitionId:"book",executionId:"today",
+   busy:false,title:"Book",onCommand:async()=>true,
+ })));
+ try{
+   await render();
+   const doc=t.dom.window.document,editor=doc.querySelector<HTMLTextAreaElement>('.nts-session-body textarea[maxlength="10000"]')!;
+   await act(async()=>{editor.focus();input(t.dom,editor,"MY UNSAVED PRIVATE DRAFT");});
+   await render({...record,note:"PHONE CURRENT NOTE",revision:1});
+   assert.equal(editor.value,"MY UNSAVED PRIVATE DRAFT");
+   const panel=doc.querySelector(".nts-session-body .nts-conflict")!;
+   assert.ok(panel);assert.match(panel.textContent??"",/PHONE CURRENT NOTE/);
+   assert.ok(panel.querySelector<HTMLButtonElement>("button")?.textContent?.includes("نسخ مسودتي"));
+   const restore=[...panel.querySelectorAll<HTMLButtonElement>("button")].find(x=>x.textContent?.includes("استخدام النسخة المحفوظة"))!;
+   await act(async()=>restore.click());
+   assert.equal(editor.value,"PHONE CURRENT NOTE");
+   assert.equal(doc.querySelector(".nts-session-body .nts-conflict"),null);
+ }finally{await t.close();}
+});
 test("R254 mounted default task-session planner does not force splitting a normal task",async()=>{
  const t=mount();
  try{
