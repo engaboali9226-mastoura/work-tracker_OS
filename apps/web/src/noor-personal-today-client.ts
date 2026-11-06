@@ -271,6 +271,14 @@ export function fetchNoorPersonalWorkspace(
 }
 
 export function invalidateNoorPersonalReads(fetcher:typeof fetch=fetch):void{inFlightTodayRequests.delete(fetcher);inFlightWorkspaceRequests.delete(fetcher);}
+/** Refresh only the owner-scoped workspace after a rejected note mutation.
+ * Invalidate any in-flight pre-conflict read so it cannot hide the newer note.
+ * The UI keeps its mounted dirty textarea and renders a reviewable conflict.
+ */
+export function fetchLatestNoorPersonalWorkspaceAfterConflict(fetcher:typeof fetch=fetch):Promise<NoorPersonalWorkspaceResult>{
+  invalidateNoorPersonalReads(fetcher);
+  return fetchNoorPersonalWorkspace(fetcher);
+}
 export type NoorPersonalCommandReply = Readonly<{kind:NoorPersonalCommandResult;workspace?:unknown;executions?:unknown;personalDayId?:string|null;materializationRequired?:boolean}>;
 export async function sendNoorPersonalCommandDetailed(command:NoorPersonalCommandInput,fetcher:typeof fetch=fetch):Promise<NoorPersonalCommandReply>{
  try{
