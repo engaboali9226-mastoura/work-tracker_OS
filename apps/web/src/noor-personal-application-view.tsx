@@ -2144,7 +2144,7 @@ function Dashboard({ view:providedView, workspace, busy, actionError, onCommand,
   const todayWeight=[...view.tasks,...view.habits].filter(e=>e.status!=="Cancelled").reduce((n,e)=>n+e.weight,0),doneWeight=[...view.tasks,...view.habits].filter(e=>e.status==="Completed").reduce((n,e)=>n+e.weight,0);
   const dayWeighted=[...view.tasks,...view.habits].filter(e=>e.status!=="Cancelled").reduce((n,e)=>{
     const definition=definitionsById.get(e.definitionId);
-    const fraction=definition?.sessionPlan?Math.max(e.status==="Completed"?1:0,Math.min(1,definition.activityLog.filter(a=>a.taskSessionId&&a.localDate===view.localDate).reduce((sum,a)=>sum+(a.sessionDayCredit??0),0))):(e.status==="Completed"?1:0);
+    const fraction=definition?.sessionPlan?Math.min(1,definition.activityLog.filter(a=>a.taskSessionId&&a.localDate===view.localDate).reduce((sum,a)=>sum+(a.sessionDayCredit??0),0)):(e.status==="Completed"?1:0);
     return n+e.weight*fraction;
   },0);
   const completionRate=todayWeight?Math.round(dayWeighted/todayWeight*100):0;
