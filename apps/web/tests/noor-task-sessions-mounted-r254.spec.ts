@@ -68,6 +68,45 @@ test("R254 mounted session note remains in editor on network failure, then sends
    assert.equal(doc.querySelector<HTMLTextAreaElement>('.nts-session-body textarea[maxlength="10000"]')!.value,"ملاحظة تعليمية مستقلة");
  }finally{await t.close();}
 });
+test("R255: a background device update preserves unsaved session text and blocks stale overwrite",async()=>{
+ const t=mount(),commands:unknown[]=[];
+ const render=async(server=record)=>act(async()=>t.root.render(createElement(TaskSessionListR254,{
+   plan:{distribution:"custom",sessions:[server]},log:[],definitionId:"task",executionId:"exec",
+   busy:false,title:"قراءة كتاب",onCommand:async(value:unknown)=>{commands.push(value);return true;}
+ })));
+ try{
+   await render();
+   const doc=t.dom.window.document,editor=doc.querySelector<HTMLTextAreaElement>('.nts-session-body textarea[maxlength="10000"]')!;
+   assert.ok(editor);
+   await act(async()=>{editor.focus();input(t.dom,editor,"MY UNSAVED DRAFT");});
+   await render({...record,note:"REMOTE DEVICE CHANGED NOTE",revision:1});
+   assert.equal(doc.querySelector<HTMLTextAreaElement>('.nts-session-body textarea[maxlength="10000"]')!.value,"MY UNSAVED DRAFT");
+   const save=[...doc.querySelectorAll<HTMLButtonElement>(".nts-session-body button")].find(b=>b.textContent?.includes("حفظ الملاحظة"))!;
+   await act(async()=>save.click());
+   assert.equal(commands.length,0,"a stale draft must not overwrite the current server version");
+   assert.match(doc.body.textContent??"",/تغيّرت هذه الجلسة على جهاز آخر/);
+ }finally{await t.close();}
+});
+test("R255: task overview note preserves a dirty draft and rejects stale cross-device save",async()=>{
+ const t=mount(),commands:unknown[]=[];
+ const render=async(note:string,revisionId:string)=>act(async()=>t.root.render(createElement(TaskSessionListR254,{
+   plan:{distribution:"custom",sessions:[record]},log:[],definitionId:"task",executionId:"exec",
+   busy:false,title:"قراءة كتاب",revisionId,taskGeneralNote:note,
+   onCommand:async(value:unknown)=>{commands.push(value);return true;}
+ })));
+ try{
+   await render("first server version","rev1");
+   const doc=t.dom.window.document,editor=doc.querySelector<HTMLTextAreaElement>(".nts-general-note textarea")!;
+   assert.ok(editor);
+   await act(async()=>{editor.focus();input(t.dom,editor,"LOCAL GENERAL DRAFT");});
+   await render("NEW REMOTE OVERVIEW","rev2");
+   assert.equal(doc.querySelector<HTMLTextAreaElement>(".nts-general-note textarea")!.value,"LOCAL GENERAL DRAFT");
+   const save=[...doc.querySelectorAll<HTMLButtonElement>(".nts-general-note button")].find(b=>b.textContent?.includes("حفظ الملاحظة العامة"))!;
+   await act(async()=>save.click());
+   assert.equal(commands.length,0);
+   assert.match(doc.body.textContent??"",/تغيّرت المهمة على جهاز آخر/);
+ }finally{await t.close();}
+});
 test("R254 mounted default task-session planner does not force splitting a normal task",async()=>{
  const t=mount();
  try{
