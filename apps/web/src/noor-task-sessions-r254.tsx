@@ -133,6 +133,7 @@ function OneSessionR254({session,log,definitionId,executionId,busy,onCommand,rea
 }
 function TaskGeneralNoteR254({definitionId,revisionId,storedNote,busy,onCommand}:{definitionId:string;revisionId:string;storedNote:string;busy:boolean;onCommand:(c:NoorPersonalCommandInput)=>Promise<boolean>}):ReactElement{
   const [body,setBody]=useState(storedNote),[error,setError]=useState("");
+  const savingCommand=useRef(false),[saving,setSaving]=useState(false);
   const noteBaseRevision=useRef(revisionId);
   const updateBody=(value:string)=>{if(body===storedNote)noteBaseRevision.current=revisionId;setBody(value);};
   const previousServerNote=useRef(storedNote);
@@ -142,15 +143,19 @@ function TaskGeneralNoteR254({definitionId,revisionId,storedNote,busy,onCommand}
     setBody(local=>local===previous?storedNote:local);
   },[storedNote]);
   const save=async()=>{
-    if(busy||body===storedNote)return;setError("");
+    if(busy||savingCommand.current||body===storedNote)return;setError("");
     if(noteBaseRevision.current!==revisionId){
       setError("تغيّرت المهمة على جهاز آخر أثناء تحرير الملاحظة؛ احتفظ بنصك وراجع النسخة الحديثة.");return;
     }
-    const success=await onCommand({type:"edit-task-general-note",definitionId,expectedRevisionId:noteBaseRevision.current,note:body});
-    if(!success)setError("تعذر تأكيد حفظ الملاحظة العامة. النص باقٍ هنا؛ راجع أحدث بيانات المهمة قبل المحاولة.");
+    savingCommand.current=true;setSaving(true);
+    try{
+      const success=await onCommand({type:"edit-task-general-note",definitionId,expectedRevisionId:noteBaseRevision.current,note:body});
+      if(!success)setError("تعذر تأكيد حفظ الملاحظة العامة. النص باقٍ هنا؛ راجع أحدث بيانات المهمة قبل المحاولة.");
+    }catch{setError("تعذر الاتصال؛ الملاحظة العامة لا تزال في المحرر.");}
+    finally{savingCommand.current=false;setSaving(false);}
   };
   return <div className="nts-general-note"><label>ملاحظة عامة للمهمة<textarea maxLength={10000} rows={4} value={body} onInput={e=>updateBody(e.currentTarget.value)} onChange={e=>updateBody(e.currentTarget.value)} placeholder="خلاصة عامة ومراجعات مستقلة عن جلسات التنفيذ…"/></label>
-    <button type="button" disabled={busy||body===storedNote} onClick={()=>{void save();}}>حفظ الملاحظة العامة</button>
+    <button type="button" disabled={busy||saving||body===storedNote} onClick={()=>{void save();}}>حفظ الملاحظة العامة</button>
     {error?<p className="nts-error" role="alert">{error}</p>:null}
   </div>;
 }
