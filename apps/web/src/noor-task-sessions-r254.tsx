@@ -66,6 +66,10 @@ function OneSessionR254({session,log,definitionId,executionId,busy,onCommand,rea
   const s=session,progress=sessionProgressR254(log,s.id),done=sessionFinishedR254(s,log);
   const [note,setNote]=useState(s.note),[amount,setAmount]=useState(""),[activityNote,setActivityNote]=useState(""),[error,setError]=useState("");
   const noteBaseRevision=useRef(s.revision);
+  const savingCommand=useRef(false);
+  const [saving,setSaving]=useState(false);
+  const acquire=()=>{if(busy||savingCommand.current)return false;savingCommand.current=true;setSaving(true);return true;};
+  const release=()=>{savingCommand.current=false;setSaving(false);};
   const updateNote=(value:string)=>{if(note===s.note)noteBaseRevision.current=s.revision;setNote(value);};
   const entryId=useRef(globalThis.crypto.randomUUID());
   // Refresh server notes without erasing an unsaved local draft after a background sync.
@@ -76,28 +80,40 @@ function OneSessionR254({session,log,definitionId,executionId,busy,onCommand,rea
     setNote(local=>local===previous?s.note:local);
   },[s.note]);
   const saveNote=async()=>{
-    if(busy)return;setError("");
+    if(busy||savingCommand.current)return;setError("");
     if(noteBaseRevision.current!==s.revision){
       setError("تغيّرت هذه الجلسة على جهاز آخر أثناء التحرير؛ احتفظ بنصك وراجع النسخة الحديثة قبل الاستبدال.");return;
     }
-    if(!await onCommand({type:"edit-task-session-note",definitionId,taskSessionId:s.id,expectedRevision:noteBaseRevision.current,note}))
-      setError("تعذر حفظ الملاحظة؛ النص باقٍ هنا. تحقق من الاتصال أو أعد تحميل أحدث نسخة.");
+    if(!acquire())return;
+    try{
+      if(!await onCommand({type:"edit-task-session-note",definitionId,taskSessionId:s.id,expectedRevision:noteBaseRevision.current,note}))
+        setError("تعذر حفظ الملاحظة؛ النص باقٍ هنا. تحقق من الاتصال أو أعد تحميل أحدث نسخة.");
+    }catch{setError("تعذر الاتصال لحفظ الملاحظة؛ النص ما زال هنا.");}
+    finally{release();}
   };
   const saveProgress=async()=>{
     const n=Number(amount);
-    if(busy||done||!executionId)return;
+    if(busy||savingCommand.current||done||!executionId)return;
     if(s.target===null||!Number.isFinite(n)||n<=0||(pageUnit&&!Number.isSafeInteger(n))||
        round(progress+n)>s.target){setError(pageUnit?"سجّل عدد صفحات صحيحًا لا يتجاوز المتبقي.":"تحقق من الكمية المتبقية لهذه الجلسة.");return;}
     setError("");
-    if(await onCommand({type:"record-task-session-progress",executionId,taskSessionId:s.id,entryId:entryId.current,amount:n,note:activityNote})){
-      entryId.current=globalThis.crypto.randomUUID();setAmount("");setActivityNote("");
-    }else setError("لم يتأكد حفظ التقدم؛ الكمية والملاحظة محفوظتان داخل النموذج.");
+    if(!acquire())return;
+    try{
+      if(await onCommand({type:"record-task-session-progress",executionId,taskSessionId:s.id,entryId:entryId.current,amount:n,note:activityNote})){
+        entryId.current=globalThis.crypto.randomUUID();setAmount("");setActivityNote("");
+      }else setError("لم يتأكد حفظ التقدم؛ الكمية والملاحظة محفوظتان داخل النموذج.");
+    }catch{setError("تعذر الاتصال؛ لم تُمسح الكمية ولا الملاحظة.");}
+    finally{release();}
   };
   const complete=async()=>{
-    if(busy||done||!executionId)return;setError("");
-    if(await onCommand({type:"complete-task-session",executionId,taskSessionId:s.id,entryId:entryId.current}))
-      entryId.current=globalThis.crypto.randomUUID();
-    else setError("تعذر تسجيل الإتمام؛ حاول مرة أخرى.");
+    if(busy||savingCommand.current||done||!executionId)return;setError("");
+    if(!acquire())return;
+    try{
+      if(await onCommand({type:"complete-task-session",executionId,taskSessionId:s.id,entryId:entryId.current}))
+        entryId.current=globalThis.crypto.randomUUID();
+      else setError("تعذر تسجيل الإتمام؛ حاول مرة أخرى.");
+    }catch{setError("تعذر الاتصال أثناء تسجيل الإتمام؛ حاول مرة أخرى.");}
+    finally{release();}
   };
   return <details className="nts-session" data-testid={"session-detail-"+s.id}>
     <summary><span><strong>{s.order}. {s.title}</strong>{s.objective?<small>{s.objective}</small>:null}</span><span>{done?"مكتملة":progress>0?"قيد التنفيذ":"لم تبدأ"}{s.target!==null?" · "+progress+" / "+s.target:""}</span></summary>
@@ -105,11 +121,11 @@ function OneSessionR254({session,log,definitionId,executionId,busy,onCommand,rea
       {s.rangeStart!==null?<p>النطاق: {s.rangeStart}–{s.rangeEnd}</p>:null}
       {s.target!==null?<progress value={progress} max={s.target} aria-label={"تقدم "+s.title}/>:null}
       {s.completedAt?<time dateTime={s.completedAt}>الإتمام: {s.completedAt.slice(0,10)}</time>:null}
-      {!done&&s.target!==null&&executionId?<div className="nts-stack"><label>الإنجاز الجديد<input type="number" inputMode={pageUnit?"numeric":"decimal"} step={pageUnit?"1":"0.000001"} min={pageUnit?"1":"0.000001"} max={round(s.target-progress)} value={amount} onChange={e=>setAmount(e.currentTarget.value)}/></label><label>ملاحظة النشاط (اختيارية)<textarea rows={2} maxLength={2000} value={activityNote} onInput={e=>setActivityNote(e.currentTarget.value)} onChange={e=>setActivityNote(e.currentTarget.value)}/></label><button type="button" disabled={busy} onClick={()=>{void saveProgress();}}>حفظ التقدم</button></div>:null}
-      {!done&&s.target===null&&executionId?<button type="button" disabled={busy} onClick={()=>{void complete();}}>إكمال هذه الجلسة</button>:null}
+      {!done&&s.target!==null&&executionId?<div className="nts-stack"><label>الإنجاز الجديد<input type="number" inputMode={pageUnit?"numeric":"decimal"} step={pageUnit?"1":"0.000001"} min={pageUnit?"1":"0.000001"} max={round(s.target-progress)} value={amount} onChange={e=>setAmount(e.currentTarget.value)}/></label><label>ملاحظة النشاط (اختيارية)<textarea rows={2} maxLength={2000} value={activityNote} onInput={e=>setActivityNote(e.currentTarget.value)} onChange={e=>setActivityNote(e.currentTarget.value)}/></label><button type="button" disabled={busy||saving} onClick={()=>{void saveProgress();}}>حفظ التقدم</button></div>:null}
+      {!done&&s.target===null&&executionId?<button type="button" disabled={busy||saving} onClick={()=>{void complete();}}>إكمال هذه الجلسة</button>:null}
       <div className="nts-stack"><label>ملاحظات الجلسة<textarea rows={4} maxLength={10000} value={note} onInput={e=>updateNote(e.currentTarget.value)} onChange={e=>updateNote(e.currentTarget.value)} placeholder="تلخيص المعرفة والملاحظات والأسئلة…"/></label>
-      {reading?<button type="button" onClick={()=>setNote(v=>v+(v?"\n\n":"")+"أهم فكرة فهمتها:\n\nمعلومات جديدة:\n\nفوائد عملية:\n\nأسئلة للبحث:\n")}>قالب تلخيص اختياري</button>:null}
-      <button type="button" disabled={busy||note===s.note} onClick={()=>{void saveNote();}}>حفظ الملاحظة</button></div>
+      {reading?<button type="button" onClick={()=>updateNote(note+(note?"\n\n":"")+"أهم فكرة فهمتها:\n\nمعلومات جديدة:\n\nفوائد عملية:\n\nأسئلة للبحث:\n")}>قالب تلخيص اختياري</button>:null}
+      <button type="button" disabled={busy||saving||note===s.note} onClick={()=>{void saveNote();}}>حفظ الملاحظة</button></div>
       {error?<p className="nts-error" role="alert">{error}</p>:null}
       {log.some(e=>e.taskSessionId===s.id)?<details className="nts-history"><summary>سجل الإنجاز</summary>{log.filter(e=>e.taskSessionId===s.id).slice().reverse().map(e=><p key={e.id}><time dateTime={e.at}>{e.localDate}</time> {e.amount>0?"+"+e.amount:"إتمام"} {e.note}</p>)}</details>:null}
     </div>
