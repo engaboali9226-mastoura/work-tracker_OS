@@ -81,6 +81,19 @@ async function main(){
   await new Promise((resolve,reject)=>{server.once('error',reject);server.listen(port,'0.0.0.0',resolve);});
  }catch(error){await runtime.shutdown().catch(()=>{});throw error;}
  let stopping;const stop=()=>{stopping??=(async()=>{await new Promise(resolve=>server.close(resolve));await runtime.shutdown();})().catch(()=>{process.exitCode=1;});return stopping;};
- process.once('SIGTERM',()=>{void stop();});process.once('SIGINT',()=>{void stop();});console.log('NOOR hosted web service ready.');
+ process.once('SIGTERM',()=>{void stop();});process.once('SIGINT',()=>{void stop();});
+ // Optional server-only reviewer bootstrap. Never interrupt the real site on failure.
+ if(process.env.NOOR_REVIEWER_CREATE_ONCE==='YES'){
+   try{
+     const {provisionReviewerAuthOnce}=await import('./provision-reviewer.mjs');
+     const result=await provisionReviewerAuthOnce();
+     console.log('NOOR_REVIEWER_AUTH_SETUP='+result);
+   }catch(error){
+     const known=new Set(['REVIEWER_BOOTSTRAP_CONFIGURATION_INVALID','REVIEWER_ADMIN_LOOKUP_FAILED','REVIEWER_EMAIL_AMBIGUOUS','REVIEWER_EMAIL_ALREADY_OCCUPIED','REVIEWER_AUTH_CREATION_FAILED','REVIEWER_MARKER_MISSING','REVIEWER_AUTH_SIGNIN_VERIFICATION_FAILED']);
+     const code=error instanceof Error&&known.has(error.message)?error.message:'REVIEWER_SETUP_UNAVAILABLE';
+     console.error('NOOR_REVIEWER_AUTH_SETUP='+code);
+   }
+ }
+ console.log('NOOR hosted web service ready.');
 }
 if(process.argv[1]&&path.resolve(process.argv[1])===fileURLToPath(import.meta.url))await main().catch(()=>{console.error('NOOR hosted startup failed; verify service configuration.');process.exitCode=1;});
