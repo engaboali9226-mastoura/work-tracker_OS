@@ -94,7 +94,7 @@ test("R254 review: quantified session credit is proportional to parent target, n
  await progress(f,"s1","part-2",5);
  assert.ok(Math.abs(session.sessionDayCredit(f.get().activityLog,date)-1/3)<1e-12);
  assert.equal(f.get().activityLog.length,2);
- await assert.rejects(()=>f.service.execute("owner",{type:"complete-task-session",executionId:"execution-1",taskSessionId:"s1",entryId:"manual-duplicate"}));
+ await f.service.execute("owner",{type:"complete-task-session",executionId:"execution-1",taskSessionId:"s1",entryId:"manual-duplicate"}); // already complete: idempotent no-op
  assert.equal(f.get().activityLog.length,2);
 });
 test("R254 review: manual unquantified session completion credits one session, not full parent weight",async()=>{
