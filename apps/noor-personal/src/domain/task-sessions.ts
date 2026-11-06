@@ -123,6 +123,27 @@ export function prepareTaskSessionPlan(
     return { distribution: proposed.distribution, sessions };
 }
 
+/**
+ * The parent task owns one weight. Measurable tasks earn daily credit from
+ * actual units divided by the immutable target at event time, NOT the smaller
+ * individual session target. Unmeasured tasks divide their weight evenly among
+ * planned sessions. The credit is frozen in the activity event across replans.
+ */
+export function sessionEventCredit(
+    measurement: ProgressMeasurement | undefined,
+    plan: TaskSessionPlan,
+    session: TaskSession,
+    amount: number,
+    manualCompletion: boolean,
+): number {
+    if (measurement) return manualCompletion ? 0 : Math.min(1, amount / measurement.target);
+    const count = plan.sessions.length;
+    if (!count) return 0;
+    if (manualCompletion) return 1 / count;
+    if (session.target === null) return 0;
+    return Math.min(1, amount / session.target) / count;
+}
+
 /** Fixed daily share. Each session credit is recorded at event time so later replanning
  * cannot silently rewrite historical weighted achievement. */
 export function sessionDayCredit(log: readonly ActivityEntry[], localDate: string): number {
