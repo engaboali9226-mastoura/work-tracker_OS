@@ -59,7 +59,7 @@ export function validNoorWorkStateR264(value:unknown): value is NoorWorkStateR26
   if(!arrayOk(value.preparations,1200,x=>idOk(x.id)&&idOk(x.slotId)&&dateOk(x.date)&&textOk(x.title,150)&&textOk(x.objectives,2500)&&textOk(x.activities,2500)&&textOk(x.homework,1200)))return false;
   if(!arrayOk(value.students,600,x=>idOk(x.id)&&textOk(x.name,120)&&textOk(x.group,90)&&textOk(x.code,50)))return false;
   if(!arrayOk(value.attendance,15000,x=>idOk(x.id)&&idOk(x.slotId)&&idOk(x.studentId)&&dateOk(x.date)&&["present","absent","late","excused"].includes(String(x.status))))return false;
-  if(!arrayOk(value.assessments,400,x=>idOk(x.id)&&textOk(x.group,90)&&textOk(x.title,150)&&dateOk(x.date)&&scoreOk(x.maxScore)&&x.maxScore>0))return false;
+  if(!arrayOk(value.assessments,400,x=>idOk(x.id)&&textOk(x.group,90)&&textOk(x.title,150)&&dateOk(x.date)&&scoreOk(x.maxScore)&&Number(x.maxScore)>0))return false;
   if(!arrayOk(value.grades,16000,x=>idOk(x.id)&&idOk(x.assessmentId)&&idOk(x.studentId)&&scoreOk(x.score)))return false;
   const state=value as NoorWorkStateR264;
   const all=[state.timetable,state.workdays,state.preparations,state.students,state.attendance,state.assessments,state.grades];
