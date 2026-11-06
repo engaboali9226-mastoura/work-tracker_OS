@@ -193,4 +193,48 @@ test('r93 whole-day weighted achievement updates before acknowledgement and roll
 test('r94 home shows seven weekdays, yesterday missed details and no invented future percentages',async()=>{const t=installDom(),root=createRoot(t.container);const rows=[{id:'old1',definitionId:'d1',title:'مهمة أمس المكتملة',kind:'Task',date:'2026-11-02',weight:10,status:'Completed',amount:0,unit:''},{id:'old2',definitionId:'d2',title:'عادة أمس الفائتة',kind:'Habit',date:'2026-11-02',weight:1,status:'Missed',amount:0,unit:''},{id:'cancel',definitionId:'x',title:'عنصر ملغى',kind:'Habit',date:'2026-11-02',weight:100,status:'Cancelled',amount:0,unit:''}];try{await act(async()=>root.render(createElement(NoorPersonalApplicationView,{initialResult:{...today,today:{...today.today,personalDay:{...today.today.personalDay,boundary:{...today.today.personalDay.boundary,localDate:'2026-11-03'}}}},initialWorkspace:{...workspace,workspace:{...workspace.workspace,statistics:{currentDate:'2026-11-04',rows}}}})));const cells=t.container.querySelectorAll('[data-week-date]');assert.equal(cells.length,7);assert.equal(cells[0]!.getAttribute('data-week-date'),'2026-10-31');assert.equal(t.container.querySelector('[data-week-state="today"]')!.getAttribute('data-week-date'),'2026-11-03');assert.equal(t.container.querySelectorAll('[data-week-state="future"]').length,3);for(const future of t.container.querySelectorAll('[data-week-state="future"]')){assert.equal(future.querySelector('strong')!.textContent,'');assert.equal(future.getAttribute('data-week-rate'),null);}const previous=t.container.querySelector('[data-testid="yesterday-achievement"]')!;assert.equal(previous.querySelector('.np-yesterday-score strong')!.textContent,'1');assert.match(previous.textContent??'',/91%/);assert.match(previous.textContent??'',/عادة أمس الفائتة/);assert.doesNotMatch(previous.textContent??'',/مهمة أمس المكتملة|عنصر ملغى/);assert.equal(previous.querySelector('details')!.hasAttribute('open'),false);}finally{await act(async()=>root.unmount());t.restore();t.dom.window.close();}});
 test('r94 today week cell follows immediate weighted completion while yesterday stays unchanged',async()=>{const t=installDom(),root=createRoot(t.container);let resolve!:(r:Response)=>void;Object.defineProperty(globalThis,'fetch',{configurable:true,writable:true,value:async(url:unknown)=>String(url).includes('/command')?new Promise<Response>(r=>{resolve=r;}):new Response('{}',{status:503})});try{await act(async()=>root.render(createElement(NoorPersonalApplicationView,{initialResult:{...today,today:{...today.today,tasks:today.today.tasks.map(e=>({...e,eligibility:{weight:9}})),habits:today.today.habits.map(e=>({...e,eligibility:{weight:1}}))}},initialWorkspace:workspace})));assert.match(t.container.querySelector('[data-testid="yesterday-achievement"]')!.textContent??'',/لا توجد استحقاقات مسجلة/);await act(async()=>t.container.querySelector<HTMLInputElement>('.np-habit-check')!.click());assert.equal(t.container.querySelector('[data-week-state="today"]')!.getAttribute('data-week-rate'),'10');assert.equal(t.container.querySelector('[data-testid="today-completion-rate"]')!.textContent,'10%');assert.equal(t.container.querySelector('.np-pending-save'),null);await act(async()=>resolve(new Response('{}',{status:503})));assert.equal(t.container.querySelector('[data-week-state="today"]')!.getAttribute('data-week-rate'),'0');assert.equal(t.container.querySelector('.np-yesterday-score strong')!.textContent,'0');}finally{await act(async()=>root.unmount());t.restore();t.dom.window.close();}});
 
+test("R259: returning to Personal refreshes cross-device workspace only after idle cooldown and without a page reload",async()=>{
+ const t=installDom(),root=createRoot(t.container);
+ const originalDateNow=Date.now;let clock=originalDateNow(),visible=true,workspaceReads=0,todayReads=0;
+ Date.now=()=>clock;
+ Object.defineProperty(t.dom.window.document,"visibilityState",{configurable:true,get:()=>visible?"visible":"hidden"});
+ const remoteWorkspace={...workspace.workspace,definitions:workspace.workspace.definitions.map(d=>
+   d.id==="d1"?{...d,title:"عنوان المهمة من الآيفون"}:d)};
+ const json=(value:unknown)=>new Response(JSON.stringify(value),{status:200,headers:{"content-type":"application/json; charset=utf-8"}});
+ Object.defineProperty(globalThis,"fetch",{configurable:true,writable:true,value:async(url:unknown)=>{
+   const key=String(url);
+   if(key==="/api/noor/personal/today"){todayReads++;return json(today.today);}
+   if(key==="/api/noor/personal/workspace"){workspaceReads++;return json(remoteWorkspace);}
+   return json({current:{temperature_2m:29}});
+ }});
+ try{
+   await act(async()=>root.render(createElement(NoorPersonalApplicationView,{initialResult:today,initialWorkspace:workspace})));
+   await act(async()=>t.container.querySelector<HTMLButtonElement>('button[aria-label="فتح مركز التحكم"]')!.click());
+   assert.match(t.container.textContent??"",/تمرين/);
+   assert.doesNotMatch(t.container.textContent??"",/عنوان المهمة من الآيفون/);
+   await act(async()=>t.dom.window.dispatchEvent(new t.dom.window.Event("focus")));
+   assert.equal(workspaceReads,0,"fresh initial workspace does not force a redundant immediate network request");
+   clock+=15_010;
+   visible=false;
+   await act(async()=>t.dom.window.dispatchEvent(new t.dom.window.Event("focus")));
+   assert.equal(workspaceReads,0,"a hidden tab must not fetch private task notes");
+   visible=true;
+   await act(async()=>{
+     t.dom.window.document.dispatchEvent(new t.dom.window.Event("visibilitychange"));
+     t.dom.window.dispatchEvent(new t.dom.window.Event("pageshow"));
+   });
+   assert.equal(todayReads,1);
+   assert.equal(workspaceReads,1,"pageshow and visibilitychange must coalesce");
+   assert.match(t.container.textContent??"",/عنوان المهمة من الآيفون/,"remote task name becomes visible without reload");
+   await act(async()=>t.dom.window.dispatchEvent(new t.dom.window.Event("focus")));
+   assert.equal(workspaceReads,1,"repeated focus within 15 seconds must not flood the API");
+   clock+=15_010;
+   await act(async()=>t.dom.window.dispatchEvent(new t.dom.window.Event("pageshow")));
+   assert.equal(workspaceReads,2,"a later genuine resume must refresh again");
+ }finally{
+   await act(async()=>root.unmount());
+   Date.now=originalDateNow;
+   t.restore();t.dom.window.close();
+ }
+});
 test('r95 classic achievement removes repeated decoration and keeps future days blank',async()=>{const t=installDom(),root=createRoot(t.container);try{await act(async()=>root.render(createElement(NoorPersonalApplicationView,{initialResult:today,initialWorkspace:workspace})));const card=t.container.querySelector('[data-achievement-style="classic-r95"]')!;assert.ok(card);assert.equal(card.querySelectorAll('.np-day-ring svg').length,1);assert.equal(card.querySelectorAll('.np-week-ring').length,0);assert.equal(card.querySelectorAll('.np-week-value').length,7);assert.equal(card.querySelectorAll('.np-day-track').length,0);assert.doesNotMatch(card.textContent??'',/خطوة بخطوة، يكتمل يومك/);for(const future of card.querySelectorAll('[data-week-state="future"]'))assert.equal(future.querySelector('strong')!.textContent,'');const style=t.dom.window.getComputedStyle(card);assert.equal(style.backgroundImage,'none');assert.equal(style.boxShadow,'none');assert.equal(style.borderRadius,'14px');}finally{await act(async()=>root.unmount());t.restore();t.dom.window.close();}});
