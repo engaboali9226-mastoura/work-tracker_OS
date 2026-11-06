@@ -400,7 +400,7 @@ test(
     );
 
     controller.selectPathname(
-      "/work",
+      "/unknown",
     );
 
     pending.reject(
@@ -415,7 +415,7 @@ test(
       controller.snapshot(),
       {
         pathname:
-          "/work",
+          "/unknown",
         lifecycleState:
           "idle",
       },
