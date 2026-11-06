@@ -9,11 +9,15 @@ export interface StoredTaskSessionPlanR254 {
 }
 export interface SessionEntryR254 {id:string;executionId:string;localDate:string;at:string;note:string;amount:number;taskSessionId?:string;sessionDayCredit?:number}
 const round=(n:number)=>Math.round(n*1e6)/1e6;
-export function equalSessionTargetsR254(total:number,count:number):number[]{
+export function isWholePageUnitR254(unit:string):boolean{
+  return /^(?:صفحة|صفحه|صفحات|page|pages)$/iu.test(unit.trim());
+}
+export function equalSessionTargetsR254(total:number,count:number,discrete=false):number[]{
   if(!Number.isFinite(total)||total<=0||total>1e9||!Number.isInteger(count)||count<1||count>200)throw Error("INVALID_SPLIT");
-  const m=Math.round(total*1e6);if(m<count)throw Error("INVALID_SPLIT");
-  const unit=Math.floor(m/count),rem=m%count;
-  return Array.from({length:count},(_,i)=>(unit+(i<rem?1:0))/1e6);
+  if(discrete&&!Number.isSafeInteger(total))throw Error("PAGES_MUST_BE_INTEGERS");
+  const m=discrete?total:Math.round(total*1e6);if(m<count)throw Error("INVALID_SPLIT");
+  const part=Math.floor(m/count),rem=m%count;
+  return Array.from({length:count},(_,i)=>(part+(i<rem?1:0))/(discrete?1:1e6));
 }
 export function sessionProgressR254(log:readonly SessionEntryR254[],id:string):number{
   return round(log.filter(e=>e.taskSessionId===id).reduce((n,e)=>n+e.amount,0));
@@ -30,7 +34,8 @@ export function TaskSessionPlannerR254({enabled,setEnabled,distribution,setDistr
   const split=()=>{
     try{
       if(target===null)throw Error("TARGET_REQUIRED");
-      const amounts=equalSessionTargetsR254(target,count),pages=/صفحات?|pages?/i.test(unit)&&Number.isInteger(target);
+      const pages=isWholePageUnitR254(unit);
+      const amounts=equalSessionTargetsR254(target,count,pages);
       let cursor=1;
       setSessions(amounts.map((amount,i)=>{
         const begin=pages?cursor:null,end=pages?cursor+amount-1:null;
@@ -52,7 +57,7 @@ export function TaskSessionPlannerR254({enabled,setEnabled,distribution,setDistr
         <div className="nts-actions"><button type="button" disabled={busy||i===0} onClick={()=>{const v=[...sessions];[v[i-1],v[i]]=[v[i]!,v[i-1]!];setSessions(v);}}>↑</button><button type="button" disabled={busy||i===sessions.length-1} onClick={()=>{const v=[...sessions];[v[i],v[i+1]]=[v[i+1]!,v[i]!];setSessions(v);}}>↓</button><button type="button" disabled={busy} onClick={()=>setSessions(sessions.filter((_,j)=>j!==i))}>إزالة</button></div>
       </fieldset>)}
       <button type="button" disabled={busy||sessions.length>=200} onClick={()=>setSessions([...sessions,makeSession(sessions.length+1)])}>+ إضافة جلسة</button>
-      <small>يمكنك تعديل الجلسات القادمة وإعادة ترتيبها. لا يسمح النظام بفقد سجل الجلسات المنجزة أو تداخل النطاقات.</small>
+      <small>يمكنك تعديل الجلسات القادمة وإعادة ترتيبها. نطاقات الصفحات يجب أن تكون صحيحة وغير متداخلة وأن يساوي عدد صفحات كل نطاق مستهدفه.</small>
       {error?<p role="alert">{error}</p>:null}
     </div>:null}
   </section>;
