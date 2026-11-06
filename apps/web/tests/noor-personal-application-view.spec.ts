@@ -210,6 +210,8 @@ test("R259: returning to Personal refreshes cross-device workspace only after id
  try{
    await act(async()=>root.render(createElement(NoorPersonalApplicationView,{initialResult:today,initialWorkspace:workspace})));
    await act(async()=>t.container.querySelector<HTMLButtonElement>('button[aria-label="فتح مركز التحكم"]')!.click());
+   // Control Center defaults to Habits: select the Tasks section to see its title.
+   await act(async()=>[...t.container.querySelectorAll<HTMLButtonElement>('.np-cc-nav-item')].find(b=>b.textContent?.includes("المهام"))!.click());
    assert.match(t.container.textContent??"",/تمرين/);
    assert.doesNotMatch(t.container.textContent??"",/عنوان المهمة من الآيفون/);
    await act(async()=>t.dom.window.dispatchEvent(new t.dom.window.Event("focus")));
