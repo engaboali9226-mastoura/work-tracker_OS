@@ -143,6 +143,22 @@ test("R254 review: whole pages never become fractional or overlap in equal plans
  const invalid={distribution:"custom",sessions:[item("s1",1,10,1,11)]};
  assert.throws(()=>session.prepareTaskSessionPlan(undefined,invalid,[],{target:30,unit:"صفحة"},now),/PAGE_RANGE/);
 });
+test("R255: an opt-in session plan with zero sessions must never count as completed",async()=>{
+ const f=fixture();
+ await configure(f,{distribution:"custom",sessions:[]});
+ await assert.rejects(()=>f.service.execute("owner",{type:"set-execution-completed",executionId:"execution-1",completed:true}),/TASK_SESSIONS_NOT_COMPLETED/);
+ await assert.rejects(()=>f.service.execute("owner",{type:"record-activity",executionId:"execution-1",entryId:"empty-complete",amount:0,note:"",endReason:"achieved"}),/TASK_SESSIONS_NOT_COMPLETED/);
+ assert.equal(f.get().activityLog?.length??0,0);
+});
+test("R255: all allocated sessions completed is insufficient if the total parent target remains unfinished",async()=>{
+ const f=fixture();
+ await configure(f,{distribution:"custom",sessions:[item("s1",1,10,1,10)]});
+ await progress(f,"s1","portion",10);
+ assert.equal(session.sessionStatus(f.get().sessionPlan.sessions[0],f.get().activityLog),"Completed");
+ await assert.rejects(()=>f.service.execute("owner",{type:"set-execution-completed",executionId:"execution-1",completed:true}),/TARGET_NOT_REACHED/);
+ await assert.rejects(()=>f.service.execute("owner",{type:"record-activity",executionId:"execution-1",entryId:"early-complete",amount:0,note:"",endReason:"achieved"}),/TARGET_NOT_REACHED/);
+ assert.equal(f.get().state,"Active");
+});
 test("R254: parent task general note is independently editable, owner protected and revision guarded",async()=>{
  const f=fixture();await configure(f);
  const revision=f.get().revisionId;
