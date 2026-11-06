@@ -73,12 +73,26 @@ function OneSessionR254({session,log,definitionId,executionId,busy,onCommand,rea
   const updateNote=(value:string)=>{if(note===s.note)noteBaseRevision.current=s.revision;setNote(value);};
   const entryId=useRef(globalThis.crypto.randomUUID());
   // Refresh server notes without erasing an unsaved local draft after a background sync.
-  const previousServerNote=useRef(s.note);
+  const previousServerNote=useRef({text:s.note,revision:s.revision});
   useEffect(()=>{
     const previous=previousServerNote.current;
-    previousServerNote.current=s.note;
-    setNote(local=>local===previous?s.note:local);
-  },[s.note]);
+    previousServerNote.current={text:s.note,revision:s.revision};
+    // Rebase local note drafts when only session metadata changed elsewhere.
+    // A different remote note is a true conflict and must never be overwritten.
+    if(previous.text===s.note&&noteBaseRevision.current===previous.revision){
+      noteBaseRevision.current=s.revision;
+    }
+    setNote(local=>local===previous.text?s.note:local);
+  },[s.note,s.revision]);
+  const noteConflict=note!==s.note&&noteBaseRevision.current!==s.revision;
+  const restoreSavedNote=()=>{noteBaseRevision.current=s.revision;setNote(s.note);setError("");};
+  const copyDraft=async()=>{
+    try{
+      if(!globalThis.navigator?.clipboard?.writeText)throw Error("CLIPBOARD_UNAVAILABLE");
+      await globalThis.navigator.clipboard.writeText(note);
+      setError("تم نسخ مسودتك. يمكنك الآن مراجعة النسخة المحفوظة.");
+    }catch{setError("تعذر النسخ تلقائيًا. حدّد النص الموجود في المحرر وانسخه يدويًا قبل استبداله.");}
+  };
   const saveNote=async()=>{
     if(busy||savingCommand.current)return;setError("");
     if(noteBaseRevision.current!==s.revision){
@@ -125,7 +139,16 @@ function OneSessionR254({session,log,definitionId,executionId,busy,onCommand,rea
       {!done&&s.target===null&&executionId?<button type="button" disabled={busy||saving} onClick={()=>{void complete();}}>إكمال هذه الجلسة</button>:null}
       <div className="nts-stack"><label>ملاحظات الجلسة<textarea rows={4} maxLength={10000} value={note} onInput={e=>updateNote(e.currentTarget.value)} onChange={e=>updateNote(e.currentTarget.value)} placeholder="تلخيص المعرفة والملاحظات والأسئلة…"/></label>
       {reading?<button type="button" onClick={()=>updateNote(note+(note?"\n\n":"")+"أهم فكرة فهمتها:\n\nمعلومات جديدة:\n\nفوائد عملية:\n\nأسئلة للبحث:\n")}>قالب تلخيص اختياري</button>:null}
-      <button type="button" disabled={busy||saving||note===s.note} onClick={()=>{void saveNote();}}>حفظ الملاحظة</button></div>
+      <button type="button" disabled={busy||saving||note===s.note} onClick={()=>{void saveNote();}}>حفظ الملاحظة</button>
+      {noteConflict?<div className="nts-conflict" role="status" aria-label="مراجعة تعارض ملاحظة الجلسة">
+        <strong>تغيّرت ملاحظة الجلسة على جهاز آخر</strong>
+        <p>مسودتك ما زالت في المحرر. راجع النسخة الأحدث قبل اتخاذ قرار.</p>
+        <p className="nts-server-note">{s.note||"النسخة المحفوظة فارغة"}</p>
+        <div className="nts-conflict-actions">
+          <button type="button" disabled={busy||saving} onClick={()=>{void copyDraft();}}>نسخ مسودتي</button>
+          <button type="button" disabled={busy||saving} onClick={restoreSavedNote}>استخدام النسخة المحفوظة</button>
+        </div>
+      </div>:null}</div>
       {error?<p className="nts-error" role="alert">{error}</p>:null}
       {log.some(e=>e.taskSessionId===s.id)?<details className="nts-history"><summary>سجل الإنجاز</summary>{log.filter(e=>e.taskSessionId===s.id).slice().reverse().map(e=><p key={e.id}><time dateTime={e.at}>{e.localDate}</time> {e.amount>0?"+"+e.amount:"إتمام"} {e.note}</p>)}</details>:null}
     </div>
@@ -136,12 +159,25 @@ function TaskGeneralNoteR254({definitionId,revisionId,storedNote,busy,onCommand}
   const savingCommand=useRef(false),[saving,setSaving]=useState(false);
   const noteBaseRevision=useRef(revisionId);
   const updateBody=(value:string)=>{if(body===storedNote)noteBaseRevision.current=revisionId;setBody(value);};
-  const previousServerNote=useRef(storedNote);
+  const previousServerNote=useRef({text:storedNote,revisionId});
   useEffect(()=>{
     const previous=previousServerNote.current;
-    previousServerNote.current=storedNote;
-    setBody(local=>local===previous?storedNote:local);
-  },[storedNote]);
+    previousServerNote.current={text:storedNote,revisionId};
+    // Saving another session can change the parent revision without editing this note.
+    if(previous.text===storedNote&&noteBaseRevision.current===previous.revisionId){
+      noteBaseRevision.current=revisionId;
+    }
+    setBody(local=>local===previous.text?storedNote:local);
+  },[storedNote,revisionId]);
+  const noteConflict=body!==storedNote&&noteBaseRevision.current!==revisionId;
+  const restoreSavedNote=()=>{noteBaseRevision.current=revisionId;setBody(storedNote);setError("");};
+  const copyDraft=async()=>{
+    try{
+      if(!globalThis.navigator?.clipboard?.writeText)throw Error("CLIPBOARD_UNAVAILABLE");
+      await globalThis.navigator.clipboard.writeText(body);
+      setError("تم نسخ مسودتك. يمكنك الآن مراجعة النسخة المحفوظة.");
+    }catch{setError("تعذر النسخ تلقائيًا. حدّد النص وانسخه يدويًا قبل استبداله.");}
+  };
   const save=async()=>{
     if(busy||savingCommand.current||body===storedNote)return;setError("");
     if(noteBaseRevision.current!==revisionId){
@@ -156,6 +192,15 @@ function TaskGeneralNoteR254({definitionId,revisionId,storedNote,busy,onCommand}
   };
   return <div className="nts-general-note"><label>ملاحظة عامة للمهمة<textarea maxLength={10000} rows={4} value={body} onInput={e=>updateBody(e.currentTarget.value)} onChange={e=>updateBody(e.currentTarget.value)} placeholder="خلاصة عامة ومراجعات مستقلة عن جلسات التنفيذ…"/></label>
     <button type="button" disabled={busy||saving||body===storedNote} onClick={()=>{void save();}}>حفظ الملاحظة العامة</button>
+    {noteConflict?<div className="nts-conflict" role="status" aria-label="مراجعة تعارض الملاحظة العامة">
+      <strong>تغيّرت الملاحظة العامة على جهاز آخر</strong>
+      <p>احتفظنا بمسودتك في المحرر. هذه أحدث نسخة محفوظة:</p>
+      <p className="nts-server-note">{storedNote||"النسخة المحفوظة فارغة"}</p>
+      <div className="nts-conflict-actions">
+        <button type="button" disabled={busy||saving} onClick={()=>{void copyDraft();}}>نسخ مسودتي</button>
+        <button type="button" disabled={busy||saving} onClick={restoreSavedNote}>استخدام النسخة المحفوظة</button>
+      </div>
+    </div>:null}
     {error?<p className="nts-error" role="alert">{error}</p>:null}
   </div>;
 }
@@ -174,4 +219,4 @@ export function TaskSessionListR254({plan,log,definitionId,executionId,busy,onCo
   </details>;
 }
 
-export const TASK_SESSION_STYLES_R254 = "\n.np-page .np-activity-item:has(.nts-list){flex-wrap:wrap}\n.np-page .nts-list{flex-basis:100%;width:100%;min-width:0;border-top:1px solid var(--border);margin-top:5px;padding:3px}\n.np-page .nts-list>summary{cursor:pointer;display:flex;justify-content:space-between;gap:8px;font-size:12px;padding:9px;font-weight:650;color:var(--text)}\n.np-page .nts-list-body{display:grid;gap:9px;max-height:65dvh;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding:5px 2px calc(12px + env(safe-area-inset-bottom,0px))}\n.np-page .nts-session{border:1px solid var(--border);border-radius:12px;background:var(--panel-soft);min-width:0}\n.np-page .nts-session>summary{display:flex;align-items:flex-start;flex-wrap:wrap;justify-content:space-between;gap:7px;cursor:pointer;padding:10px;font-size:12px}\n.np-page .nts-session>summary span:first-child{display:grid;gap:3px;min-width:0;flex:1}\n.np-page .nts-session>summary small{color:var(--muted);overflow-wrap:anywhere}\n.np-page .nts-session-body{display:grid;gap:9px;padding:12px;border-top:1px solid var(--border)}\n.np-page .nts-stack,.np-page .nts-planner-body{display:grid;gap:9px;min-width:0}\n.np-page .nts-session-body progress{width:100%;accent-color:var(--gold)}\n.np-page .nts-session-body label,.np-page .nts-plan label{display:grid;gap:5px;font-size:12px;min-width:0}\n.np-page .nts-session-body :is(input,textarea),.np-page .nts-plan :is(input:not([type=checkbox]),select){width:100%;min-width:0;border:1px solid var(--border-strong);background:var(--panel);color:var(--text);border-radius:9px;padding:9px;font:inherit}\n.np-page .nts-plan{display:grid;grid-column:1/-1;gap:10px;border:1px solid var(--border);border-radius:13px;padding:12px}\n.np-page .nts-plan .nts-toggle{display:flex;align-items:center;gap:8px}\n.np-page .nts-plan .nts-toggle input{width:auto}\n.np-page .nts-editor{min-width:0;display:grid;gap:8px;border:1px solid var(--border);border-radius:10px;padding:12px}\n.np-page .nts-three{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}\n.np-page .nts-actions,.np-page .nts-split{display:flex;align-items:end;gap:7px;flex-wrap:wrap}\n.np-page .nts-split small{flex-basis:100%}\n.np-page .nts-session-body button,.np-page .nts-plan button{border:1px solid var(--border-strong);background:var(--panel);color:var(--text);border-radius:9px;padding:9px 12px;font:inherit;min-height:44px;cursor:pointer}\n.np-page .nts-session-body button:disabled,.np-page .nts-plan button:disabled{opacity:.55;cursor:default}\n.np-page .nts-error{color:#a43f49}\n.np-page .nts-summary{border-top:1px solid var(--border);padding:10px}\n.np-page .nts-summary p{white-space:pre-wrap;overflow-wrap:anywhere}\n.np-page .nts-summary div{border-bottom:1px solid var(--border);padding:8px}\n.np-page .nts-summary time{display:block;color:var(--muted)}\n.np-page .nts-general-note{display:grid;gap:8px;padding:8px 0}\n.np-page .nts-general-note label{display:grid;gap:6px}\n.np-page .nts-general-note textarea{width:100%;min-width:0;resize:vertical;min-height:104px;padding:9px;border-radius:9px;border:1px solid var(--border-strong);background:var(--panel);color:var(--text);font:inherit}\n.np-page .nts-general-note button{min-height:44px;padding:9px;border-radius:9px;background:var(--panel);border:1px solid var(--border-strong);color:var(--text);cursor:pointer}\n@media(max-width:700px){.np-page .nts-list-body{max-height:62dvh}.np-page .nts-three input{padding:8px 4px!important}}\n";
+export const TASK_SESSION_STYLES_R254 = "\n.np-page .np-activity-item:has(.nts-list){flex-wrap:wrap}\n.np-page .nts-list{flex-basis:100%;width:100%;min-width:0;border-top:1px solid var(--border);margin-top:5px;padding:3px}\n.np-page .nts-list>summary{cursor:pointer;display:flex;justify-content:space-between;gap:8px;font-size:12px;padding:9px;font-weight:650;color:var(--text)}\n.np-page .nts-list-body{display:grid;gap:9px;max-height:65dvh;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding:5px 2px calc(12px + env(safe-area-inset-bottom,0px))}\n.np-page .nts-session{border:1px solid var(--border);border-radius:12px;background:var(--panel-soft);min-width:0}\n.np-page .nts-session>summary{display:flex;align-items:flex-start;flex-wrap:wrap;justify-content:space-between;gap:7px;cursor:pointer;padding:10px;font-size:12px}\n.np-page .nts-session>summary span:first-child{display:grid;gap:3px;min-width:0;flex:1}\n.np-page .nts-session>summary small{color:var(--muted);overflow-wrap:anywhere}\n.np-page .nts-session-body{display:grid;gap:9px;padding:12px;border-top:1px solid var(--border)}\n.np-page .nts-stack,.np-page .nts-planner-body{display:grid;gap:9px;min-width:0}\n.np-page .nts-session-body progress{width:100%;accent-color:var(--gold)}\n.np-page .nts-session-body label,.np-page .nts-plan label{display:grid;gap:5px;font-size:12px;min-width:0}\n.np-page .nts-session-body :is(input,textarea),.np-page .nts-plan :is(input:not([type=checkbox]),select){width:100%;min-width:0;border:1px solid var(--border-strong);background:var(--panel);color:var(--text);border-radius:9px;padding:9px;font:inherit}\n.np-page .nts-plan{display:grid;grid-column:1/-1;gap:10px;border:1px solid var(--border);border-radius:13px;padding:12px}\n.np-page .nts-plan .nts-toggle{display:flex;align-items:center;gap:8px}\n.np-page .nts-plan .nts-toggle input{width:auto}\n.np-page .nts-editor{min-width:0;display:grid;gap:8px;border:1px solid var(--border);border-radius:10px;padding:12px}\n.np-page .nts-three{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}\n.np-page .nts-actions,.np-page .nts-split{display:flex;align-items:end;gap:7px;flex-wrap:wrap}\n.np-page .nts-split small{flex-basis:100%}\n.np-page .nts-session-body button,.np-page .nts-plan button{border:1px solid var(--border-strong);background:var(--panel);color:var(--text);border-radius:9px;padding:9px 12px;font:inherit;min-height:44px;cursor:pointer}\n.np-page .nts-session-body button:disabled,.np-page .nts-plan button:disabled{opacity:.55;cursor:default}\n.np-page .nts-error{color:#a43f49}\n.np-page .nts-summary{border-top:1px solid var(--border);padding:10px}\n.np-page .nts-summary p{white-space:pre-wrap;overflow-wrap:anywhere}\n.np-page .nts-summary div{border-bottom:1px solid var(--border);padding:8px}\n.np-page .nts-summary time{display:block;color:var(--muted)}\n.np-page .nts-general-note{display:grid;gap:8px;padding:8px 0}\n.np-page .nts-general-note label{display:grid;gap:6px}\n.np-page .nts-general-note textarea{width:100%;min-width:0;resize:vertical;min-height:104px;padding:9px;border-radius:9px;border:1px solid var(--border-strong);background:var(--panel);color:var(--text);font:inherit}\n.np-page .nts-general-note button{min-height:44px;padding:9px;border-radius:9px;background:var(--panel);border:1px solid var(--border-strong);color:var(--text);cursor:pointer}\n.np-page .nts-conflict{display:grid;gap:7px;min-width:0;padding:10px;border:1px solid var(--border-strong);border-radius:11px;background:var(--panel-soft)}\n.np-page .nts-conflict strong{font-size:12px}\n.np-page .nts-conflict p{margin:0;overflow-wrap:anywhere;white-space:pre-wrap}\n.np-page .nts-server-note{max-height:140px;overflow:auto;padding:9px;border-radius:8px;background:var(--panel)}\n.np-page .nts-conflict-actions{display:flex;gap:8px;flex-wrap:wrap}\n.np-page .nts-conflict-actions button{min-height:44px;flex:1 1 140px}\n@media(max-width:700px){.np-page .nts-list-body{max-height:62dvh}.np-page .nts-three input{padding:8px 4px!important}}\n";
