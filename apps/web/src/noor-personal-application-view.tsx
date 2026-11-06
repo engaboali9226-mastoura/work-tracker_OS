@@ -1,3 +1,6 @@
+import {TaskSessionPlannerR254,TaskSessionListR254,sessionFinishedR254,TASK_SESSION_STYLES_R254,type StoredTaskSessionPlanR254,type StoredTaskSessionR254} from "./noor-task-sessions-r254.js";
+import {shouldRefreshNoorOnResume} from "./noor-resume-sync-r259.js";
+import type {NoorTaskSessionDraft} from "./noor-personal-today-client.js";
 import { noorCategoryOptions, noorExistingCategory, noorProposeCategory } from "./category-selection-r163.js";
 import { NoorThreeSpacesR171 } from "./noor-three-spaces-r171.js";
 import { NoorWellbeingLabR165 } from "./noor-wellbeing-lab-r165.js";
@@ -24,6 +27,8 @@ import {
   financeEditToken,
   fetchNoorPersonalToday,
   fetchNoorPersonalWorkspace,
+  invalidateNoorPersonalReads,
+  fetchLatestNoorPersonalWorkspaceAfterConflict,
   sendNoorPersonalCommandDetailed,
 } from "./noor-personal-today-client.js";
 
@@ -56,7 +61,7 @@ type ExecutionItem = Readonly<{
   kind: "Task" | "Habit";
 }>;
 
-type ActivityEntry = Readonly<{ id:string; executionId:string; localDate:string; at:string; note:string; amount:number; endReason:"achieved"|"expired"|"cancelled"|null }>;
+type ActivityEntry = Readonly<{ id:string; executionId:string; localDate:string; at:string; note:string; amount:number; endReason:"achieved"|"expired"|"cancelled"|null; taskSessionId?:string; sessionDayCredit?:number }>;
 type DefinitionItem = Readonly<{
   weight:number;
   displayOrder?:number;
@@ -64,6 +69,8 @@ type DefinitionItem = Readonly<{
   revisionId:string;
   measurement?: {target:number;unit:string};
   activityLog: readonly ActivityEntry[];
+  sessionPlan?: StoredTaskSessionPlanR254;
+  taskGeneralNote?: string;
   id: string;
   title: string;
   kind: "Task" | "Habit";
@@ -1345,7 +1352,13 @@ function definitionItems(value: unknown): readonly DefinitionItem[] | null {
       : [];
     const measurement=isRecord(item.measurement) && typeof item.measurement.target==="number" && Number.isFinite(item.measurement.target) && item.measurement.target>0 && typeof item.measurement.unit==="string" ? {target:item.measurement.target,unit:item.measurement.unit} : undefined;
     const activityLog: ActivityEntry[] = Array.isArray(item.activityLog) ? item.activityLog.filter((e): e is ActivityEntry => isRecord(e) && typeof e.id==="string" && typeof e.executionId==="string" && typeof e.at==="string" && typeof e.localDate==="string" && typeof e.note==="string" && typeof e.amount==="number" && Number.isFinite(e.amount) && [null,"achieved","expired","cancelled"].includes(e.endReason as null)) : [];
-    result.push({ weight:typeof item.weight==="number"&&item.weight>0?item.weight:1,...(typeof item.displayOrder==='number'&&Number.isSafeInteger(item.displayOrder)?{displayOrder:item.displayOrder}:{}),...(typeof item.timeOfDay==='string'?{timeOfDay:item.timeOfDay}:{}),id, revisionId:stringValue(item.revisionId)??"", title, state, kind, category, scheduleKind, weekdays, startDate, endDate, importance, ...(measurement?{measurement}:{}), activityLog });
+    const sourcePlan=item.sessionPlan;
+    const parsedSessions:StoredTaskSessionR254[]|null=isRecord(sourcePlan)&&Array.isArray(sourcePlan.sessions)&&sourcePlan.sessions.length<=200
+      ?sourcePlan.sessions.every((s:unknown)=>isRecord(s)&&typeof s.id==="string"&&typeof s.title==="string"&&typeof s.objective==="string"&&typeof s.note==="string"&&Number.isInteger(s.revision)&&Number.isInteger(s.order)&&typeof s.createdAt==="string"&&typeof s.updatedAt==="string"&&(s.completedAt===null||typeof s.completedAt==="string")&&(s.target===null||typeof s.target==="number")&&(s.rangeStart===null||Number.isSafeInteger(s.rangeStart))&&(s.rangeEnd===null||Number.isSafeInteger(s.rangeEnd)))
+        ?sourcePlan.sessions as StoredTaskSessionR254[]:null:null;
+    const sessionPlan:StoredTaskSessionPlanR254|undefined=parsedSessions&&isRecord(sourcePlan)&&(sourcePlan.distribution==="equal"||sourcePlan.distribution==="custom")?{distribution:sourcePlan.distribution,sessions:parsedSessions}:undefined;
+    const taskGeneralNote=typeof item.taskGeneralNote==="string"&&item.taskGeneralNote.length<=10000?item.taskGeneralNote:undefined;
+    result.push({ weight:typeof item.weight==="number"&&item.weight>0?item.weight:1,...(typeof item.displayOrder==='number'&&Number.isSafeInteger(item.displayOrder)?{displayOrder:item.displayOrder}:{}),...(typeof item.timeOfDay==='string'?{timeOfDay:item.timeOfDay}:{}),id, revisionId:stringValue(item.revisionId)??"", title, state, kind, category, scheduleKind, weekdays, startDate, endDate, importance, ...(measurement?{measurement}:{}), ...(sessionPlan?{sessionPlan}:{}), ...(taskGeneralNote!==undefined?{taskGeneralNote}:{}), activityLog });
   }
   return result;
 }
@@ -1607,6 +1620,11 @@ function PermanentDeleteDialog({title,busy,onClose,onDelete}:{title:string;busy:
 
 export function DefinitionForm({busy,onCommand,onSavingChange,defaultStartDate,defaultKind="Habit",initial,categories=COMMON_CATEGORIES}:{busy:boolean;onCommand:(command:NoorPersonalCommandInput)=>Promise<boolean>;onSavingChange?:(saving:boolean)=>void;defaultStartDate:string;defaultKind?:"Habit"|"Task";initial?:DefinitionItem;categories?:readonly string[]}):ReactElement {
  const [scheduleKind,setScheduleKind]=useState<"OneTime"|"Daily"|"Weekdays">(initial?.scheduleKind??"Daily");
+ const [sessionEnabled,setSessionEnabled]=useState(!!initial?.sessionPlan);
+ const [sessionDistribution,setSessionDistribution]=useState<"equal"|"custom">(initial?.sessionPlan?.distribution??"custom");
+ const [sessionDrafts,setSessionDrafts]=useState<NoorTaskSessionDraft[]>(()=>initial?.sessionPlan?.sessions.map(s=>({id:s.id,title:s.title,objective:s.objective,target:s.target,rangeStart:s.rangeStart,rangeEnd:s.rangeEnd}))??[]);
+ const [taskTarget,setTaskTarget]=useState(initial?.measurement?.target?.toString()??"");
+ const [taskUnit,setTaskUnit]=useState(initial?.measurement?.unit??"صفحة");
  const [selectedKind,setSelectedKind]=useState(initial?.kind??defaultKind);
  const [duration,setDuration]=useState(initial?.endDate||initial?.scheduleKind==="OneTime"?"limited":"continuous");
  const [days,setDays]=useState<readonly number[]>(initial?.weekdays??[]);
@@ -1640,7 +1658,7 @@ export function DefinitionForm({busy,onCommand,onSavingChange,defaultStartDate,d
   if(!noorExistingCategory(selectedCategory,categoryChoices)){setError("اختر تصنيفًا مسجلًا أو أضف تصنيفًا جديدًا أولًا.");return;}
   if(showCategoryAdd){setError("أكمل إضافة التصنيف أو ألغِ إضافة التصنيف قبل حفظ العنصر.");return;}
   const endDate=selectedKind==="Habit"&&duration==="continuous"?null:text("endDate")||null;
-  const fields={weight:Number(text("weight")||initial?.weight||1),...(selectedKind==="Habit"&&text("timeOfDay")?{timeOfDay:text("timeOfDay")}:{}),kind:selectedKind,title:text("title"),category:selectedCategory,startDate:text("startDate"),endDate,scheduleKind,weekdays:scheduleKind==="Weekdays"?days:[],importance:text("importance") as "Essential"|"Important"|"Supporting"|"Optional",...(selectedKind==="Task"&&text("progressTarget")?{measurement:{target:Number(text("progressTarget")),unit:text("progressUnit")}}:{})};
+  const fields={weight:Number(text("weight")||initial?.weight||1),...(selectedKind==="Habit"&&text("timeOfDay")?{timeOfDay:text("timeOfDay")}:{}),kind:selectedKind,title:text("title"),category:selectedCategory,startDate:text("startDate"),endDate,scheduleKind,weekdays:scheduleKind==="Weekdays"?days:[],importance:text("importance") as "Essential"|"Important"|"Supporting"|"Optional",...(selectedKind==="Task"&&text("progressTarget")?{measurement:{target:Number(text("progressTarget")),unit:text("progressUnit")}}:{}),...(selectedKind==="Task"&&(sessionEnabled||initial?.sessionPlan)?{sessionPlan:sessionEnabled?{distribution:sessionDistribution,sessions:sessionDrafts}:null}:{})};
   setError("");definitionSaveLock.current=true;onSavingChange?.(true);
   let ok=false;
   try{ok=await onCommand(initial?{...fields,type:"update-definition",definitionId:initial.id,expectedRevisionId:initial.revisionId}:{...fields,type:"create-definition"});}
@@ -1659,7 +1677,7 @@ export function DefinitionForm({busy,onCommand,onSavingChange,defaultStartDate,d
   {selectedKind==="Task"||duration==="limited"?<GregorianDateInput id="definition-end" name="endDate" label="تاريخ النهاية الميلادي" required={selectedKind==="Habit"} defaultValue={initial?.endDate??""}/>:<div className="np-field"><span className="np-label">النهاية</span><p className="np-cc-help">مستمرة حتى توقفها أو تغيّر مدتها.</p></div>}
   <div className="np-field full"><label className="np-label" htmlFor="definition-repeat">التكرار *</label><select className="np-select" id="definition-repeat" name="scheduleKind" value={scheduleKind} onChange={e=>setScheduleKind(e.currentTarget.value as typeof scheduleKind)}><option value="Daily">يوميًا — 7 أيام في الأسبوع</option><option value="Weekdays">أيام محددة من الأسبوع</option><option value="OneTime" disabled={selectedKind==="Habit"&&duration==="continuous"}>مرة واحدة</option></select></div>
   {scheduleKind==="Weekdays"?<div className="np-field full"><span className="np-label">أيام التكرار: {days.length} من 7 *</span><div className="np-weekdays">{WEEKDAYS.map(([value,label])=><label className="np-weekday" key={value}><input type="checkbox" name="weekday" value={value} checked={days.includes(value)} onChange={e=>setDays(e.currentTarget.checked?[...days,value].sort():days.filter(d=>d!==value))}/>{label}</label>)}</div></div>:null}
-  {selectedKind==="Task"?<><div className="np-field"><label className="np-label" htmlFor="progress-target">الكمية المستهدفة (اختياري)</label><input className="np-input" id="progress-target" name="progressTarget" type="number" min="0.000001" max="1000000000" step="0.000001" defaultValue={initial?.measurement?.target}/></div><div className="np-field"><label className="np-label" htmlFor="progress-unit">وحدة الإنجاز</label><input className="np-input" id="progress-unit" name="progressUnit" maxLength={30} defaultValue={initial?.measurement?.unit??"صفحة"}/></div></>:null}
+  {selectedKind==="Task"?<><div className="np-field"><label className="np-label" htmlFor="progress-target">الكمية المستهدفة (اختياري)</label><input className="np-input" id="progress-target" name="progressTarget" type="number" min="0.000001" max="1000000000" step="0.000001" value={taskTarget} onChange={e=>setTaskTarget(e.currentTarget.value)}/></div><div className="np-field"><label className="np-label" htmlFor="progress-unit">وحدة الإنجاز</label><input className="np-input" id="progress-unit" name="progressUnit" maxLength={30} value={taskUnit} onChange={e=>setTaskUnit(e.currentTarget.value)}/></div><TaskSessionPlannerR254 enabled={sessionEnabled} setEnabled={setSessionEnabled} distribution={sessionDistribution} setDistribution={setSessionDistribution} sessions={sessionDrafts} setSessions={setSessionDrafts} target={taskTarget?Number(taskTarget):null} unit={taskUnit} busy={busy}/></>:null}
   <div className="np-field full"><label className="np-label" htmlFor="definition-weight">وزن الإنجاز *</label><input className="np-input" id="definition-weight" name="weight" type="number" min="1" max="100" step="1" required defaultValue={initial?.weight??1}/><small>من 1 إلى 100. مثلًا: وزن 10 يساوي تأثير عشر عادات وزن كل منها 1. التعديل يطبّق على اليوم وما بعده، ويحافظ على أوزان الأيام السابقة.</small></div>
   {initial?<p className="np-cc-help np-field full">التعديل يؤثر على الجدول الحالي والقادم. سجل الإنجاز والملاحظات السابق محفوظ. لا يمكن خفض الهدف عن الإنجاز المسجل أو تغيير وحدته بعد بدء القياس.</p>:null}
   {error?<p role="alert" className="np-action-error np-field full">{error}</p>:null}
@@ -1920,10 +1938,15 @@ function ControlCenter({ busy, orderingPending=false, workspace, executions, onC
   const apply = async (command: NoorPersonalCommandInput): Promise<boolean> => { const ok=await onCommand(command);if(command.type==="create-definition"||command.type==="update-definition")setFormError(ok?null:"تعذر الحفظ. راجع البيانات وحاول مرة أخرى.");if(ok){if(command.type==="delete-definition"){setSelectedId(null);setDeleteId(null);}setConfirmArchive(null);if(command.type==="create-definition"||command.type==="update-definition"){setCreating(false);setEditing(undefined);};}return ok; };
   const icon=(value:string)=><svg aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">{value==="finance"?<><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M3 9h18M15 14h3"/></>:value==="Habit"?<><rect x="4" y="4" width="16" height="16" rx="5"/><path d="m8 12 3 3 5-6"/></>:value==="Task"?<><path d="M10 6h10M10 12h10M10 18h10M4 6h1M4 12h1M4 18h1"/></>:<><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 0 0 16Z" fill="currentColor"/></>}</svg>;
   // R135: preserve the existing per-definition edit and safety actions inside cards.
-  const renderControlRow=(item:DefinitionItem)=><div className="np-cc-expandable" key={item.id}><button aria-expanded={selected?.id===item.id} aria-controls={`np-detail-${item.id}`} className={`np-cc-row${selected?.id===item.id?" is-selected":""}`} onClick={()=>{setSelectedId(selectedId===item.id?null:item.id);setConfirmArchive(null);}} type="button"><span className="np-cc-row-icon">{icon(item.kind)}</span><span className="np-cc-row-copy"><strong>{item.title}</strong><span>{item.category} · {scheduleLabel(item)}</span></span><span className={`np-cc-status ${item.state.toLowerCase()}`}>{item.state==="Paused"?"متوقفة":item.state==="Archived"?"مؤرشفة":currentExecution(item.id)?.status==="Completed"?"مكتملة اليوم":"نشطة"}</span></button>{selected?.id===item.id?<div aria-label="تفاصيل العنصر" className="np-cc-inline-detail" id={`np-detail-${item.id}`}><p className="np-cc-kicker">{selected.kind==="Habit"?"تفاصيل العادة":"تفاصيل المهمة"}</p><h2>{selected.title}</h2><dl><dt>القسم</dt><dd>{selected.category}</dd><dt>الحالة</dt><dd>{selected.state==="Active"?"نشطة":selected.state==="Paused"?"متوقفة مؤقتًا":selected.state==="Stopped"?"متوقفة نهائيًا":"مؤرشفة"}</dd><dt>تاريخ البداية</dt><dd>{selected.startDate}</dd><dt>تاريخ النهاية</dt><dd>{selected.endDate??"غير محدد"}</dd><dt>الجدول</dt><dd>{scheduleLabel(selected)}</dd>{selected.timeOfDay?<><dt>موعد التنفيذ</dt><dd>{selected.timeOfDay}</dd></>:null}<dt>الأهمية</dt><dd>{({Essential:"أساسي",Important:"مهم",Supporting:"داعم",Optional:"اختياري"} as Record<string,string>)[selected.importance]??selected.importance}</dd></dl><div className="np-cc-actions">
+  const renderControlRow=(item:DefinitionItem)=><div className="np-cc-expandable" key={item.id}><button aria-expanded={selected?.id===item.id} aria-controls={`np-detail-${item.id}`} className={`np-cc-row${selected?.id===item.id?" is-selected":""}`} onClick={()=>{setSelectedId(selectedId===item.id?null:item.id);setConfirmArchive(null);}} type="button"><span className="np-cc-row-icon">{icon(item.kind)}</span><span className="np-cc-row-copy"><strong>{item.title}</strong><span>{item.category} · {scheduleLabel(item)}</span></span><span className={`np-cc-status ${item.state.toLowerCase()}`}>{item.state==="Paused"?"متوقفة":item.state==="Archived"?"مؤرشفة":currentExecution(item.id)?.status==="Completed"?"مكتملة اليوم":"نشطة"}</span></button>{selected?.id===item.id?<div aria-label="تفاصيل العنصر" className="np-cc-inline-detail" id={`np-detail-${item.id}`}><p className="np-cc-kicker">{selected.kind==="Habit"?"تفاصيل العادة":"تفاصيل المهمة"}</p><h2>{selected.title}</h2><dl><dt>القسم</dt><dd>{selected.category}</dd><dt>الحالة</dt><dd>{selected.state==="Active"?"نشطة":selected.state==="Paused"?"متوقفة مؤقتًا":selected.state==="Stopped"?"متوقفة نهائيًا":"مؤرشفة"}</dd><dt>تاريخ البداية</dt><dd>{selected.startDate}</dd><dt>تاريخ النهاية</dt><dd>{selected.endDate??"غير محدد"}</dd><dt>الجدول</dt><dd>{scheduleLabel(selected)}</dd>{selected.timeOfDay?<><dt>موعد التنفيذ</dt><dd>{selected.timeOfDay}</dd></>:null}<dt>الأهمية</dt><dd>{({Essential:"أساسي",Important:"مهم",Supporting:"داعم",Optional:"اختياري"} as Record<string,string>)[selected.importance]??selected.importance}</dd></dl>{selected.kind==="Task"&&selected.sessionPlan?<TaskSessionListR254 plan={selected.sessionPlan} log={selected.activityLog} definitionId={selected.id} executionId={selected.state==="Active"&&["Planned","Pending","InProgress"].includes(currentExecution(selected.id)?.status??"")?currentExecution(selected.id)!.id:null} busy={busy} onCommand={onCommand} title={selected.title} unit={selected.measurement?.unit??""} revisionId={selected.revisionId} taskGeneralNote={selected.taskGeneralNote??""}/>:null}<div className="np-cc-actions">
         <button className="np-cc-button primary" disabled={busy||!selected.revisionId} type="button" onClick={()=>{setEditing(selected);setFormError(null);setFormSession(v=>v+1);setCreating(true);}}>تعديل البيانات والجدول</button>
         {selected.state!=="Archived"?<button className="np-cc-button" disabled={busy} onClick={()=>{void apply({type:"set-definition-state",definitionId:selected.id,state:selected.state==="Paused"?"Active":"Paused"});}} type="button">{selected.state==="Paused"?"إعادة التشغيل":"إيقاف مؤقت"}</button>:null}
-        {selected.kind==="Task"&&selected.state!=="Archived"&&currentExecution(selected.id)?<button className="np-cc-button primary" disabled={busy||currentExecution(selected.id)?.status==="Suppressed"} onClick={()=>{const item=currentExecution(selected.id);if(item)void apply({type:"set-execution-completed",executionId:item.id,completed:item.status!=="Completed"});}} type="button">{currentExecution(selected.id)?.status==="Completed"?"إعادة فتح المهمة":"إنهاء مهمة اليوم"}</button>:selected.kind==="Task"&&selected.state!=="Archived"?<p className="np-cc-help">يظهر زر الإنجاز عندما يكون للمهمة تنفيذ مجدول اليوم.</p>:null}
+        {selected.kind==="Task"&&selected.state!=="Archived"&&currentExecution(selected.id)?<button className="np-cc-button primary" disabled={busy||currentExecution(selected.id)?.status==="Suppressed"||
+           (!!selected.sessionPlan&&currentExecution(selected.id)?.status!=="Completed"&&
+             (selected.sessionPlan.sessions.length===0||
+              selected.sessionPlan.sessions.some(s=>!sessionFinishedR254(s,selected.activityLog))||
+              !!selected.measurement&&selected.activityLog.reduce((n,e)=>n+e.amount,0)<selected.measurement.target))}
+         onClick={()=>{const item=currentExecution(selected.id);if(item)void apply({type:"set-execution-completed",executionId:item.id,completed:item.status!=="Completed"});}} type="button">{currentExecution(selected.id)?.status==="Completed"?"إعادة فتح المهمة":"إنهاء مهمة اليوم"}</button>:selected.kind==="Task"&&selected.state!=="Archived"?<p className="np-cc-help">يظهر زر الإنجاز عندما يكون للمهمة تنفيذ مجدول اليوم.</p>:null}
         {selected.state!=="Archived"?<button className="np-cc-button danger" disabled={busy} onClick={()=>setConfirmArchive(selected.id)} type="button">أرشفة {selected.kind==="Habit"?"العادة":"المهمة"}</button>:<p className="np-cc-help">العنصر مؤرشف، وسجله محفوظ.</p>}
         <button className="np-cc-button danger" disabled={busy} onClick={()=>{setDeleteId(selected.id);}} type="button">حذف نهائي من قاعدة البيانات</button>
 
@@ -1970,12 +1993,15 @@ function ActivityCard({item,definition,busy,pending=false,historicalDate=null,on
  const log=definition?.activityLog ?? [];
  const total=Math.round(log.reduce((sum,e)=>sum+e.amount,0)*1e6)/1e6;
  const completed=item.status==="Completed";
+ const sessionsDone=!definition?.sessionPlan || (definition.sessionPlan.sessions.length>0 &&
+   definition.sessionPlan.sessions.every(s=>sessionFinishedR254(s,log)));
+ const parentTargetDone=!definition?.sessionPlan||!definition.measurement||total>=definition.measurement.target;
  const task=item.kind==="Task";
  const displayTitle=definition?.title??item.title;
  const ended=definition?.state==="Stopped";
  const canRecord=historicalDate ? !!definition && ["Completed","Pending","Planned","InProgress","Missed"].includes(item.status) : item.status!=="Suppressed" && definition?.state==="Active";
  const disabled=busy || !canRecord;
- const relevant=historicalDate ? log.filter(e=>e.executionId===item.id) : task ? log : log.filter(e=>e.executionId===item.id);
+ const relevant=historicalDate ? log.filter(e=>e.executionId===item.id&&!e.taskSessionId) : task ? log.filter(e=>!e.taskSessionId) : log.filter(e=>e.executionId===item.id);
  const latest=relevant.at(-1);
  const visibleHistory=relevant.filter(e=>e.note||e.amount>0||e.endReason);
  const latestNote=relevant.slice().reverse().find(e=>e.note);
@@ -1995,6 +2021,7 @@ function ActivityCard({item,definition,busy,pending=false,historicalDate=null,on
   const endReason=mode==="finish" ? String(data.get("endReason")) as "achieved"|"expired"|"cancelled" : null;
   if(!note && !amount && !endReason){setError("اكتب ملاحظة أو أضف كمية منجزة.");return;}
   if(definition?.measurement && Math.round((total+amount)*1e6)/1e6>definition.measurement.target){setError("الكمية الجديدة تتجاوز الهدف المتبقي.");return;}
+  if(endReason==="achieved"&&(!sessionsDone||!parentTargetDone)){setError("أكمل جميع الجلسات قبل اختيار تم الإنجاز، أو اختر سبب إنهاء آخر.");return;}
   if(endReason==="achieved" && definition?.measurement && Math.round((total+amount)*1e6)/1e6<definition.measurement.target){setError("سجّل الكمية المتبقية أولًا، أو اختر سبب إنهاء آخر.");return;}
   setError("");
   if(await onCommand({type:"record-activity",executionId:item.id,entryId,note,amount,endReason}))setMode(null);
@@ -2006,6 +2033,7 @@ function ActivityCard({item,definition,busy,pending=false,historicalDate=null,on
   {latestNote?.note ? <p className="np-activity-note">{latestNote.note}</p> : null}</div>
   <div className="np-activity-actions"><button aria-label={`تسجيل ملاحظة${task?" أو تقدم":""}: ${displayTitle}`} title="تسجيل ملاحظة" className="np-btn secondary np-pencil" onClick={()=>open("note")} type="button"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="m15 5 4 4M4 20l4-1 12-12a2.8 2.8 0 0 0-4-4L4 15l-1 6Z" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"/></svg></button>
   {task ? historicalDate ? <button className="np-btn complete" disabled={disabled||pending} onClick={()=>{void onCommand({type:"set-execution-completed",executionId:item.id,completed:!completed});}} type="button">{historicalDate?(completed?"إلغاء الإتمام":"إتمام"):"إنهاء"}</button> : <button className="np-btn complete" disabled={disabled||pending} onClick={()=>open("finish")} type="button">{ended?"منتهية":"إنهاء"}</button> : <label className="np-habit-check-target"><input aria-label={`إتمام عادة ${displayTitle} ${historicalDate?`بتاريخ ${historicalDate}`:"اليوم"}`} className="np-habit-check" type="checkbox" checked={completed} aria-busy={pending} disabled={disabled} onChange={event=>{void onCommand({type:"set-execution-completed",executionId:item.id,completed:event.currentTarget.checked});}}/></label>}</div>
+  {task&&definition?.sessionPlan&&!historicalDate?<TaskSessionListR254 plan={definition.sessionPlan} log={log} definitionId={definition.id} executionId={canRecord&&["Planned","Pending","InProgress"].includes(item.status)?item.id:null} busy={busy||pending} onCommand={onCommand} title={displayTitle} unit={definition.measurement?.unit??""} revisionId={definition.revisionId} taskGeneralNote={definition.taskGeneralNote??""}/>:null}
   {mode ? createPortal(<div className="np-activity-backdrop" onClick={event=>{if(event.target===event.currentTarget)close();}}><div aria-modal="true" aria-label={`${mode==="finish"?"إنهاء":"تسجيل"} ${displayTitle}`} className="np-activity-dialog" ref={panel} role="dialog" onKeyDown={event=>{
    if(event.key==="Escape"){event.preventDefault();if(noteEdit){if(!busy){setNoteEdit(null);setNoteError("");}}else close();}
    if(event.key==="Tab"){
@@ -2017,8 +2045,8 @@ function ActivityCard({item,definition,busy,pending=false,historicalDate=null,on
    }
   }}><h2>{mode==="finish"?"إنهاء المهمة":"تسجيل ملاحظة أو إنجاز"}</h2><p>{displayTitle}</p>
   {canRecord ? <form onSubmit={event=>{void save(event);}}>
-  {task && definition?.measurement ? <label>الكمية المنجزة الجديدة ({definition.measurement.unit})<input name="amount" type="number" min="0" max={Math.max(0,definition.measurement.target-total)} step="0.000001" defaultValue="0" disabled={busy}/><small>المسجل سابقًا: {arabicNumber(total)} — أضف إنجاز هذه المرة فقط.</small></label> : null}
-  {mode==="finish" ? <label>سبب الإنهاء<select name="endReason" required disabled={busy} defaultValue=""><option disabled value="">اختر السبب</option><option value="achieved">تم الإنجاز</option><option value="expired">انتهى الوقت دون اكتمال</option><option value="cancelled">إلغاء المهمة</option></select></label> : null}
+  {task && definition?.measurement && !definition.sessionPlan ? <label>الكمية المنجزة الجديدة ({definition.measurement.unit})<input name="amount" type="number" min="0" max={Math.max(0,definition.measurement.target-total)} step="0.000001" defaultValue="0" disabled={busy}/><small>المسجل سابقًا: {arabicNumber(total)} — أضف إنجاز هذه المرة فقط.</small></label> : null}
+  {mode==="finish" ? <label>سبب الإنهاء<select name="endReason" required disabled={busy} defaultValue=""><option disabled value="">اختر السبب</option><option value="achieved" disabled={!!definition?.sessionPlan&&(!sessionsDone||!parentTargetDone)}>تم الإنجاز</option><option value="expired">انتهى الوقت دون اكتمال</option><option value="cancelled">إلغاء المهمة</option></select></label> : null}
   <label>{task?"تفاصيل الإنجاز / الملاحظة":historicalDate?"ملاحظة اليوم المختار":"ملاحظة اليوم"}<textarea name="note" rows={3} maxLength={2000} disabled={busy}/></label>
   {mode==="finish" ? <p className="np-activity-help">سيُحفظ السبب وتتوقف المهمة عن الظهور في الأيام التالية. الإنهاء دون إنجاز لا يُحسب إنجازًا.</p> : null}
   {error ? <p role="alert" className="np-action-error">{error}</p> : null}
@@ -2127,7 +2155,12 @@ function Dashboard({ view:providedView, workspace, busy, actionError, onCommand,
   const totalToday = [...view.tasks,...view.habits].filter(e=>e.status!=="Cancelled").length;
   const completedToday = taskCompleted + habitCompleted;
   const todayWeight=[...view.tasks,...view.habits].filter(e=>e.status!=="Cancelled").reduce((n,e)=>n+e.weight,0),doneWeight=[...view.tasks,...view.habits].filter(e=>e.status==="Completed").reduce((n,e)=>n+e.weight,0);
-  const completionRate=todayWeight?Math.round(doneWeight/todayWeight*100):0;
+  const dayWeighted=[...view.tasks,...view.habits].filter(e=>e.status!=="Cancelled").reduce((n,e)=>{
+    const definition=definitionsById.get(e.definitionId);
+    const fraction=definition?.sessionPlan?Math.min(1,definition.activityLog.filter(a=>a.taskSessionId&&a.localDate===view.localDate).reduce((sum,a)=>sum+(a.sessionDayCredit??0),0)):(e.status==="Completed"?1:0);
+    return n+e.weight*fraction;
+  },0);
+  const completionRate=todayWeight?Math.round(dayWeighted/todayWeight*100):0;
   const achievementDate=providedView.localDate??workspace?.statistics.currentDate??civilLocalDate(nowMs,view.timeZone);
   const todayRows:StatisticRow[]=[...providedView.tasks,...providedView.habits].map(item=>({id:item.id,definitionId:item.definitionId,title:item.title,kind:item.kind,date:achievementDate,weight:item.weight,status:item.status,amount:0,unit:""}));
   const achievementWeek=wholeWeekAchievement(workspace?.statistics.rows??[],achievementDate,todayRows),yesterday=yesterdayAchievement(workspace?.statistics.rows??[],historyDate??achievementDate);
@@ -2414,6 +2447,7 @@ export function NoorPersonalApplicationView({ initialResult, initialWorkspace }:
   const commandInFlight=useRef(false);
   const [syncing,setSyncing]=useState(false);
   const syncSequence=useRef(0);
+  const resumeRefreshRef=useRef({lastAttemptAt:Date.now(),pending:false});
   const refresh = async (strict=false) => {
     const epoch=++refreshEpoch.current;
     const today=await fetchNoorPersonalToday();
@@ -2436,10 +2470,39 @@ export function NoorPersonalApplicationView({ initialResult, initialWorkspace }:
 
   useEffect(() => {
     const tick=()=>setNowMs(Date.now());
-    const visible=()=>{if(document.visibilityState==='visible')tick();};
-    const timer = window.setInterval(tick,1000);
-    window.addEventListener('focus',tick);window.addEventListener('pageshow',tick);document.addEventListener('visibilitychange',visible);
-    return () => {window.clearInterval(timer);window.removeEventListener('focus',tick);window.removeEventListener('pageshow',tick);document.removeEventListener('visibilitychange',visible);};
+    const resume=()=>{
+      tick();
+      const at=Date.now(),state=resumeRefreshRef.current;
+      if(!shouldRefreshNoorOnResume({
+        nowMs:at,
+        lastAttemptAt:state.lastAttemptAt,
+        visible:document.visibilityState==="visible",
+        writesPending:commandInFlight.current||fastQueue.current.length>0||orderQueue.current.length>0,
+        refreshPending:state.pending||prayerRefreshRef.current.pending,
+      }))return;
+      state.lastAttemptAt=at;
+      state.pending=true;
+      // A pre-resume read may predate the other device's commit: never reuse it.
+      invalidateNoorPersonalReads();
+      const sequence=++syncSequence.current;
+      setSyncing(true);
+      // Preserve dirty editors by refreshing state, never navigating/reloading.
+      void refresh().catch(()=>{}).finally(()=>{
+        state.pending=false;
+        if(alive.current&&sequence===syncSequence.current)setSyncing(false);
+      });
+    };
+    const visible=()=>{if(document.visibilityState==="visible")resume();};
+    const timer=window.setInterval(tick,1000);
+    window.addEventListener("focus",resume);
+    window.addEventListener("pageshow",resume);
+    document.addEventListener("visibilitychange",visible);
+    return ()=>{
+      window.clearInterval(timer);
+      window.removeEventListener("focus",resume);
+      window.removeEventListener("pageshow",resume);
+      document.removeEventListener("visibilitychange",visible);
+    };
   }, []);
 
   const baseView = useMemo(()=>result?.kind === "success" ? buildViewModel(result.today) : null,[result]);
@@ -2496,6 +2559,16 @@ export function NoorPersonalApplicationView({ initialResult, initialWorkspace }:
     try {
       const reply = await sendNoorPersonalCommandDetailed(command);
       if (reply.kind !== "success") {
+        if(reply.kind==="conflict" &&
+          (command.type==="edit-task-general-note"||command.type==="edit-task-session-note")){
+          // Keep mounted dirty editors intact. Fetch only the newer workspace:
+          // a full-page reload could discard unsaved private notes.
+          const epoch=++refreshEpoch.current;
+          const newer=await fetchLatestNoorPersonalWorkspaceAfterConflict();
+          if(epoch===refreshEpoch.current&&newer.kind==="success"){
+            setWorkspaceResult(newer);
+          }
+        }
         setActionError(reply.kind === "conflict" ? "تعذر تنفيذ التغيير بسبب تعارض في الحالة الحالية." : "تعذر تنفيذ التغيير الآن. حاول مرة أخرى.");
         return false;
       }
@@ -2633,6 +2706,6 @@ export function NoorPersonalApplicationView({ initialResult, initialWorkspace }:
       : <Dashboard actionError={actionError} busy={busy&&!fastChanges.length&&!orderChanges.length} pendingIds={fastChanges.map(c=>c.executionId)} lockedIds={fastChanges.filter(c=>c.command.type==='record-activity'&&(c.command.amount>0||c.command.endReason!==null)||c.command.type==='record-historical-progress'&&c.command.amount>0).map(c=>c.executionId)} nowMs={nowMs} timePreferences={timePreferences} onTimePreferencesChange={chooseTimePreferences} onCommand={fastCommand} onHistoryCommand={fastCommand} onOpenControl={() => setControlOpen(true)} view={view} workspace={workspace} />;
   }
 
-  return <><style>{PAGE_STYLES}</style><section className={`np-page${!result ? " np-page-entry-loading" : result.kind === "success" ? " np-page-entry-ready" : ""}`} data-appearance={appearance} data-design-version="r62-visible-layout-fix" dir="rtl"><div className="np-wrap"><div className="np-save-notices" data-save-feedback="classic-achievement-r95">{orderError?<p className="np-failed-save" role="alert">{orderError}</p>:null}{failedChanges.map((change,i)=><div className="np-failed-save" role="alert" key={fastFailureKey(change)}><span>لم يتأكد الحفظ: {change.title}. تم إرجاع العرض لآخر بيانات مؤكدة.</span>{change.command.type==='edit-activity-note'?<p>{change.command.note??'حذف الملاحظة'}</p>:null}{change.command.type==='record-activity'||change.command.type==='record-historical-progress'?<p>{change.command.note}{change.command.amount>0?` · الكمية: ${change.command.amount}`:''}</p>:null}<button type="button" disabled={fastChanges.some(c=>c.executionId===change.executionId)} onClick={()=>{setFailedChanges(previous=>previous.filter((_,j)=>j!==i));void fastCommand(change.command);}}>إعادة المحاولة</button><button type="button" onClick={()=>setFailedChanges(previous=>previous.filter((_,j)=>j!==i))}>تجاهل التغيير غير المحفوظ</button></div>)}</div>{content}</div></section></>;
+  return <><style>{PAGE_STYLES+TASK_SESSION_STYLES_R254+".np-page .np-cc-inline-detail .nts-list-body{max-height:none;overflow-y:visible}"}</style><section className={`np-page${!result ? " np-page-entry-loading" : result.kind === "success" ? " np-page-entry-ready" : ""}`} data-appearance={appearance} data-design-version="r62-visible-layout-fix" dir="rtl"><div className="np-wrap"><div className="np-save-notices" data-save-feedback="classic-achievement-r95">{orderError?<p className="np-failed-save" role="alert">{orderError}</p>:null}{failedChanges.map((change,i)=><div className="np-failed-save" role="alert" key={fastFailureKey(change)}><span>لم يتأكد الحفظ: {change.title}. تم إرجاع العرض لآخر بيانات مؤكدة.</span>{change.command.type==='edit-activity-note'?<p>{change.command.note??'حذف الملاحظة'}</p>:null}{change.command.type==='record-activity'||change.command.type==='record-historical-progress'?<p>{change.command.note}{change.command.amount>0?` · الكمية: ${change.command.amount}`:''}</p>:null}<button type="button" disabled={fastChanges.some(c=>c.executionId===change.executionId)} onClick={()=>{setFailedChanges(previous=>previous.filter((_,j)=>j!==i));void fastCommand(change.command);}}>إعادة المحاولة</button><button type="button" onClick={()=>setFailedChanges(previous=>previous.filter((_,j)=>j!==i))}>تجاهل التغيير غير المحفوظ</button></div>)}</div>{content}</div></section></>;
 }
 

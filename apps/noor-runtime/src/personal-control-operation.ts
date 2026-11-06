@@ -467,6 +467,11 @@ implements PersonalControlExecutor {
         return empty(503);
       }
 
+      // Business-rule validation is a conflict with the attempted task state,
+      // not an infrastructure outage. Never send private notes or details back.
+      if(error instanceof Error && /^TASK_SESSION_[A-Z_]+$/u.test(error.message))
+        return empty(409);
+
       return empty(503);
     }
   }

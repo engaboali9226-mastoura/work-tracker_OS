@@ -1,0 +1,71 @@
+import assert from "node:assert/strict";
+import test from "node:test";
+import React from "react";
+import {renderToStaticMarkup} from "react-dom/server";
+import {TaskSessionPlannerR254,TaskSessionListR254,equalSessionTargetsR254,isWholePageUnitR254,sessionProgressR254,sessionFinishedR254,type StoredTaskSessionR254} from "../src/noor-task-sessions-r254.js";
+
+const s:StoredTaskSessionR254={id:"s1",title:"فهم الموضوع الأول",objective:"استيعاب المقصود",target:15,rangeStart:1,rangeEnd:15,order:1,note:"ملاحظتي محفوظة",revision:1,createdAt:"2026-11-05T10:00:00Z",updatedAt:"2026-11-05T10:00:00Z",completedAt:null};
+test("R254: fractional equal split conserves exactly the requested total",()=>{
+ assert.deepEqual(equalSessionTargetsR254(300,18).map(n=>Math.round(n*1e6)).reduce((a,b)=>a+b,0),300e6);
+ assert.deepEqual(equalSessionTargetsR254(1,3),[0.333334,0.333333,0.333333]);
+ assert.throws(()=>equalSessionTargetsR254(0,2));
+ assert.equal(isWholePageUnitR254("صفحة"),true);
+ assert.equal(isWholePageUnitR254("صفحات"),true);
+ assert.equal(isWholePageUnitR254("pages"),true);
+ assert.equal(isWholePageUnitR254("دقائق"),false);
+ const pages=equalSessionTargetsR254(300,18,true);
+ assert.equal(pages.reduce((sum,n)=>sum+n,0),300);
+ assert.deepEqual(pages.slice(0,3),[17,17,17]);
+ assert.deepEqual(pages.slice(-3),[16,16,16]);
+ assert.ok(pages.every(Number.isSafeInteger));
+ assert.throws(()=>equalSessionTargetsR254(15.5,4,true));
+});
+test("R256: page quantities are integers in iPhone input, other units remain fractional",()=>{
+ const props={plan:{distribution:"custom" as const,sessions:[s]},log:[],definitionId:"book",executionId:"today",
+   busy:false,onCommand:async()=>true,title:"Study",revisionId:"rev"};
+ const pages=renderToStaticMarkup(React.createElement(TaskSessionListR254,{...props,unit:"صفحة"}));
+ assert.match(pages,/input[^>]*type="number"[^>]*inputMode="numeric"[^>]*step="1"[^>]*min="1"/);
+ const hours=renderToStaticMarkup(React.createElement(TaskSessionListR254,{...props,unit:"ساعة"}));
+ assert.match(hours,/input[^>]*type="number"[^>]*inputMode="decimal"[^>]*step="0.000001"/);
+ const historical=renderToStaticMarkup(React.createElement(TaskSessionListR254,{...props,executionId:null,unit:"صفحة"}));
+ assert.doesNotMatch(historical,/حفظ التقدم/);
+ assert.match(historical,/ملاحظات الجلسة/);
+});
+test("R254: client progress and session-completion projection remain independent",()=>{
+ const log=[{id:"entry-1",executionId:"today",localDate:"2026-11-05",at:"2026-11-05T10:00:00Z",note:"فهمت الدرس",amount:5,taskSessionId:"s1"}];
+ assert.equal(sessionProgressR254(log,"s1"),5);
+ assert.equal(sessionFinishedR254(s,log),false);
+ assert.equal(sessionFinishedR254({...s,completedAt:"2026-11-05T11:00:00Z"},log),true);
+});
+test("R256: page planner refuses fractional page targets in the input, time targets stay decimal",()=>{
+ const params={enabled:true,setEnabled:()=>{},distribution:"custom" as const,setDistribution:()=>{},
+  sessions:[s],setSessions:()=>{},target:15,unit:"صفحة",busy:false};
+ const pages=renderToStaticMarkup(React.createElement(TaskSessionPlannerR254,params));
+ assert.match(pages,/type="number"[^>]*inputMode="numeric"[^>]*step="1"[^>]*min="1"/);
+ const hours=renderToStaticMarkup(React.createElement(TaskSessionPlannerR254,{...params,unit:"ساعة"}));
+ assert.match(hours,/type="number"[^>]*inputMode="decimal"[^>]*step="0.000001"/);
+});
+test("R254: task form shows optional session toggle and custom mode without forcing sessions",()=>{
+ const markup=renderToStaticMarkup(React.createElement(TaskSessionPlannerR254,{enabled:false,setEnabled:()=>{},distribution:"custom",setDistribution:()=>{},sessions:[],setSessions:()=>{},target:null,unit:"صفحة",busy:false}));
+ assert.match(markup,/تقسيم المهمة إلى جلسات/);
+ assert.doesNotMatch(markup,/جلسة 1/);
+ const enabled=renderToStaticMarkup(React.createElement(TaskSessionPlannerR254,{enabled:true,setEnabled:()=>{},distribution:"custom",setDistribution:()=>{},sessions:[s],setSessions:()=>{},target:300,unit:"صفحة",busy:false}));
+ assert.match(enabled,/فهم الموضوع الأول/);assert.match(enabled,/إضافة جلسة/);
+});
+test("R254: archived task keeps independent overall note and session note accessible without current-day execution",()=>{
+ const html=renderToStaticMarkup(React.createElement(TaskSessionListR254,{
+   plan:{distribution:"custom",sessions:[s]},log:[],definitionId:"archived-book",executionId:null,
+   busy:false,onCommand:async()=>true,title:"قراءة كتاب",revisionId:"rev-2",taskGeneralNote:"خلاصة عامة محفوظة",
+ }));
+ assert.match(html,/خلاصة عامة محفوظة/);
+ assert.match(html,/ملاحظتي محفوظة/);
+ assert.match(html,/حفظ الملاحظة العامة/);
+ assert.doesNotMatch(html,/حفظ التقدم/);
+});
+test("R254: main task exposes succinct expandable sessions, individual notes and history",()=>{
+ const markup=renderToStaticMarkup(React.createElement(TaskSessionListR254,{plan:{distribution:"custom",sessions:[s]},log:[],definitionId:"task",executionId:"today",busy:false,onCommand:async()=>true,title:"قراءة كتاب"}));
+ assert.match(markup,/الجلسات: 0 \/ 1 مكتملة/);
+ assert.match(markup,/الملاحظات والإنجازات/);
+ assert.match(markup,/ملاحظتي محفوظة/);
+ assert.match(markup,/قالب تلخيص اختياري/);
+});

@@ -1,5 +1,6 @@
 const DEFAULT_PERSONAL_CATEGORIES=["الصحة والرياضة","العبادات","العمل","التعلم","الأسرة","الشؤون الشخصية","الأدوية والمكملات الغذائية"] as const;
 import { IntlTimeZoneAdapter } from "../domain/time.js";
+import { prepareTaskSessionPlan, sessionProgress, sessionStatus, sessionQuantity, sessionDayCredit, sessionEventCredit, isPageUnit, type TaskSessionPlanDraft } from "../domain/task-sessions.js";
 import { applyFinanceOperation, emptyFinanceLedger, parseFinanceOperation, type FinanceOperation, type FinanceLedger } from "../domain/model.js";
 import type {
     AutomationOutboxEvent,
@@ -27,6 +28,11 @@ function orderedDefinitions(definitions:readonly ExecutionDefinition[]):Executio
 function categoryNames(snapshot:Pick<PersonalFoundationSnapshotPort,"getCategories"|"listDefinitions">,userId:string):string[]{return [...new Set([...(snapshot.getCategories?.(userId)??DEFAULT_PERSONAL_CATEGORIES),...snapshot.listDefinitions(userId).map(d=>d.category??"عام")])];}
 
 export type PersonalCommand =
+    | Readonly<{type:"configure-task-sessions";definitionId:string;expectedRevisionId:string;plan:TaskSessionPlanDraft|null}>
+    | Readonly<{type:"edit-task-general-note";definitionId:string;expectedRevisionId:string;note:string}>
+    | Readonly<{type:"edit-task-session-note";definitionId:string;taskSessionId:string;expectedRevision:number;note:string}>
+    | Readonly<{type:"record-task-session-progress";executionId:string;taskSessionId:string;entryId:string;amount:number;note:string}>
+    | Readonly<{type:"complete-task-session";executionId:string;taskSessionId:string;entryId:string}>
     | Readonly<{type:"set-account-location";requestId:string;expectedRevisionId:string;city:{name:string;country:string;latitude:number;longitude:number;timeZone:string}}>
     | Readonly<{type:"correct-historical-execution";executionId:string;localDate:LocalDate;expectedStatus:ExecutionStatus;completed:boolean}>
     | Readonly<{type:"record-historical-progress";executionId:string;localDate:LocalDate;entryId:string;note:string;amount:number}>
@@ -34,7 +40,7 @@ export type PersonalCommand =
     | Readonly<{type:"rebalance-habit-weights";changes:readonly Readonly<{definitionId:string;expectedRevisionId:string;weight:number}>[]}>
     | Readonly<{type:"reorder-display";scope:"Habit"|"Task"|"categories";expected:readonly string[];order:readonly string[]}>
     | Readonly<{type:"manage-category"; action:"add"|"rename"; name:string; previousName:string|null}>
-    | Readonly<{type:"update-definition";weight?:number;definitionId:string;expectedRevisionId:string;kind:DefinitionKind;title:string;category:string;startDate:LocalDate;endDate:LocalDate|null;scheduleKind:Schedule["kind"];weekdays:readonly number[];importance:ImportanceLevel;timeOfDay?:string;measurement?:{readonly target:number;readonly unit:string}}>
+    | Readonly<{type:"update-definition";weight?:number;definitionId:string;expectedRevisionId:string;kind:DefinitionKind;title:string;category:string;startDate:LocalDate;endDate:LocalDate|null;scheduleKind:Schedule["kind"];weekdays:readonly number[];importance:ImportanceLevel;timeOfDay?:string;measurement?:{readonly target:number;readonly unit:string};sessionPlan?:TaskSessionPlanDraft|null}>
     | Readonly<{type:"finance";operation:FinanceOperation}>
     | Readonly<{ type: "record-activity"; executionId: string; entryId: string; note: string; amount: number; endReason: "achieved" | "expired" | "cancelled" | null }>
     | Readonly<{ readonly type: "delete-definition"; readonly definitionId: string; readonly confirm: true }>
@@ -43,6 +49,7 @@ export type PersonalCommand =
         readonly weight?: number;
         readonly timeOfDay?: string;
         readonly measurement?: { readonly target: number; readonly unit: string };
+        readonly sessionPlan?: TaskSessionPlanDraft | null;
         readonly kind: DefinitionKind;
         readonly title: string;
         readonly category: string;
@@ -227,6 +234,27 @@ function importance(
         : null;
 }
 
+
+function parseTaskSessionDraft(value: unknown): TaskSessionPlanDraft | null | undefined {
+    if(value===null)return null;
+    if(!isRecord(value)||!exactKeys(value,["distribution","sessions"])
+       ||!["equal","custom"].includes(String(value.distribution))
+       ||!Array.isArray(value.sessions)||value.sessions.length>200)return undefined;
+    const sessions: TaskSessionPlanDraft["sessions"][number][]=[];
+    for(const d of value.sessions) {
+        if(!isRecord(d)||!exactKeys(d,["id","title","objective","target","rangeStart","rangeEnd"])
+           ||!boundedIdentifier(d.id)||!boundedText(d.title,120)
+           ||typeof d.objective!=="string"||d.objective.length>500
+           ||!(d.target===null||typeof d.target==="number"&&sessionQuantity(d.target)&&d.target>0)
+           ||!(d.rangeStart===null&&d.rangeEnd===null||Number.isSafeInteger(d.rangeStart)&&Number.isSafeInteger(d.rangeEnd)&&
+              Number(d.rangeStart)>=1&&Number(d.rangeEnd)>=Number(d.rangeStart)&&Number(d.rangeEnd)<=1e9))return undefined;
+        sessions.push({id:d.id,title:(d.title as string).trim(),objective:d.objective.trim(),target:d.target as number|null,
+          rangeStart:d.rangeStart as number|null,rangeEnd:d.rangeEnd as number|null});
+    }
+    if(new Set(sessions.map(s=>s.id)).size!==sessions.length)return undefined;
+    return {distribution:value.distribution as "equal"|"custom",sessions};
+}
+
 export function parsePersonalCommand(
     value: unknown,
 ): PersonalCommand | null {
@@ -253,6 +281,37 @@ export function parsePersonalCommand(
           latitude:city.latitude,longitude:city.longitude,timeZone:city.timeZone}};
     }
 
+    if(value.type==="edit-task-general-note"){
+        if(!exactKeys(value,["type","definitionId","expectedRevisionId","note"])||
+           !boundedIdentifier(value.definitionId)||!boundedIdentifier(value.expectedRevisionId)||
+           typeof value.note!=="string"||value.note.length>10000)return null;
+        return {type:"edit-task-general-note",definitionId:value.definitionId,expectedRevisionId:value.expectedRevisionId,note:value.note.trim()};
+    }
+    if(value.type==="configure-task-sessions"){
+        if(!exactKeys(value,["type","definitionId","expectedRevisionId","plan"]) ||
+          !boundedIdentifier(value.definitionId)||!boundedIdentifier(value.expectedRevisionId))return null;
+        const plan=parseTaskSessionDraft(value.plan);
+        return plan===undefined?null:{type:"configure-task-sessions",definitionId:value.definitionId,expectedRevisionId:value.expectedRevisionId,plan};
+    }
+    if(value.type==="edit-task-session-note"){
+        if(!exactKeys(value,["type","definitionId","taskSessionId","expectedRevision","note"]) ||
+           !boundedIdentifier(value.definitionId)||!boundedIdentifier(value.taskSessionId) ||
+           !Number.isSafeInteger(value.expectedRevision)||Number(value.expectedRevision)<0 ||
+           typeof value.note!=="string"||value.note.length>10000)return null;
+        return {type:"edit-task-session-note",definitionId:value.definitionId,taskSessionId:value.taskSessionId,expectedRevision:value.expectedRevision as number,note:value.note.trim()};
+    }
+    if(value.type==="record-task-session-progress"){
+        if(!exactKeys(value,["type","executionId","taskSessionId","entryId","amount","note"]) ||
+           !boundedIdentifier(value.executionId)||!boundedIdentifier(value.taskSessionId)||!boundedIdentifier(value.entryId) ||
+           typeof value.amount!=="number"||!sessionQuantity(value.amount)||value.amount<=0 ||
+           typeof value.note!=="string"||value.note.length>2000)return null;
+        return {type:"record-task-session-progress",executionId:value.executionId,taskSessionId:value.taskSessionId,entryId:value.entryId,amount:value.amount,note:value.note.trim()};
+    }
+    if(value.type==="complete-task-session"){
+        if(!exactKeys(value,["type","executionId","taskSessionId","entryId"]) ||
+           !boundedIdentifier(value.executionId)||!boundedIdentifier(value.taskSessionId)||!boundedIdentifier(value.entryId))return null;
+        return {type:"complete-task-session",executionId:value.executionId,taskSessionId:value.taskSessionId,entryId:value.entryId};
+    }
     if(value.type==="finance"){
         if(!exactKeys(value,["type","operation"]))return null;
         const operation=parseFinanceOperation(value.operation);
@@ -319,6 +378,7 @@ export function parsePersonalCommand(
                     "importance",
                     ...(Object.hasOwn(value,"weight")?["weight"]:[]),
                     ...(Object.hasOwn(value,"measurement") ? ["measurement"] : []),
+                    ...(Object.hasOwn(value,"sessionPlan") ? ["sessionPlan"] : []),
                     ...(Object.hasOwn(value,"timeOfDay") ? ["timeOfDay"] : []),
                 ],
             )
@@ -342,6 +402,8 @@ export function parsePersonalCommand(
             if(value.kind!=="Task" || !isRecord(m) || !exactKeys(m,["target","unit"]) || typeof m.target!=="number" || !Number.isFinite(m.target) || m.target<=0 || m.target>1e9 || Math.abs(m.target*1e6-Math.round(m.target*1e6))>0.00001 || !boundedText(m.unit,30)) return null;
             measurement={target:m.target,unit:(m.unit as string).trim()};
         }
+        const sessionPlan=Object.hasOwn(value,"sessionPlan")?parseTaskSessionDraft(value.sessionPlan):undefined;
+        if(Object.hasOwn(value,"sessionPlan")&&(value.kind!=="Task"||sessionPlan===undefined))return null;
         const title = boundedText(value.title, 120);
         const category = boundedText(value.category, 60);
         const startDate = localDate(value.startDate);
@@ -385,6 +447,7 @@ export function parsePersonalCommand(
             ...(typeof value.weight==="number"?{weight:value.weight}:{}),
             kind: value.kind,
             ...(measurement ? {measurement} : {}),
+            ...(Object.hasOwn(value,"sessionPlan") ? {sessionPlan:sessionPlan!} : {}),
             ...(typeof value.timeOfDay==='string'?{timeOfDay:value.timeOfDay}:{}),
             title,
             category,
@@ -617,6 +680,99 @@ export class PersonalCommandService {
 
         await this.dependencies.transaction.runInTransaction(
             transaction => {
+
+                if(command.type==="edit-task-general-note"){
+                    const parsed=parsePersonalCommand(command);
+                    if(!parsed||parsed.type!=="edit-task-general-note")throw new Error("TASK_NOTE_INVALID");
+                    const definition=transaction.findDefinitionById(userId,parsed.definitionId);
+                    if(!definition||definition.kind!=="Task")throw new PersonalControlError("DEFINITION_NOT_FOUND");
+                    if((definition.taskGeneralNote??"")===parsed.note)return;
+                    if(definition.revisionId!==parsed.expectedRevisionId)
+                        throw new PersonalControlError("DEFINITION_STATE_CONFLICT");
+                    const {taskGeneralNote:_previous,...preserved}=definition;
+                    transaction.saveDefinition({...preserved,...(parsed.note?{taskGeneralNote:parsed.note}:{}),
+                        revisionId:this.dependencies.idGenerator.next("definition-revision")});
+                    return;
+                }
+                if(command.type==="configure-task-sessions"){
+                    const parsed=parsePersonalCommand(command);
+                    if(!parsed||parsed.type!=="configure-task-sessions")throw new Error("TASK_SESSION_INVALID_COMMAND");
+                    const definition=transaction.findDefinitionById(userId,command.definitionId);
+                    if(!definition)throw new PersonalControlError("DEFINITION_NOT_FOUND");
+                    if(definition.kind!=="Task"||definition.revisionId!==command.expectedRevisionId)
+                        throw new PersonalControlError("DEFINITION_STATE_CONFLICT");
+                    const plan=prepareTaskSessionPlan(definition.sessionPlan,parsed.plan,definition.activityLog??[],definition.measurement,now);
+                    const {sessionPlan:_old,...base}=definition;
+                    transaction.saveDefinition({...base,...(plan?{sessionPlan:plan}:{}),revisionId:this.dependencies.idGenerator.next("definition-revision")});
+                    return;
+                }
+                if(command.type==="edit-task-session-note"){
+                    const parsed=parsePersonalCommand(command);
+                    if(!parsed||parsed.type!=="edit-task-session-note")throw new Error("TASK_SESSION_INVALID_NOTE");
+                    const definition=transaction.findDefinitionById(userId,command.definitionId);
+                    if(!definition||definition.kind!=="Task"||!definition.sessionPlan)
+                        throw new PersonalControlError("DEFINITION_NOT_FOUND");
+                    const session=definition.sessionPlan.sessions.find(s=>s.id===command.taskSessionId);
+                    if(!session)throw new Error("TASK_SESSION_NOT_FOUND");
+                    if(session.note===parsed.note)return;
+                    if(session.revision!==command.expectedRevision)throw new PersonalControlError("DEFINITION_STATE_CONFLICT");
+                    transaction.saveDefinition({...definition,revisionId:this.dependencies.idGenerator.next("definition-revision"),
+                      sessionPlan:{...definition.sessionPlan,sessions:definition.sessionPlan.sessions.map(s=>s.id!==session.id?s:{...s,note:parsed.note,revision:s.revision+1,updatedAt:now})}});
+                    return;
+                }
+                if(command.type==="record-task-session-progress"||command.type==="complete-task-session"){
+                    const parsed=parsePersonalCommand(command);
+                    if(!parsed||(parsed.type!=="record-task-session-progress"&&parsed.type!=="complete-task-session"))
+                        throw new Error("TASK_SESSION_INVALID_PROGRESS");
+                    const instance=transaction.findDailyExecutionById(userId,command.executionId);
+                    if(!instance||instance.kind!=="Task")throw new PersonalControlError("EXECUTION_NOT_FOUND");
+                    const definition=transaction.findDefinitionById(userId,instance.definitionId);
+                    if(!definition?.sessionPlan)throw new Error("TASK_SESSION_NOT_ENABLED");
+                    const session=definition.sessionPlan.sessions.find(s=>s.id===command.taskSessionId);
+                    if(!session)throw new Error("TASK_SESSION_NOT_FOUND");
+                    const log=definition.activityLog??[],prior=log.find(e=>e.id===command.entryId);
+                    if(prior){
+                        if(prior.taskSessionId!==command.taskSessionId||prior.executionId!==command.executionId ||
+                           prior.amount!==(parsed.type==="record-task-session-progress"?parsed.amount:0) ||
+                           prior.note!==(parsed.type==="record-task-session-progress"?parsed.note:""))
+                            throw new Error("TASK_SESSION_ACTIVITY_ID_CONFLICT");
+                        return;
+                    }
+                    const day=activePersonalDay(transaction,userId,now);
+                    if(instance.personalDayId!==day.id)throw new PersonalControlError("EXECUTION_NOT_CURRENT");
+                    if(!["Pending","Planned","InProgress"].includes(instance.status)||definition.state!=="Active")
+                        throw new PersonalControlError("DEFINITION_STATE_CONFLICT");
+                    if(log.length>=10000)throw new Error("ACTIVITY_LIMIT_REACHED");
+                    const previous=sessionProgress(log,session.id);
+                    const amount=parsed.type==="record-task-session-progress"?parsed.amount:0;
+                    if(parsed.type==="record-task-session-progress"&&definition.measurement&&
+                       isPageUnit(definition.measurement.unit)&&!Number.isSafeInteger(amount))
+                        throw new Error("TASK_SESSION_PAGES_MUST_BE_WHOLE");
+                    if(parsed.type==="record-task-session-progress"&&
+                       (session.target===null||session.completedAt!==null||Math.round((previous+amount)*1e6)>Math.round(session.target*1e6)))
+                        throw new Error("TASK_SESSION_EXCEEDS_TARGET");
+                    if(parsed.type==="complete-task-session"&&session.target!==null&&previous<session.target)
+                        throw new Error("TASK_SESSION_TARGET_NOT_REACHED");
+                    if(parsed.type==="complete-task-session"&&session.completedAt)return;
+                    if(definition.measurement &&
+                       Math.round(((log.reduce((sum,e)=>sum+e.amount,0))+amount)*1e6)>Math.round(definition.measurement.target*1e6))
+                        throw new Error("PROGRESS_EXCEEDS_TARGET");
+                    if(parsed.type==="complete-task-session" && session.target!==null)
+                        throw new Error("TASK_SESSION_QUANTIFIED_COMPLETION_IS_AUTOMATIC");
+                    if(parsed.type==="complete-task-session" && sessionStatus(session,log)==="Completed")return;
+                    const finished=parsed.type==="complete-task-session" || session.target!==null &&
+                        Math.round((previous+amount)*1e6)>=Math.round(session.target*1e6);
+                    const entry={id:parsed.entryId,executionId:instance.id,taskSessionId:session.id,
+                      localDate:day.boundary.localDate,at:now,
+                      amount,note:parsed.type==="record-task-session-progress"?parsed.note:"",
+                      endReason:null,
+                      sessionDayCredit:sessionEventCredit(definition.measurement,definition.sessionPlan,session,amount,
+                        parsed.type==="complete-task-session")};
+                    transaction.saveDefinition({...definition,activityLog:[...log,entry],
+                       sessionPlan:{...definition.sessionPlan,sessions:definition.sessionPlan.sessions.map(s=>s.id!==session.id?s:
+                          {...s,updatedAt:now,...(finished?{completedAt:now}:{})})}});
+                    return;
+                }
                 if(command.type==="rebalance-habit-weights"){
                     const parsed=parsePersonalCommand(command);
                     if(!parsed||parsed.type!=="rebalance-habit-weights")throw new Error("HABIT_WEIGHTS_INVALID");
@@ -670,9 +826,15 @@ export class PersonalCommandService {
                     if(!definition)throw new PersonalControlError("DEFINITION_NOT_FOUND");
                     if(definition.revisionId!==command.expectedRevisionId || definition.kind!==command.kind)throw new PersonalControlError("DEFINITION_STATE_CONFLICT");
                     const total=(definition.activityLog??[]).reduce((n,e)=>n+e.amount,0);
+                    const nextPlan=Object.hasOwn(command,"sessionPlan")
+                      ?prepareTaskSessionPlan(definition.sessionPlan,command.sessionPlan??null,definition.activityLog??[],command.measurement,now)
+                      :definition.sessionPlan;
+                    if(nextPlan&&command.measurement&&nextPlan.sessions.reduce((n,s)=>n+(s.target??0),0)+
+                       (definition.activityLog??[]).filter(e=>!e.taskSessionId).reduce((n,e)=>n+e.amount,0)>command.measurement.target)
+                        throw new Error("TASK_SESSION_TARGET_EXCEEDS_TASK");
                     if(definition.measurement && (!command.measurement || command.measurement.unit!==definition.measurement.unit || command.measurement.target<total))throw new Error("EDIT_PROGRESS_CONFLICT");
-                    const {effectiveUntilDate:_end,measurement:_measurement,timeOfDay:_timeOfDay,...preserved}=definition;
-                    transaction.saveDefinition({...preserved,revisionId:this.dependencies.idGenerator.next("definition-revision"),title:command.title,category:command.category,schedule:commandSchedule(command),effectiveFromDate:command.startDate,...(command.endDate?{effectiveUntilDate:command.endDate}:{}),importance:command.importance,...(command.weight!==undefined?{weight:command.weight}:{}),...(command.measurement?{measurement:command.measurement}:{}),...(command.timeOfDay?{timeOfDay:command.timeOfDay}:{})});
+                    const {effectiveUntilDate:_end,measurement:_measurement,timeOfDay:_timeOfDay,sessionPlan:_sessionPlan,...preserved}=definition;
+                    transaction.saveDefinition({...preserved,revisionId:this.dependencies.idGenerator.next("definition-revision"),title:command.title,category:command.category,schedule:commandSchedule(command),effectiveFromDate:command.startDate,...(command.endDate?{effectiveUntilDate:command.endDate}:{}),importance:command.importance,...(command.weight!==undefined?{weight:command.weight}:{}),...(command.measurement?{measurement:command.measurement}:{}),...(command.timeOfDay?{timeOfDay:command.timeOfDay}:{}),...(nextPlan?{sessionPlan:nextPlan}:{})});
                     if(command.weight!==undefined&&command.weight!==definition.weight){
                         const day=transaction.findOpenPersonalDayContaining(userId,now);
                         if(day)for(const item of transaction.listDailyExecution(day.id))if(item.definitionId===definition.id)transaction.saveDailyExecution({...item,eligibility:{...item.eligibility,weight:command.weight},version:item.version+1,updatedAt:now});
@@ -707,6 +869,8 @@ export class PersonalCommandService {
                     const definition=transaction.findDefinitionById(userId,instance.definitionId);
                     if(!definition) throw new PersonalControlError("DEFINITION_NOT_FOUND");
                     if(parsed.type==="correct-historical-execution"){
+                        if(parsed.completed && definition.sessionPlan)
+                            throw new Error("SEGMENTED_TASK_HISTORICAL_COMPLETION_REQUIRES_SESSION_ACTIVITY");
                         const status:ExecutionStatus=parsed.completed?"Completed":"Missed";
                         if(instance.status===status)return; // retry of an already-applied correction
                         if(instance.status!==parsed.expectedStatus) throw new PersonalControlError("DEFINITION_STATE_CONFLICT");
@@ -724,6 +888,7 @@ export class PersonalCommandService {
                     }
                     if(log.length>=10000)throw new Error("ACTIVITY_LIMIT_REACHED");
                     if(instance.kind!=="Task"&&parsed.amount!==0)throw new Error("HABIT_NOTE_ONLY");
+                    if(parsed.amount>0&&definition.sessionPlan)throw new Error("TASK_SESSIONS_REQUIRE_SESSION_PROGRESS");
                     if(parsed.amount>0){
                         if(!definition.measurement || instance.kind!=="Task")throw new Error("MEASUREMENT_REQUIRED");
                         const total=Math.round((log.reduce((sum,e)=>sum+e.amount,0)+parsed.amount)*1e6)/1e6;
@@ -765,6 +930,10 @@ export class PersonalCommandService {
                     if(definition.state!=="Active") throw new PersonalControlError("DEFINITION_STATE_CONFLICT");
                     if(log.length>=10000) throw new Error("ACTIVITY_LIMIT_REACHED");
                     if(definition.kind!=="Task" && (command.amount!==0 || command.endReason!==null)) throw new Error("HABIT_NOTE_ONLY");
+                    if(definition.sessionPlan&&command.amount>0)throw new Error("TASK_SESSIONS_REQUIRE_SESSION_PROGRESS");
+                    if(definition.sessionPlan&&command.endReason==="achieved"&&
+                       (definition.sessionPlan.sessions.length===0 || definition.sessionPlan.sessions.some(s=>sessionStatus(s,log)!=="Completed")))
+                        throw new Error("TASK_SESSIONS_NOT_COMPLETED");
                     if(command.amount>0 && !definition.measurement) throw new Error("MEASUREMENT_REQUIRED");
                     const total=Math.round((log.reduce((sum,e)=>sum+e.amount,0)+command.amount)*1e6)/1e6;
                     if(!Number.isFinite(total) || total>1e9) throw new Error("PROGRESS_LIMIT");
@@ -824,6 +993,7 @@ export class PersonalCommandService {
                         gatePolicy: "NonBlocking",
                         targets: {},
                         ...(command.measurement ? {measurement:command.measurement} : {}),
+                        ...(command.sessionPlan?{sessionPlan:prepareTaskSessionPlan(undefined,command.sessionPlan,[],command.measurement,now)!}:{}),
                         ...(command.timeOfDay?{timeOfDay:command.timeOfDay}:{}),
                     };
 
@@ -905,7 +1075,16 @@ export class PersonalCommandService {
                     );
                 }
 
-                if(transaction.findDefinitionById(userId,instance.definitionId)?.state === "Stopped") throw new PersonalControlError("DEFINITION_STATE_CONFLICT");
+                const toggledDefinition=transaction.findDefinitionById(userId,instance.definitionId);
+                if(toggledDefinition?.state === "Stopped") throw new PersonalControlError("DEFINITION_STATE_CONFLICT");
+                if(command.completed&&toggledDefinition?.sessionPlan){
+                    const plan=toggledDefinition.sessionPlan,log=toggledDefinition.activityLog??[];
+                    if(plan.sessions.length===0||plan.sessions.some(s=>sessionStatus(s,log)!=="Completed"))
+                        throw new Error("TASK_SESSIONS_NOT_COMPLETED");
+                    if(toggledDefinition.measurement&&Math.round(log.reduce((n,e)=>n+e.amount,0)*1e6)<
+                       Math.round(toggledDefinition.measurement.target*1e6))
+                        throw new Error("TARGET_NOT_REACHED");
+                }
                 const status: ExecutionStatus =
                     command.completed
                         ? "Completed"
@@ -963,6 +1142,7 @@ function periodInsight(
     execution: readonly DailyExecutionInstance[],
     currentLocalDate: LocalDate | null,
     windowDays: number,
+    definitions: ReadonlyMap<string, ExecutionDefinition>,
 ): PersonalPeriodInsight {
     if (!currentLocalDate) {
         return {
@@ -1015,7 +1195,15 @@ function periodInsight(
         windowDays,
         scheduled: inWindow.length,
         completed,
-        completionRate: (()=>{const total=inWindow.reduce((n,e)=>n+e.eligibility.weight,0),done=inWindow.filter(e=>e.status==="Completed").reduce((n,e)=>n+e.eligibility.weight,0);return total?Math.round(done/total*100):0;})(),
+        completionRate: (()=>{const total=inWindow.reduce((n,e)=>n+e.eligibility.weight,0);
+            const done=inWindow.reduce((n,e)=>{
+                const definition=definitions.get(e.definitionId);
+                const share=definition?.sessionPlan
+                    ?sessionDayCredit(definition.activityLog??[],e.scheduleOccurrenceKey)
+                    :(e.status==="Completed"?1:0);
+                return n+e.eligibility.weight*share;
+            },0);
+            return total?Math.round(done/total*100):0;})(),
         successfulDays,
     };
 }
@@ -1162,21 +1350,25 @@ export function buildPersonalWorkspace(
                     execution,
                     currentLocalDate,
                     7,
+                    defs,
                 ),
                 month: periodInsight(
                     execution,
                     currentLocalDate,
                     30,
+                    defs,
                 ),
                 quarter: periodInsight(
                     execution,
                     currentLocalDate,
                     90,
+                    defs,
                 ),
                 year: periodInsight(
                     execution,
                     currentLocalDate,
                     365,
+                    defs,
                 ),
             },
         },

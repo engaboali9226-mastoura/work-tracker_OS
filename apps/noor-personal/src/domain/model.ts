@@ -1,3 +1,5 @@
+import type { TaskSessionPlan } from "./task-sessions.js";
+
 export type IsoInstant = string;
 export type LocalDate = string;
 
@@ -164,6 +166,8 @@ export interface ActivityEntry {
     readonly note: string;
     readonly amount: number;
     readonly endReason: "achieved" | "expired" | "cancelled" | null;
+    readonly taskSessionId?: string;
+    readonly sessionDayCredit?: number;
 }
 export interface ProgressMeasurement { readonly target: number; readonly unit: string; }
 
@@ -172,6 +176,8 @@ export interface ExecutionDefinition {
     readonly timeOfDay?: string;
     readonly measurement?: ProgressMeasurement;
     readonly activityLog?: readonly ActivityEntry[];
+    readonly sessionPlan?: TaskSessionPlan;
+    readonly taskGeneralNote?: string;
     readonly id: string;
     readonly userId: string;
     readonly kind: DefinitionKind;
