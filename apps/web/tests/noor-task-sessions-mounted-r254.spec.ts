@@ -10,8 +10,13 @@ const record={id:"chapter-1",title:"قراءة الفصل",objective:"تلخيص
  order:1,note:"",revision:0,createdAt:instant,updatedAt:instant,completedAt:null};
 function mount(){
  const dom=new JSDOM('<!doctype html><html lang="ar" dir="rtl"><body><div id="root"></div></body></html>',{url:"http://noor-session-test.invalid"});
+ Object.defineProperties(dom.window.HTMLElement.prototype,{
+   attachEvent:{value:function(this:HTMLElement,event:string,listener:EventListener){this.addEventListener(event.replace(/^on/,""),listener);}},
+   detachEvent:{value:function(this:HTMLElement,event:string,listener:EventListener){this.removeEventListener(event.replace(/^on/,""),listener);}},
+ });
  const vars={window:dom.window,document:dom.window.document,navigator:dom.window.navigator,Node:dom.window.Node,
    Element:dom.window.Element,HTMLElement:dom.window.HTMLElement,MutationObserver:dom.window.MutationObserver,
+   HTMLTextAreaElement:dom.window.HTMLTextAreaElement,HTMLInputElement:dom.window.HTMLInputElement,Event:dom.window.Event,
    IS_REACT_ACT_ENVIRONMENT:true};
  const descriptors=new Map<string,PropertyDescriptor|undefined>();
  for(const [name,value] of Object.entries(vars)){
@@ -48,9 +53,10 @@ test("R254 mounted session note remains in editor on network failure, then sends
    const list=doc.querySelector<HTMLDetailsElement>(".nts-list")!;assert.ok(list);list.open=true;
    const child=doc.querySelector<HTMLDetailsElement>(".nts-session")!;assert.ok(child);child.open=true;
    const text=doc.querySelector<HTMLTextAreaElement>('.nts-session-body textarea[maxlength="10000"]')!;
-   assert.ok(text);await act(async()=>{input(t.dom,text,"ملاحظة تعليمية مستقلة");});
+   assert.ok(text);await act(async()=>{text.focus();input(t.dom,text,"ملاحظة تعليمية مستقلة");});
    const save=[...doc.querySelectorAll<HTMLButtonElement>(".nts-session-body button")].find(b=>b.textContent?.includes("حفظ الملاحظة"))!;
    assert.ok(save);
+   assert.equal(save.disabled,false,"editing note must enable Save without recording progress");
    await act(async()=>{save.click();});
    assert.equal(commands.length,1);
    assert.deepEqual(commands[0],{type:"edit-task-session-note",definitionId:"parent-task",taskSessionId:"chapter-1",expectedRevision:0,note:"ملاحظة تعليمية مستقلة"});
