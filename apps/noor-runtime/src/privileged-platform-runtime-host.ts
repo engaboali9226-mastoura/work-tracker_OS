@@ -725,7 +725,7 @@ export function createPrivilegedPlatformRuntimeHost(
   if(adminRecoveryFlag==="enabled" && adminReleaseFlag!=="enabled")
     throw new Error("NOOR_ADMIN_RECOVERY_WITHOUT_RELEASE");
   const adminConfig=adminReleaseFlag==="enabled" ? {
-    client:createNoorPrivilegedSupabaseClient<NoorAdminDatabaseR271>(configuration),
+    client:accountUserClient as unknown as SupabaseClient<NoorAdminDatabaseR271>,
     expectedOrigin:process.env.NOOR_PUBLIC_ORIGIN??"",
     supabaseUrl:process.env.SUPABASE_URL??"",
     publicKey:process.env.VITE_NOOR_SUPABASE_PUBLISHABLE_KEY??"",
