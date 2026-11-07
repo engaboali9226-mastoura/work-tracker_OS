@@ -18,7 +18,7 @@ export class NoorAdminStepUpR271 {
   }>):boolean{
     const now=this.now();
     if(!input || !input.platformSessionId || input.platformSessionId.length>256 ||
-       !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(input.authUserId) ||
+       !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(input.authUserId) ||
        !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(input.authSessionId) ||
        !Number.isSafeInteger(input.challengeVerifiedAtMs) ||
        input.challengeVerifiedAtMs>now ||
