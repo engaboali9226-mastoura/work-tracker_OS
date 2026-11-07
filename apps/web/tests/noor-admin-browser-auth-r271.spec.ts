@@ -64,3 +64,40 @@ test("R271 browser refuses invalid factor and TOTP before making network exchang
   await assert.rejects(client.stepUp("forged", "123456"),/NOOR_ADMIN_STEP_UP_INPUT_INVALID/);
   assert.equal(calls,0);
 });
+
+test("R272 invitation accepts a confirmed email, sets password and verifies TOTP without admin grant",async()=>{
+  let exchanged=0;let passwordUpdates=0;
+  const fake={
+    auth:{
+      getSession:async()=>({data:{session:{user:{id:"owner-id",email_confirmed_at:"2026-11-07T20:00:00Z"}}},error:null}),
+      updateUser:async(input:{password:string})=>{
+        passwordUpdates++;
+        assert.equal(input.password,"secure-invitation-password");
+        return {data:{user:{id:"owner-id"}},error:null};
+      },
+      mfa:{
+        listFactors:async()=>({data:{totp:[]},error:null}),
+        challenge:async()=>({data:{id:challenge},error:null}),
+        verify:async()=>({data:{access_token:"verified-token"},error:null}),
+      },
+    },
+  };
+  const admin=createNoorAdminBrowserAuthR271(fake as unknown as SupabaseClient,async()=>{
+    exchanged++;throw Error("must not grant admin during invitation");
+  });
+  assert.deepEqual(await admin.acceptInvitation("secure-invitation-password"),[]);
+  await admin.verifyEnrollment(factor,"123456");
+  assert.equal(passwordUpdates,1);
+  assert.equal(exchanged,0);
+});
+test("R272 refuses unconfirmed invitation and weak password before updating user",async()=>{
+  let updates=0;
+  const fake={auth:{
+    getSession:async()=>({data:{session:{user:{id:"owner-id",email_confirmed_at:null}}},error:null}),
+    updateUser:async()=>{updates++;throw Error("should not update");},
+  }};
+  const client=createNoorAdminBrowserAuthR271(fake as unknown as SupabaseClient,async()=>{});
+  await assert.rejects(client.acceptInvitation("short"),/NOOR_ADMIN_NEW_PASSWORD_INVALID/);
+  await assert.rejects(client.acceptInvitation("a-very-long-password"),/NOOR_ADMIN_INVITATION_NOT_VERIFIED/);
+  assert.equal(updates,0);
+});
