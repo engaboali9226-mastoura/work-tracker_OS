@@ -1,4 +1,4 @@
-import type {IncomingMessage,ServerResponse} from "node:http";
+import type {IncomingMessage,ServerResponse} from "./route-access-http-server.js";
 import {authorizeAdminActionR271,type AdminAuthorityR271} from "./noor-admin-policy-r271.js";
 import {requestNoorAdminPasswordRecoveryR271,type NoorAdminPasswordRecoveryProviderR271,type NoorAdminPasswordRecoveryAuditR271} from "./noor-admin-password-recovery-r271.js";
 
