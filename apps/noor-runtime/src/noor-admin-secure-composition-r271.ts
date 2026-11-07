@@ -6,6 +6,11 @@ import {NoorSupabaseAssuranceVerifierR271} from "./noor-admin-supabase-assurance
 import {createNoorAdminAuthorityResolverR271,createNoorAdminVerifiedActorResolverR271} from "./noor-admin-authority-r271.js";
 import type {NoorAdminDatabaseR271} from "./noor-admin-store-r271.js";
 import {NoorAdminAccountStoreR271} from "./noor-admin-store-r271.js";
+import {NoorAdminStepUpR271} from "./noor-admin-step-up-r271.js";
+import {NoorAdminServerStepUpR271} from "./noor-admin-server-step-up-r271.js";
+import type {NoorAdminTotpProviderR271} from "./noor-admin-totp-provider-r271.js";
+import {authorizeNoorAdminSensitiveActionR271} from "./noor-admin-sensitive-authority-r271.js";
+import type {AdminActionR271} from "./noor-admin-policy-r271.js";
 
 /**
  * Composition boundary for an authenticated admin. Must be created by the
@@ -17,6 +22,8 @@ export function createNoorAdminSecureCompositionR271(input:Readonly<{
   session:Readonly<{execute(input:Readonly<{sessionId:string}>):Promise<Readonly<{accountId:{toString():string}}>>}>;
   now?:()=>number;
   sessionRegistry?:NoorAdminAuthSessionRegistryR271;
+  /** A trusted server-side challenge/verify adapter, never a browser client. */
+  totpProvider?:NoorAdminTotpProviderR271;
 }>){
   const bindings=new NoorAdminSessionTokenBindingR271(input.now);
   const store=new NoorAdminAccountStoreR271(input.client);
@@ -32,9 +39,42 @@ export function createNoorAdminSecureCompositionR271(input:Readonly<{
   const dependencies={session:input.session,store,assurance};
   const resolveAuthority=createNoorAdminAuthorityResolverR271(dependencies);
   const resolveActor=createNoorAdminVerifiedActorResolverR271(dependencies);
+  const proofs=new NoorAdminStepUpR271(input.now);
+  const stepUp=input.sessionRegistry && input.totpProvider
+    ? new NoorAdminServerStepUpR271({
+      tokens:bindings,resolveActor,assurance,
+      registry:input.sessionRegistry,auth:input.client.auth,
+      provider:input.totpProvider,proofs,
+      ...(input.now?{now:input.now}:{}),
+    })
+    : null;
+  const sensitiveActions=new Set<AdminActionR271>([
+    "accounts:delete","accounts:reset-password","entitlements:manage",
+  ]);
+  const authorizeSensitiveAction=async(sessionId:string,action:AdminActionR271):Promise<boolean>=>{
+    if(!stepUp || !sensitiveActions.has(action))return false;
+    try{
+      const [actor,binding]=await Promise.all([
+        resolveActor(sessionId),bindings.getBindingForSession(sessionId),
+      ]);
+      if(!actor || !binding || actor.actorAccountId!==binding.platformAccountId)return false;
+      return authorizeNoorAdminSensitiveActionR271({
+        action,authority:actor.authority,platformSessionId:sessionId,
+        authUserId:binding.authUserId,authSessionId:binding.authSessionId,
+      },proofs);
+    }catch{return false;}
+  };
   return Object.freeze({
-    authentication,resolveAuthority,resolveActor,
-    revokeSession:(sessionId:string)=>bindings.revoke(sessionId),
-    shutdown:()=>bindings.revokeAll(),
+    authentication,resolveAuthority,resolveActor,stepUp,authorizeSensitiveAction,
+    revokeSession:(sessionId:string)=>{
+      stepUp?.revokeSession(sessionId);
+      proofs.revoke(sessionId);
+      bindings.revoke(sessionId);
+    },
+    shutdown:()=>{
+      stepUp?.shutdown();
+      proofs.revokeAll();
+      bindings.revokeAll();
+    },
   });
 }
