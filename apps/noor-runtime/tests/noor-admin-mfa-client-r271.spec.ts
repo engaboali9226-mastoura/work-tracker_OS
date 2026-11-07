@@ -12,7 +12,7 @@ test("R271 TOTP enrollment and verification requires real Supabase challenge",as
     listFactors:async()=>({error:null,data:{totp:[{id,status:"verified",friendly_name:"Primary"}]}}),
   }}} as unknown as Pick<SupabaseClient,"auth">;
   const mfa=new NoorAdminMfaClientR271(client);
-  assert.deepEqual(await mfa.enrollTotp(),{factorId:id,qrCode:"svg-qr"}); // replace mock ID below
+  assert.deepEqual(await mfa.enrollTotp(),{factorId:id,qrCode:"svg-qr"});
   assert.equal(await mfa.verifyTotp(id,"123456"),"aal2-jwt");
   assert.deepEqual(calls,["enroll","challenge","verify"]);
   assert.deepEqual(await mfa.verifiedFactors(),[{id,friendlyName:"Primary"}]);
