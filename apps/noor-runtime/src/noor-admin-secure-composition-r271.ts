@@ -1,6 +1,7 @@
 import type {SupabaseClient} from "@supabase/supabase-js";
 import {NoorAdminSessionTokenBindingR271} from "./noor-admin-session-token-binding-r271.js";
 import {NoorAdminSessionAuthenticationR271} from "./noor-admin-session-authentication-r271.js";
+import type {NoorAdminAuthSessionRegistryR271} from "./noor-admin-supabase-assurance-r271.js";
 import {NoorSupabaseAssuranceVerifierR271} from "./noor-admin-supabase-assurance-r271.js";
 import {createNoorAdminAuthorityResolverR271,createNoorAdminVerifiedActorResolverR271} from "./noor-admin-authority-r271.js";
 import type {NoorAdminDatabaseR271} from "./noor-admin-store-r271.js";
@@ -15,6 +16,7 @@ export function createNoorAdminSecureCompositionR271(input:Readonly<{
   client:SupabaseClient<NoorAdminDatabaseR271>;
   session:Readonly<{execute(input:Readonly<{sessionId:string}>):Promise<Readonly<{accountId:{toString():string}}>>}>;
   now?:()=>number;
+  sessionRegistry?:NoorAdminAuthSessionRegistryR271;
 }>){
   const bindings=new NoorAdminSessionTokenBindingR271(input.now);
   const store=new NoorAdminAccountStoreR271(input.client);
@@ -25,7 +27,7 @@ export function createNoorAdminSecureCompositionR271(input:Readonly<{
     bindings,
     ...(input.now?{now:input.now}:{}),
   });
-  const assurance=new NoorSupabaseAssuranceVerifierR271(input.client,bindings,input.now);
+  const assurance=new NoorSupabaseAssuranceVerifierR271(input.client,bindings,input.now,input.sessionRegistry);
   const dependencies={session:input.session,store,assurance};
   const resolveAuthority=createNoorAdminAuthorityResolverR271(dependencies);
   const resolveActor=createNoorAdminVerifiedActorResolverR271(dependencies);
