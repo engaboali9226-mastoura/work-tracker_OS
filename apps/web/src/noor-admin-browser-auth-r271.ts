@@ -25,6 +25,7 @@ async function submit(path:string,body:unknown):Promise<void>{
 }
 export function createNoorAdminBrowserAuthR271(
   client?:SupabaseClient,
+  exchange: (path:string,body:unknown)=>Promise<void>=submit,
 ):NoorAdminBrowserAuthR271{
   const authClient=client??(()=>{
     const config=readBrowserPublicAuthenticationConfiguration();
@@ -66,12 +67,12 @@ export function createNoorAdminBrowserAuthR271(
       const proof=verified.data?.access_token;
       if(verified.error || !proof || proof.length>8192)
         throw Error("NOOR_ADMIN_MFA_VERIFY_DENIED");
-      await submit("/api/noor/admin/authenticate",{accessToken:proof});
+      await exchange("/api/noor/admin/authenticate",{accessToken:proof});
     },
     async stepUp(factorId:string,code:string){
       if(!signedIn || !validTotp(factorId,code))
         throw Error("NOOR_ADMIN_STEP_UP_INPUT_INVALID");
-      await submit("/api/noor/admin/step-up",{factorId,code});
+      await exchange("/api/noor/admin/step-up",{factorId,code});
     },
     async revoke(){
       const response=await fetch("/api/noor/admin/revoke",{
