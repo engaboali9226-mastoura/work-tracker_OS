@@ -5,6 +5,7 @@ import {
  schoolWeekNumberR267,schoolWeekTitleR267,sundayOfR267,
 } from "./noor-work-school-calendar-r267.js";
 import {workdayCountdownR268,WORKDAY_START_R268,WORKDAY_END_R268} from "./noor-work-day-countdown-r268.js";
+import {lessonTimingR269,schoolClockPartsR269} from "./noor-work-lesson-time-r269.js";
 
 type Slot={id:string;day:number;period:number;subject:string;group:string;room:string;start:string;end:string};
 type Workday={id:string;date:string;checkIn:string;checkOut:string};
@@ -46,9 +47,13 @@ const teacherInstant=(day:string,clock:string):string=>
  new Date(day+"T"+clock+":00+03:00").toISOString();
 function Clock({now}:{now:Date}){
  const c=schoolClockR267(now);
+ const clock=schoolClockPartsR269(now);
  return <div className="nw-clock" aria-label="الساعة والتاريخ بتوقيت الرياض">
   <span className="nw-clock-caption"><span className="nw-live-dot"/> توقيت الرياض</span>
-  <time className="nw-clock-time">{c.time}</time>
+  <span className="nw-clock-line" dir="ltr" aria-label={c.time}>
+   <span className="nw-clock-period" dir="rtl" aria-label={clock.period==="م"?"مساءً":"صباحًا"}>{clock.period}</span>
+   <time className="nw-clock-time" dir="ltr" dateTime={now.toISOString()}>{clock.digits}</time>
+  </span>
   <span className="nw-clock-date">{c.gregorian}</span>
   {c.hijri?<span className="nw-clock-hijri">{c.hijri} هـ</span>:null}
  </div>;
@@ -64,16 +69,16 @@ function RequiredText({name,label,placeholder=""}:{name:string;label:string;plac
 }
 function DraftHint(){return <p className="nw-help">علامات المتابعة تخص نور فقط؛ سجل الحضور والتحضير الرسمي يظل على منصة المدرسة.</p>;}
 const completed=(check:LessonCheck|undefined)=>Number(Boolean(check?.prepared))+Number(Boolean(check?.attendanceRecorded));
-function LessonCard({slot,date,check,onChange}:{slot:Slot;date:string;check:LessonCheck|undefined;
+function LessonCard({slot,date,now,check,onChange}:{slot:Slot;date:string;now:Date;check:LessonCheck|undefined;
  onChange:(key:"prepared"|"attendanceRecorded",value:boolean)=>void}){
- const total=completed(check);
- return <article className={"nw-lesson-card"+(total===2?" nw-lesson-complete":"")}>
+ const timing=lessonTimingR269(now,date,slot.start,slot.end);
+ return <article className="nw-lesson-card">
   <div className="nw-lesson-heading">
    <div className="nw-period-badge">{slot.period.toLocaleString("ar-SA-u-nu-latn")}</div>
    <div className="nw-lesson-summary"><strong>{slot.subject||"المادة غير محددة"}</strong>
     <span>{slot.group||"الشعبة غير محددة"}{slot.room?" · "+slot.room:""}{slot.start?" · "+slot.start:""}</span>
    </div>
-   <span className={"nw-lesson-status"+(total===2?" nw-status-done":"")}>{total===2?"مكتمل":total===1?"جارٍ":"لم يبدأ"}</span>
+   <span className={"nw-lesson-status nw-lesson-"+timing.phase} aria-label={"حالة الحصة الزمنية: "+timing.label}>{timing.label}</span>
   </div>
   <div className="nw-check-row">
    <label className="nw-check-item"><input type="checkbox" checked={check?.prepared??false}
@@ -85,7 +90,7 @@ function LessonCard({slot,date,check,onChange}:{slot:Slot;date:string;check:Less
   </div>
  </article>;
 }
-function WeekLessons({slots,start,checks,update}:{slots:Slot[];start:string;checks:LessonCheck[];
+function WeekLessons({slots,start,now,checks,update}:{slots:Slot[];start:string;now:Date;checks:LessonCheck[];
  update:(slotId:string,date:string,key:"prepared"|"attendanceRecorded",value:boolean)=>void}){
  if(!slots.length)return <Empty>لا توجد حصص في الجدول. أضف حصصك أولًا من «الجدول الأسبوعي».</Empty>;
  return <div className="nw-day-groups">{days.map((name,day)=>{
@@ -96,7 +101,7 @@ function WeekLessons({slots,start,checks,update}:{slots:Slot[];start:string;chec
    return <section className="nw-day-group" key={day}>
     <div className="nw-day-heading"><div><strong>{name}</strong><span>{dayLabelR267(date)}</span></div>
      <small>{marks.toLocaleString("ar-SA-u-nu-latn")} / {(list.length*2).toLocaleString("ar-SA-u-nu-latn")} متابعة</small></div>
-    <div className="nw-lesson-stack">{list.map(slot=><LessonCard key={slot.id} slot={slot} date={date}
+    <div className="nw-lesson-stack">{list.map(slot=><LessonCard key={slot.id} slot={slot} date={date} now={now}
        check={checks.find(x=>x.slotId===slot.id&&x.date===date)}
        onChange={(key,value)=>update(slot.id,date,key,value)}/>)}</div>
    </section>;
@@ -309,7 +314,7 @@ export function NoorWorkTeacherViewR264(){
    </section>
    <div className="nw-duo">
     <Panel title="حصص اليوم" description={schoolClockR267(now).gregorian}>
-     {todaySlots.length?<div className="nw-lesson-stack">{todaySlots.map(slot=><LessonCard key={slot.id} slot={slot} date={today}
+     {todaySlots.length?<div className="nw-lesson-stack">{todaySlots.map(slot=><LessonCard key={slot.id} slot={slot} date={today} now={now}
       check={checked(slot.id,today)} onChange={(k,value)=>updateLesson(slot.id,today,k,value)}/>)}</div>
      :<Empty>لا توجد حصص لهذا اليوم في جدولك.</Empty>}
      <button className="nw-soft-link" onClick={()=>setTab("lessons")}>عرض متابعة الأسبوع ←</button>
@@ -325,10 +330,10 @@ export function NoorWorkTeacherViewR264(){
    <DraftHint/>
   </div>:null}
   {tab==="lessons"?<div className="nw-section">
-   <Panel title={"متابعة الحصص — "+title} description="ضع علامة لكل حصة بعد إتمام التحضير ورصد الحضور فعليًا على منصة المدرسة.">
+   <Panel title={"متابعة الحصص — "+title} description="حالة الحصة تعتمد على موعدها فقط. علامات «تم» تؤكد التحضير والحضور المُسجلين على منصة المدرسة، ولا تغير حالة الحصة.">
     <div className="nw-inline-summary"><span>تم إنجاز {doneCount.toLocaleString("ar-SA-u-nu-latn")} من {totalCount.toLocaleString("ar-SA-u-nu-latn")} إجراء</span>
      <div className="nw-meter"><span style={{width:percent+"%"}}/></div></div>
-    <WeekLessons slots={sorted} start={selectedSunday} checks={checks} update={updateLesson}/>
+    <WeekLessons slots={sorted} start={selectedSunday} now={now} checks={checks} update={updateLesson}/>
    </Panel>
   </div>:null}
   {tab==="schedule"?<div className="nw-duo">
@@ -421,7 +426,7 @@ export function NoorWorkTeacherViewR264(){
      <button className="nw-primary" type="submit">إضافة الاختبار</button>
     </form>
    </Panel>
-   <Panel title="متابعة التقييم والرصد" description="الدرجات الفردية وتفاصيل التصحيح تظل داخل منصة المدرسة.">
+   <Panel title="متابعة التقييم والرصد" description="علامة «تم رصد الدرجات» تؤكد إتمام الرصد على منصة المدرسة فقط، ولا تغير حالة أي حصة.">
     {work.assessments.length?<div className="nw-exam-stack">{work.assessments.map(a=>{
      const ck=examChecks.find(x=>x.assessmentId===a.id);
      return <article className="nw-exam-card" key={a.id}><div className="nw-exam-head"><strong>{a.title}</strong>
