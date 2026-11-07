@@ -36,6 +36,8 @@ import {NOOR_ADMIN_ACCOUNTS_PATH_R271,handleAdminAccountsR271} from "./noor-admi
 import type {AdminHttpDependenciesR271} from "./noor-admin-http-r271.js";
 import {NOOR_ADMIN_PASSWORD_RECOVERY_PATH_R271,handleNoorAdminPasswordRecoveryR271} from "./noor-admin-password-recovery-http-r271.js";
 import type {NoorAdminRecoveryHttpDependenciesR271} from "./noor-admin-password-recovery-http-r271.js";
+import {NOOR_ADMIN_SESSION_AUTHENTICATION_PATH_R271,handleNoorAdminSessionAuthenticationR271} from "./noor-admin-session-authentication-http-r271.js";
+import type {NoorAdminSessionAuthenticationHttpDependenciesR271} from "./noor-admin-session-authentication-http-r271.js";
 import type {NoorWorkTeacherOperationR264} from "./noor-work-teacher-operation-r264.js";
 
 export type { IncomingMessage, ServerResponse } from "node:http";
@@ -125,6 +127,7 @@ export interface RouteAccessHttpServerOptions {
   readonly sessionLogoutR269?: NoorLogoutOptionsR269;
   readonly adminR271?: AdminHttpDependenciesR271;
   readonly adminRecoveryR271?: NoorAdminRecoveryHttpDependenciesR271;
+  readonly adminAuthenticationR271?: NoorAdminSessionAuthenticationHttpDependenciesR271;
   readonly teacherWorkR264?: Readonly<{
     operation:NoorWorkTeacherOperationR264;
     expectedOrigin:string;
@@ -870,12 +873,18 @@ async function handleRequest(
   sessionLogoutR269: RouteAccessHttpServerOptions["sessionLogoutR269"],
   adminR271: RouteAccessHttpServerOptions["adminR271"],
   adminRecoveryR271: RouteAccessHttpServerOptions["adminRecoveryR271"],
+  adminAuthenticationR271: RouteAccessHttpServerOptions["adminAuthenticationR271"],
   labJournalHandler: ((request:IncomingMessage,response:ServerResponse)=>Promise<void>) | undefined,
   request:
     IncomingMessage,
   response:
     ServerResponse,
 ): Promise<void> {
+  if(request.url===NOOR_ADMIN_SESSION_AUTHENTICATION_PATH_R271){
+    if(!adminAuthenticationR271){writeEmpty(response,404);return;}
+    await handleNoorAdminSessionAuthenticationR271(request,response,sessionIdFromCookieHeader(request.headers.cookie),adminAuthenticationR271);
+    return;
+  }
   if(request.url===NOOR_ADMIN_PASSWORD_RECOVERY_PATH_R271){
     if(!adminRecoveryR271){writeEmpty(response,404);return;}
     await handleNoorAdminPasswordRecoveryR271(request,response,sessionIdFromCookieHeader(request.headers.cookie),adminRecoveryR271);
@@ -1168,6 +1177,7 @@ export function createRouteAccessHttpServer(
           options.sessionLogoutR269,
           options.adminR271,
           options.adminRecoveryR271,
+          options.adminAuthenticationR271,
           labJournalHandler,
           request,
           response,
