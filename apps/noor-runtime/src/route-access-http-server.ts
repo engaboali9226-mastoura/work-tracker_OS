@@ -30,6 +30,8 @@ import type {
 import { JOURNAL_R186_PATH_PREFIX, makePrivateJournalHttpHandlerR186 } from "./noor-private-journal-http-r186.js";
 import { makeTrustedPrivateJournalHttpHandlerR221 } from "./noor-private-journal-http-r221.js";
 import {NOOR_WORK_TEACHER_PATH_R264} from "./noor-work-teacher-operation-r264.js";
+import {NOOR_LOGOUT_PATH_R269,handleNoorLogoutR269} from "./noor-session-logout-r269.js";
+import type {NoorLogoutOptionsR269} from "./noor-session-logout-r269.js";
 import type {NoorWorkTeacherOperationR264} from "./noor-work-teacher-operation-r264.js";
 
 export type { IncomingMessage, ServerResponse } from "node:http";
@@ -116,6 +118,7 @@ export interface RouteAccessHttpServerOptions {
     }>;
   readonly personalToday?: import("./personal-today-operation.js").PersonalTodayExecutor;
   readonly personalControl?: import("./personal-control-operation.js").PersonalControlExecutor;
+  readonly sessionLogoutR269?: NoorLogoutOptionsR269;
   readonly teacherWorkR264?: Readonly<{
     operation:NoorWorkTeacherOperationR264;
     expectedOrigin:string;
@@ -858,12 +861,18 @@ async function handleRequest(
   personalControl:
     import("./personal-control-operation.js").PersonalControlExecutor | undefined,
   teacherWorkR264: RouteAccessHttpServerOptions["teacherWorkR264"],
+  sessionLogoutR269: RouteAccessHttpServerOptions["sessionLogoutR269"],
   labJournalHandler: ((request:IncomingMessage,response:ServerResponse)=>Promise<void>) | undefined,
   request:
     IncomingMessage,
   response:
     ServerResponse,
 ): Promise<void> {
+  if(request.url===NOOR_LOGOUT_PATH_R269){
+    if(!sessionLogoutR269){writeEmpty(response,404);return;}
+    await handleNoorLogoutR269(request,response,sessionIdFromCookieHeader(request.headers.cookie),sessionLogoutR269);
+    return;
+  }
   if(request.url===NOOR_WORK_TEACHER_PATH_R264){
     if(!teacherWorkR264){writeEmpty(response,404);return;}
     await handleTeacherWorkR264(teacherWorkR264,request,response);return;
@@ -1138,6 +1147,7 @@ export function createRouteAccessHttpServer(
           options.personalToday,
           options.personalControl,
           options.teacherWorkR264,
+          options.sessionLogoutR269,
           labJournalHandler,
           request,
           response,
