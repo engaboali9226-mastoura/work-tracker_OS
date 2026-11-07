@@ -46,3 +46,16 @@ test("R271 MFA exchange passes only cookie session and access token to trusted o
   });
   assert.deepEqual(events,["valid:verified-proof"]);
 });
+
+test("R271 admin MFA route rejects unknown paths and query aliases",async()=>{
+  const events=await serve(async origin=>{
+    for(const path of ["/api/noor/admin/authenticate?mode=renew","/api/noor/admin/authenticate/","/api/noor/admin/unknown"]){
+      const response=await fetch(origin+path,{
+        method:"POST",headers:{Origin:origin,"Content-Type":"application/json",Cookie:"noor_session=valid"},
+        body:JSON.stringify({accessToken:"verified-proof"}),
+      });
+      assert.equal(response.status,404);
+    }
+  });
+  assert.deepEqual(events,[]);
+});
