@@ -1,4 +1,4 @@
-import type {IncomingMessage,ServerResponse} from "node:http";
+import type {IncomingMessage,ServerResponse} from "./route-access-http-server.js";
 import {serializeNoorSessionClearingCookie} from "./session-cookie.js";
 
 export const NOOR_LOGOUT_PATH_R269="/api/noor/session/logout";
