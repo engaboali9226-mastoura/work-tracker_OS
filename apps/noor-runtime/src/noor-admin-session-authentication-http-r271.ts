@@ -39,7 +39,10 @@ export async function handleNoorAdminSessionAuthenticationR271(
       if(size>9000){respond(response,413);return;}
       chunks.push(chunk);
     }
-    const value:unknown=JSON.parse(Buffer.concat(chunks).toString("utf8"));
+    if(size!==Number(request.headers["content-length"])){respond(response,400);return;}
+    let value:unknown;
+    try{value=JSON.parse(Buffer.concat(chunks).toString("utf8"));}
+    catch{respond(response,400);return;}
     if(!value || typeof value!=="object" || Array.isArray(value) ||
        Object.keys(value).length!==1 || !("accessToken" in value) ||
        typeof value.accessToken!=="string" || !value.accessToken ||
