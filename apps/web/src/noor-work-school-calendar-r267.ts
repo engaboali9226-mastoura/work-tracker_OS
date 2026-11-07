@@ -15,6 +15,17 @@ export function sundayOfR267(iso:string):string{
  const day=new Date(iso+"T00:00:00.000Z").getUTCDay();
  return addCivilDaysR267(iso,-day);
 }
+
+// The teaching timetable runs Sunday–Thursday. On Friday and Saturday,
+// show the upcoming Sunday by default, not a week whose lessons already ended.
+// This only chooses the default displayed week; historical week navigation and
+// the per-lesson true date/time remain unchanged.
+export function visibleTeachingSundayR270(riyadhCivilDate:string):string{
+ if(!validCivilDateR267(riyadhCivilDate))throw Error("INVALID_SCHOOL_DATE");
+ const day=new Date(riyadhCivilDate+"T00:00:00.000Z").getUTCDay();
+ const sunday=sundayOfR267(riyadhCivilDate);
+ return day===5||day===6?addCivilDaysR267(sunday,7):sunday;
+}
 export function schoolWeekNumberR267(firstSunday:string|undefined,selectedSunday:string):number|null{
  if(!firstSunday)return null;
  if(!validCivilDateR267(firstSunday)||!validCivilDateR267(selectedSunday)||
