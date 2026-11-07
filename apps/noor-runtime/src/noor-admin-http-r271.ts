@@ -1,4 +1,4 @@
-import type {IncomingMessage, ServerResponse} from "node:http";
+import type {IncomingMessage, ServerResponse} from "./route-access-http-server.js";
 import {
   authorizeAdminActionR271,
   type AdminActionR271,
