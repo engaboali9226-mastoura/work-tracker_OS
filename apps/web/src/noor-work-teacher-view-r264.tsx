@@ -2,7 +2,7 @@ import {useEffect,useRef,useState} from "react";
 import type {FormEvent,ReactNode} from "react";
 import {
  addCivilDaysR267,dayLabelR267,riyadhDayR267,schoolClockR267,
- schoolWeekNumberR267,schoolWeekTitleR267,sundayOfR267,
+ schoolWeekNumberR267,schoolWeekTitleR267,visibleTeachingSundayR270,
 } from "./noor-work-school-calendar-r267.js";
 import {workdayCountdownR268,WORKDAY_START_R268,WORKDAY_END_R268} from "./noor-work-day-countdown-r268.js";
 import {lessonTimingR269,schoolClockPartsR269} from "./noor-work-lesson-time-r269.js";
@@ -126,8 +126,9 @@ export function NoorWorkTeacherViewR264(){
  const draftCounter=useRef(0);
  const savingLock=useRef(false);
  const today=riyadhDayR267(now);
- const currentSunday=sundayOfR267(today);
- const selectedSunday=addCivilDaysR267(currentSunday,weekOffset*7);
+ const todayWeekday=new Date(today+"T12:00:00.000Z").getUTCDay();
+ const defaultTeachingSunday=visibleTeachingSundayR270(today);
+ const selectedSunday=addCivilDaysR267(defaultTeachingSunday,weekOffset*7);
  const weekNumber=schoolWeekNumberR267(work.termStartDate,selectedSunday);
  const title=schoolWeekTitleR267(weekNumber);
  const sorted=[...work.timetable].sort((a,b)=>a.day-b.day||a.period-b.period);
@@ -286,7 +287,7 @@ export function NoorWorkTeacherViewR264(){
    </div>
    <div className="nw-week-controls">
     <button type="button" onClick={()=>setWeekOffset(p=>Math.max(-100,p-1))} disabled={weekOffset<=-100} aria-label="الأسبوع السابق">→</button>
-    <button type="button" className="nw-current-week" onClick={()=>setWeekOffset(0)} disabled={weekOffset===0}>الأسبوع الحالي</button>
+    <button type="button" className="nw-current-week" onClick={()=>setWeekOffset(0)} disabled={weekOffset===0}>{todayWeekday===5||todayWeekday===6?"أسبوع الدوام القادم":"الأسبوع الحالي"}</button>
     <button type="button" onClick={()=>setWeekOffset(p=>Math.min(100,p+1))} disabled={weekOffset>=100} aria-label="الأسبوع التالي">←</button>
    </div>
    <label className="nw-week-anchor"><span>بداية الأسبوع الدراسي الأول (الأحد)</span>
