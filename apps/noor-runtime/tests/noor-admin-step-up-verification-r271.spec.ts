@@ -27,3 +27,29 @@ test("R271 verifier failure and stale evidence fail closed",async()=>{
   assert.equal(await stale.issue(input),false);
   assert.equal(proofs.consume(input),false);
 });
+
+test("R271 same challenge cannot be redeemed twice, even after proof consumption",async()=>{
+  const proofs=new NoorAdminStepUpR271(()=>100000);
+  let verified=0;
+  const issuer=new NoorAdminVerifiedStepUpIssuerR271({
+    verify:async()=>{verified++;return {verifiedAtMs:100000};},
+  },proofs);
+  assert.equal(await issuer.issue(input),true);
+  assert.equal(proofs.consume(input),true);
+  assert.equal(await issuer.issue(input),false);
+  assert.equal(verified,1);
+  assert.equal(proofs.consume(input),false);
+});
+test("R271 concurrent redemption of the same challenge fails closed",async()=>{
+  const proofs=new NoorAdminStepUpR271(()=>100000);
+  let release!:()=>void;
+  const pending=new Promise<void>(resolve=>{release=resolve;});
+  const issuer=new NoorAdminVerifiedStepUpIssuerR271({
+    verify:async()=>{await pending;return {verifiedAtMs:100000};},
+  },proofs);
+  const first=issuer.issue(input);
+  assert.equal(await issuer.issue(input),false);
+  release();
+  assert.equal(await first,true);
+  assert.equal(proofs.consume(input),true);
+});
