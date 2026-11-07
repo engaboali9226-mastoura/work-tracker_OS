@@ -13,6 +13,8 @@ import {authorizeNoorAdminSensitiveActionR271} from "./noor-admin-sensitive-auth
 import type {AdminActionR271} from "./noor-admin-policy-r271.js";
 import {createNoorAdminPgSessionRegistryR271} from "./noor-admin-pg-session-registry-r271.js";
 import type {NoorAdminPgSessionQueryClientR271} from "./noor-admin-pg-session-registry-r271.js";
+import {NoorAdminAuthSessionRegistryRpcR271} from "./noor-admin-auth-session-registry-rpc-r271.js";
+import type {NoorAdminServiceRoleRpcClientR271} from "./noor-admin-auth-session-registry-rpc-r271.js";
 
 /**
  * Composition boundary for an authenticated admin. Must be created by the
@@ -25,14 +27,23 @@ export function createNoorAdminSecureCompositionR271(input:Readonly<{
   now?:()=>number;
   sessionRegistry?:NoorAdminAuthSessionRegistryR271;
   postgresSessionClient?:NoorAdminPgSessionQueryClientR271;
+  /** Explicit opt-in: protected public RPC wrapper, service_role ONLY. */
+  useServiceRoleSessionRpc?:boolean;
   /** A trusted server-side challenge/verify adapter, never a browser client. */
   totpProvider?:NoorAdminTotpProviderR271;
 }>){
-  if(input.sessionRegistry && input.postgresSessionClient)
-    throw new Error("NOOR_ADMIN_REGISTRY_DUPLICATE_SOURCE");
-  const registry=input.sessionRegistry??(
-    input.postgresSessionClient?createNoorAdminPgSessionRegistryR271(input.postgresSessionClient):undefined
-  );
+  const registrySources=Number(!!input.sessionRegistry)+
+    Number(!!input.postgresSessionClient)+Number(input.useServiceRoleSessionRpc===true);
+  if(registrySources>1)throw new Error("NOOR_ADMIN_REGISTRY_DUPLICATE_SOURCE");
+  const registry=input.sessionRegistry ??
+    (input.postgresSessionClient
+      ? createNoorAdminPgSessionRegistryR271(input.postgresSessionClient)
+      : input.useServiceRoleSessionRpc===true
+        ? new NoorAdminAuthSessionRegistryRpcR271(
+            input.client as unknown as NoorAdminServiceRoleRpcClientR271,
+          )
+        : undefined);
+
   const bindings=new NoorAdminSessionTokenBindingR271(input.now);
   const store=new NoorAdminAccountStoreR271(input.client);
   const authentication=new NoorAdminSessionAuthenticationR271({
