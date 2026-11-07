@@ -27,8 +27,7 @@ test("R271 recovery endpoint rejects missing session before invoking admin depen
   },{
     adminRecoveryR271:{
       expectedOrigin:origin,
-      resolveAuthority:async()=>{calls++;return null;},
-      resolveActorAccountId:async()=>{calls++;return null;},
+      resolveActor:async()=>{calls++;return null;},
       provider:{sendRecoveryEmailForUserId:async()=>{calls++;return true;}},
       createAudit:()=>({record:async()=>{calls++;}}),
     },
