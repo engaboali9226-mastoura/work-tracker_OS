@@ -31,6 +31,9 @@ export class NoorSupabaseAssuranceVerifierR271 {
          !claimsResult.data?.claims) return null;
       const claims=claimsResult.data.claims;
       if(claims.sub!==authUserId || claims.aal!=="aal2") return null;
+      // Require the signed token to identify the same Supabase Auth session.
+      if(typeof claims.session_id!=="string" || !claims.session_id ||
+         claims.session_id.length>256) return null;
       const nowSeconds=Math.floor(this.now()/1000);
       if(typeof claims.exp!=="number" || claims.exp<=nowSeconds ||
          typeof claims.iat!=="number" || claims.iat>nowSeconds+60) return null;
