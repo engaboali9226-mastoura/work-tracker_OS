@@ -7,6 +7,9 @@ import type {SupabaseClient} from "@supabase/supabase-js";
  */
 export interface NoorAdminSessionTokenStoreR271 {
   getAccessTokenForSession(sessionId:string):Promise<string|null>;
+  getBindingForSession(sessionId:string):Promise<Readonly<{
+    platformAccountId:string;authUserId:string;authSessionId:string;
+  }> | null>;
 }
 export class NoorSupabaseAssuranceVerifierR271 {
   public constructor(
@@ -20,8 +23,11 @@ export class NoorSupabaseAssuranceVerifierR271 {
     if(!sessionId || sessionId.length>256 ||
        !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu.test(authUserId)) return null;
     try{
-      const token=await this.tokens.getAccessTokenForSession(sessionId);
-      if(!token || token.length>8192) return null;
+      const [token,binding]=await Promise.all([
+        this.tokens.getAccessTokenForSession(sessionId),
+        this.tokens.getBindingForSession(sessionId),
+      ]);
+      if(!token || token.length>8192 || !binding || binding.authUserId!==authUserId) return null;
       const [userResult,claimsResult]=await Promise.all([
         this.client.auth.getUser(token),
         this.client.auth.getClaims(token),
@@ -33,7 +39,7 @@ export class NoorSupabaseAssuranceVerifierR271 {
       if(claims.sub!==authUserId || claims.aal!=="aal2") return null;
       // Require the signed token to identify the same Supabase Auth session.
       if(typeof claims.session_id!=="string" || !claims.session_id ||
-         claims.session_id.length>256) return null;
+         claims.session_id.length>256 || claims.session_id!==binding.authSessionId) return null;
       const nowSeconds=Math.floor(this.now()/1000);
       if(typeof claims.exp!=="number" || claims.exp<=nowSeconds ||
          typeof claims.iat!=="number" || claims.iat>nowSeconds+60) return null;
