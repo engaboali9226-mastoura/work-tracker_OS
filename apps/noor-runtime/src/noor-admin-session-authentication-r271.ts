@@ -1,4 +1,5 @@
 import type {SupabaseClient} from "@supabase/supabase-js";
+import type {NoorAdminAuthSessionRegistryR271} from "./noor-admin-supabase-assurance-r271.js";
 import {NoorAdminSessionTokenBindingR271} from "./noor-admin-session-token-binding-r271.js";
 
 interface PlatformSessionResolverR271 {
@@ -25,6 +26,7 @@ export class NoorAdminSessionAuthenticationR271 {
       adminStore:AdminAccountStoreR271;
       auth:Pick<SupabaseClient["auth"],"getUser"|"getClaims">;
       bindings:NoorAdminSessionTokenBindingR271;
+      sessionRegistry?:NoorAdminAuthSessionRegistryR271;
       now?:()=>number;
     }>,
   ){}
@@ -70,6 +72,10 @@ export class NoorAdminSessionAuthenticationR271 {
       if(typeof claims.exp!=="number" || !Number.isSafeInteger(claims.exp) ||
          claims.exp<=nowSeconds || typeof claims.iat!=="number" ||
          !Number.isSafeInteger(claims.iat) || claims.iat>nowSeconds+60)return "denied";
+      if(!this.dependencies.sessionRegistry ||
+         !(await this.dependencies.sessionRegistry.isActive({
+           authSessionId:claims.session_id,authUserId:admin.authUserId,
+         })))return "denied";
       const expiry=Math.min(claims.exp*1000,now+5*60_000);
       return (renew?this.dependencies.bindings.rotate({
         platformSessionId,platformAccountId:accountId,
