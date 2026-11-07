@@ -20,3 +20,12 @@ R271 is a review-only control plane. The production runtime does not mount the a
 - Never bypass the final active super-admin protection.
 - Never silently enable a partial or unaudited operation.
 - Production user data, journals and existing accounts are out of scope for migration.
+
+## Release readiness check — 2026-11-07
+- `/api/noor/admin/authenticate`, `/renew`, and `/revoke` are opt-in runtime routes. The production host factory currently does **not** supply an admin authentication operation. No production administrator can sign in through these routes.
+- A verified AAL2 token is bound in memory for at most five minutes. Renewal must preserve Noor account ID, Auth user ID and Auth session ID. Explicit revocation removes the in-memory binding; it is **not** Supabase Auth global sign-out or server-side session revocation.
+- The session binding is process-local. Multi-instance deployments need shared, encrypted, revocable storage or explicit sticky-session constraints with tested fail-closed behavior.
+- No independent recent-reauthentication proof exists. All sensitive admin mutations must continue to be denied.
+- The R271 SQL schema has not been applied to production, and the designated owner has not received a verified admin grant.
+- **Do not deploy or merge R271 as an active administrator feature** until final CI passes, the staging schema is verified, Auth session revocation is enforced server-side, MFA enrollment/challenge/refresh is tested end-to-end, and an explicit production activation approval is recorded.
+- A successful build of dormant code is not equivalent to an activated or security-reviewed admin system.
