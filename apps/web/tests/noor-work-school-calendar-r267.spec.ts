@@ -30,5 +30,10 @@ test("clock displays Riyadh date and includes Islamic calendar when available",(
  const clock=schoolClockR267(at);
  assert.ok(clock.time);
  assert.ok(clock.gregorian);
- assert.match(clock.gregorian,/٢٠٢٦|2026/);
+ assert.match(clock.gregorian,/2026/);
+ assert.doesNotMatch(clock.time,/[٠-٩۰-۹]/u,"digital clock uses Western digits");
+ assert.doesNotMatch(clock.gregorian,/[٠-٩۰-۹]/u,"Gregorian date uses Western digits");
+ assert.doesNotMatch(clock.hijri,/[٠-٩۰-۹]/u,"Hijri date uses Western digits");
+ assert.equal(schoolWeekTitleR267(26),"الأسبوع 26");
+
 });
