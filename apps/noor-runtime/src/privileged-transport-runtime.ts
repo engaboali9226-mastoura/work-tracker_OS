@@ -27,6 +27,7 @@ export interface PrivilegedTransportExecutor
 extends RouteAccessEvidenceExecutor {
   readonly sessionEstablishment:
     SessionEstablishmentExecutor;
+  readonly sessionRevocation?: Readonly<{execute(input:Readonly<{sessionId:string}>):Promise<void>}>;
   readonly personalToday?: import("./personal-today-operation.js").PersonalTodayExecutor;
   readonly personalControl?: import("./personal-control-operation.js").PersonalControlExecutor;
   readonly teacherWork?: import("./noor-work-teacher-operation-r264.js").NoorWorkTeacherOperationR264;
@@ -157,6 +158,15 @@ implements PrivilegedTransportRuntime {
           .createHttpServer
         ?? createRouteAccessHttpServer;
 
+      const logoutOptions:Pick<RouteAccessHttpServerOptions,"sessionLogoutR269"> =
+        executor.sessionRevocation===undefined ? {} : {
+          sessionLogoutR269:{
+            revokeSession:executor.sessionRevocation,
+            expectedOrigin:this.dependencies.httpConfiguration.publicOrigin,
+            secureCookie:this.dependencies.httpConfiguration.secureCookie,
+          },
+        };
+
       const personalTodayOptions =
         executor.personalToday
           === undefined
@@ -234,6 +244,7 @@ implements PrivilegedTransportRuntime {
                   .secureCookie,
             },
             ...personalTodayOptions,
+            ...logoutOptions,
             ...personalControlOptions,
             ...teacherWorkOptions,
             ...labJournalOptions,
