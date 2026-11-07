@@ -30,7 +30,7 @@ test("R271 recovery endpoint rejects missing session before invoking admin depen
       resolveAuthority:async()=>{calls++;return null;},
       resolveActorAccountId:async()=>{calls++;return null;},
       provider:{sendRecoveryEmailForUserId:async()=>{calls++;return true;}},
-      audit:{record:async()=>{calls++;}},
+      createAudit:()=>({record:async()=>{calls++;}}),
     },
   });
   await server.listen({host:"127.0.0.1",port:0});
