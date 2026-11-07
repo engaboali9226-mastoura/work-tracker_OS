@@ -11,11 +11,20 @@ export interface NoorAdminSessionTokenStoreR271 {
     platformAccountId:string;authUserId:string;authSessionId:string;
   }> | null>;
 }
+/**
+ * Trusted server-side database adapter. Must query auth.sessions with
+ * privileged SQL, never through a browser or exposed PostgREST schema.
+ * The adapter must reject revoked/missing/expired sessions.
+ */
+export interface NoorAdminAuthSessionRegistryR271 {
+  isActive(input:Readonly<{authSessionId:string;authUserId:string}>):Promise<boolean>;
+}
 export class NoorSupabaseAssuranceVerifierR271 {
   public constructor(
     private readonly client:SupabaseClient,
     private readonly tokens:NoorAdminSessionTokenStoreR271,
     private readonly now:()=>number=()=>Date.now(),
+    private readonly sessionRegistry?:NoorAdminAuthSessionRegistryR271,
   ){}
   public async verify(sessionId:string,authUserId:string,platformAccountId:string):Promise<Readonly<{
     aal:"aal1"|"aal2"|null;reauthenticated:boolean;
@@ -45,6 +54,10 @@ export class NoorSupabaseAssuranceVerifierR271 {
       const nowSeconds=Math.floor(this.now()/1000);
       if(typeof claims.exp!=="number" || claims.exp<=nowSeconds ||
          typeof claims.iat!=="number" || claims.iat>nowSeconds+60) return null;
+      // Without a trusted auth.sessions lookup, do not grant authority.
+      if(!this.sessionRegistry || !(await this.sessionRegistry.isActive({
+        authSessionId:binding.authSessionId,authUserId,
+      })))return null;
       // AAL2 alone is NOT proof of recent reauthentication.
       // A separate verified step-up challenge is required for sensitive actions.
       return {aal:"aal2",reauthenticated:false};
