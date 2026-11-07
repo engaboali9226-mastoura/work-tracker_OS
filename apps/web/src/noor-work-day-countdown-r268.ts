@@ -41,8 +41,8 @@ export function workdayCountdownR268(now:Date,timetable:readonly Slot[]):Workday
    progress:Math.max(0,Math.min(100,Math.round(progress))),...(slot?{slot}:{})
  });
  if(weekday===5||weekday===6)return result("day_off",0,"إجازة أسبوعية","الدوام من الأحد إلى الخميس",100);
- if(t<start)return result("before_work",start-t,"بداية الدوام","الدوام يبدأ ٦:٣٠ صباحًا",0);
- if(t>=end)return result("finished",0,"انتهى الدوام","انتهى الدوام الساعة ١٢:٣٠ ظهرًا",100);
+ if(t<start)return result("before_work",start-t,"بداية الدوام","الدوام يبدأ 6:30 صباحًا",0);
+ if(t>=end)return result("finished",0,"انتهى الدوام","انتهى الدوام الساعة 12:30 ظهرًا",100);
  const lessons=timetable.filter(x=>x.day===weekday).map(slot=>({slot,begin:seconds(slot.start),finish:seconds(slot.end)}))
   .filter((x):x is {slot:Slot;begin:number;finish:number}=>x.begin!==null&&x.finish!==null&&
    x.begin<x.finish&&x.begin>=start&&x.finish<=end)
@@ -62,5 +62,5 @@ export function workdayCountdownR268(now:Date,timetable:readonly Slot[]):Workday
    next.begin===last?0:((t-last)/(next.begin-last))*100,next.slot);
  }
  return result("after_lessons",end-t,"المتبقي لنهاية الدوام",
-  lessons.length?"اكتملت حصص اليوم، ينتهي الدوام ١٢:٣٠":"لا توجد حصص مجدولة اليوم",((t-start)/(end-start))*100);
+  lessons.length?"اكتملت حصص اليوم، ينتهي الدوام 12:30":"لا توجد حصص مجدولة اليوم",((t-start)/(end-start))*100);
 }
