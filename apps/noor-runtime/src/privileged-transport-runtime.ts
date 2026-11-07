@@ -32,6 +32,7 @@ extends RouteAccessEvidenceExecutor {
   readonly personalControl?: import("./personal-control-operation.js").PersonalControlExecutor;
   readonly teacherWork?: import("./noor-work-teacher-operation-r264.js").NoorWorkTeacherOperationR264;
   readonly adminR271?: import("./noor-admin-http-r271.js").AdminHttpDependenciesR271;
+  readonly adminRecoveryR271?: import("./noor-admin-password-recovery-http-r271.js").NoorAdminRecoveryHttpDependenciesR271;
   readonly trustedPrivateJournalR221?: import("./noor-private-journal-r185.js").NoorPrivateJournalOperationR185 | undefined;
 }
 
@@ -183,6 +184,12 @@ implements PrivilegedTransportRuntime {
           ? {adminR271:executor.adminR271}
           : (()=>{throw Error("R271_ADMIN_ORIGIN_MISMATCH");})();
 
+      const adminRecoveryOptions:Pick<RouteAccessHttpServerOptions,"adminRecoveryR271"> =
+        executor.adminRecoveryR271===undefined ? {} :
+        executor.adminRecoveryR271.expectedOrigin===this.dependencies.httpConfiguration.publicOrigin
+          ? {adminRecoveryR271:executor.adminRecoveryR271}
+          : (()=>{throw Error("R271_ADMIN_RECOVERY_ORIGIN_MISMATCH");})();
+
       const teacherWorkOptions: Pick<RouteAccessHttpServerOptions,"teacherWorkR264"> =
         executor.teacherWork===undefined ? {} : {teacherWorkR264:{operation:executor.teacherWork,expectedOrigin:this.dependencies.httpConfiguration.publicOrigin}};
 
@@ -255,6 +262,7 @@ implements PrivilegedTransportRuntime {
             ...personalControlOptions,
             ...teacherWorkOptions,
             ...adminOptions,
+            ...adminRecoveryOptions,
             ...labJournalOptions,
             ...trustedJournalOptions,
           },
