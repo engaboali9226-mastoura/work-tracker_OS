@@ -12,6 +12,7 @@ const authority={
 async function serve(
   scenario:(origin:string)=>Promise<void>,
   permission:typeof authority|null=authority,
+  stepUp:"allow"|"deny"|"missing"="allow",
 ){
   let origin="";const events:string[]=[];
   const server=createServer((request,response)=>{
@@ -19,6 +20,15 @@ async function serve(
       request.headers.cookie==="noor_session=valid"?"valid":null,{
         expectedOrigin:origin,
         resolveActor:async()=>{events.push("actor-resolved");return permission?{authority:permission,actorAccountId:"actor"}:null;},
+        ...(stepUp==="missing"?{}:{authorizeSensitiveAction:async(
+          sessionId:string,action:"accounts:reset-password",expectedActorAccountId:string,
+        )=>{
+          assert.equal(sessionId,"valid");
+          assert.equal(action,"accounts:reset-password");
+          assert.equal(expectedActorAccountId,"actor");
+          events.push("step-up:"+stepUp);
+          return stepUp==="allow";
+        }}),
         provider:{sendRecoveryEmailForUserId:async id=>{events.push("deliver:"+id);return true;}},
         createAudit:()=>({record:async event=>{events.push("audit:"+event.outcome);}}),
       });
@@ -47,8 +57,8 @@ test("R271 password recovery HTTP denies anonymous requests without dependencies
 test("R271 password recovery HTTP requires recent MFA step-up",async()=>{
   const events=await serve(async origin=>{
     assert.equal((await request(origin,{targetAuthUserId:target},{cookie:true})).status,403);
-  },{...authority,reauthenticated:false});
-  assert.deepEqual(events,["actor-resolved"]);
+  },{...authority,reauthenticated:false},"deny");
+  assert.deepEqual(events,["actor-resolved","step-up:deny"]);
 });
 test("R271 password recovery HTTP rejects forged origin and extra fields",async()=>{
   const events=await serve(async origin=>{
@@ -63,7 +73,7 @@ test("R271 password recovery HTTP authorizes and audits before delivery",async()
     assert.equal(response.status,202);
     assert.equal(response.headers.get("cache-control"),"no-store");
   });
-  assert.deepEqual(events,["actor-resolved","audit:initiated","deliver:"+target,"audit:requested"]);
+  assert.deepEqual(events,["actor-resolved","step-up:allow","audit:initiated","deliver:"+target,"audit:requested"]);
 });
 
 test("R271 recovery never sends email or audits when trusted actor is missing",async()=>{
@@ -87,4 +97,20 @@ test("R271 recovery denies an administrator with read-only role before side effe
     assert.equal((await request(origin,{targetAuthUserId:target},{cookie:true})).status,403);
   },{...authority,role:"admin" as "super_admin"});
   assert.deepEqual(events,["actor-resolved"]);
+});
+
+test("R271 forged reauthenticated flag cannot bypass absent trusted step-up consumer",async()=>{
+  const events=await serve(async origin=>{
+    const response=await request(origin,{targetAuthUserId:target},{cookie:true});
+    assert.equal(response.status,403);
+  },{...authority,reauthenticated:true},"missing");
+  assert.deepEqual(events,["actor-resolved"]);
+});
+
+test("R271 password recovery denies when trusted step-up rejects fresh MFA",async()=>{
+  const events=await serve(async origin=>{
+    const response=await request(origin,{targetAuthUserId:target},{cookie:true});
+    assert.equal(response.status,403);
+  },authority,"deny");
+  assert.deepEqual(events,["actor-resolved","step-up:deny"]);
 });
