@@ -4,6 +4,7 @@ import {
  addCivilDaysR267,dayLabelR267,riyadhDayR267,schoolClockR267,
  schoolWeekNumberR267,schoolWeekTitleR267,sundayOfR267,
 } from "./noor-work-school-calendar-r267.js";
+import {workdayCountdownR268,WORKDAY_START_R268,WORKDAY_END_R268} from "./noor-work-day-countdown-r268.js";
 
 type Slot={id:string;day:number;period:number;subject:string;group:string;room:string;start:string;end:string};
 type Workday={id:string;date:string;checkIn:string;checkOut:string};
@@ -105,6 +106,8 @@ export function NoorWorkTeacherViewR264(){
  const [loading,setLoading]=useState(true);
  const [saving,setSaving]=useState(false);
  const [dirty,setDirty]=useState(false);
+ const [saveError,setSaveError]=useState(false);
+ const [savedOnce,setSavedOnce]=useState(false);
  const [message,setMessage]=useState("");
  const [status,setStatus]=useState(503);
  const requestEpoch=useRef(0);
@@ -116,6 +119,7 @@ export function NoorWorkTeacherViewR264(){
  const weekNumber=schoolWeekNumberR267(work.termStartDate,selectedSunday);
  const title=schoolWeekTitleR267(weekNumber);
  const sorted=[...work.timetable].sort((a,b)=>a.day-b.day||a.period-b.period);
+ const countdown=workdayCountdownR268(now,work.timetable);
  const checks=work.lessonChecks??[];
  const examChecks=work.assessmentChecks??[];
  const selectedLessons=sorted.map(slot=>({slot,date:addCivilDaysR267(selectedSunday,slot.day)}));
@@ -142,7 +146,7 @@ export function NoorWorkTeacherViewR264(){
    const data:unknown=await response.json();
    if(!validResponse(data))throw Error("INVALID_WORK_RESPONSE");
    if(epoch!==requestEpoch.current)return;
-   setStatus(200);setRevision(data.revision);setWork(data.state);setDirty(false);
+   setStatus(200);setRevision(data.revision);setWork(data.state);setDirty(false);setSaveError(false);
   }catch{if(epoch===requestEpoch.current){setStatus(503);setMessage("تعذر تحميل بيانات نور ورك. تحقق من الاتصال ثم أعد المحاولة.");}}
   finally{if(epoch===requestEpoch.current)setLoading(false);}
  };
@@ -159,7 +163,7 @@ export function NoorWorkTeacherViewR264(){
  },[dirty]);
  const edit=(fn:(prev:Work)=>Work)=>{
   draftCounter.current+=1;
-  setWork(fn);setDirty(true);setMessage("");
+  setWork(fn);setDirty(true);setSaveError(false);setMessage("");
  };
  const save=async()=>{
   if(savingLock.current||!dirty)return;
@@ -168,17 +172,25 @@ export function NoorWorkTeacherViewR264(){
   try{
    const response=await fetch(PATH,{method:"PUT",credentials:"same-origin",headers:{"Content-Type":"application/json"},
     body:JSON.stringify({expectedRevision:revision,state:work})});
-   if(response.status===409){setMessage("تم تعديل بياناتك من جهاز آخر. احتفظ بتغييراتك قبل تحديث الصفحة.");return;}
-   if(!response.ok){setMessage(response.status===400?"يوجد حقل أو سجل غير صالح؛ لم يتم الحفظ.":"تعذر الحفظ، لكن التغييرات لا تزال ظاهرة.");return;}
+   if(response.status===409){setSaveError(true);setMessage("تم تعديل بياناتك من جهاز آخر. احتفظ بتغييراتك قبل تحديث الصفحة؛ لن نستبدلها تلقائيًا.");return;}
+   if(!response.ok){setSaveError(true);setMessage(response.status===400?"يوجد حقل أو سجل غير صالح؛ لم يتم الحفظ.":"تعذر الحفظ التلقائي. التغييرات ما زالت ظاهرة ويمكن إعادة المحاولة.");return;}
    const result:unknown=await response.json();
    if(!result||typeof result!=="object"||!("revision" in result)||
      !Number.isSafeInteger(result.revision))throw Error("INVALID_SAVE_RESPONSE");
    setRevision(result.revision as number);
-   if(draftCounter.current===snapshot){setDirty(false);setMessage("تم حفظ المتابعة في نور بنجاح.");}
-   else setMessage("تم حفظ النسخة السابقة. لديك تغييرات أحدث؛ اضغط حفظ مرة أخرى.");
-  }catch{setMessage("تعذر التأكد من الحفظ. احتفظ بالتغييرات حتى تتحقق من الاتصال.");}
+   setSavedOnce(true);setSaveError(false);
+   if(draftCounter.current===snapshot){setDirty(false);setMessage("");}
+   else setMessage(""); // Edits made during the request get a follow-up automatic save.
+  }catch{setSaveError(true);setMessage("تعذر التأكد من الحفظ التلقائي. لم نفقد التغييرات الظاهرة؛ أعد المحاولة عند استقرار الاتصال.");}
   finally{savingLock.current=false;setSaving(false);}
  };
+ // Debounce bursts of edits and never overlap writes. If an edit arrives while
+ // a write is pending, commit the next revision after the first completes.
+ useEffect(()=>{
+  if(status!==200||!dirty||saving||saveError)return;
+  const timer=window.setTimeout(()=>{void save();},600);
+  return()=>window.clearTimeout(timer);
+ },[work,revision,dirty,saving,saveError,status]);
  const submit=(fn:(f:FormData)=>void)=>(e:FormEvent<HTMLFormElement>)=>{
   e.preventDefault();const form=e.currentTarget;fn(new FormData(form));form.reset();
  };
@@ -219,6 +231,18 @@ export function NoorWorkTeacherViewR264(){
    </div>
    <Clock now={now}/>
   </header>
+  <section className={"nw-day-countdown nw-countdown-"+countdown.stage} aria-label="مؤقت دوام اليوم والحصة القادمة">
+   <div className="nw-countdown-info">
+    <span className="nw-kicker">إيقاع الدوام · {WORKDAY_START_R268} — {WORKDAY_END_R268}</span>
+    <h2>{countdown.heading}</h2>
+    <p>{countdown.description}</p>
+   </div>
+   <div className="nw-countdown-timer" role="timer" aria-label={"الوقت المتبقي: "+countdown.target}>
+    <strong dir="ltr">{countdown.target}</strong>
+    <span>{countdown.stage==="in_lesson"?"حتى نهاية الحصة":countdown.stage==="next_lesson"?"حتى بداية الحصة":countdown.stage==="before_work"?"حتى بداية الدوام":countdown.stage==="after_lessons"?"حتى نهاية الدوام":countdown.stage==="day_off"?"يوم راحة":"انتهى دوام اليوم"}</span>
+   </div>
+   <div className="nw-countdown-progress" aria-hidden="true"><span style={{width:countdown.progress+"%"}}/></div>
+  </section>
   <section className="nw-week-toolbar" aria-label="إعداد الأسبوع الدراسي">
    <div className="nw-week-main">
     <span className="nw-kicker">الخطة الأسبوعية</span>
@@ -238,6 +262,10 @@ export function NoorWorkTeacherViewR264(){
    </label>
   </section>
   {message?<div role="status" className="nw-notice">{message}</div>:null}
+  <div className={"nw-auto-save-indicator"+(saveError?" nw-save-error":"")} role="status" aria-live="polite">
+   <span className="nw-live-dot" aria-hidden="true"/>
+   {saveError?"الحفظ التلقائي متوقف مؤقتًا":saving?"جارٍ الحفظ تلقائيًا…":dirty?"سيتم حفظ التغيير تلقائيًا…":savedOnce?"تم الحفظ تلقائيًا":"الحفظ التلقائي مفعّل"}
+  </div>
   <nav className="nw-tabs nw-tabs-r267" aria-label="أقسام نور ورك">{tabs.map(t=>
    <button type="button" key={t.id} className={t.id===tab?"selected":""} aria-current={t.id===tab?"page":undefined}
     onClick={()=>setTab(t.id)}><span aria-hidden="true">{t.symbol}</span>{t.name}</button>)}</nav>
@@ -354,8 +382,9 @@ export function NoorWorkTeacherViewR264(){
     <p className="nw-help">احتفظنا بالسجلات التفصيلية السابقة في قاعدة البيانات، لكن لوحة المتابعة الجديدة لا تطلب أسماء الطلاب أو درجاتهم.</p>
    </Panel>
   </div>:null}
-  {dirty?<div className="nw-save-dock" role="status"><span>لديك تغييرات تحتاج إلى حفظ</span>
-   <button className="nw-primary" type="button" disabled={saving} onClick={()=>void save()}>{saving?"جارٍ الحفظ…":"حفظ التغييرات"}</button>
-  </div>:null}
+  {saveError&&dirty?<div className="nw-save-dock" role="alert">
+   <span>تعذر الحفظ التلقائي؛ ما زالت التغييرات موجودة هنا.</span>
+   <button className="nw-primary" type="button" disabled={saving} onClick={()=>{setSaveError(false);setMessage("");}}>إعادة محاولة الحفظ</button>
+  </div>:null
  </main>;
 }
