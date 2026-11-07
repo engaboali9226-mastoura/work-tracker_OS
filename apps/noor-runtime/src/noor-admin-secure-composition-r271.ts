@@ -11,6 +11,8 @@ import {NoorAdminServerStepUpR271} from "./noor-admin-server-step-up-r271.js";
 import type {NoorAdminTotpProviderR271} from "./noor-admin-totp-provider-r271.js";
 import {authorizeNoorAdminSensitiveActionR271} from "./noor-admin-sensitive-authority-r271.js";
 import type {AdminActionR271} from "./noor-admin-policy-r271.js";
+import {createNoorAdminPgSessionRegistryR271} from "./noor-admin-pg-session-registry-r271.js";
+import type {NoorAdminPgSessionQueryClientR271} from "./noor-admin-pg-session-registry-r271.js";
 
 /**
  * Composition boundary for an authenticated admin. Must be created by the
@@ -22,9 +24,15 @@ export function createNoorAdminSecureCompositionR271(input:Readonly<{
   session:Readonly<{execute(input:Readonly<{sessionId:string}>):Promise<Readonly<{accountId:{toString():string}}>>}>;
   now?:()=>number;
   sessionRegistry?:NoorAdminAuthSessionRegistryR271;
+  postgresSessionClient?:NoorAdminPgSessionQueryClientR271;
   /** A trusted server-side challenge/verify adapter, never a browser client. */
   totpProvider?:NoorAdminTotpProviderR271;
 }>){
+  if(input.sessionRegistry && input.postgresSessionClient)
+    throw new Error("NOOR_ADMIN_REGISTRY_DUPLICATE_SOURCE");
+  const registry=input.sessionRegistry??(
+    input.postgresSessionClient?createNoorAdminPgSessionRegistryR271(input.postgresSessionClient):undefined
+  );
   const bindings=new NoorAdminSessionTokenBindingR271(input.now);
   const store=new NoorAdminAccountStoreR271(input.client);
   const authentication=new NoorAdminSessionAuthenticationR271({
@@ -32,18 +40,18 @@ export function createNoorAdminSecureCompositionR271(input:Readonly<{
     adminStore:store,
     auth:input.client.auth,
     bindings,
-    ...(input.sessionRegistry?{sessionRegistry:input.sessionRegistry}:{}),
+    ...(registry?{sessionRegistry:registry}:{}),
     ...(input.now?{now:input.now}:{}),
   });
-  const assurance=new NoorSupabaseAssuranceVerifierR271(input.client,bindings,input.now,input.sessionRegistry);
+  const assurance=new NoorSupabaseAssuranceVerifierR271(input.client,bindings,input.now,registry);
   const dependencies={session:input.session,store,assurance};
   const resolveAuthority=createNoorAdminAuthorityResolverR271(dependencies);
   const resolveActor=createNoorAdminVerifiedActorResolverR271(dependencies);
   const proofs=new NoorAdminStepUpR271(input.now);
-  const stepUp=input.sessionRegistry && input.totpProvider
+  const stepUp=registry && input.totpProvider
     ? new NoorAdminServerStepUpR271({
       tokens:bindings,resolveActor,assurance,
-      registry:input.sessionRegistry,auth:input.client.auth,
+      registry,auth:input.client.auth,
       provider:input.totpProvider,proofs,
       ...(input.now?{now:input.now}:{}),
     })
