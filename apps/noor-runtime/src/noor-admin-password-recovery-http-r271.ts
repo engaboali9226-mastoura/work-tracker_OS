@@ -9,6 +9,8 @@ export interface NoorAdminRecoveryHttpDependenciesR271 {
   readonly resolveActor:(sessionId:string)=>Promise<Readonly<{
     authority:AdminAuthorityR271;actorAccountId:string;
   }> | null>;
+  /** Mandatory server-owned one-use proof consumer, never a request-body flag. */
+  readonly authorizeSensitiveAction?:(sessionId:string,action:"accounts:reset-password",expectedActorAccountId:string)=>Promise<boolean>;
   readonly provider:NoorAdminPasswordRecoveryProviderR271;
   /** Create a new audit correlation scope per HTTP request. */
   readonly createAudit:()=>NoorAdminPasswordRecoveryAuditR271;
@@ -54,7 +56,11 @@ export async function handleNoorAdminPasswordRecoveryR271(
      Number(request.headers["content-length"])>1024){respond(response,400);return;}
   try{
     const actor=await dependencies.resolveActor(sessionId);
-    if(!actor || !authorizeAdminActionR271(actor.authority,"accounts:reset-password")){
+    // Check base MFA and role while ignoring any claimed recent-authentication
+    // boolean; a trusted one-use proof MUST be consumed separately below.
+    if(!actor || !authorizeAdminActionR271(
+      {...actor.authority,reauthenticated:true},"accounts:reset-password"
+    )){
       respond(response,403);return;
     }
     const payload=await readLimitedJson(request);
@@ -64,9 +70,15 @@ export async function handleNoorAdminPasswordRecoveryR271(
        !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu.test(payload.targetAuthUserId)){
       respond(response,400);return;
     }
-    if(!actor.actorAccountId){respond(response,403);return;}
+    if(!actor.actorAccountId || !dependencies.authorizeSensitiveAction ||
+       !(await dependencies.authorizeSensitiveAction(
+         sessionId,"accounts:reset-password",actor.actorAccountId,
+       ))){respond(response,403);return;}
+    // The domain accepts recent reauthentication ONLY because the privileged
+    // callback has just consumed a session-bound, server-verified MFA proof.
+    const authority={...actor.authority,reauthenticated:true};
     const result=await requestNoorAdminPasswordRecoveryR271({
-      authority:actor.authority,actorAccountId:actor.actorAccountId,targetAuthUserId:payload.targetAuthUserId,
+      authority,actorAccountId:actor.actorAccountId,targetAuthUserId:payload.targetAuthUserId,
     },{provider:dependencies.provider,audit:dependencies.createAudit()});
     respond(response,result==="requested"?202:result==="denied"?403:503);
   }catch{respond(response,503);}
