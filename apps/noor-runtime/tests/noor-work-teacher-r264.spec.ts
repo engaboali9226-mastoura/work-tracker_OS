@@ -55,3 +55,18 @@ test("valid teacher data is required before a privileged write",async()=>{
  assert.equal((await op.write("cookie",{expectedRevision:0,state:{}})).status,400);
  assert.equal(observed.reads,0);
 });
+
+test("R267 accepts external school portal lesson checkpoints while retaining prior teacher records",()=>{
+ const work=fixture();
+ work.termStartDate="2026-08-23";
+ work.lessonChecks=[{id:"check_first",slotId:"lesson_one",date:"2026-11-08",prepared:true,attendanceRecorded:false}];
+ work.assessmentChecks=[{id:"exam_check_first",assessmentId:"quiz_one",prepared:true,corrected:false,recorded:false}];
+ assert.equal(validNoorWorkStateR264(work),true);
+ const {termStartDate,lessonChecks,assessmentChecks,...legacy}=work;
+ assert.equal(validNoorWorkStateR264(legacy),true,"previously saved state must remain readable");
+ assert.equal(validNoorWorkStateR264({...work,termStartDate:"2026-08-24"}),false,"term start must be a Sunday");
+ assert.equal(validNoorWorkStateR264({...work,lessonChecks:[...work.lessonChecks,...work.lessonChecks]}),false,"duplicate slot/date is invalid");
+ assert.equal(validNoorWorkStateR264({...work,lessonChecks:[{...work.lessonChecks[0]!,slotId:"wrong_slot"}]}),false);
+ assert.equal(validNoorWorkStateR264({...work,lessonChecks:[{...work.lessonChecks[0]!,attendanceRecorded:"yes"}]}),false,"checkbox status is never untrusted text");
+ assert.equal(validNoorWorkStateR264({...work,assessmentChecks:[{...work.assessmentChecks[0]!,assessmentId:"wrong_exam"}]}),false);
+});

@@ -34,9 +34,14 @@ export type NoorWorkStateR264 = {
   attendance: Array<{id:string;slotId:string;studentId:string;date:string;status:string}>;
   assessments: Array<{id:string;group:string;title:string;date:string;maxScore:number}>;
   grades: Array<{id:string;assessmentId:string;studentId:string;score:number}>;
+  /** Start of the first teaching week (Sunday); supplied by the teacher, never guessed from a national calendar. */
+  termStartDate?: string;
+  /** Checkpoints for completing obligations in the school's external portal. */
+  lessonChecks?: Array<{id:string;slotId:string;date:string;prepared:boolean;attendanceRecorded:boolean}>;
+  assessmentChecks?: Array<{id:string;assessmentId:string;prepared:boolean;corrected:boolean;recorded:boolean}>;
 };
 export function emptyNoorWorkStateR264(): NoorWorkStateR264 {
-  return {version:1,timetable:[],workdays:[],preparations:[],students:[],attendance:[],assessments:[],grades:[]};
+  return {version:1,timetable:[],workdays:[],preparations:[],students:[],attendance:[],assessments:[],grades:[],lessonChecks:[],assessmentChecks:[]};
 }
 const isObj=(v:unknown):v is Record<string,unknown> => !!v && typeof v==="object" && !Array.isArray(v);
 const textOk=(v:unknown,max:number)=>typeof v==="string"&&v.length<=max && !/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/u.test(v);
@@ -52,8 +57,18 @@ const idsUnique=(xs:ReadonlyArray<{id:string}>)=>new Set(xs.map(x=>x.id)).size==
 
 export function validNoorWorkStateR264(value:unknown): value is NoorWorkStateR264 {
   if(!isObj(value)||value.version!==1) return false;
-  const keys=Object.keys(value).sort().join(",");
-  if(keys!=="assessments,attendance,grades,preparations,students,timetable,version,workdays")return false;
+  const required=["assessments","attendance","grades","preparations","students","timetable","version","workdays"];
+  const optional=["assessmentChecks","lessonChecks","termStartDate"];
+  const keys=Object.keys(value);
+  if(required.some(key=>!keys.includes(key))||keys.some(key=>!required.includes(key)&&!optional.includes(key)))return false;
+  if(value.termStartDate!==undefined&&(typeof value.termStartDate!=="string"||
+     !dateOk(value.termStartDate)||new Date(value.termStartDate+"T12:00:00Z").getUTCDay()!==0))return false;
+  if(value.lessonChecks!==undefined&&!arrayOk(value.lessonChecks,15000,
+    x=>idOk(x.id)&&idOk(x.slotId)&&dateOk(x.date)&&typeof x.prepared==="boolean"&&
+      typeof x.attendanceRecorded==="boolean"))return false;
+  if(value.assessmentChecks!==undefined&&!arrayOk(value.assessmentChecks,400,
+    x=>idOk(x.id)&&idOk(x.assessmentId)&&typeof x.prepared==="boolean"&&
+      typeof x.corrected==="boolean"&&typeof x.recorded==="boolean"))return false;
   if(!arrayOk(value.timetable,84,x=>idOk(x.id)&&dayOk(x.day)&&periodOk(x.period)&&textOk(x.subject,90)&&textOk(x.group,90)&&textOk(x.room,50)&&clockOk(x.start)&&clockOk(x.end)))return false;
   if(!arrayOk(value.workdays,900,x=>idOk(x.id)&&dateOk(x.date)&&instantOk(x.checkIn)&&instantOk(x.checkOut)))return false;
   if(!arrayOk(value.preparations,1200,x=>idOk(x.id)&&idOk(x.slotId)&&dateOk(x.date)&&textOk(x.title,150)&&textOk(x.objectives,2500)&&textOk(x.activities,2500)&&textOk(x.homework,1200)))return false;
@@ -69,10 +84,16 @@ export function validNoorWorkStateR264(value:unknown): value is NoorWorkStateR26
   if(new Set(state.workdays.map(x=>x.date)).size!==state.workdays.length)return false;
   if(state.workdays.some(x=>x.checkOut && (!x.checkIn||Date.parse(x.checkOut)<Date.parse(x.checkIn))))return false;
   if(state.preparations.some(x=>!slots.has(x.slotId)))return false;
+  const checks=state.lessonChecks??[];
+  if(!idsUnique(checks)||checks.some(x=>!slots.has(x.slotId))||
+     new Set(checks.map(x=>x.date+":"+x.slotId)).size!==checks.length)return false;
   const students=new Set(state.students.map(x=>x.id));
   if(state.attendance.some(x=>!slots.has(x.slotId)||!students.has(x.studentId)))return false;
   const assessmentMap=new Map(state.assessments.map(x=>[x.id,x.maxScore]));
   if(state.grades.some(x=>!students.has(x.studentId)||!assessmentMap.has(x.assessmentId)||x.score>(assessmentMap.get(x.assessmentId)??0)))return false;
+  const examChecks=state.assessmentChecks??[];
+  if(!idsUnique(examChecks)||examChecks.some(x=>!assessmentMap.has(x.assessmentId))||
+    new Set(examChecks.map(x=>x.assessmentId)).size!==examChecks.length)return false;
   if(new Set(state.attendance.map(x=>x.date+":"+x.slotId+":"+x.studentId)).size!==state.attendance.length)return false;
   if(new Set(state.grades.map(x=>x.assessmentId+":"+x.studentId)).size!==state.grades.length)return false;
   if(JSON.stringify(value).length>500000)return false;
