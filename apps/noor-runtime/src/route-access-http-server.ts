@@ -36,7 +36,7 @@ import {NOOR_ADMIN_ACCOUNTS_PATH_R271,handleAdminAccountsR271} from "./noor-admi
 import type {AdminHttpDependenciesR271} from "./noor-admin-http-r271.js";
 import {NOOR_ADMIN_PASSWORD_RECOVERY_PATH_R271,handleNoorAdminPasswordRecoveryR271} from "./noor-admin-password-recovery-http-r271.js";
 import type {NoorAdminRecoveryHttpDependenciesR271} from "./noor-admin-password-recovery-http-r271.js";
-import {NOOR_ADMIN_SESSION_AUTHENTICATION_PATH_R271,handleNoorAdminSessionAuthenticationR271} from "./noor-admin-session-authentication-http-r271.js";
+import {NOOR_ADMIN_SESSION_AUTHENTICATION_PATH_R271,NOOR_ADMIN_SESSION_RENEW_PATH_R271,NOOR_ADMIN_SESSION_REVOKE_PATH_R271,handleNoorAdminSessionAuthenticationR271} from "./noor-admin-session-authentication-http-r271.js";
 import type {NoorAdminSessionAuthenticationHttpDependenciesR271} from "./noor-admin-session-authentication-http-r271.js";
 import type {NoorWorkTeacherOperationR264} from "./noor-work-teacher-operation-r264.js";
 
@@ -880,7 +880,9 @@ async function handleRequest(
   response:
     ServerResponse,
 ): Promise<void> {
-  if(request.url===NOOR_ADMIN_SESSION_AUTHENTICATION_PATH_R271){
+  if(request.url===NOOR_ADMIN_SESSION_AUTHENTICATION_PATH_R271 ||
+     request.url===NOOR_ADMIN_SESSION_RENEW_PATH_R271 ||
+     request.url===NOOR_ADMIN_SESSION_REVOKE_PATH_R271){
     if(!adminAuthenticationR271){writeEmpty(response,404);return;}
     await handleNoorAdminSessionAuthenticationR271(request,response,sessionIdFromCookieHeader(request.headers.cookie),adminAuthenticationR271);
     return;
