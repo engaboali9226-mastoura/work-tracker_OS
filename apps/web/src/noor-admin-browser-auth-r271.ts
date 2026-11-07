@@ -1,4 +1,5 @@
-import {createClient,type SupabaseClient} from "@supabase/supabase-js";
+import {createNoorAdminUserAuthClientR271} from "./public-supabase-authentication-client.js";
+import type {PublicNoorAdminSupabaseClientR271} from "./public-supabase-authentication-client.js";
 import {readBrowserPublicAuthenticationConfiguration} from "./public-authentication-environment.js";
 
 export type NoorAdminBrowserFactorR271=Readonly<{id:string;label:string}>;
@@ -24,15 +25,12 @@ async function submit(path:string,body:unknown):Promise<void>{
   if(response.status!==204)throw Error("NOOR_ADMIN_AUTHORIZATION_DENIED");
 }
 export function createNoorAdminBrowserAuthR271(
-  client?:SupabaseClient,
+  client?:PublicNoorAdminSupabaseClientR271,
   exchange: (path:string,body:unknown)=>Promise<void>=submit,
 ):NoorAdminBrowserAuthR271{
-  const authClient=client??(()=>{
-    const config=readBrowserPublicAuthenticationConfiguration();
-    return createClient(config.supabaseUrl,config.supabasePublishableKey,{
-      auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false},
-    });
-  })();
+  const authClient=client??createNoorAdminUserAuthClientR271(
+    readBrowserPublicAuthenticationConfiguration(),
+  );
   let signedIn=false;
   return Object.freeze({
     async signIn(email:string,password:string){
