@@ -7,6 +7,7 @@ import {handleAdminAccountsR271, type AdminHttpDependenciesR271} from "../src/no
 const authority = {
   sessionActive: true, accountActive: true, verifiedAdminGrant: true,
   assuranceLevel: "aal2" as const, reauthenticated: false,
+  role: "admin" as const,
 };
 async function serve(
   callback: (origin: string) => Promise<void>,
