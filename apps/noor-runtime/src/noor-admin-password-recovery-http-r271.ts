@@ -5,8 +5,10 @@ import {requestNoorAdminPasswordRecoveryR271,type NoorAdminPasswordRecoveryProvi
 export const NOOR_ADMIN_PASSWORD_RECOVERY_PATH_R271="/api/noor/admin/password-recovery";
 export interface NoorAdminRecoveryHttpDependenciesR271 {
   readonly expectedOrigin:string;
-  readonly resolveAuthority:(sessionId:string)=>Promise<AdminAuthorityR271|null>;
-  readonly resolveActorAccountId:(sessionId:string)=>Promise<string|null>;
+  /** Resolve actor and authority atomically from the SAME verified session. */
+  readonly resolveActor:(sessionId:string)=>Promise<Readonly<{
+    authority:AdminAuthorityR271;actorAccountId:string;
+  }> | null>;
   readonly provider:NoorAdminPasswordRecoveryProviderR271;
   /** Create a new audit correlation scope per HTTP request. */
   readonly createAudit:()=>NoorAdminPasswordRecoveryAuditR271;
@@ -51,8 +53,8 @@ export async function handleNoorAdminPasswordRecoveryR271(
      !/^[1-9][0-9]{0,3}$/.test(request.headers["content-length"]??"") ||
      Number(request.headers["content-length"])>1024){respond(response,400);return;}
   try{
-    const authority=await dependencies.resolveAuthority(sessionId);
-    if(!authorizeAdminActionR271(authority,"accounts:reset-password")){
+    const actor=await dependencies.resolveActor(sessionId);
+    if(!actor || !authorizeAdminActionR271(actor.authority,"accounts:reset-password")){
       respond(response,403);return;
     }
     const payload=await readLimitedJson(request);
@@ -62,10 +64,9 @@ export async function handleNoorAdminPasswordRecoveryR271(
        !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu.test(payload.targetAuthUserId)){
       respond(response,400);return;
     }
-    const actorAccountId=await dependencies.resolveActorAccountId(sessionId);
-    if(!actorAccountId){respond(response,403);return;}
+    if(!actor.actorAccountId){respond(response,403);return;}
     const result=await requestNoorAdminPasswordRecoveryR271({
-      authority,actorAccountId,targetAuthUserId:payload.targetAuthUserId,
+      authority:actor.authority,actorAccountId:actor.actorAccountId,targetAuthUserId:payload.targetAuthUserId,
     },{provider:dependencies.provider,audit:dependencies.createAudit()});
     respond(response,result==="requested"?202:result==="denied"?403:503);
   }catch{respond(response,503);}
