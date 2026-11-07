@@ -23,7 +23,7 @@ export function createNoorAdminSecureCompositionR271(input:Readonly<{
     adminStore:store,
     auth:input.client.auth,
     bindings,
-    now:input.now,
+    ...(input.now?{now:input.now}:{}),
   });
   const assurance=new NoorSupabaseAssuranceVerifierR271(input.client,bindings,input.now);
   const dependencies={session:input.session,store,assurance};
