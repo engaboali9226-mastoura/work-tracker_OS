@@ -222,10 +222,20 @@ function SmartGateway({
               <span className="noor-welcome-app-copy"><strong>نور الشخصي</strong><small>يومك، عاداتك، وتقدمك</small></span>
               <span className="noor-welcome-app-arrow" aria-hidden="true">←</span>
             </a>
-            <div className="noor-welcome-app-card noor-welcome-app-disabled" aria-disabled="true">
+            <a
+              href="/work"
+              className="noor-welcome-app-card"
+              onClick={event => {
+                if (event.defaultPrevented || event.button !== 0 ||
+                    event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+                event.preventDefault();
+                navigate("/work");
+              }}
+            >
               <span className="noor-welcome-app-mark" aria-hidden="true">◈</span>
-              <span className="noor-welcome-app-copy"><strong>نور للأعمال</strong><small>قريبًا</small></span>
-            </div>
+              <span className="noor-welcome-app-copy"><strong>نور ورك</strong><small>الجدول والتحضير والطلاب والدرجات</small></span>
+              <span className="noor-welcome-app-arrow" aria-hidden="true">←</span>
+            </a>
           </div>
         )}
         <p className="noor-welcome-privacy">
