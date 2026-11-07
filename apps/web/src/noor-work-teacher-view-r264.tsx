@@ -1,4 +1,4 @@
-import {useEffect,useMemo,useState} from "react";
+import {useEffect,useMemo,useRef,useState} from "react";
 import type {FormEvent,ReactNode} from "react";
 
 type Slot={id:string;day:number;period:number;subject:string;group:string;room:string;start:string;end:string};
@@ -20,6 +20,16 @@ const tabs:ReadonlyArray<{id:Tab;name:string}>= [
  {id:"exams",name:"الاختبارات والرصد"},
 ];
 const blank=():Work=>({version:1,timetable:[],workdays:[],preparations:[],students:[],attendance:[],assessments:[],grades:[]});
+function isWorkResponse(value:unknown):value is {revision:number;state:Work}{
+ if(!value||typeof value!=="object")return false;
+ const candidate=value as {revision?:unknown;state?:unknown};
+ if(typeof candidate.revision!=="number"||!Number.isSafeInteger(candidate.revision)||candidate.revision<0||
+   !candidate.state||typeof candidate.state!=="object")return false;
+ const state=candidate.state as Partial<Work>;
+ return state.version===1&&
+   ["timetable","workdays","preparations","students","attendance","assessments","grades"]
+    .every(key=>Array.isArray(state[key as keyof Work]));
+}
 const uid=()=>crypto.randomUUID();
 function todayRiyadh():string{
  const parts=new Intl.DateTimeFormat("en-US",{timeZone:"Asia/Riyadh",year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(new Date());
@@ -47,37 +57,67 @@ export function NoorWorkTeacherViewR264(){
  const [saving,setSaving]=useState(false);
  const [dirty,setDirty]=useState(false);
  const [message,setMessage]=useState("");
- const [status,setStatus]=useState(200);
+ const [status,setStatus]=useState(503);
+ const revisionOfDraft=useRef(0);
+ const requestEpoch=useRef(0);
+ const savingLock=useRef(false);
  const [attendanceSlot,setAttendanceSlot]=useState("");
  const [attendanceDate,setAttendanceDate]=useState(todayRiyadh());
  const [selectedExam,setSelectedExam]=useState("");
  const today=todayRiyadh();
- const fetchWork=async()=> {
+ const fetchWork=async()=>{
+   const epoch=++requestEpoch.current;
    setLoading(true);setMessage("");
    try{
-     const r=await fetch(PATH,{credentials:"same-origin",cache:"no-store"});
-     setStatus(r.status);
-     if(!r.ok){setMessage(r.status===403?"لا تملك صلاحية الوصول إلى نور ورك.":"تعذر تحميل بيانات نور ورك.");return;}
-     const data=await r.json() as {revision:number;state:Work};
-     setRevision(data.revision);setWork(data.state);setDirty(false);
-   }catch{setMessage("تعذر الاتصال بالخادم. تحقق من الشبكة وأعد المحاولة.");}
-   finally{setLoading(false);}
+     const response=await fetch(PATH,{credentials:"same-origin",cache:"no-store"});
+     if(epoch!==requestEpoch.current)return;
+     if(!response.ok){
+       setStatus(response.status);
+       setMessage(response.status===403?"ليس لهذا الحساب صلاحية نور ورك.":response.status===401?"انتهت جلسة الدخول. ارجع للبوابة وسجل دخولك مجددًا.":"تعذر الاتصال ببيانات نور ورك. لم نعرض بيانات افتراضية بدل بياناتك الحقيقية.");
+       return;
+     }
+     const data:unknown=await response.json();
+     if(!isWorkResponse(data))throw Error("TEACHER_STATE_INVALID");
+     if(epoch!==requestEpoch.current)return;
+     setStatus(200);setRevision(data.revision);setWork(data.state);setDirty(false);
+   }catch{
+     if(epoch===requestEpoch.current){
+       setStatus(503);setMessage("تعذر تحميل بيانات المعلم بأمان. تحقق من الاتصال ثم حاول مجددًا.");
+     }
+   }finally{if(epoch===requestEpoch.current)setLoading(false);}
  };
- useEffect(()=>{void fetchWork();},[]);
- const edit=(next:(prev:Work)=>Work)=>{setWork(p=>next(p));setDirty(true);setMessage("");};
+ useEffect(()=>{void fetchWork();return()=>{requestEpoch.current+=1;};},[]);
+ useEffect(()=>{
+   if(!dirty)return;
+   const preventExit=(event:BeforeUnloadEvent)=>{event.preventDefault();event.returnValue="";};
+   window.addEventListener("beforeunload",preventExit);
+   return()=>window.removeEventListener("beforeunload",preventExit);
+ },[dirty]);
+ const edit=(next:(prev:Work)=>Work)=>{
+   revisionOfDraft.current+=1;
+   setWork(p=>next(p));setDirty(true);setMessage("");
+ };
  const save=async()=>{
-   if(saving||!dirty)return;
+   if(savingLock.current||!dirty)return;
+   savingLock.current=true;
+   const savedCounter=revisionOfDraft.current;
    setSaving(true);setMessage("");
    try{
      const r=await fetch(PATH,{method:"PUT",credentials:"same-origin",
        headers:{"Content-Type":"application/json"},
        body:JSON.stringify({expectedRevision:revision,state:work})});
-     if(r.status===409){setMessage("تم تعديل البيانات من جهاز آخر. انسخ تعديلاتك المهمة قبل تحديث الصفحة لتجنب فقدها.");return;}
-     if(!r.ok){setMessage(r.status===400?"البيانات غير مكتملة أو تجاوزت الحد المسموح.":"تعذر الحفظ. لم تُفقد التغييرات غير المحفوظة.");return;}
-     const data=await r.json() as {revision:number};
-     setRevision(data.revision);setDirty(false);setMessage("تم الحفظ في مساحتك الخاصة بنجاح.");
-   }catch{setMessage("حدث انقطاع أثناء الحفظ. راجع اتصالك قبل تكرار العملية.");}
-   finally{setSaving(false);}
+     if(r.status===409){setMessage("هناك تعديل أحدث على الخادم. احتفظ بالتعديلات الموجودة أمامك قبل إعادة التحميل.");return;}
+     if(!r.ok){setMessage(r.status===400?"البيانات غير مكتملة أو تجاوزت الحد المسموح.":"تعذر الحفظ. ما زالت تعديلاتك على الشاشة.");return;}
+     const data:unknown=await r.json();
+     if(!data||typeof data!=="object"||!("revision" in data)||typeof data.revision!=="number"||!Number.isSafeInteger(data.revision))throw Error("REVISION_INVALID");
+     setRevision(data.revision);
+     if(revisionOfDraft.current===savedCounter){
+       setDirty(false);setMessage("تم حفظ بياناتك في مساحة نور ورك بنجاح.");
+     }else{
+       setMessage("تم حفظ النسخة السابقة. توجد تعديلات جديدة لم تحفظ بعد؛ اضغط حفظ مجددًا.");
+     }
+   }catch{setMessage("تعذر التأكد من الحفظ. التعديلات ما زالت ظاهرة؛ تحقق من الاتصال قبل المحاولة مجددًا.");}
+   finally{savingLock.current=false;setSaving(false);}
  };
  const submit=(fn:(f:FormData)=>void)=>(e:FormEvent<HTMLFormElement>)=>{
    e.preventDefault();const form=e.currentTarget;fn(new FormData(form));form.reset();
@@ -101,8 +141,14 @@ export function NoorWorkTeacherViewR264(){
    });
  };
  if(loading)return <main className="nw-root" dir="rtl"><Panel title="نور ورك"><p>جارٍ تحميل مساحة العمل الآمنة…</p></Panel></main>;
- if(status===403)return <main className="nw-root" dir="rtl"><Panel title="نور ورك"><p>حسابك غير مخول لفتح مساحة العمل. راجع صلاحياتك.</p></Panel></main>;
- if(status!==200)return <main className="nw-root" dir="rtl"><Panel title="نور ورك"><p>{message}</p><button onClick={()=>void fetchWork()}>إعادة المحاولة</button></Panel></main>;
+ if(status!==200)return <main className="nw-root" dir="rtl">
+   <header className="nw-header"><div><span className="nw-kicker">NOOR WORK · التعليم</span>
+    <h1>مساحة المعلم</h1><p>الجدول، الحضور، التحضير، الطلاب، والدرجات.</p></div>
+    <a className="nw-light-button" href="/">العودة لاختيار التطبيقات</a></header>
+   <Panel title={status===403?"صلاحية نور ورك غير مفعّلة":status===401?"تسجيل الدخول مطلوب":"تعذر تحميل مساحة المعلم"}>
+     <p role="alert">{message}</p><div className="nw-actions"><button className="nw-primary" onClick={()=>void fetchWork()}>إعادة المحاولة</button>
+     <a href="/" className="nw-light-button">العودة للبوابة</a></div>
+   </Panel></main>;
  return <main className="nw-root" dir="rtl">
   <header className="nw-header"><div><span className="nw-kicker">NOOR WORK · التعليم</span>
    <h1>مساحة المعلم</h1><p>جدولك، دوامك، تحضيرك، طلابك، ودرجاتك في مكان واحد.</p></div>
@@ -112,6 +158,14 @@ export function NoorWorkTeacherViewR264(){
   {message?<div className="nw-notice" role="status">{message}</div>:null}
   <nav className="nw-tabs" aria-label="أقسام نور ورك">{tabs.map(t=><button type="button" key={t.id} className={t.id===tab?"selected":""} onClick={()=>setTab(t.id)}>{t.name}</button>)}</nav>
   {tab==="overview"?<div className="nw-grid">
+    {!work.timetable.length?<Panel title="ابدأ تجهيز مساحة المعلم" description="٣ خطوات عملية لإعداد أول أسبوع دون إدخال بيانات طلاب حقيقية.">
+      <ol className="nw-onboarding">
+       <li><strong>أدخل جدول حصصك</strong><span>اختر اليوم والحصة والشعبة من الجدول، حتى تكمل ٢١ حصة أسبوعيًا.</span></li>
+       <li><strong>حضّر أول درس</strong><span>أضف أهداف الدرس والأنشطة والواجب المرتبط بالحصة.</span></li>
+       <li><strong>جرّب الحضور والرصد</strong><span>ابدأ بطلاب تجريبيين؛ البيانات المدرسية الحقيقية تتطلب إذن المدرسة.</span></li>
+      </ol>
+      <button type="button" className="nw-primary" onClick={()=>setTab("schedule")}>إعداد جدول الحصص</button>
+    </Panel>:null}
     <Panel title="ملخص الأسبوع" description="هدفك التدريسي: ٢١ حصة في الأسبوع."><div className="nw-metrics">
       <div><b>{work.timetable.length} / 21</b><span>حصة مُدرجة بالجدول</span></div>
       <div><b>{work.preparations.length}</b><span>تحضير محفوظ</span></div>
@@ -121,8 +175,8 @@ export function NoorWorkTeacherViewR264(){
     <div className="nw-progress"><span style={{width:`${Math.min(100,work.timetable.length/21*100)}%`}}/></div></Panel>
     <Panel title="دوام اليوم" description={today}><div className="nw-stamp"><span>الحضور {time(daylog?.checkIn??"")}</span><span>الانصراف {time(daylog?.checkOut??"")}</span></div>
      <p className="nw-help">تسجيل الدوام يدويًا؛ لا نحدد موقعك ولا نرسل حضورًا رسميًا إلى المدرسة.</p></Panel>
-    <Panel title="حصص اليوم"><ul className="nw-list">{sorted.filter(x=>x.day===new Date().getDay()).map(x=><li key={x.id}><b>الحصة {x.period} · {x.subject||"مادة غير محددة"}</b><span>{x.group||"لم تحدد الصف"} · {x.room}</span></li>)}</ul>
-      {!sorted.some(x=>x.day===new Date().getDay())?<Empty>لا توجد حصص محددة لليوم.</Empty>:null}</Panel>
+    <Panel title="حصص اليوم"><ul className="nw-list">{sorted.filter(x=>x.day===new Date(today+"T12:00:00").getDay()).map(x=><li key={x.id}><b>الحصة {x.period} · {x.subject||"مادة غير محددة"}</b><span>{x.group||"لم تحدد الصف"} · {x.room}</span></li>)}</ul>
+      {!sorted.some(x=>x.day===new Date(today+"T12:00:00").getDay())?<Empty>لا توجد حصص محددة لليوم.</Empty>:null}</Panel>
   </div>:null}
   {tab==="schedule"?<div className="nw-grid">
     <Panel title="إضافة حصة للجدول" description="أدخل معلومات كل حصة من حصصك الـ٢١."><form className="nw-form" onSubmit={submit(f=>{
@@ -223,6 +277,9 @@ export function NoorWorkTeacherViewR264(){
           return <li key={s.id}><b>{s.name}</b><label className="nw-score"><input key={row?.id??s.id} type="number" min="0" max={exam.maxScore} step="0.5" defaultValue={row?.score??""} onBlur={e=>{if(e.target.value!=="")updateGrade(exam.id,s.id,e.target.value);}} aria-label={`درجة ${s.name}`}/> / {exam.maxScore}</label></li>;
         })}</ul>{!roster.length?<Empty>لا يوجد طلاب مسجلون لهذه الشعبة.</Empty>:<SaveHint/>}</>;
       })()}</Panel>
+  </div>:null}
+  {dirty?<div className="nw-save-dock" role="status"><span>لديك تغييرات لم تُحفظ بعد</span>
+    <button type="button" disabled={saving} onClick={()=>void save()} className="nw-primary">{saving?"جارٍ الحفظ…":"حفظ التغييرات"}</button>
   </div>:null}
  </main>;
 }
