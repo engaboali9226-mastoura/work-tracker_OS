@@ -40,6 +40,27 @@ export class NoorAdminSessionTokenBindingR271 implements NoorAdminSessionTokenSt
     this.bindings.set(key,Object.freeze({...input,fingerprint:key}));
     return true;
   }
+  /**
+   * Refresh is allowed only within the same platform account, Auth user,
+   * and Supabase Auth session. The caller must independently verify the new
+   * signed token first. A failed rotation preserves the existing binding.
+   */
+  public rotate(input:NoorAdminVerifiedSessionBindingR271):boolean{
+    const time=this.now();
+    if(!input || typeof input.platformSessionId!=="string" ||
+       !input.platformSessionId || input.platformSessionId.length>256 ||
+       typeof input.accessToken!=="string" || !input.accessToken ||
+       input.accessToken.length>8192 || !Number.isSafeInteger(input.expiresAtMs) ||
+       input.expiresAtMs<=time || input.expiresAtMs>time+5*60_000)return false;
+    const key=fingerprint(input.platformSessionId);
+    const existing=this.bindings.get(key);
+    if(!existing || existing.expiresAtMs<=time ||
+       existing.platformAccountId!==input.platformAccountId ||
+       existing.authUserId!==input.authUserId ||
+       existing.authSessionId!==input.authSessionId)return false;
+    this.bindings.set(key,Object.freeze({...input,fingerprint:key}));
+    return true;
+  }
   public async getAccessTokenForSession(sessionId:string):Promise<string|null>{
     if(typeof sessionId!=="string" || !sessionId || sessionId.length>256)return null;
     const key=fingerprint(sessionId);
