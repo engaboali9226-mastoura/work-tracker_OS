@@ -54,7 +54,7 @@ test("R265: empty teacher workspace shows complete dashboard and onboarding entr
   const text=t.dom.window.document.body.textContent??"";
   assert.match(text,/مساحة المعلم/);
   assert.match(text,/ابدأ تجهيز مساحة المعلم/);
-  assert.match(text,/٢١ حصة/);
+  assert.match(text,/21 حصة/);
   const setup=[...t.dom.window.document.querySelectorAll("button")].find(b=>b.textContent?.includes("إعداد جدول الحصص"));
   assert.ok(setup,"onboarding has actionable next step");
   await act(async()=>{setup.click();});
