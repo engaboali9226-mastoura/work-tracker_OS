@@ -72,3 +72,19 @@ test("R271 recovery never sends email or audits when trusted actor is missing",a
   },null);
   assert.deepEqual(events,["actor-resolved"]);
 });
+
+test("R271 recovery rejects malformed target identity before creating audit scope or sending email",async()=>{
+  const events=await serve(async origin=>{
+    const response=await request(origin,{targetAuthUserId:"not-an-auth-uuid"},{cookie:true});
+    assert.equal(response.status,400);
+    assert.equal(response.headers.get("cache-control"),"no-store");
+  });
+  assert.deepEqual(events,["actor-resolved"]);
+});
+
+test("R271 recovery denies an administrator with read-only role before side effects",async()=>{
+  const events=await serve(async origin=>{
+    assert.equal((await request(origin,{targetAuthUserId:target},{cookie:true})).status,403);
+  },{...authority,role:"admin" as "super_admin"});
+  assert.deepEqual(events,["actor-resolved"]);
+});
