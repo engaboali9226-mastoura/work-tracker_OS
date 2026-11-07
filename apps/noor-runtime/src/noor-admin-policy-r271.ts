@@ -20,6 +20,7 @@ export interface AdminAuthorityR271 {
   readonly verifiedAdminGrant: boolean;
   readonly assuranceLevel: "aal1" | "aal2" | null;
   readonly reauthenticated: boolean;
+  readonly role?: "super_admin" | "admin";
 }
 
 const SENSITIVE_ACTIONS = new Set<AdminActionR271>([
@@ -36,6 +37,8 @@ export function authorizeAdminActionR271(
       !authority.verifiedAdminGrant || authority.assuranceLevel !== "aal2") {
     return false;
   }
+  if (action !== "accounts:list" && action !== "audit:list" &&
+      authority.role !== "super_admin") return false;
   return !SENSITIVE_ACTIONS.has(action) || authority.reauthenticated === true;
 }
 
