@@ -12,6 +12,7 @@ const valid: AdminAuthorityR271 = {
   verifiedAdminGrant: true,
   assuranceLevel: "aal2",
   reauthenticated: true,
+  role: "super_admin",
 };
 
 test("R271 denies missing, revoked, inactive, ungranted and weak-MFA authorities", () => {
@@ -48,4 +49,12 @@ test("R271 protects the actor and last active super-admin", () => {
   assert.equal(mayDisableAdminAccountR271({...input, targetIsSuperAdmin: false}), true);
   assert.equal(mayDisableAdminAccountR271({...input, targetAccountId: "actor"}), false);
   assert.equal(mayDisableAdminAccountR271({...input, activeSuperAdminCount: 0}), false);
+});
+
+
+test("R271 denies account mutations to non-super-admin roles",()=>{
+  const ordinaryAdmin={...valid,role:"admin" as const};
+  assert.equal(authorizeAdminActionR271(ordinaryAdmin,"accounts:list"),true);
+  assert.equal(authorizeAdminActionR271(ordinaryAdmin,"accounts:disable"),false);
+  assert.equal(authorizeAdminActionR271(ordinaryAdmin,"entitlements:manage"),false);
 });
