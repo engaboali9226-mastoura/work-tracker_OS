@@ -1,5 +1,6 @@
 import {TaskSessionPlannerR254,TaskSessionListR254,sessionFinishedR254,TASK_SESSION_STYLES_R254,type StoredTaskSessionPlanR254,type StoredTaskSessionR254} from "./noor-task-sessions-r254.js";
 import {shouldRefreshNoorOnResume} from "./noor-resume-sync-r259.js";
+import {revokeNoorBrowserSessionR269} from "./noor-session-logout-client-r269.js";
 import type {NoorTaskSessionDraft} from "./noor-personal-today-client.js";
 import { noorCategoryOptions, noorExistingCategory, noorProposeCategory } from "./category-selection-r163.js";
 import { NoorThreeSpacesR171 } from "./noor-three-spaces-r171.js";
@@ -2447,10 +2448,7 @@ export function NoorPersonalApplicationView({ initialResult, initialWorkspace }:
     setLogoutPending(true);
     setActionError(null);
     try{
-      const response=await fetch("/api/noor/session/logout",{
-        method:"POST",credentials:"same-origin",cache:"no-store",
-      });
-      if(response.status!==204)throw Error("LOGOUT_NOT_CONFIRMED");
+      if(!(await revokeNoorBrowserSessionR269()))throw Error("LOGOUT_NOT_CONFIRMED");
       // Reload resets the browser authentication controller and access evidence.
       window.location.replace("/");
     }catch{
