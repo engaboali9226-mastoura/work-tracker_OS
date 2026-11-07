@@ -28,7 +28,7 @@ const ordinals=["الأول","الثاني","الثالث","الرابع","ال�
  "الثامن عشر","التاسع عشر","العشرون"];
 export function schoolWeekTitleR267(week:number|null):string{
  if(week===null)return "الأسبوع الدراسي —";
- return "الأسبوع "+(ordinals[week-1]??week.toLocaleString("ar-SA"));
+ return "الأسبوع "+(ordinals[week-1]??week.toLocaleString("ar-SA-u-nu-latn"));
 }
 export function riyadhDayR267(now:Date):string{
  const parts=new Intl.DateTimeFormat("en-GB-u-ca-gregory",{
@@ -39,14 +39,14 @@ export function riyadhDayR267(now:Date):string{
 }
 export function dayLabelR267(iso:string):string{
  const date=new Date(iso+"T12:00:00.000Z");
- return new Intl.DateTimeFormat("ar-SA-u-ca-gregory",{day:"numeric",month:"short",timeZone:"UTC"}).format(date);
+ return new Intl.DateTimeFormat("ar-SA-u-ca-gregory-nu-latn",{day:"numeric",month:"short",timeZone:"UTC"}).format(date);
 }
 export function schoolClockR267(now:Date):{time:string;gregorian:string;hijri:string}{
  const options={timeZone:"Asia/Riyadh"} as const;
- const time=new Intl.DateTimeFormat("ar-SA",{...options,hour:"2-digit",minute:"2-digit",second:"2-digit",hour12:true}).format(now);
- const gregorian=new Intl.DateTimeFormat("ar-SA-u-ca-gregory",{...options,weekday:"long",day:"numeric",month:"long",year:"numeric"}).format(now);
+ const time=new Intl.DateTimeFormat("ar-SA-u-nu-latn",{...options,hour:"2-digit",minute:"2-digit",second:"2-digit",hour12:true}).format(now);
+ const gregorian=new Intl.DateTimeFormat("ar-SA-u-ca-gregory-nu-latn",{...options,weekday:"long",day:"numeric",month:"long",year:"numeric"}).format(now);
  let hijri="";
- try{hijri=new Intl.DateTimeFormat("ar-SA-u-ca-islamic-umalqura",{...options,day:"numeric",month:"long",year:"numeric"}).format(now);}
+ try{hijri=new Intl.DateTimeFormat("ar-SA-u-ca-islamic-umalqura-nu-latn",{...options,day:"numeric",month:"long",year:"numeric"}).format(now);}
  catch{hijri="";} // Keep Gregorian calendar usable even if an older browser lacks this calendar.
  return {time,gregorian,hijri};
 }
