@@ -27,18 +27,20 @@ test("R271 invitation audits verified identity and never assigns admin role", as
     provider:{inviteUserByEmail:async email => {
       events.push("invite:"+email);return {userId:"auth-uuid",error:null};
     }},
-    audit:{record:async input => {events.push("audit:"+input.invitedUserId);}},
+    audit:{record:async input => {events.push("audit:"+input.outcome+":"+input.invitedUserId);}},
   });
-  assert.deepEqual(events,["invite:candidate@example.org","audit:auth-uuid"]);
+  assert.deepEqual(events,["audit:initiated:null","invite:candidate@example.org","audit:invited:auth-uuid"]);
   assert.deepEqual(result,{kind:"invited",userId:"auth-uuid"});
 });
 
 test("R271 invitation fails closed on audit error",async () => {
+  let sent=0;
   const result = await inviteNoorAdminCandidateR271({
     actorAccountId:"actor",email:"candidate@example.org",authority,
   },{
-    provider:{inviteUserByEmail:async()=>({userId:"auth-uuid",error:null})},
+    provider:{inviteUserByEmail:async()=>{sent++;return {userId:"auth-uuid",error:null};}},
     audit:{record:async()=>{throw Error("audit unavailable");}},
   });
   assert.deepEqual(result,{kind:"unavailable"});
+  assert.equal(sent,0);
 });
