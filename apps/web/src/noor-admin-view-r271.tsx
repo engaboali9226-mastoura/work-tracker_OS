@@ -14,7 +14,6 @@ export function NoorAdminViewR271() {
     void fetch("/api/noor/admin/accounts", {
       method: "POST",
       credentials: "same-origin",
-      headers: {"Content-Length": "0"},
       cache: "no-store",
       signal: controller.signal,
     }).then(async response => {
