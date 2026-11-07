@@ -6,6 +6,8 @@ export type NoorAdminBrowserFactorR271=Readonly<{id:string;label:string}>;
 export interface NoorAdminBrowserAuthR271 {
   signIn(email:string,password:string):Promise<readonly NoorAdminBrowserFactorR271[]>;
   enroll():Promise<Readonly<{id:string;qrCode:string}>>;
+  acceptInvitation(password:string):Promise<readonly NoorAdminBrowserFactorR271[]>;
+  verifyEnrollment(factorId:string,code:string):Promise<void>;
   authenticate(factorId:string,code:string):Promise<void>;
   stepUp(factorId:string,code:string):Promise<void>;
   revoke():Promise<void>;
@@ -32,6 +34,26 @@ export function createNoorAdminBrowserAuthR271(
     readBrowserPublicAuthenticationConfiguration(),
   );
   let signedIn=false;
+  async function verifyUserTotp(factorId:string,code:string):Promise<string>{
+    if(!signedIn || !validTotp(factorId,code))
+      throw Error("NOOR_ADMIN_MFA_INPUT_INVALID");
+    const challenge=await authClient.auth.mfa.challenge({factorId});
+    if(challenge.error || !challenge.data?.id)
+      throw Error("NOOR_ADMIN_MFA_CHALLENGE_DENIED");
+    const verified=await authClient.auth.mfa.verify({
+      factorId,challengeId:challenge.data.id,code,
+    });
+    const proof=verified.data?.access_token;
+    if(verified.error || !proof || proof.length>8192)
+      throw Error("NOOR_ADMIN_MFA_VERIFY_DENIED");
+    return proof;
+  }
+  async function verifiedFactors():Promise<readonly NoorAdminBrowserFactorR271[]>{
+    const factors=await authClient.auth.mfa.listFactors();
+    if(factors.error || !factors.data)throw Error("NOOR_ADMIN_MFA_UNAVAILABLE");
+    return factors.data.totp.filter(f=>f.status==="verified")
+      .map(f=>({id:f.id,label:f.friendly_name??"تطبيق المصادقة"}));
+  }
   return Object.freeze({
     async signIn(email:string,password:string){
       if(!EMAIL.test(email) || email.length>254 || !password)
@@ -41,10 +63,7 @@ export function createNoorAdminBrowserAuthR271(
       if(result.error || !result.data.session?.access_token)
         throw Error("NOOR_ADMIN_CREDENTIALS_DENIED");
       signedIn=true;
-      const factors=await authClient.auth.mfa.listFactors();
-      if(factors.error || !factors.data)throw Error("NOOR_ADMIN_MFA_UNAVAILABLE");
-      return factors.data.totp.filter(f=>f.status==="verified")
-        .map(f=>({id:f.id,label:f.friendly_name??"تطبيق المصادقة"}));
+      return verifiedFactors();
     },
     async enroll(){
       if(!signedIn)throw Error("NOOR_ADMIN_SESSION_REQUIRED");
@@ -54,18 +73,31 @@ export function createNoorAdminBrowserAuthR271(
       return {id:result.data.id,qrCode:result.data.totp.qr_code};
     },
     async authenticate(factorId:string,code:string){
-      if(!signedIn || !validTotp(factorId,code))
-        throw Error("NOOR_ADMIN_MFA_INPUT_INVALID");
-      const challenge=await authClient.auth.mfa.challenge({factorId});
-      if(challenge.error || !challenge.data?.id)
-        throw Error("NOOR_ADMIN_MFA_CHALLENGE_DENIED");
-      const verified=await authClient.auth.mfa.verify({
-        factorId,challengeId:challenge.data.id,code,
-      });
-      const proof=verified.data?.access_token;
-      if(verified.error || !proof || proof.length>8192)
-        throw Error("NOOR_ADMIN_MFA_VERIFY_DENIED");
+      const proof=await verifyUserTotp(factorId,code);
       await exchange("/api/noor/admin/authenticate",{accessToken:proof});
+    },
+    async verifyEnrollment(factorId:string,code:string){
+      await verifyUserTotp(factorId,code);
+    },
+    async acceptInvitation(password:string){
+      if(typeof password!=="string" || password.length<12 || password.length>128)
+        throw Error("NOOR_ADMIN_NEW_PASSWORD_INVALID");
+      const current=await authClient.auth.getSession();
+      if(current.error || !current.data.session ||
+         !current.data.session.user?.email_confirmed_at)
+        throw Error("NOOR_ADMIN_INVITATION_NOT_VERIFIED");
+      const updated=await authClient.auth.updateUser({password});
+      if(updated.error || !updated.data.user ||
+         updated.data.user.id!==current.data.session.user.id)
+        throw Error("NOOR_ADMIN_INVITATION_PASSWORD_DENIED");
+      signedIn=true;
+      // Never leave access/refresh tokens from an invite redirect in the URL.
+      if(typeof window!=="undefined" &&
+         /(?:access_token|refresh_token)=/u.test(window.location.hash)){
+        window.history.replaceState(window.history.state,"",
+          window.location.pathname+window.location.search);
+      }
+      return verifiedFactors();
     },
     async stepUp(factorId:string,code:string){
       if(!signedIn || !validTotp(factorId,code))
