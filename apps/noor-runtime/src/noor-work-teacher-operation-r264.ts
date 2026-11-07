@@ -61,8 +61,8 @@ export function validNoorWorkStateR264(value:unknown): value is NoorWorkStateR26
   const optional=["assessmentChecks","lessonChecks","termStartDate"];
   const keys=Object.keys(value);
   if(required.some(key=>!keys.includes(key))||keys.some(key=>!required.includes(key)&&!optional.includes(key)))return false;
-  if(value.termStartDate!==undefined&&(!dateOk(value.termStartDate)||
-     new Date(value.termStartDate+"T12:00:00Z").getUTCDay()!==0))return false;
+  if(value.termStartDate!==undefined&&(typeof value.termStartDate!=="string"||
+     !dateOk(value.termStartDate)||new Date(value.termStartDate+"T12:00:00Z").getUTCDay()!==0))return false;
   if(value.lessonChecks!==undefined&&!arrayOk(value.lessonChecks,15000,
     x=>idOk(x.id)&&idOk(x.slotId)&&dateOk(x.date)&&typeof x.prepared==="boolean"&&
       typeof x.attendanceRecorded==="boolean"))return false;
