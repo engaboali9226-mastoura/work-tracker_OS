@@ -4,7 +4,7 @@ import {inviteNoorAdminCandidateR271} from "../src/noor-admin-invitation-r271.js
 
 const authority = {
   sessionActive:true, accountActive:true, verifiedAdminGrant:true,
-  assuranceLevel:"aal2" as const, reauthenticated:true,
+  assuranceLevel:"aal2" as const, reauthenticated:true,role:"super_admin" as const,
 };
 test("R271 invitation never sends email without verified privileged authority", async () => {
   let calls = 0;
