@@ -4,6 +4,8 @@
 begin;
 create table if not exists public.noor_admin_accounts_r271 (
   auth_user_id uuid primary key references auth.users(id) on delete restrict,
+  -- Noor platform account ID is independent of Supabase Auth user ID.
+  account_id text not null unique,
   role text not null check (role in ('super_admin', 'admin')),
   enabled boolean not null default true,
   created_at timestamptz not null default now(),
@@ -19,6 +21,8 @@ create table if not exists public.noor_admin_audit_r271 (
   occurred_at timestamptz not null default now(),
   details jsonb not null default '{}'::jsonb
 );
+create index if not exists noor_admin_accounts_r271_account_idx
+  on public.noor_admin_accounts_r271 (account_id) where enabled;
 create index if not exists noor_admin_audit_r271_occurred_idx
   on public.noor_admin_audit_r271 (occurred_at desc);
 create index if not exists noor_admin_audit_r271_actor_idx
