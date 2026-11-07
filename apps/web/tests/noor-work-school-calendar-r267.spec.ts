@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {sundayOfR267,addCivilDaysR267,validCivilDateR267,schoolWeekNumberR267,
- schoolWeekTitleR267,riyadhDayR267,schoolClockR267} from "../src/noor-work-school-calendar-r267.js";
+ schoolWeekTitleR267,riyadhDayR267,schoolClockR267,visibleTeachingSundayR270} from "../src/noor-work-school-calendar-r267.js";
 
 test("school week numbering starts on first configured academic Sunday, not Gregorian ISO weeks",()=>{
  const start="2026-08-23";
@@ -36,4 +36,17 @@ test("clock displays Riyadh date and includes Islamic calendar when available",(
  assert.doesNotMatch(clock.hijri,/[٠-٩۰-۹]/u,"Hijri date uses Western digits");
  assert.equal(schoolWeekTitleR267(26),"الأسبوع 26");
 
+});
+
+test("R270: Friday and Saturday always display the coming teaching week, not already finished lessons",()=>{
+ assert.equal(visibleTeachingSundayR270("2026-11-01"),"2026-11-01","Sunday begins current school week");
+ assert.equal(visibleTeachingSundayR270("2026-11-05"),"2026-11-01","Thursday stays in its teaching week");
+ assert.equal(visibleTeachingSundayR270("2026-11-06"),"2026-11-08","Friday shows upcoming Sunday");
+ assert.equal(visibleTeachingSundayR270("2026-11-07"),"2026-11-08","Saturday shows upcoming Sunday");
+ assert.equal(addCivilDaysR267(visibleTeachingSundayR270("2026-11-07"),4),"2026-11-12","Thursday's lesson date remains in future");
+ assert.equal(schoolWeekNumberR267("2026-08-16",visibleTeachingSundayR270("2026-11-07")),13);
+ assert.equal(visibleTeachingSundayR270("2026-11-08"),"2026-11-08","Sunday week does not jump again");
+ assert.equal(visibleTeachingSundayR270("2026-12-31"),"2026-12-27","year boundary before Friday");
+ assert.equal(visibleTeachingSundayR270("2027-01-01"),"2027-01-03","year boundary after Friday");
+ assert.throws(()=>visibleTeachingSundayR270("2026-11-31"));
 });
