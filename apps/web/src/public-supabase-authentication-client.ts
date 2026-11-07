@@ -229,6 +229,6 @@ export function createNoorAdminUserAuthClientR271(
   config:PublicAuthenticationConfiguration,
 ):PublicNoorAdminSupabaseClientR271{
   return createClient(config.supabaseUrl,config.supabasePublishableKey,{
-    auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false},
+    auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:true},
   });
 }

@@ -15,7 +15,7 @@
     "web:build": "npm --workspace apps/web run build",
     "validate:architecture": "./tools/validate-architecture.sh",
     "validate:zero-tests": "node tools/validate-zero-test-workspaces.mjs",
-    "test:hosting": "node --test tools/hosting/serve-noor.test.mjs",
+    "test:hosting": "node --test tools/hosting/serve-noor.test.mjs tools/hosting/provision-admin-invitation-r272.test.mjs",
     "start:hosted": "node tools/hosting/serve-noor.mjs"
   }
 }
