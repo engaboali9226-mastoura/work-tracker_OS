@@ -31,6 +31,32 @@ alter table public.noor_admin_accounts_r271 enable row level security;
 alter table public.noor_admin_audit_r271 enable row level security;
 revoke all on public.noor_admin_accounts_r271 from anon, authenticated;
 revoke all on public.noor_admin_audit_r271 from anon, authenticated;
+-- Narrow session registry oracle for the trusted backend only.
+-- service_role intentionally has no direct SELECT on auth.sessions.
+-- This private routine is NOT exposed in Supabase's Data API schemas.
+create or replace function noor_admin_internal.noor_admin_auth_session_active_r271(
+  p_auth_session_id uuid,
+  p_auth_user_id uuid
+) returns boolean
+language sql
+stable
+security definer
+set search_path = ''
+as $admin_session_r271$
+  select exists (
+    select 1 from auth.sessions
+    where id = p_auth_session_id
+      and user_id = p_auth_user_id
+      and (not_after is null or not_after > pg_catalog.now())
+  );
+$admin_session_r271$;
+revoke all on function noor_admin_internal.noor_admin_auth_session_active_r271(uuid,uuid)
+  from public, anon, authenticated;
+grant execute on function noor_admin_internal.noor_admin_auth_session_active_r271(uuid,uuid)
+  to service_role;
+-- Requires a trusted PostgreSQL connection. Never expose noor_admin_internal
+-- to PostgREST, anon, authenticated, or any browser client.
+
 -- Atomic last-super-admin protection: the advisory transaction lock serializes
 -- all calls to this function. No browser role may execute this routine.
 create schema if not exists noor_admin_internal;
