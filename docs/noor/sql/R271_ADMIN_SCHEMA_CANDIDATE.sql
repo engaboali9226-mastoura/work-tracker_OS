@@ -44,7 +44,7 @@ create or replace function noor_admin_internal.noor_admin_disable_account_r271(
 language plpgsql
 security definer
 set search_path = ''
-as $
+as $admin_r271$
 declare
   v_actor uuid;
   v_target uuid;
@@ -80,7 +80,7 @@ begin
     values (v_actor, v_target, 'accounts:disable', 'success', p_request_id);
   return true;
 end;
-$;
+$admin_r271$;
 revoke all on function noor_admin_internal.noor_admin_disable_account_r271(text,text,uuid)
   from public, anon, authenticated;
 grant execute on function noor_admin_internal.noor_admin_disable_account_r271(text,text,uuid)
