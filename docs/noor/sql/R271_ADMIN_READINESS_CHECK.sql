@@ -14,6 +14,8 @@ with boundaries as (
   select
     accounts_oid is not null as accounts_exist,
     audit_oid is not null as audit_exists,
+    coalesce(has_table_privilege('service_role',accounts_oid,'SELECT'),false) as accounts_server_read,
+    coalesce(has_table_privilege('service_role',audit_oid,'INSERT'),false) as audit_server_write,
     coalesce((select c.relrowsecurity from pg_catalog.pg_class c where c.oid=accounts_oid),false) as accounts_rls,
     coalesce((select c.relrowsecurity from pg_catalog.pg_class c where c.oid=audit_oid),false) as audit_rls,
     not coalesce(has_table_privilege('anon',accounts_oid,'SELECT'),false) as accounts_anon_denied,
@@ -42,7 +44,7 @@ with boundaries as (
 )
 select *,
   (
-    accounts_exist and audit_exists and accounts_rls and audit_rls and
+    accounts_exist and audit_exists and accounts_server_read and audit_server_write and accounts_rls and audit_rls and
     accounts_anon_denied and accounts_user_denied and
     audit_anon_denied and audit_user_denied and
     private_oracle_exists and bridge_exists and disable_fn_exists and
