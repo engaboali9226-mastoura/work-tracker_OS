@@ -31,12 +31,13 @@ export function createNoorAdminAuthorityResolverR271(dependencies:Readonly<{
     try {
       const session = await dependencies.session.execute({sessionId});
       const accountId = session.accountId.toString();
-      if (!accountId) return null;
+      if (!accountId || accountId.length > 256) return null;
       const admin = await dependencies.store.findActiveByAccountId(accountId);
       if (!admin || !admin.enabled || !admin.authUserId ||
           (admin.role !== "super_admin" && admin.role !== "admin")) return null;
       const assurance = await dependencies.assurance.verify(sessionId,admin.authUserId);
-      if (!assurance) return null;
+      if (!assurance || (assurance.aal !== "aal1" && assurance.aal !== "aal2") ||
+          typeof assurance.reauthenticated !== "boolean") return null;
       return {
         sessionActive:true,
         accountActive:true,
