@@ -70,13 +70,16 @@ export function createNoorAdminSecureCompositionR271(input:Readonly<{
   const sensitiveActions=new Set<AdminActionR271>([
     "accounts:delete","accounts:reset-password","entitlements:manage",
   ]);
-  const authorizeSensitiveAction=async(sessionId:string,action:AdminActionR271):Promise<boolean>=>{
-    if(!stepUp || !sensitiveActions.has(action))return false;
+  const authorizeSensitiveAction=async(sessionId:string,action:AdminActionR271,expectedActorAccountId:string):Promise<boolean>=>{
+    if(!stepUp || !sensitiveActions.has(action) ||
+       typeof expectedActorAccountId!=="string" || !expectedActorAccountId ||
+       expectedActorAccountId.length>256)return false;
     try{
       const [actor,binding]=await Promise.all([
         resolveActor(sessionId),bindings.getBindingForSession(sessionId),
       ]);
-      if(!actor || !binding || actor.actorAccountId!==binding.platformAccountId)return false;
+      if(!actor || !binding || actor.actorAccountId!==expectedActorAccountId ||
+         actor.actorAccountId!==binding.platformAccountId)return false;
       return authorizeNoorAdminSensitiveActionR271({
         action,authority:actor.authority,platformSessionId:sessionId,
         authUserId:binding.authUserId,authSessionId:binding.authSessionId,
