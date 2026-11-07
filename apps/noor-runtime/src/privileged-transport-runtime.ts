@@ -199,6 +199,7 @@ implements PrivilegedTransportRuntime {
         executor.adminAuthenticationOperationR271!==undefined
           ? {adminAuthenticationR271:{
               operation:executor.adminAuthenticationOperationR271,
+              revokeSession:(sessionId:string)=>executor.adminAuthenticationOperationR271?.revokeSession(sessionId),
               expectedOrigin:this.dependencies.httpConfiguration.publicOrigin,
             }}
         : executor.adminAuthenticationR271===undefined ? {} :
