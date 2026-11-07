@@ -26,10 +26,12 @@ async function submit(path:string,body:unknown):Promise<void>{
 export function createNoorAdminBrowserAuthR271(
   client?:SupabaseClient,
 ):NoorAdminBrowserAuthR271{
-  const config=readBrowserPublicAuthenticationConfiguration();
-  const authClient=client??createClient(config.supabaseUrl,config.supabasePublishableKey,{
-    auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false},
-  });
+  const authClient=client??(()=>{
+    const config=readBrowserPublicAuthenticationConfiguration();
+    return createClient(config.supabaseUrl,config.supabasePublishableKey,{
+      auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false},
+    });
+  })();
   let signedIn=false;
   return Object.freeze({
     async signIn(email:string,password:string){
