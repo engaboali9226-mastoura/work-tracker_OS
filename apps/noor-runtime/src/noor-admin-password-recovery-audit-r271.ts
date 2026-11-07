@@ -26,7 +26,10 @@ implements NoorAdminPasswordRecoveryAuditR271 {
     action:"accounts:reset-password";outcome:"initiated"|"requested"|"failed";
   }>):Promise<void>{
     const actor=await this.actors.findActiveByAccountId(event.actorAccountId);
-    if(!actor?.enabled || actor.role!=="super_admin" || !actor.authUserId) {
+    const uuid=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu;
+    if(!actor?.enabled || actor.role!=="super_admin" ||
+       !uuid.test(actor.authUserId) || !uuid.test(event.targetAuthUserId) ||
+       !uuid.test(this.requestId)) {
       throw Error("NOOR_ADMIN_AUDIT_ACTOR_UNVERIFIED");
     }
     await this.audit.record({
