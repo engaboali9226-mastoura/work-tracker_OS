@@ -29,10 +29,23 @@ test("R271 directory fails closed when Supabase is unavailable",async()=>{
 });
 
 
-test("R271 refuses to report a potentially truncated account directory",async()=>{
+test("R271 paginates complete account directory without truncation",async()=>{
+  const pages:number[]=[];
+  const client={auth:{admin:{listUsers:async({page}:{page:number})=>{
+    pages.push(page);
+    return {error:null,data:{users:page===1?
+      Array.from({length:100},(_,i)=>({id:String(i),email:`u${i}@example.org`}))
+      :[{id:"100",email:"u100@example.org"}]}};
+  }}}} as unknown as SupabaseClient;
+  const accounts=await new NoorAdminDirectoryR271(client).listAccounts();
+  assert.equal(accounts.length,101);
+  assert.deepEqual(pages,[1,2]);
+});
+
+test("R271 rejects unbounded or repeated account pages",async()=>{
   const client={auth:{admin:{listUsers:async()=>({error:null,data:{users:
     Array.from({length:100},(_,i)=>({id:String(i),email:`u${i}@example.org`}))
   }})}}} as unknown as SupabaseClient;
   await assert.rejects(()=>new NoorAdminDirectoryR271(client).listAccounts(),
-    /NOOR_ADMIN_DIRECTORY_PAGINATION_REQUIRED/);
+    /NOOR_ADMIN_DIRECTORY_DUPLICATE/);
 });
