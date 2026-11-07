@@ -20,6 +20,15 @@ interface VerifiedActor {
  */
 export class NoorAdminServerStepUpR271 {
   private readonly inFlight=new Set<string>();
+  private readonly cancelled=new Set<string>();
+  public revokeSession(platformSessionId:string):void{
+    if(typeof platformSessionId!=="string" || !platformSessionId || platformSessionId.length>256)return;
+    const key=createHash("sha256").update(platformSessionId,"utf8").digest("hex");
+    if(this.inFlight.has(key))this.cancelled.add(key);
+  }
+  public shutdown():void{
+    for(const key of this.inFlight)this.cancelled.add(key);
+  }
   public constructor(private readonly dependencies:Readonly<{
     tokens:NoorAdminSessionTokenStoreR271;
     resolveActor:(platformSessionId:string)=>Promise<VerifiedActor|null>;
@@ -79,6 +88,19 @@ export class NoorAdminServerStepUpR271 {
       if(!(await this.dependencies.registry.isActive({
         authSessionId:binding.authSessionId,authUserId:binding.authUserId,
       })))return false;
+      // A concurrent revoke/disable must not resurrect administrator privileges.
+      const [stillBound,stillActor]=await Promise.all([
+        this.dependencies.tokens.getBindingForSession(input.platformSessionId),
+        this.dependencies.resolveActor(input.platformSessionId),
+      ]);
+      if(this.cancelled.has(key) || !stillBound || !stillActor ||
+         stillBound.authUserId!==binding.authUserId ||
+         stillBound.authSessionId!==binding.authSessionId ||
+         stillBound.platformAccountId!==actor.actorAccountId ||
+         stillActor.actorAccountId!==actor.actorAccountId ||
+         !stillActor.authority.verifiedAdminGrant ||
+         !stillActor.authority.accountActive ||
+         stillActor.authority.assuranceLevel!=="aal2")return false;
       return this.dependencies.proofs.recordVerifiedChallenge({
         platformSessionId:input.platformSessionId,
         authUserId:binding.authUserId,
@@ -86,6 +108,6 @@ export class NoorAdminServerStepUpR271 {
         challengeVerifiedAtMs:now,
       });
     }catch{return false;}
-    finally{this.inFlight.delete(key);}
+    finally{this.inFlight.delete(key);this.cancelled.delete(key);}
   }
 }
