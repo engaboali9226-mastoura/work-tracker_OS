@@ -11,20 +11,28 @@ export class NoorAdminDirectoryR271 {
   public async listAccounts():Promise<readonly Readonly<{
     id:string;email:string;enabled:boolean;
   }>[]> {
-    const {data,error}=await this.client.auth.admin.listUsers({
-      page:1,perPage:100,
-    });
-    if(error || !data || !Array.isArray(data.users)) {
-      throw Error("NOOR_ADMIN_DIRECTORY_UNAVAILABLE");
+    const accounts:Array<{id:string;email:string;enabled:boolean}> = [];
+    const seen=new Set<string>();
+    for(let page=1;page<=10;page++){
+      const {data,error}=await this.client.auth.admin.listUsers({page,perPage:100});
+      if(error || !data || !Array.isArray(data.users)) {
+        throw Error("NOOR_ADMIN_DIRECTORY_UNAVAILABLE");
+      }
+      for(const user of data.users){
+        if(!user.id || seen.has(user.id)) {
+          throw Error("NOOR_ADMIN_DIRECTORY_DUPLICATE");
+        }
+        seen.add(user.id);
+        accounts.push({
+          id:user.id,
+          email:user.email??"",
+          enabled:user.banned_until===undefined || user.banned_until===null ||
+            new Date(user.banned_until).getTime()<=Date.now(),
+        });
+      }
+      if(data.users.length<100) return accounts;
     }
-    // Do not present a truncated directory as a complete account list.
-    // A cursor-based API must be introduced before serving larger tenants.
-    if(data.users.length>=100) throw Error("NOOR_ADMIN_DIRECTORY_PAGINATION_REQUIRED");
-    return data.users.map(user=>({
-      id:user.id,
-      email:user.email??"",
-      enabled:user.banned_until===undefined || user.banned_until===null ||
-        new Date(user.banned_until).getTime()<=Date.now(),
-    }));
+    // An explicit limit prevents unbounded service-role enumeration.
+    throw Error("NOOR_ADMIN_DIRECTORY_PAGINATION_REQUIRED");
   }
 }
