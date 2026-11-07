@@ -16,7 +16,7 @@ create table if not exists public.noor_admin_audit_r271 (
   actor_auth_user_id uuid not null references auth.users(id) on delete restrict,
   target_auth_user_id uuid references auth.users(id) on delete restrict,
   action text not null check (length(action) between 3 and 100),
-  outcome text not null check (outcome in ('success', 'denied', 'failure')),
+  outcome text not null check (outcome in ('initiated', 'success', 'denied', 'failure')),
   request_id uuid not null,
   occurred_at timestamptz not null default now(),
   details jsonb not null default '{}'::jsonb
