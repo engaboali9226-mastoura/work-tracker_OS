@@ -7,7 +7,8 @@ import {authorizeAdminActionR271,type AdminAuthorityR271} from "./noor-admin-pol
  * credentials from an administrative browser.
  */
 export interface NoorAdminPasswordRecoveryProviderR271 {
-  sendRecoveryEmail(email:string):Promise<boolean>;
+  /** Resolve mailbox from the trusted Auth user ID, never a browser-provided email. */
+  sendRecoveryEmailForUserId(authUserId:string):Promise<boolean>;
 }
 export interface NoorAdminPasswordRecoveryAuditR271 {
   record(input:Readonly<{
@@ -19,7 +20,6 @@ export async function requestNoorAdminPasswordRecoveryR271(
   input:Readonly<{
     actorAccountId:string;
     targetAuthUserId:string;
-    targetEmail:string;
     authority:AdminAuthorityR271|null;
   }>,
   dependencies:Readonly<{
@@ -29,11 +29,9 @@ export async function requestNoorAdminPasswordRecoveryR271(
 ):Promise<"requested"|"denied"|"unavailable">{
   if(!authorizeAdminActionR271(input.authority,"accounts:reset-password") ||
      !input.actorAccountId || !input.targetAuthUserId ||
-     typeof input.targetEmail!=="string" ||
-     input.targetEmail.length>254 ||
-     !/^[^\s@]+@[^\s@]+\.[^\s@]+$/u.test(input.targetEmail)) return "denied";
+     input.targetAuthUserId.length>128) return "denied";
   try{
-    const delivered=await dependencies.provider.sendRecoveryEmail(input.targetEmail);
+    const delivered=await dependencies.provider.sendRecoveryEmailForUserId(input.targetAuthUserId);
     await dependencies.audit.record({
       actorAccountId:input.actorAccountId,targetAuthUserId:input.targetAuthUserId,
       action:"accounts:reset-password",outcome:delivered?"requested":"failed",
