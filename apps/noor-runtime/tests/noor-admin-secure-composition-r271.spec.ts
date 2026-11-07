@@ -30,6 +30,7 @@ test("R271 secure composition does not grant authority without MFA proof exchang
     platformSessionId:"noor-session",accessToken:"signed-proof",
   }),"authenticated");
   const actor=await composition.resolveActor("noor-session");
+  assert.ok(actor,"R271 must resolve actor after signed MFA proof and active session check");
   assert.equal(actor?.actorAccountId,"account-one");
   assert.equal(actor?.authority.assuranceLevel,"aal2");
   assert.equal(actor?.authority.reauthenticated,false);
