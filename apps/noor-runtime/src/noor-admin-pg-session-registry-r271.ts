@@ -6,11 +6,12 @@ import {NoorAdminAuthSessionRegistrySqlR271} from "./noor-admin-auth-session-reg
  * over TLS with a restricted DB role allowed to EXECUTE the private R271
  * session-status routine, not to read Auth tables directly.
  */
-export function createNoorAdminPgSessionRegistryR271(client:Readonly<{
+export interface NoorAdminPgSessionQueryClientR271 {
   query(sql:string,params:string[]):Promise<Readonly<{
     rows:ReadonlyArray<Readonly<{active:boolean}>>;
   }>>;
-}>):NoorAdminAuthSessionRegistrySqlR271 {
+}
+export function createNoorAdminPgSessionRegistryR271(client:NoorAdminPgSessionQueryClientR271):NoorAdminAuthSessionRegistrySqlR271 {
   return new NoorAdminAuthSessionRegistrySqlR271({
     execute:async(sql,params)=>{
       // Parameterize both UUIDs; never concatenate browser data into SQL.
