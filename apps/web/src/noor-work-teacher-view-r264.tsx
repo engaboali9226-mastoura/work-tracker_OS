@@ -125,7 +125,7 @@ export function NoorWorkTeacherViewR264(){
  const todaySlots=sorted.filter(x=>x.day===new Date(today+"T12:00:00.000Z").getUTCDay());
  const daylog=work.workdays.find(x=>x.date===today);
  const checked=(slotId:string,date:string)=>checks.find(x=>x.slotId===slotId&&x.date===date);
- const latestDate=selectedLessons.map(x=>x.date)[selectedLessons.length-1];
+
 
  const reload=async()=>{
   const epoch=++requestEpoch.current;
@@ -243,7 +243,7 @@ export function NoorWorkTeacherViewR264(){
     onClick={()=>setTab(t.id)}><span aria-hidden="true">{t.symbol}</span>{t.name}</button>)}</nav>
   {tab==="overview"?<div className="nw-dashboard">
    <section className="nw-kpi-grid" aria-label="مؤشرات المتابعة">
-    <div className="nw-kpi"><span>حصص الأسبوع</span><strong>{sorted.length.toLocaleString("ar-SA")} <small>/ ٢١</small></strong><small>مواعيد جدولك الأسبوعي</small></div>
+    <div className="nw-kpi"><span>حصص الأسبوع</span><strong>{sorted.length.toLocaleString("ar-SA")} <small>/ ٢١</small></strong><small>الهدف: ٢١ حصة أسبوعيًا</small></div>
     <div className="nw-kpi"><span>تحضير الدروس</span><strong>{selectedLessons.filter(r=>checked(r.slot.id,r.date)?.prepared).length.toLocaleString("ar-SA")} <small>/ {sorted.length.toLocaleString("ar-SA")}</small></strong><small>تم التأشير عليها في نور</small></div>
     <div className="nw-kpi"><span>رصد حضور الطلاب</span><strong>{selectedLessons.filter(r=>checked(r.slot.id,r.date)?.attendanceRecorded).length.toLocaleString("ar-SA")} <small>/ {sorted.length.toLocaleString("ar-SA")}</small></strong><small>على منصة المدرسة</small></div>
     <div className="nw-kpi nw-kpi-featured"><span>إنجاز المتابعة</span><strong>{percent.toLocaleString("ar-SA")}٪</strong>
