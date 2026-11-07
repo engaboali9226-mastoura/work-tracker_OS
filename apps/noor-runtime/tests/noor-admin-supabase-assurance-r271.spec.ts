@@ -16,6 +16,9 @@ function fixture(overrides:Record<string,unknown>={},token:string|null="signed-t
   }} as unknown as SupabaseClient;
   const verifier=new NoorSupabaseAssuranceVerifierR271(client,{
     getAccessTokenForSession:async session=>{assert.equal(session,"noor-session");return token;},
+    getBindingForSession:async session=>{assert.equal(session,"noor-session");return token?{
+      platformAccountId:"account-one",authUserId:id,authSessionId:"supabase-session",
+    }:null;},
   },()=>now);
   return {verifier,calls:()=>[userCalls,claimsCalls]};
 }
@@ -33,4 +36,9 @@ test("R271 refuses weak MFA, identity mismatch, and expired signed claims",async
     const {verifier}=fixture(claims);
     assert.equal(await verifier.verify("noor-session",id),null);
   }
+});
+
+test("R271 refuses mismatched Supabase Auth session ID despite valid AAL2",async()=>{
+  const {verifier}=fixture({session_id:"different-auth-session"});
+  assert.equal(await verifier.verify("noor-session",id),null);
 });
