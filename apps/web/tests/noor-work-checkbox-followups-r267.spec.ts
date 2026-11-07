@@ -42,10 +42,11 @@ test("R267: teacher toggles two external-portal checkpoints on a lesson without 
   await act(async()=>{attend.click();});
   assert.equal(prep.checked,true);
   assert.equal(attend.checked,true);
-  const save=[...document.querySelectorAll<HTMLButtonElement>("button")].find(b=>b.textContent?.includes("حفظ التغييرات"));
-  assert.ok(save);
-  await act(async()=>{save.click();});
-  assert.ok(submitted&&typeof submitted==="object");
+  // R268: no Save button needed. The debounced server write must happen
+  // automatically after a user edits the checkboxes.
+  assert.equal([...document.querySelectorAll<HTMLButtonElement>("button")].some(b=>b.textContent?.includes("حفظ التغييرات")),false);
+  await act(async()=>{await new Promise<void>(resolve=>setTimeout(resolve,800));});
+  assert.ok(submitted&&typeof submitted==="object","checkbox updates must autosave");
   const payload=submitted as {expectedRevision:number;state:{students:unknown[];attendance:unknown[];grades:unknown[];
     lessonChecks:Array<{slotId:string;prepared:boolean;attendanceRecorded:boolean;date:string}>}};
   assert.equal(payload.expectedRevision,0);

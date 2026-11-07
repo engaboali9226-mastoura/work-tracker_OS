@@ -206,3 +206,34 @@
 }
 @media(max-width:350px){.nw-r267 .nw-check-row{grid-template-columns:1fr}.nw-r267 .nw-kpi-grid{grid-template-columns:1fr 1fr}.nw-r267 .nw-clock-time{font-size:26px}}
 @media(prefers-reduced-motion:reduce){.nw-r267 .nw-meter span{transition:none}.nw-r267 .nw-clock{backdrop-filter:none}}
+
+
+/* R268 — live period countdown and automatic-save feedback, scoped to Work. */
+.nw-r267 .nw-day-countdown{position:relative;display:grid;grid-template-columns:minmax(0,1fr) auto;
+  align-items:center;gap:12px 24px;margin:15px 0;padding:17px 21px 13px;border:1px solid #deded8;
+  background:linear-gradient(112deg,#faf9f5,#f0f5f2);border-radius:19px;box-shadow:0 5px 22px rgba(37,63,75,.045)}
+.nw-r267 .nw-day-countdown .nw-kicker{font-size:10px;color:#78877b;letter-spacing:.015em}
+.nw-r267 .nw-countdown-info h2{color:#28495b;font-size:20px;font-weight:780;line-height:1.55;margin:4px 0}
+.nw-r267 .nw-countdown-info p{color:#697c85;font-size:12px;line-height:1.65;margin:0}
+.nw-r267 .nw-countdown-timer{display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:2px;min-width:150px;padding:10px 12px;background:rgba(255,255,255,.68);border-radius:13px;border:1px solid #e5e9e5}
+.nw-r267 .nw-countdown-timer strong{font-variant-numeric:tabular-nums;font-size:clamp(21px,2.5vw,29px);letter-spacing:.06em;
+  color:#2b5360;font-weight:790;white-space:nowrap;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+.nw-r267 .nw-countdown-timer span{font-size:10px;color:#829399;font-weight:650}
+.nw-r267 .nw-countdown-progress{grid-column:1/-1;background:#dde5e1;height:5px;border-radius:7px;overflow:hidden}
+.nw-r267 .nw-countdown-progress span{display:block;height:100%;border-radius:7px;background:#719c91;transition:width .4s linear}
+.nw-r267 .nw-countdown-in_lesson{border-color:#d2dfd0;background:linear-gradient(110deg,#f4fbf0,#eaf5ed)}
+.nw-r267 .nw-countdown-in_lesson .nw-countdown-timer strong{color:#31715f}
+.nw-r267 .nw-countdown-before_work,.nw-r267 .nw-countdown-finished,.nw-r267 .nw-countdown-day_off{background:#f7f7f5;border-color:#e9e8e1}
+.nw-r267 .nw-auto-save-indicator{display:flex;align-items:center;gap:8px;justify-content:flex-end;
+  padding:2px 9px 12px;color:#6e8576;font-size:11px;font-weight:700}
+.nw-r267 .nw-auto-save-indicator .nw-live-dot{width:6px;height:6px;background:#8cab8f;box-shadow:none;margin:0}
+.nw-r267 .nw-auto-save-indicator.nw-save-error{color:#a74f3d}
+.nw-r267 .nw-auto-save-indicator.nw-save-error .nw-live-dot{background:#a74f3d}
+@media(max-width:700px){.nw-r267 .nw-day-countdown{padding:15px;grid-template-columns:minmax(0,1fr);gap:11px}
+ .nw-r267 .nw-countdown-timer{align-items:center;min-width:0;width:100%}
+ .nw-r267 .nw-countdown-timer strong{font-size:28px}
+ .nw-r267 .nw-countdown-info h2{font-size:18px}
+ .nw-r267 .nw-auto-save-indicator{padding:0 4px 13px}
+}
+@media(prefers-reduced-motion:reduce){.nw-r267 .nw-countdown-progress span{transition:none}}

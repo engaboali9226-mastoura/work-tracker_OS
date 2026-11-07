@@ -4,6 +4,7 @@ import {
  addCivilDaysR267,dayLabelR267,riyadhDayR267,schoolClockR267,
  schoolWeekNumberR267,schoolWeekTitleR267,sundayOfR267,
 } from "./noor-work-school-calendar-r267.js";
+import {workdayCountdownR268,WORKDAY_START_R268,WORKDAY_END_R268} from "./noor-work-day-countdown-r268.js";
 
 type Slot={id:string;day:number;period:number;subject:string;group:string;room:string;start:string;end:string};
 type Workday={id:string;date:string;checkIn:string;checkOut:string};
@@ -38,6 +39,11 @@ function validResponse(value:unknown):value is {revision:number;state:Work}{
 }
 const uid=()=>crypto.randomUUID();
 const formText=(f:FormData,k:string)=>String(f.get(k)??"").trim();
+const teacherClock=(utc:string):string=>new Intl.DateTimeFormat("en-GB",{
+ timeZone:"Asia/Riyadh",hour:"2-digit",minute:"2-digit",hour12:false,hourCycle:"h23",
+}).format(new Date(utc));
+const teacherInstant=(day:string,clock:string):string=>
+ new Date(day+"T"+clock+":00+03:00").toISOString();
 function Clock({now}:{now:Date}){
  const c=schoolClockR267(now);
  return <div className="nw-clock" aria-label="الساعة والتاريخ بتوقيت الرياض">
@@ -63,7 +69,7 @@ function LessonCard({slot,date,check,onChange}:{slot:Slot;date:string;check:Less
  const total=completed(check);
  return <article className={"nw-lesson-card"+(total===2?" nw-lesson-complete":"")}>
   <div className="nw-lesson-heading">
-   <div className="nw-period-badge">{slot.period.toLocaleString("ar-SA")}</div>
+   <div className="nw-period-badge">{slot.period.toLocaleString("ar-SA-u-nu-latn")}</div>
    <div className="nw-lesson-summary"><strong>{slot.subject||"المادة غير محددة"}</strong>
     <span>{slot.group||"الشعبة غير محددة"}{slot.room?" · "+slot.room:""}{slot.start?" · "+slot.start:""}</span>
    </div>
@@ -89,7 +95,7 @@ function WeekLessons({slots,start,checks,update}:{slots:Slot[];start:string;chec
    const marks=list.reduce((sum,s)=>sum+completed(checks.find(c=>c.slotId===s.id&&c.date===date)),0);
    return <section className="nw-day-group" key={day}>
     <div className="nw-day-heading"><div><strong>{name}</strong><span>{dayLabelR267(date)}</span></div>
-     <small>{marks.toLocaleString("ar-SA")} / {(list.length*2).toLocaleString("ar-SA")} متابعة</small></div>
+     <small>{marks.toLocaleString("ar-SA-u-nu-latn")} / {(list.length*2).toLocaleString("ar-SA-u-nu-latn")} متابعة</small></div>
     <div className="nw-lesson-stack">{list.map(slot=><LessonCard key={slot.id} slot={slot} date={date}
        check={checks.find(x=>x.slotId===slot.id&&x.date===date)}
        onChange={(key,value)=>update(slot.id,date,key,value)}/>)}</div>
@@ -102,9 +108,13 @@ export function NoorWorkTeacherViewR264(){
  const [tab,setTab]=useState<Tab>("overview");
  const [now,setNow]=useState(()=>new Date());
  const [weekOffset,setWeekOffset]=useState(0);
+ const [arrivalTime,setArrivalTime]=useState("06:30");
+ const [departureTime,setDepartureTime]=useState("12:30");
  const [loading,setLoading]=useState(true);
  const [saving,setSaving]=useState(false);
  const [dirty,setDirty]=useState(false);
+ const [saveError,setSaveError]=useState(false);
+ const [savedOnce,setSavedOnce]=useState(false);
  const [message,setMessage]=useState("");
  const [status,setStatus]=useState(503);
  const requestEpoch=useRef(0);
@@ -116,6 +126,7 @@ export function NoorWorkTeacherViewR264(){
  const weekNumber=schoolWeekNumberR267(work.termStartDate,selectedSunday);
  const title=schoolWeekTitleR267(weekNumber);
  const sorted=[...work.timetable].sort((a,b)=>a.day-b.day||a.period-b.period);
+ const countdown=workdayCountdownR268(now,work.timetable);
  const checks=work.lessonChecks??[];
  const examChecks=work.assessmentChecks??[];
  const selectedLessons=sorted.map(slot=>({slot,date:addCivilDaysR267(selectedSunday,slot.day)}));
@@ -124,6 +135,8 @@ export function NoorWorkTeacherViewR264(){
  const percent=totalCount?Math.round(doneCount/totalCount*100):0;
  const todaySlots=sorted.filter(x=>x.day===new Date(today+"T12:00:00.000Z").getUTCDay());
  const daylog=work.workdays.find(x=>x.date===today);
+ const actualArrival=daylog?.checkIn?teacherClock(daylog.checkIn):"";
+ const actualDeparture=daylog?.checkOut?teacherClock(daylog.checkOut):"";
  const checked=(slotId:string,date:string)=>checks.find(x=>x.slotId===slotId&&x.date===date);
 
 
@@ -142,7 +155,7 @@ export function NoorWorkTeacherViewR264(){
    const data:unknown=await response.json();
    if(!validResponse(data))throw Error("INVALID_WORK_RESPONSE");
    if(epoch!==requestEpoch.current)return;
-   setStatus(200);setRevision(data.revision);setWork(data.state);setDirty(false);
+   setStatus(200);setRevision(data.revision);setWork(data.state);setDirty(false);setSaveError(false);
   }catch{if(epoch===requestEpoch.current){setStatus(503);setMessage("تعذر تحميل بيانات نور ورك. تحقق من الاتصال ثم أعد المحاولة.");}}
   finally{if(epoch===requestEpoch.current)setLoading(false);}
  };
@@ -152,6 +165,10 @@ export function NoorWorkTeacherViewR264(){
   return()=>window.clearInterval(id);
  },[]);
  useEffect(()=>{
+  setArrivalTime(actualArrival||"06:30");
+  setDepartureTime(actualDeparture||"12:30");
+ },[today,actualArrival,actualDeparture]);
+ useEffect(()=>{
   if(!dirty)return;
   const warn=(event:BeforeUnloadEvent)=>{event.preventDefault();event.returnValue="";};
   window.addEventListener("beforeunload",warn);
@@ -159,7 +176,7 @@ export function NoorWorkTeacherViewR264(){
  },[dirty]);
  const edit=(fn:(prev:Work)=>Work)=>{
   draftCounter.current+=1;
-  setWork(fn);setDirty(true);setMessage("");
+  setWork(fn);setDirty(true);setSaveError(false);setMessage("");
  };
  const save=async()=>{
   if(savingLock.current||!dirty)return;
@@ -168,19 +185,44 @@ export function NoorWorkTeacherViewR264(){
   try{
    const response=await fetch(PATH,{method:"PUT",credentials:"same-origin",headers:{"Content-Type":"application/json"},
     body:JSON.stringify({expectedRevision:revision,state:work})});
-   if(response.status===409){setMessage("تم تعديل بياناتك من جهاز آخر. احتفظ بتغييراتك قبل تحديث الصفحة.");return;}
-   if(!response.ok){setMessage(response.status===400?"يوجد حقل أو سجل غير صالح؛ لم يتم الحفظ.":"تعذر الحفظ، لكن التغييرات لا تزال ظاهرة.");return;}
+   if(response.status===409){setSaveError(true);setMessage("تم تعديل بياناتك من جهاز آخر. احتفظ بتغييراتك قبل تحديث الصفحة؛ لن نستبدلها تلقائيًا.");return;}
+   if(!response.ok){setSaveError(true);setMessage(response.status===400?"يوجد حقل أو سجل غير صالح؛ لم يتم الحفظ.":"تعذر الحفظ التلقائي. التغييرات ما زالت ظاهرة ويمكن إعادة المحاولة.");return;}
    const result:unknown=await response.json();
    if(!result||typeof result!=="object"||!("revision" in result)||
      !Number.isSafeInteger(result.revision))throw Error("INVALID_SAVE_RESPONSE");
    setRevision(result.revision as number);
-   if(draftCounter.current===snapshot){setDirty(false);setMessage("تم حفظ المتابعة في نور بنجاح.");}
-   else setMessage("تم حفظ النسخة السابقة. لديك تغييرات أحدث؛ اضغط حفظ مرة أخرى.");
-  }catch{setMessage("تعذر التأكد من الحفظ. احتفظ بالتغييرات حتى تتحقق من الاتصال.");}
+   setSavedOnce(true);setSaveError(false);
+   if(draftCounter.current===snapshot){setDirty(false);setMessage("");}
+   else setMessage(""); // Edits made during the request get a follow-up automatic save.
+  }catch{setSaveError(true);setMessage("تعذر التأكد من الحفظ التلقائي. لم نفقد التغييرات الظاهرة؛ أعد المحاولة عند استقرار الاتصال.");}
   finally{savingLock.current=false;setSaving(false);}
  };
+ // Debounce bursts of edits and never overlap writes. If an edit arrives while
+ // a write is pending, commit the next revision after the first completes.
+ useEffect(()=>{
+  if(status!==200||!dirty||saving||saveError)return;
+  const timer=window.setTimeout(()=>{void save();},600);
+  return()=>window.clearTimeout(timer);
+ },[work,revision,dirty,saving,saveError,status]);
  const submit=(fn:(f:FormData)=>void)=>(e:FormEvent<HTMLFormElement>)=>{
   e.preventDefault();const form=e.currentTarget;fn(new FormData(form));form.reset();
+ };
+ const updateDayStamp=(key:"checkIn"|"checkOut",clock:string,done:boolean):boolean=>{
+  if(done&&!/^([01]\d|2[0-3]):[0-5]\d$/.test(clock)){
+   setMessage("اختر وقتًا صحيحًا للحضور أو الانصراف.");return false;
+  }
+  const arrival=key==="checkIn"?(done?teacherInstant(today,clock):""):(daylog?.checkIn??"");
+  const departure=key==="checkOut"?(done?teacherInstant(today,clock):""):(done?(daylog?.checkOut??""):"");
+  if(departure&&(!arrival||Date.parse(departure)<Date.parse(arrival))){
+   setMessage("وقت الانصراف يجب أن يساوي وقت الحضور أو يأتي بعده.");return false;
+  }
+  edit(prev=>{
+   const row=prev.workdays.find(w=>w.date===today);
+   const next={id:row?.id??uid(),date:today,checkIn:arrival,checkOut:departure};
+   return {...prev,workdays:row?
+    prev.workdays.map(w=>w.id===row.id?next:w):[...prev.workdays,next]};
+  });
+  return true;
  };
  const updateLesson=(slotId:string,date:string,key:"prepared"|"attendanceRecorded",value:boolean)=>{
   edit(prev=>{
@@ -219,6 +261,18 @@ export function NoorWorkTeacherViewR264(){
    </div>
    <Clock now={now}/>
   </header>
+  <section className={"nw-day-countdown nw-countdown-"+countdown.stage} aria-label="مؤقت دوام اليوم والحصة القادمة">
+   <div className="nw-countdown-info">
+    <span className="nw-kicker">إيقاع الدوام · {WORKDAY_START_R268} — {WORKDAY_END_R268}</span>
+    <h2>{countdown.heading}</h2>
+    <p>{countdown.description}</p>
+   </div>
+   <div className="nw-countdown-timer" role="timer" aria-label={"الوقت المتبقي: "+countdown.target}>
+    <strong dir="ltr">{countdown.target}</strong>
+    <span>{countdown.stage==="in_lesson"?"حتى نهاية الحصة":countdown.stage==="next_lesson"?"حتى بداية الحصة":countdown.stage==="before_work"?"حتى بداية الدوام":countdown.stage==="after_lessons"?"حتى نهاية الدوام":countdown.stage==="day_off"?"يوم راحة":"انتهى دوام اليوم"}</span>
+   </div>
+   <div className="nw-countdown-progress" aria-hidden="true"><span style={{width:countdown.progress+"%"}}/></div>
+  </section>
   <section className="nw-week-toolbar" aria-label="إعداد الأسبوع الدراسي">
    <div className="nw-week-main">
     <span className="nw-kicker">الخطة الأسبوعية</span>
@@ -238,15 +292,19 @@ export function NoorWorkTeacherViewR264(){
    </label>
   </section>
   {message?<div role="status" className="nw-notice">{message}</div>:null}
+  <div className={"nw-auto-save-indicator"+(saveError?" nw-save-error":"")} role="status" aria-live="polite">
+   <span className="nw-live-dot" aria-hidden="true"/>
+   {saveError?"الحفظ التلقائي متوقف مؤقتًا":saving?"جارٍ الحفظ تلقائيًا…":dirty?"سيتم حفظ التغيير تلقائيًا…":savedOnce?"تم الحفظ تلقائيًا":"الحفظ التلقائي مفعّل"}
+  </div>
   <nav className="nw-tabs nw-tabs-r267" aria-label="أقسام نور ورك">{tabs.map(t=>
    <button type="button" key={t.id} className={t.id===tab?"selected":""} aria-current={t.id===tab?"page":undefined}
     onClick={()=>setTab(t.id)}><span aria-hidden="true">{t.symbol}</span>{t.name}</button>)}</nav>
   {tab==="overview"?<div className="nw-dashboard">
    <section className="nw-kpi-grid" aria-label="مؤشرات المتابعة">
-    <div className="nw-kpi"><span>حصص الأسبوع</span><strong>{sorted.length.toLocaleString("ar-SA")} <small>/ ٢١</small></strong><small>الهدف: ٢١ حصة أسبوعيًا</small></div>
-    <div className="nw-kpi"><span>تحضير الدروس</span><strong>{selectedLessons.filter(r=>checked(r.slot.id,r.date)?.prepared).length.toLocaleString("ar-SA")} <small>/ {sorted.length.toLocaleString("ar-SA")}</small></strong><small>تم التأشير عليها في نور</small></div>
-    <div className="nw-kpi"><span>رصد حضور الطلاب</span><strong>{selectedLessons.filter(r=>checked(r.slot.id,r.date)?.attendanceRecorded).length.toLocaleString("ar-SA")} <small>/ {sorted.length.toLocaleString("ar-SA")}</small></strong><small>على منصة المدرسة</small></div>
-    <div className="nw-kpi nw-kpi-featured"><span>إنجاز المتابعة</span><strong>{percent.toLocaleString("ar-SA")}٪</strong>
+    <div className="nw-kpi"><span>حصص الأسبوع</span><strong>{sorted.length.toLocaleString("ar-SA-u-nu-latn")} <small>/ 21</small></strong><small>الهدف: 21 حصة أسبوعيًا</small></div>
+    <div className="nw-kpi"><span>تحضير الدروس</span><strong>{selectedLessons.filter(r=>checked(r.slot.id,r.date)?.prepared).length.toLocaleString("ar-SA-u-nu-latn")} <small>/ {sorted.length.toLocaleString("ar-SA-u-nu-latn")}</small></strong><small>تم التأشير عليها في نور</small></div>
+    <div className="nw-kpi"><span>رصد حضور الطلاب</span><strong>{selectedLessons.filter(r=>checked(r.slot.id,r.date)?.attendanceRecorded).length.toLocaleString("ar-SA-u-nu-latn")} <small>/ {sorted.length.toLocaleString("ar-SA-u-nu-latn")}</small></strong><small>على منصة المدرسة</small></div>
+    <div className="nw-kpi nw-kpi-featured"><span>إنجاز المتابعة</span><strong>{percent.toLocaleString("ar-SA-u-nu-latn")}٪</strong>
      <div className="nw-meter"><span style={{width:percent+"%"}}/></div></div>
    </section>
    <div className="nw-duo">
@@ -257,9 +315,9 @@ export function NoorWorkTeacherViewR264(){
      <button className="nw-soft-link" onClick={()=>setTab("lessons")}>عرض متابعة الأسبوع ←</button>
     </Panel>
     <Panel title="متابعة الأسبوع" description="كل حصة لها خطوتان فقط، دون إدخال تفاصيل التحضير أو أسماء الطلاب.">
-     <div className="nw-completion-ring"><strong>{doneCount.toLocaleString("ar-SA")} <small>/ {totalCount.toLocaleString("ar-SA")}</small></strong><span>إجراء تمّ إنجازه</span></div>
+     <div className="nw-completion-ring"><strong>{doneCount.toLocaleString("ar-SA-u-nu-latn")} <small>/ {totalCount.toLocaleString("ar-SA-u-nu-latn")}</small></strong><span>إجراء تمّ إنجازه</span></div>
      {!work.termStartDate?<div className="nw-start-alert">حدد بداية الأسبوع الأول بالأعلى حتى تظهر تسمية «الأسبوع الأول» و«الثاني» وفق تقويم مدرستك.</div>:null}
-     <div className="nw-metric-foot"><span>إعداد الحصص الأسبوعية</span><b>{sorted.length.toLocaleString("ar-SA")} من ٢١</b></div>
+     <div className="nw-metric-foot"><span>إعداد الحصص الأسبوعية</span><b>{sorted.length.toLocaleString("ar-SA-u-nu-latn")} من 21</b></div>
      {!sorted.length?<div className="nw-start-alert">ابدأ تجهيز مساحة المعلم بإضافة حصص جدولك الأسبوعي.</div>:null}
      <button type="button" className="nw-primary" onClick={()=>setTab("schedule")}>إعداد جدول الحصص</button>
     </Panel>
@@ -268,7 +326,7 @@ export function NoorWorkTeacherViewR264(){
   </div>:null}
   {tab==="lessons"?<div className="nw-section">
    <Panel title={"متابعة الحصص — "+title} description="ضع علامة لكل حصة بعد إتمام التحضير ورصد الحضور فعليًا على منصة المدرسة.">
-    <div className="nw-inline-summary"><span>تم إنجاز {doneCount.toLocaleString("ar-SA")} من {totalCount.toLocaleString("ar-SA")} إجراء</span>
+    <div className="nw-inline-summary"><span>تم إنجاز {doneCount.toLocaleString("ar-SA-u-nu-latn")} من {totalCount.toLocaleString("ar-SA-u-nu-latn")} إجراء</span>
      <div className="nw-meter"><span style={{width:percent+"%"}}/></div></div>
     <WeekLessons slots={sorted} start={selectedSunday} checks={checks} update={updateLesson}/>
    </Panel>
@@ -296,9 +354,9 @@ export function NoorWorkTeacherViewR264(){
     {sorted.length?<div className="nw-schedule-list">{days.map((day,dayIndex)=>{
      const slots=sorted.filter(s=>s.day===dayIndex);
      return slots.length?<section className="nw-schedule-day" key={dayIndex}>
-      <h3>{day} <small>{slots.length.toLocaleString("ar-SA")} حصص</small></h3>
+      <h3>{day} <small>{slots.length.toLocaleString("ar-SA-u-nu-latn")} حصص</small></h3>
       {slots.map(slot=><div className="nw-schedule-entry" key={slot.id}>
-       <span className="nw-period-badge">{slot.period.toLocaleString("ar-SA")}</span>
+       <span className="nw-period-badge">{slot.period.toLocaleString("ar-SA-u-nu-latn")}</span>
        <div><strong>{slot.subject}</strong><small>{slot.group}{slot.start?" · "+slot.start:""}</small></div>
        <button className="nw-delete" type="button" onClick={()=>{
         if((work.lessonChecks??[]).some(x=>x.slotId===slot.id)||work.preparations.some(x=>
@@ -314,20 +372,41 @@ export function NoorWorkTeacherViewR264(){
    </Panel>
   </div>:null}
   {tab==="clock"?<div className="nw-duo">
-   <Panel title="تسجيل دوامك" description={"دوامك الشخصي · "+dayLabelR267(today)}>
-    <div className="nw-clock-records"><div><span>الحضور</span><strong>{daylog?.checkIn?new Date(daylog.checkIn).toLocaleTimeString("ar-SA",{hour:"2-digit",minute:"2-digit",timeZone:"Asia/Riyadh"}):"—"}</strong></div>
-     <div><span>الانصراف</span><strong>{daylog?.checkOut?new Date(daylog.checkOut).toLocaleTimeString("ar-SA",{hour:"2-digit",minute:"2-digit",timeZone:"Asia/Riyadh"}):"—"}</strong></div></div>
-    <div className="nw-actions"><button className="nw-primary" disabled={!!daylog?.checkIn} onClick={()=>
-      edit(prev=>({...prev,workdays:[...prev.workdays,{id:uid(),date:today,checkIn:new Date().toISOString(),checkOut:""}]}))
-    }>تسجيل الحضور</button>
-    <button className="nw-light-button" disabled={!daylog?.checkIn||!!daylog.checkOut} onClick={()=>
-      edit(prev=>({...prev,workdays:prev.workdays.map(x=>x.date===today?{...x,checkOut:new Date().toISOString()}:x)}))
-    }>تسجيل الانصراف</button></div>
-    <p className="nw-help">هذا سجل شخصي للمتابعة فقط؛ لا يرسل بيانات الدوام إلى جهة العمل.</p>
+   <Panel title="متابعة الحضور والانصراف" description={"دوامك الشخصي · "+dayLabelR267(today)}>
+    <p className="nw-shift-hint">الدوام المعتاد: 6:30 صباحًا — 12:30 ظهرًا</p>
+    <div className="nw-staff-attendance">
+     <div className="nw-staff-attendance-line">
+      <label className="nw-check-item"><input type="checkbox" aria-label="تم تسجيل الحضور"
+       checked={Boolean(daylog?.checkIn)}
+       onChange={e=>{void updateDayStamp("checkIn",arrivalTime,e.target.checked);}}/>
+       <span>تم تسجيل الحضور <small>على نظام المدرسة</small></span></label>
+      <label className="nw-field"><span>اختر وقت الحضور</span>
+       <input type="time" aria-label="اختيار وقت الحضور" value={arrivalTime}
+        onChange={e=>{
+         const value=e.target.value;
+         if(daylog?.checkIn){if(value)void updateDayStamp("checkIn",value,true);}
+         else setArrivalTime(value);
+        }}/></label>
+     </div>
+     <div className="nw-staff-attendance-line">
+      <label className="nw-check-item"><input type="checkbox" aria-label="تم تسجيل الانصراف"
+       checked={Boolean(daylog?.checkOut)} disabled={!daylog?.checkIn}
+       onChange={e=>{void updateDayStamp("checkOut",departureTime,e.target.checked);}}/>
+       <span>تم تسجيل الانصراف <small>على نظام المدرسة</small></span></label>
+      <label className="nw-field"><span>اختر وقت الانصراف</span>
+       <input type="time" aria-label="اختيار وقت الانصراف" value={departureTime}
+        onChange={e=>{
+         const value=e.target.value;
+         if(daylog?.checkOut){if(value)void updateDayStamp("checkOut",value,true);}
+         else setDepartureTime(value);
+        }}/></label>
+     </div>
+    </div>
+    <p className="nw-help">حدد وقت الحضور أو الانصراف بنفسك، ثم اختر «تم». لا نستخدم وقت الضغط، ولا نرسل بياناتك إلى نظام المدرسة. يحفظ نور التغيير تلقائيًا.</p>
    </Panel>
-   <Panel title="سجل الأيام السابقة">{work.workdays.length?<ul className="nw-list">{[...work.workdays].reverse().slice(0,90).map(x=><li key={x.id}>
-    <b>{x.date}</b><span>{x.checkIn?new Date(x.checkIn).toLocaleTimeString("ar-SA",{timeZone:"Asia/Riyadh",hour:"2-digit",minute:"2-digit"}):"—"} — {x.checkOut?new Date(x.checkOut).toLocaleTimeString("ar-SA",{timeZone:"Asia/Riyadh",hour:"2-digit",minute:"2-digit"}):"—"}</span>
-   </li>)}</ul>:<Empty>لم تسجّل دوامًا بعد.</Empty>}</Panel>
+   <Panel title="سجل الأيام السابقة">{work.workdays.length?<ul className="nw-list">{[...work.workdays].reverse().filter(x=>x.checkIn||x.checkOut).slice(0,90).map(x=><li key={x.id}>
+    <b>{x.date}</b><span>{x.checkIn?new Date(x.checkIn).toLocaleTimeString("ar-SA-u-nu-latn",{timeZone:"Asia/Riyadh",hour:"2-digit",minute:"2-digit"}):"—"} — {x.checkOut?new Date(x.checkOut).toLocaleTimeString("ar-SA-u-nu-latn",{timeZone:"Asia/Riyadh",hour:"2-digit",minute:"2-digit"}):"—"}</span>
+   </li>)}</ul>:<Empty>لم تُسجل حضورًا أو انصرافًا بعد.</Empty>}</Panel>
   </div>:null}
   {tab==="exams"?<div className="nw-duo">
    <Panel title="إضافة اختبار للمتابعة" description="سجل اسم التقييم وموعده فقط، ثم تابع الإجراءات بعلامات الإنجاز.">
@@ -347,15 +426,16 @@ export function NoorWorkTeacherViewR264(){
      const ck=examChecks.find(x=>x.assessmentId===a.id);
      return <article className="nw-exam-card" key={a.id}><div className="nw-exam-head"><strong>{a.title}</strong>
        <small>{a.group} · {a.date}</small></div>
-       <div className="nw-exam-checks">{([["prepared","تم تجهيز الاختبار"],["corrected","تم التصحيح"],["recorded","تم الرصد على منصة المدرسة"]] as const).map(([key,label])=>
+       <div className="nw-exam-checks">{([["prepared","تم تجهيز الاختبار"],["corrected","تم التصحيح"],["recorded","تم رصد الدرجات على منصة المدرسة"]] as const).map(([key,label])=>
         <label key={key} className="nw-check-item"><input type="checkbox" checked={ck?.[key]??false} onChange={e=>updateExam(a.id,key,e.target.checked)}/><span>{label}</span></label>
        )}</div></article>;
     })}</div>:<Empty>لا توجد اختبارات للمتابعة بعد.</Empty>}
     <p className="nw-help">احتفظنا بالسجلات التفصيلية السابقة في قاعدة البيانات، لكن لوحة المتابعة الجديدة لا تطلب أسماء الطلاب أو درجاتهم.</p>
    </Panel>
   </div>:null}
-  {dirty?<div className="nw-save-dock" role="status"><span>لديك تغييرات تحتاج إلى حفظ</span>
-   <button className="nw-primary" type="button" disabled={saving} onClick={()=>void save()}>{saving?"جارٍ الحفظ…":"حفظ التغييرات"}</button>
+  {saveError&&dirty?<div className="nw-save-dock" role="alert">
+   <span>تعذر الحفظ التلقائي؛ ما زالت التغييرات موجودة هنا.</span>
+   <button className="nw-primary" type="button" disabled={saving} onClick={()=>{setSaveError(false);setMessage("");}}>إعادة محاولة الحفظ</button>
   </div>:null}
  </main>;
 }
