@@ -17,6 +17,9 @@ export class NoorAdminDirectoryR271 {
     if(error || !data || !Array.isArray(data.users)) {
       throw Error("NOOR_ADMIN_DIRECTORY_UNAVAILABLE");
     }
+    // Do not present a truncated directory as a complete account list.
+    // A cursor-based API must be introduced before serving larger tenants.
+    if(data.users.length>=100) throw Error("NOOR_ADMIN_DIRECTORY_PAGINATION_REQUIRED");
     return data.users.map(user=>({
       id:user.id,
       email:user.email??"",
