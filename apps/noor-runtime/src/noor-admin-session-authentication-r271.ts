@@ -31,6 +31,16 @@ export class NoorAdminSessionAuthenticationR271 {
   public async authenticate(input:Readonly<{
     platformSessionId:string;accessToken:string;
   }>):Promise<"authenticated"|"denied"|"unavailable">{
+    return this.verifyAndBind(input,false);
+  }
+  public async renew(input:Readonly<{
+    platformSessionId:string;accessToken:string;
+  }>):Promise<"authenticated"|"denied"|"unavailable">{
+    return this.verifyAndBind(input,true);
+  }
+  private async verifyAndBind(input:Readonly<{
+    platformSessionId:string;accessToken:string;
+  }>,renew:boolean):Promise<"authenticated"|"denied"|"unavailable">{
     if(!input || typeof input!=="object")return "denied";
     const {platformSessionId,accessToken}=input;
     if(typeof platformSessionId!=="string" || !platformSessionId ||
@@ -58,11 +68,15 @@ export class NoorAdminSessionAuthenticationR271 {
          claims.exp<=nowSeconds || typeof claims.iat!=="number" ||
          !Number.isSafeInteger(claims.iat) || claims.iat>nowSeconds+60)return "denied";
       const expiry=Math.min(claims.exp*1000,now+5*60_000);
-      return this.dependencies.bindings.bind({
+      return (renew?this.dependencies.bindings.rotate({
         platformSessionId,platformAccountId:accountId,
         authUserId:admin.authUserId,authSessionId:claims.session_id,
         accessToken,expiresAtMs:expiry,
-      })?"authenticated":"denied";
+      }):this.dependencies.bindings.bind({
+        platformSessionId,platformAccountId:accountId,
+        authUserId:admin.authUserId,authSessionId:claims.session_id,
+        accessToken,expiresAtMs:expiry,
+      }))?"authenticated":"denied";
     }catch{return "unavailable";}
   }
 }
