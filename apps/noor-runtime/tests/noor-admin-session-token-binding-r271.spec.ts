@@ -41,3 +41,16 @@ test("R271 revocation clears all Auth session bindings",async()=>{
   store.revokeAll();
   assert.equal(await store.getAccessTokenForSession("noor-session"),null);
 });
+
+test("R271 rotation accepts only verified same-session credentials and preserves binding on denial",async()=>{
+  const store=new NoorAdminSessionTokenBindingR271(()=>initial);
+  assert.equal(store.bind(fixture),true);
+  assert.equal(store.rotate({...fixture,accessToken:"renewed-token",expiresAtMs:initial+180000}),true);
+  assert.equal(await store.getAccessTokenForSession("noor-session"),"renewed-token");
+  assert.equal(store.rotate({...fixture,authSessionId:id,accessToken:"hijack"}),false);
+  assert.equal(store.rotate({...fixture,authUserId:authSession,accessToken:"hijack"}),false);
+  assert.equal(store.rotate({...fixture,platformAccountId:"another-account",accessToken:"hijack"}),false);
+  assert.equal(await store.getAccessTokenForSession("noor-session"),"renewed-token");
+  store.revoke("noor-session");
+  assert.equal(store.rotate({...fixture,accessToken:"revoked-token"}),false);
+});
