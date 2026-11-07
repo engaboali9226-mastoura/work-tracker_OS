@@ -24,21 +24,26 @@ function fixture(overrides:Record<string,unknown>={},token:string|null="signed-t
 }
 test("R271 requires signed AAL2 evidence and never fabricates recent reauthentication",async()=>{
   const {verifier}=fixture();
-  assert.deepEqual(await verifier.verify("noor-session",id),{aal:"aal2",reauthenticated:false});
+  assert.deepEqual(await verifier.verify("noor-session",id,"account-one"),{aal:"aal2",reauthenticated:false});
 });
 test("R271 refuses absent server-bound access token without contacting Auth",async()=>{
   const {verifier,calls}=fixture({},null);
-  assert.equal(await verifier.verify("noor-session",id),null);
+  assert.equal(await verifier.verify("noor-session",id,"account-one"),null);
   assert.deepEqual(calls(),[0,0]);
 });
 test("R271 refuses weak MFA, identity mismatch, and expired signed claims",async()=>{
   for(const claims of [{aal:"aal1"},{sub:"22222222-2222-4222-8222-222222222222"},{exp:1794050000},{session_id:""}]){
     const {verifier}=fixture(claims);
-    assert.equal(await verifier.verify("noor-session",id),null);
+    assert.equal(await verifier.verify("noor-session",id,"account-one"),null);
   }
 });
 
 test("R271 refuses mismatched Supabase Auth session ID despite valid AAL2",async()=>{
   const {verifier}=fixture({session_id:"different-auth-session"});
-  assert.equal(await verifier.verify("noor-session",id),null);
+  assert.equal(await verifier.verify("noor-session",id,"account-one"),null);
+});
+
+test("R271 refuses cross-account reuse of signed MFA token binding",async()=>{
+  const {verifier}=fixture();
+  assert.equal(await verifier.verify("noor-session",id,"account-two"),null);
 });
