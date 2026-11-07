@@ -34,7 +34,7 @@ extends RouteAccessEvidenceExecutor {
   readonly adminR271?: import("./noor-admin-http-r271.js").AdminHttpDependenciesR271;
   readonly adminRecoveryR271?: import("./noor-admin-password-recovery-http-r271.js").NoorAdminRecoveryHttpDependenciesR271;
   readonly adminAuthenticationR271?: import("./noor-admin-session-authentication-http-r271.js").NoorAdminSessionAuthenticationHttpDependenciesR271;
-  readonly adminAuthenticationOperationR271?: import("./noor-admin-session-authentication-r271.js").NoorAdminSessionAuthenticationR271;
+  readonly adminAuthenticationOperationR271?: import("./noor-admin-session-authentication-r271.js").NoorAdminSessionAuthenticationR271 | undefined;
   readonly trustedPrivateJournalR221?: import("./noor-private-journal-r185.js").NoorPrivateJournalOperationR185 | undefined;
 }
 
