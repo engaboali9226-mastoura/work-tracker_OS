@@ -7,7 +7,7 @@ export interface NoorAdminAuditDatabaseR271 {
         readonly Row:{
           readonly id:string;readonly actor_auth_user_id:string;
           readonly target_auth_user_id:string|null;readonly action:string;
-          readonly outcome:"success"|"denied"|"failure";
+          readonly outcome:"initiated"|"success"|"denied"|"failure";
           readonly request_id:string;readonly occurred_at:string;
           readonly details:Record<string,string|number|boolean|null>;
         };
@@ -15,7 +15,7 @@ export interface NoorAdminAuditDatabaseR271 {
           readonly actor_auth_user_id:string;
           readonly target_auth_user_id?:string|null;
           readonly action:string;
-          readonly outcome:"success"|"denied"|"failure";
+          readonly outcome:"initiated"|"success"|"denied"|"failure";
           readonly request_id:string;
           readonly details?:Record<string,string|number|boolean|null>;
         };
@@ -32,7 +32,7 @@ export class NoorAdminAuditStoreR271 {
   public constructor(private readonly client:SupabaseClient<NoorAdminAuditDatabaseR271>){}
   public async record(input:Readonly<{
     actorAuthUserId:string;targetAuthUserId?:string|null;
-    action:string;outcome:"success"|"denied"|"failure";
+    action:string;outcome:"initiated"|"success"|"denied"|"failure";
     requestId:string;details?:Record<string,string|number|boolean|null>;
   }>):Promise<void>{
     if(!input.actorAuthUserId || !input.requestId ||
