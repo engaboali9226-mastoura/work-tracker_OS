@@ -17,17 +17,19 @@ export class NoorSupabaseAssuranceVerifierR271 {
     private readonly tokens:NoorAdminSessionTokenStoreR271,
     private readonly now:()=>number=()=>Date.now(),
   ){}
-  public async verify(sessionId:string,authUserId:string):Promise<Readonly<{
+  public async verify(sessionId:string,authUserId:string,platformAccountId:string):Promise<Readonly<{
     aal:"aal1"|"aal2"|null;reauthenticated:boolean;
   }> | null>{
     if(!sessionId || sessionId.length>256 ||
+       !platformAccountId || platformAccountId.length>256 ||
        !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu.test(authUserId)) return null;
     try{
       const [token,binding]=await Promise.all([
         this.tokens.getAccessTokenForSession(sessionId),
         this.tokens.getBindingForSession(sessionId),
       ]);
-      if(!token || token.length>8192 || !binding || binding.authUserId!==authUserId) return null;
+      if(!token || token.length>8192 || !binding || binding.authUserId!==authUserId ||
+         binding.platformAccountId!==platformAccountId) return null;
       const [userResult,claimsResult]=await Promise.all([
         this.client.auth.getUser(token),
         this.client.auth.getClaims(token),
