@@ -1,4 +1,4 @@
-import {createHash,timingSafeEqual} from "node:crypto";
+import {createHash} from "node:crypto";
 import type {NoorAdminSessionTokenStoreR271} from "./noor-admin-supabase-assurance-r271.js";
 
 /**
@@ -17,7 +17,7 @@ export interface NoorAdminVerifiedSessionBindingR271 {
   readonly accessToken:string;
   readonly expiresAtMs:number;
 }
-type Binding = Readonly<NoorAdminVerifiedSessionBindingR271 & {fingerprint:string}>;
+type Binding = Readonly<Omit<NoorAdminVerifiedSessionBindingR271,"platformSessionId">>;
 const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu;
 function fingerprint(value:string):string{
   return createHash("sha256").update(value,"utf8").digest("hex");
@@ -37,7 +37,8 @@ export class NoorAdminSessionTokenBindingR271 implements NoorAdminSessionTokenSt
     // Never overwrite a live binding. Changing Auth identity requires revoke.
     const existing=this.bindings.get(key);
     if(existing && existing.expiresAtMs>time) return false;
-    this.bindings.set(key,Object.freeze({...input,fingerprint:key}));
+    const {platformSessionId:_discard,...binding}=input;
+    this.bindings.set(key,Object.freeze(binding));
     return true;
   }
   /**
@@ -58,7 +59,8 @@ export class NoorAdminSessionTokenBindingR271 implements NoorAdminSessionTokenSt
        existing.platformAccountId!==input.platformAccountId ||
        existing.authUserId!==input.authUserId ||
        existing.authSessionId!==input.authSessionId)return false;
-    this.bindings.set(key,Object.freeze({...input,fingerprint:key}));
+    const {platformSessionId:_discard,...binding}=input;
+    this.bindings.set(key,Object.freeze(binding));
     return true;
   }
   public async getAccessTokenForSession(sessionId:string):Promise<string|null>{
@@ -67,9 +69,6 @@ export class NoorAdminSessionTokenBindingR271 implements NoorAdminSessionTokenSt
     const entry=this.bindings.get(key);
     if(!entry)return null;
     if(entry.expiresAtMs<=this.now()){this.bindings.delete(key);return null;}
-    const actual=Buffer.from(entry.fingerprint,"hex");
-    const expected=Buffer.from(key,"hex");
-    if(!timingSafeEqual(actual,expected))return null;
     return entry.accessToken;
   }
   public async getBindingForSession(sessionId:string):Promise<Readonly<{
