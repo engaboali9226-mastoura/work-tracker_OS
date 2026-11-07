@@ -1,0 +1,62 @@
+name: R271 Isolated PostgreSQL Security
+
+on:
+  pull_request:
+    branches:
+      - product/noor-personal-mvp
+    paths:
+      - ".github/workflows/r271-isolated-postgresql.yml"
+      - "docs/noor/sql/R271_ADMIN_SCHEMA_CANDIDATE.sql"
+      - "docs/noor/sql/R271_ADMIN_READINESS_CHECK.sql"
+      - "tools/ci/r271-admin-postgres-fixture.sql"
+      - "tools/ci/r271-admin-postgres-assertions.sql"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  r271-isolated-database:
+    name: R271 SQL Security (Disposable PostgreSQL)
+    if: github.event_name == 'workflow_dispatch' || startsWith(github.head_ref, 'review/noor-r271-')
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: noor_r271_isolated
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: local_only_postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+    steps:
+      - name: Checkout review commit
+        uses: actions/checkout@v4
+      - name: Apply dummy Auth fixtures and candidate schema
+        env:
+          PG_CONTAINER: ${{ job.services.postgres.id }}
+        run: |
+          set -euo pipefail
+          docker exec -i "$PG_CONTAINER" psql -v ON_ERROR_STOP=1 -U postgres -d noor_r271_isolated < tools/ci/r271-admin-postgres-fixture.sql
+          docker exec -i "$PG_CONTAINER" psql -v ON_ERROR_STOP=1 -U postgres -d noor_r271_isolated < docs/noor/sql/R271_ADMIN_SCHEMA_CANDIDATE.sql
+      - name: Prove invoker RPC permissions and last-super-admin protection
+        env:
+          PG_CONTAINER: ${{ job.services.postgres.id }}
+        run: |
+          set -euo pipefail
+          docker exec -i "$PG_CONTAINER" psql -v ON_ERROR_STOP=1 -U postgres -d noor_r271_isolated < tools/ci/r271-admin-postgres-assertions.sql
+      - name: Verify read-only release readiness gate passes in isolated DB
+        env:
+          PG_CONTAINER: ${{ job.services.postgres.id }}
+        run: |
+          set -euo pipefail
+          readiness="$(docker exec -i "$PG_CONTAINER" psql -q -tA -v ON_ERROR_STOP=1 -U postgres -d noor_r271_isolated < docs/noor/sql/R271_ADMIN_READINESS_CHECK.sql)"
+          case "$readiness" in
+            *"|t") echo "R271_ISOLATED_DATABASE_SECURITY_GATE=PASS" ;;
+            *) echo "R271_ISOLATED_DATABASE_SECURITY_GATE=FAIL"; exit 1 ;;
+          esac

@@ -1,0 +1,66 @@
+import assert from "node:assert/strict";
+import test from "node:test";
+import {
+  authorizeAdminActionR271,
+  mayDisableAdminAccountR271,
+  type AdminAuthorityR271,
+} from "../src/noor-admin-policy-r271.js";
+
+const valid: AdminAuthorityR271 = {
+  sessionActive: true,
+  accountActive: true,
+  verifiedAdminGrant: true,
+  assuranceLevel: "aal2",
+  reauthenticated: true,
+  role: "super_admin",
+};
+
+test("R271 denies missing, revoked, inactive, ungranted and weak-MFA authorities", () => {
+  assert.equal(authorizeAdminActionR271(null, "accounts:list"), false);
+  for (const authority of [
+    {...valid, sessionActive: false},
+    {...valid, accountActive: false},
+    {...valid, verifiedAdminGrant: false},
+    {...valid, assuranceLevel: "aal1" as const},
+    {...valid, assuranceLevel: null},
+  ]) {
+    assert.equal(authorizeAdminActionR271(authority, "accounts:list"), false);
+  }
+});
+
+test("R271 requires fresh reauthentication for sensitive operations", () => {
+  const stale = {...valid, reauthenticated: false};
+  assert.equal(authorizeAdminActionR271(stale, "accounts:list"), true);
+  for (const action of ["accounts:delete", "accounts:reset-password", "entitlements:manage"] as const) {
+    assert.equal(authorizeAdminActionR271(stale, action), false);
+    assert.equal(authorizeAdminActionR271(valid, action), true);
+  }
+});
+
+test("R271 protects the actor and last active super-admin", () => {
+  const input = {
+    actorAccountId: "actor",
+    targetAccountId: "target",
+    activeSuperAdminCount: 1,
+    targetIsSuperAdmin: true,
+  };
+  assert.equal(mayDisableAdminAccountR271(input), false);
+  assert.equal(mayDisableAdminAccountR271({...input, activeSuperAdminCount: 2}), true);
+  assert.equal(mayDisableAdminAccountR271({...input, targetIsSuperAdmin: false}), true);
+  assert.equal(mayDisableAdminAccountR271({...input, targetAccountId: "actor"}), false);
+  assert.equal(mayDisableAdminAccountR271({...input, activeSuperAdminCount: 0}), false);
+});
+
+
+test("R271 denies account mutations to non-super-admin roles",()=>{
+  const ordinaryAdmin={...valid,role:"admin" as const};
+  assert.equal(authorizeAdminActionR271(ordinaryAdmin,"accounts:list"),true);
+  assert.equal(authorizeAdminActionR271(ordinaryAdmin,"accounts:disable"),false);
+  assert.equal(authorizeAdminActionR271(ordinaryAdmin,"entitlements:manage"),false);
+});
+
+
+test("R271 rejects absent or unknown server-side roles",()=>{
+  assert.equal(authorizeAdminActionR271({...valid,role:undefined},"accounts:list"),false);
+  assert.equal(authorizeAdminActionR271({...valid,role:"owner" as "admin"},"accounts:list"),false);
+});

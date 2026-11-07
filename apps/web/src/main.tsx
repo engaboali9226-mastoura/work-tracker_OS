@@ -25,6 +25,7 @@ import {
   NoorPersonalApplicationView,
 } from "./noor-personal-application-view.js";
 import {NoorWorkTeacherViewR264} from "./noor-work-teacher-view-r264.js";
+import {NoorAdminViewR271} from "./noor-admin-view-r271.js";
 import {
   createAuthenticationSessionController,
 } from "./authentication-session-controller.js";
@@ -196,6 +197,12 @@ function ShellFoundation() {
       authenticationState:
         authentication.kind,
     });
+
+  // The admin surface never mounts a privileged application by itself.
+  // All account data requires a live, server-verified admin response.
+  if (pathname === "/admin") {
+    return <NoorAdminViewR271 />;
+  }
 
   return (
     <PlatformShell
