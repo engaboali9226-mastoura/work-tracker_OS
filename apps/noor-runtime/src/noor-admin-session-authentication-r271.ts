@@ -28,6 +28,9 @@ export class NoorAdminSessionAuthenticationR271 {
       now?:()=>number;
     }>,
   ){}
+  public revokeSession(platformSessionId:string):void{
+    this.dependencies.bindings.revoke(platformSessionId);
+  }
   public async authenticate(input:Readonly<{
     platformSessionId:string;accessToken:string;
   }>):Promise<"authenticated"|"denied"|"unavailable">{
