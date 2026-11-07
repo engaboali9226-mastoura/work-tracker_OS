@@ -55,7 +55,7 @@ test("R271 password recovery HTTP rejects forged origin and extra fields",async(
     assert.equal((await request(origin,{targetAuthUserId:target},{cookie:true,requestOrigin:"https://attacker.invalid"})).status,403);
     assert.equal((await request(origin,{targetAuthUserId:target,role:"super_admin"},{cookie:true})).status,400);
   });
-  assert.deepEqual(events,["authority"]);
+  assert.deepEqual(events,["actor-resolved"]);
 });
 test("R271 password recovery HTTP authorizes and audits before delivery",async()=>{
   const events=await serve(async origin=>{
