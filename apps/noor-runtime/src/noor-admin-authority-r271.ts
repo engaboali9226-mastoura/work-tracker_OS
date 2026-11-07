@@ -11,7 +11,7 @@ interface AdminStoreR271 {
   }> | null>;
 }
 interface AssuranceVerifierR271 {
-  verify(sessionId:string, authUserId:string):Promise<Readonly<{
+  verify(sessionId:string, authUserId:string, accountId:string):Promise<Readonly<{
     aal:"aal1"|"aal2"|null;
     reauthenticated:boolean;
   }> | null>;
@@ -35,7 +35,7 @@ export function createNoorAdminVerifiedActorResolverR271(dependencies:Readonly<{
       const admin = await dependencies.store.findActiveByAccountId(accountId);
       if (!admin || !admin.enabled || !admin.authUserId ||
           (admin.role !== "super_admin" && admin.role !== "admin")) return null;
-      const assurance = await dependencies.assurance.verify(sessionId,admin.authUserId);
+      const assurance = await dependencies.assurance.verify(sessionId,admin.authUserId,accountId);
       if (!assurance || (assurance.aal !== "aal1" && assurance.aal !== "aal2") ||
           typeof assurance.reauthenticated !== "boolean") return null;
       return {actorAccountId:accountId,authority:{
