@@ -21,11 +21,11 @@ interface AssuranceVerifierR271 {
  * verified identity. Client-provided role, email and MFA claims are ignored.
  * This adapter is not mounted until all three trusted sources are provided.
  */
-export function createNoorAdminAuthorityResolverR271(dependencies:Readonly<{
+export function createNoorAdminVerifiedActorResolverR271(dependencies:Readonly<{
   session:SessionResolverR271;
   store:AdminStoreR271;
   assurance:AssuranceVerifierR271;
-}>):(sessionId:string)=>Promise<AdminAuthorityR271|null> {
+}>):(sessionId:string)=>Promise<Readonly<{actorAccountId:string;authority:AdminAuthorityR271}>|null> {
   return async sessionId => {
     if (typeof sessionId !== "string" || !sessionId || sessionId.length > 256) return null;
     try {
@@ -38,16 +38,24 @@ export function createNoorAdminAuthorityResolverR271(dependencies:Readonly<{
       const assurance = await dependencies.assurance.verify(sessionId,admin.authUserId);
       if (!assurance || (assurance.aal !== "aal1" && assurance.aal !== "aal2") ||
           typeof assurance.reauthenticated !== "boolean") return null;
-      return {
+      return {actorAccountId:accountId,authority:{
         sessionActive:true,
         accountActive:true,
         verifiedAdminGrant:true,
         role:admin.role,
         assuranceLevel:assurance.aal,
         reauthenticated:assurance.reauthenticated,
-      };
+      }};
     } catch {
       return null;
     }
   };
+}
+
+/** Read-only compatibility projection; mutation routes should use the paired actor resolver. */
+export function createNoorAdminAuthorityResolverR271(dependencies:Readonly<{
+  session:SessionResolverR271;store:AdminStoreR271;assurance:AssuranceVerifierR271;
+}>):(sessionId:string)=>Promise<AdminAuthorityR271|null>{
+  const resolveActor=createNoorAdminVerifiedActorResolverR271(dependencies);
+  return async sessionId=>(await resolveActor(sessionId))?.authority??null;
 }
