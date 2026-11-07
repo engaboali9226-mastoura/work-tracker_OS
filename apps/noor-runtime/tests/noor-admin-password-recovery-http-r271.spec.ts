@@ -65,3 +65,10 @@ test("R271 password recovery HTTP authorizes and audits before delivery",async()
   });
   assert.deepEqual(events,["actor-resolved","audit:initiated","deliver:"+target,"audit:requested"]);
 });
+
+test("R271 recovery never sends email or audits when trusted actor is missing",async()=>{
+  const events=await serve(async origin=>{
+    assert.equal((await request(origin,{targetAuthUserId:target},{cookie:true})).status,403);
+  },null);
+  assert.deepEqual(events,["actor-resolved"]);
+});
