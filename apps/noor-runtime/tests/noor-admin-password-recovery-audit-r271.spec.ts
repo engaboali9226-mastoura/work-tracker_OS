@@ -26,7 +26,19 @@ test("R271 refuses to audit on behalf of a revoked administrator",async()=>{
     {findActiveByAccountId:async()=>null},
     {record:async()=>{writes++;}},
   );
-  await assert.rejects(()=>adapter.record({actorAccountId:"revoked",targetAuthUserId:"target",
+  await assert.rejects(()=>adapter.record({actorAccountId:"revoked",targetAuthUserId:"33333333-3333-4333-8333-333333333333",
+    action:"accounts:reset-password",outcome:"initiated"}),/ACTOR_UNVERIFIED/);
+  assert.equal(writes,0);
+});
+
+
+test("R271 refuses invalid audit target UUID before writing",async()=>{
+  let writes=0;
+  const adapter=new NoorPasswordRecoveryAuditAdapterR271(
+    {findActiveByAccountId:async()=>({authUserId:"11111111-1111-4111-8111-111111111111",enabled:true,role:"super_admin"})},
+    {record:async()=>{writes++;}},
+  );
+  await assert.rejects(()=>adapter.record({actorAccountId:"actor",targetAuthUserId:"invalid",
     action:"accounts:reset-password",outcome:"initiated"}),/ACTOR_UNVERIFIED/);
   assert.equal(writes,0);
 });
