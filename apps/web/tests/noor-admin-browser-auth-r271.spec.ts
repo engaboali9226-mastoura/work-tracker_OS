@@ -101,3 +101,25 @@ test("R272 refuses unconfirmed invitation and weak password before updating user
   await assert.rejects(client.acceptInvitation("a-very-long-password"),/NOOR_ADMIN_INVITATION_NOT_VERIFIED/);
   assert.equal(updates,0);
 });
+
+test("R273 recovery accepts only a confirmed Supabase session",async()=>{
+  let updates=0;
+  const verified=createNoorAdminBrowserAuthR271({
+    auth:{
+      getSession:async()=>({error:null,data:{session:{
+        user:{id:"owner-id",email_confirmed_at:"2026-11-07T20:26:08Z"},
+      }}}),
+      updateUser:async()=>{updates++;return {data:{user:{id:"owner-id"}},error:null};},
+      mfa:{listFactors:async()=>({data:{totp:[]},error:null})},
+    },
+  } as unknown as SupabaseClient,async()=>{throw Error("no admin exchange");});
+  assert.equal(await verified.hasVerifiedRecoverySession(),true);
+  await verified.acceptInvitation("long-secure-password");
+  assert.equal(updates,1);
+  for(const session of [null,{user:{id:"owner-id",email_confirmed_at:null}}]){
+    const rejected=createNoorAdminBrowserAuthR271({
+      auth:{getSession:async()=>({error:null,data:{session}})},
+    } as unknown as SupabaseClient,async()=>{throw Error("no admin exchange");});
+    assert.equal(await rejected.hasVerifiedRecoverySession(),false);
+  }
+});
