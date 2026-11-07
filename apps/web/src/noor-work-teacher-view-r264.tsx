@@ -69,7 +69,7 @@ function LessonCard({slot,date,check,onChange}:{slot:Slot;date:string;check:Less
  const total=completed(check);
  return <article className={"nw-lesson-card"+(total===2?" nw-lesson-complete":"")}>
   <div className="nw-lesson-heading">
-   <div className="nw-period-badge">{slot.period.toLocaleString("ar-SA")}</div>
+   <div className="nw-period-badge">{slot.period.toLocaleString("ar-SA-u-nu-latn")}</div>
    <div className="nw-lesson-summary"><strong>{slot.subject||"المادة غير محددة"}</strong>
     <span>{slot.group||"الشعبة غير محددة"}{slot.room?" · "+slot.room:""}{slot.start?" · "+slot.start:""}</span>
    </div>
@@ -95,7 +95,7 @@ function WeekLessons({slots,start,checks,update}:{slots:Slot[];start:string;chec
    const marks=list.reduce((sum,s)=>sum+completed(checks.find(c=>c.slotId===s.id&&c.date===date)),0);
    return <section className="nw-day-group" key={day}>
     <div className="nw-day-heading"><div><strong>{name}</strong><span>{dayLabelR267(date)}</span></div>
-     <small>{marks.toLocaleString("ar-SA")} / {(list.length*2).toLocaleString("ar-SA")} متابعة</small></div>
+     <small>{marks.toLocaleString("ar-SA-u-nu-latn")} / {(list.length*2).toLocaleString("ar-SA-u-nu-latn")} متابعة</small></div>
     <div className="nw-lesson-stack">{list.map(slot=><LessonCard key={slot.id} slot={slot} date={date}
        check={checks.find(x=>x.slotId===slot.id&&x.date===date)}
        onChange={(key,value)=>update(slot.id,date,key,value)}/>)}</div>
@@ -301,10 +301,10 @@ export function NoorWorkTeacherViewR264(){
     onClick={()=>setTab(t.id)}><span aria-hidden="true">{t.symbol}</span>{t.name}</button>)}</nav>
   {tab==="overview"?<div className="nw-dashboard">
    <section className="nw-kpi-grid" aria-label="مؤشرات المتابعة">
-    <div className="nw-kpi"><span>حصص الأسبوع</span><strong>{sorted.length.toLocaleString("ar-SA")} <small>/ ٢١</small></strong><small>الهدف: ٢١ حصة أسبوعيًا</small></div>
-    <div className="nw-kpi"><span>تحضير الدروس</span><strong>{selectedLessons.filter(r=>checked(r.slot.id,r.date)?.prepared).length.toLocaleString("ar-SA")} <small>/ {sorted.length.toLocaleString("ar-SA")}</small></strong><small>تم التأشير عليها في نور</small></div>
-    <div className="nw-kpi"><span>رصد حضور الطلاب</span><strong>{selectedLessons.filter(r=>checked(r.slot.id,r.date)?.attendanceRecorded).length.toLocaleString("ar-SA")} <small>/ {sorted.length.toLocaleString("ar-SA")}</small></strong><small>على منصة المدرسة</small></div>
-    <div className="nw-kpi nw-kpi-featured"><span>إنجاز المتابعة</span><strong>{percent.toLocaleString("ar-SA")}٪</strong>
+    <div className="nw-kpi"><span>حصص الأسبوع</span><strong>{sorted.length.toLocaleString("ar-SA-u-nu-latn")} <small>/ 21</small></strong><small>الهدف: 21 حصة أسبوعيًا</small></div>
+    <div className="nw-kpi"><span>تحضير الدروس</span><strong>{selectedLessons.filter(r=>checked(r.slot.id,r.date)?.prepared).length.toLocaleString("ar-SA-u-nu-latn")} <small>/ {sorted.length.toLocaleString("ar-SA-u-nu-latn")}</small></strong><small>تم التأشير عليها في نور</small></div>
+    <div className="nw-kpi"><span>رصد حضور الطلاب</span><strong>{selectedLessons.filter(r=>checked(r.slot.id,r.date)?.attendanceRecorded).length.toLocaleString("ar-SA-u-nu-latn")} <small>/ {sorted.length.toLocaleString("ar-SA-u-nu-latn")}</small></strong><small>على منصة المدرسة</small></div>
+    <div className="nw-kpi nw-kpi-featured"><span>إنجاز المتابعة</span><strong>{percent.toLocaleString("ar-SA-u-nu-latn")}٪</strong>
      <div className="nw-meter"><span style={{width:percent+"%"}}/></div></div>
    </section>
    <div className="nw-duo">
@@ -315,9 +315,9 @@ export function NoorWorkTeacherViewR264(){
      <button className="nw-soft-link" onClick={()=>setTab("lessons")}>عرض متابعة الأسبوع ←</button>
     </Panel>
     <Panel title="متابعة الأسبوع" description="كل حصة لها خطوتان فقط، دون إدخال تفاصيل التحضير أو أسماء الطلاب.">
-     <div className="nw-completion-ring"><strong>{doneCount.toLocaleString("ar-SA")} <small>/ {totalCount.toLocaleString("ar-SA")}</small></strong><span>إجراء تمّ إنجازه</span></div>
+     <div className="nw-completion-ring"><strong>{doneCount.toLocaleString("ar-SA-u-nu-latn")} <small>/ {totalCount.toLocaleString("ar-SA-u-nu-latn")}</small></strong><span>إجراء تمّ إنجازه</span></div>
      {!work.termStartDate?<div className="nw-start-alert">حدد بداية الأسبوع الأول بالأعلى حتى تظهر تسمية «الأسبوع الأول» و«الثاني» وفق تقويم مدرستك.</div>:null}
-     <div className="nw-metric-foot"><span>إعداد الحصص الأسبوعية</span><b>{sorted.length.toLocaleString("ar-SA")} من ٢١</b></div>
+     <div className="nw-metric-foot"><span>إعداد الحصص الأسبوعية</span><b>{sorted.length.toLocaleString("ar-SA-u-nu-latn")} من 21</b></div>
      {!sorted.length?<div className="nw-start-alert">ابدأ تجهيز مساحة المعلم بإضافة حصص جدولك الأسبوعي.</div>:null}
      <button type="button" className="nw-primary" onClick={()=>setTab("schedule")}>إعداد جدول الحصص</button>
     </Panel>
@@ -326,7 +326,7 @@ export function NoorWorkTeacherViewR264(){
   </div>:null}
   {tab==="lessons"?<div className="nw-section">
    <Panel title={"متابعة الحصص — "+title} description="ضع علامة لكل حصة بعد إتمام التحضير ورصد الحضور فعليًا على منصة المدرسة.">
-    <div className="nw-inline-summary"><span>تم إنجاز {doneCount.toLocaleString("ar-SA")} من {totalCount.toLocaleString("ar-SA")} إجراء</span>
+    <div className="nw-inline-summary"><span>تم إنجاز {doneCount.toLocaleString("ar-SA-u-nu-latn")} من {totalCount.toLocaleString("ar-SA-u-nu-latn")} إجراء</span>
      <div className="nw-meter"><span style={{width:percent+"%"}}/></div></div>
     <WeekLessons slots={sorted} start={selectedSunday} checks={checks} update={updateLesson}/>
    </Panel>
@@ -354,9 +354,9 @@ export function NoorWorkTeacherViewR264(){
     {sorted.length?<div className="nw-schedule-list">{days.map((day,dayIndex)=>{
      const slots=sorted.filter(s=>s.day===dayIndex);
      return slots.length?<section className="nw-schedule-day" key={dayIndex}>
-      <h3>{day} <small>{slots.length.toLocaleString("ar-SA")} حصص</small></h3>
+      <h3>{day} <small>{slots.length.toLocaleString("ar-SA-u-nu-latn")} حصص</small></h3>
       {slots.map(slot=><div className="nw-schedule-entry" key={slot.id}>
-       <span className="nw-period-badge">{slot.period.toLocaleString("ar-SA")}</span>
+       <span className="nw-period-badge">{slot.period.toLocaleString("ar-SA-u-nu-latn")}</span>
        <div><strong>{slot.subject}</strong><small>{slot.group}{slot.start?" · "+slot.start:""}</small></div>
        <button className="nw-delete" type="button" onClick={()=>{
         if((work.lessonChecks??[]).some(x=>x.slotId===slot.id)||work.preparations.some(x=>
@@ -373,7 +373,7 @@ export function NoorWorkTeacherViewR264(){
   </div>:null}
   {tab==="clock"?<div className="nw-duo">
    <Panel title="متابعة الحضور والانصراف" description={"دوامك الشخصي · "+dayLabelR267(today)}>
-    <p className="nw-shift-hint">الدوام المعتاد: ٦:٣٠ صباحًا — ١٢:٣٠ ظهرًا</p>
+    <p className="nw-shift-hint">الدوام المعتاد: 6:30 صباحًا — 12:30 ظهرًا</p>
     <div className="nw-staff-attendance">
      <div className="nw-staff-attendance-line">
       <label className="nw-check-item"><input type="checkbox" aria-label="تم تسجيل الحضور"
@@ -405,7 +405,7 @@ export function NoorWorkTeacherViewR264(){
     <p className="nw-help">حدد وقت الحضور أو الانصراف بنفسك، ثم اختر «تم». لا نستخدم وقت الضغط، ولا نرسل بياناتك إلى نظام المدرسة. يحفظ نور التغيير تلقائيًا.</p>
    </Panel>
    <Panel title="سجل الأيام السابقة">{work.workdays.length?<ul className="nw-list">{[...work.workdays].reverse().filter(x=>x.checkIn||x.checkOut).slice(0,90).map(x=><li key={x.id}>
-    <b>{x.date}</b><span>{x.checkIn?new Date(x.checkIn).toLocaleTimeString("ar-SA",{timeZone:"Asia/Riyadh",hour:"2-digit",minute:"2-digit"}):"—"} — {x.checkOut?new Date(x.checkOut).toLocaleTimeString("ar-SA",{timeZone:"Asia/Riyadh",hour:"2-digit",minute:"2-digit"}):"—"}</span>
+    <b>{x.date}</b><span>{x.checkIn?new Date(x.checkIn).toLocaleTimeString("ar-SA-u-nu-latn",{timeZone:"Asia/Riyadh",hour:"2-digit",minute:"2-digit"}):"—"} — {x.checkOut?new Date(x.checkOut).toLocaleTimeString("ar-SA-u-nu-latn",{timeZone:"Asia/Riyadh",hour:"2-digit",minute:"2-digit"}):"—"}</span>
    </li>)}</ul>:<Empty>لم تُسجل حضورًا أو انصرافًا بعد.</Empty>}</Panel>
   </div>:null}
   {tab==="exams"?<div className="nw-duo">
