@@ -21,11 +21,19 @@ export class NoorAdminSupabaseTotpProviderR271 implements NoorAdminTotpProviderR
     private readonly request:typeof fetch=fetch,
   ){
     const url=new URL(projectUrl);
+    // Accept only public Supabase keys; never send service-role or secret keys.
+    let publicKey=publishableKey.startsWith("sb_publishable_");
+    if(!publicKey && publishableKey.split(".").length===3){
+      try{
+        const payload:unknown=JSON.parse(Buffer.from(publishableKey.split(".")[1]??"","base64url").toString("utf8"));
+        publicKey=!!payload && typeof payload==="object" && "role" in payload && payload.role==="anon";
+      }catch{publicKey=false;}
+    }
     if(url.protocol!=="https:" ||
        !/^[a-z0-9-]+\.supabase\.co$/iu.test(url.hostname) ||
        url.username || url.password || url.port ||
        (url.pathname!=="/" && url.pathname!=="") || url.search || url.hash ||
-       !publishableKey || publishableKey.length>4096)
+       !publicKey || publishableKey.length>4096)
       throw new Error("NOOR_ADMIN_TOTP_CONFIGURATION_DENIED");
     this.base=url.origin+"/auth/v1/factors/";
   }
