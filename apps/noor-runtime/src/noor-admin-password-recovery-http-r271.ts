@@ -8,7 +8,8 @@ export interface NoorAdminRecoveryHttpDependenciesR271 {
   readonly resolveAuthority:(sessionId:string)=>Promise<AdminAuthorityR271|null>;
   readonly resolveActorAccountId:(sessionId:string)=>Promise<string|null>;
   readonly provider:NoorAdminPasswordRecoveryProviderR271;
-  readonly audit:NoorAdminPasswordRecoveryAuditR271;
+  /** Create a new audit correlation scope per HTTP request. */
+  readonly createAudit:()=>NoorAdminPasswordRecoveryAuditR271;
 }
 function respond(response:ServerResponse,status:number):void {
   response.writeHead(status,{"Cache-Control":"no-store","Content-Length":"0",
@@ -65,7 +66,7 @@ export async function handleNoorAdminPasswordRecoveryR271(
     if(!actorAccountId){respond(response,403);return;}
     const result=await requestNoorAdminPasswordRecoveryR271({
       authority,actorAccountId,targetAuthUserId:payload.targetAuthUserId,
-    },{provider:dependencies.provider,audit:dependencies.audit});
+    },{provider:dependencies.provider,audit:dependencies.createAudit()});
     respond(response,result==="requested"?202:result==="denied"?403:503);
   }catch{respond(response,503);}
 }
