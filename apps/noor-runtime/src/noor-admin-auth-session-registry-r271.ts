@@ -1,6 +1,6 @@
 import type {NoorAdminAuthSessionRegistryR271} from "./noor-admin-supabase-assurance-r271.js";
 
-const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu;
+const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu;
 
 /**
  * Privileged SQL-only lookup; auth.sessions must never be exposed to
