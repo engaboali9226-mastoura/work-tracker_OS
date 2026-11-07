@@ -31,6 +31,10 @@ test("R271 admin list refuses method confusion and nonempty request bodies", asy
       body: JSON.stringify({action:"delete-all"}),
     });
     assert.equal(body.status, 400);
+    const ambiguous = await fetch(origin + "/api/noor/admin/accounts", {
+      method:"POST", headers:{Origin:origin,"Content-Type":"application/json"},
+    });
+    assert.equal(ambiguous.status,400);
     assert.equal(lookups, 0);
   } finally {
     server.close();
