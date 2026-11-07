@@ -52,6 +52,8 @@ import type {SupabaseClient} from "@supabase/supabase-js";
 import {NoorWorkTeacherOperationR264} from "./noor-work-teacher-operation-r264.js";
 import type {NoorWorkTeacherDatabaseR264} from "./noor-work-teacher-operation-r264.js";
 
+import type {NoorAdminSessionAuthenticationR271} from "./noor-admin-session-authentication-r271.js";
+
 import { NoorPrivateJournalOperationR185 } from "./noor-private-journal-r185.js";
 import type { JournalKeyRingR188 } from "./noor-private-journal-r185.js";
 import { parseJournalServerKeyRingR198 } from "./noor-private-journal-release-guard-r198.js";
@@ -86,6 +88,7 @@ export interface PrivilegedPlatformRuntimeOperations {
   readonly teacherWork: NoorWorkTeacherOperationR264;
 
   readonly trustedPrivateJournalR221?: NoorPrivateJournalOperationR185 | undefined;
+  readonly adminAuthenticationOperationR271?: NoorAdminSessionAuthenticationR271 | undefined;
 
   execute(
     input:
@@ -117,6 +120,7 @@ implements PrivilegedPlatformRuntimeOperations {
     public readonly teacherWork: NoorWorkTeacherOperationR264,
 
     public readonly trustedPrivateJournalR221?: NoorPrivateJournalOperationR185,
+    public readonly adminAuthenticationOperationR271?: NoorAdminSessionAuthenticationR271,
   ) {}
 
   public execute(
@@ -180,6 +184,7 @@ implements PrivilegedPlatformRuntimeHost {
 
     private readonly journalStore?: SupabasePostgresPrivateJournalStoreR221,
     private readonly journalKeyRing?: JournalKeyRingR188,
+    private readonly adminAuthenticationOperationR271?: NoorAdminSessionAuthenticationR271,
   ) {}
 
   public getState():
@@ -427,6 +432,7 @@ implements PrivilegedPlatformRuntimeHost {
           personalControl,
           teacherWork,
           privateJournal,
+          this.adminAuthenticationOperationR271,
         );
 
       this.activeOperation =
