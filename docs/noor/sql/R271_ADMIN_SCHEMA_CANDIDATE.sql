@@ -54,6 +54,30 @@ revoke all on function noor_admin_internal.noor_admin_auth_session_active_r271(u
   from public, anon, authenticated;
 grant execute on function noor_admin_internal.noor_admin_auth_session_active_r271(uuid,uuid)
   to service_role;
+
+-- Server-only PostgREST bridge. This public function is SECURITY INVOKER,
+-- has no direct access to auth.sessions and is not executable by browser roles.
+-- Only the private internal function above has SECURITY DEFINER privileges.
+-- This avoids an additional PostgreSQL driver/connection on the free host.
+create or replace function public.noor_admin_auth_session_active_r271(
+  p_auth_session_id uuid,
+  p_auth_user_id uuid
+) returns boolean
+language sql
+stable
+security invoker
+set search_path = ''
+as $admin_session_bridge_r271$
+  select noor_admin_internal.noor_admin_auth_session_active_r271(
+    p_auth_session_id, p_auth_user_id
+  );
+$admin_session_bridge_r271$;
+revoke all on function public.noor_admin_auth_session_active_r271(uuid,uuid)
+  from public, anon, authenticated;
+grant execute on function public.noor_admin_auth_session_active_r271(uuid,uuid)
+  to service_role;
+-- Production deployment must verify has_function_privilege(..., 'EXECUTE')
+-- is false for anon and authenticated, and true only for service_role.
 -- Requires a trusted PostgreSQL connection. Never expose noor_admin_internal
 -- to PostgREST, anon, authenticated, or any browser client.
 
