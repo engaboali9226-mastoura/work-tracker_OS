@@ -25,5 +25,6 @@ test("R271 exposed RPC bridge is invoker-only and callable solely by service_rol
   assert.match(sql,/select noor_admin_internal\.noor_admin_auth_session_active_r271\(/i);
   assert.match(sql,/revoke all on function public\.noor_admin_auth_session_active_r271\(uuid,uuid\)\s+from public, anon, authenticated/i);
   assert.match(sql,/grant execute on function public\.noor_admin_auth_session_active_r271\(uuid,uuid\)\s+to service_role/i);
-  assert.doesNotMatch(sql,/create or replace function public\.noor_admin_auth_session_active_r271\([\s\S]*?security definer/i);
+  const bridge=sql.split("create or replace function public.noor_admin_auth_session_active_r271(")[1]?.split("revoke all on function public.noor_admin_auth_session_active_r271(")[0]??"";
+  assert.doesNotMatch(bridge,/security definer/i);
 });
