@@ -107,6 +107,21 @@ async function main(){
      console.error('NOOR_FRIENDS_PROVISION='+code);
    }
  }
+ // R272: exactly one designated invitation, server only. No role or linkage.
+ if(process.env.NOOR_ADMIN_INVITE_CREATE_ONCE==='YES'){
+   try{
+     const {provisionAdminInvitationR272}=await import('./provision-admin-invitation-r272.mjs');
+     const result=await provisionAdminInvitationR272();
+     console.log('NOOR_ADMIN_INVITE_SETUP='+result);
+   }catch(error){
+     const allowed=new Set(['ADMIN_INVITE_CONFIG_DENIED','ADMIN_INVITE_LIST_UNAVAILABLE',
+       'ADMIN_INVITE_DUPLICATE_IDENTITY','ADMIN_INVITE_DELIVERY_UNAVAILABLE',
+       'ADMIN_INVITE_LIST_PAGINATION_UNAVAILABLE']);
+     const code=error instanceof Error&&allowed.has(error.message)
+       ?error.message:'ADMIN_INVITE_UNAVAILABLE';
+     console.error('NOOR_ADMIN_INVITE_SETUP='+code);
+   }
+ }
  console.log('NOOR hosted web service ready.');
 }
 if(process.argv[1]&&path.resolve(process.argv[1])===fileURLToPath(import.meta.url))await main().catch(()=>{console.error('NOOR hosted startup failed; verify service configuration.');process.exitCode=1;});
