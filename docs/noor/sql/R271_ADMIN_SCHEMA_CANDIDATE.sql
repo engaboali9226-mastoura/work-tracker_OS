@@ -33,7 +33,10 @@ revoke all on public.noor_admin_accounts_r271 from anon, authenticated;
 revoke all on public.noor_admin_audit_r271 from anon, authenticated;
 -- Atomic last-super-admin protection: the advisory transaction lock serializes
 -- all calls to this function. No browser role may execute this routine.
-create or replace function public.noor_admin_disable_account_r271(
+create schema if not exists noor_admin_internal;
+revoke all on schema noor_admin_internal from public, anon, authenticated;
+grant usage on schema noor_admin_internal to service_role;
+create or replace function noor_admin_internal.noor_admin_disable_account_r271(
   p_actor_account_id text,
   p_target_account_id text,
   p_request_id uuid
@@ -78,10 +81,12 @@ begin
   return true;
 end;
 $;
-revoke all on function public.noor_admin_disable_account_r271(text,text,uuid)
+revoke all on function noor_admin_internal.noor_admin_disable_account_r271(text,text,uuid)
   from public, anon, authenticated;
-grant execute on function public.noor_admin_disable_account_r271(text,text,uuid)
+grant execute on function noor_admin_internal.noor_admin_disable_account_r271(text,text,uuid)
   to service_role;
+-- IMPORTANT: noor_admin_internal must not be an exposed Data API schema.
+-- Invoke via trusted server-side PostgreSQL connection only, never browser RPC.
 
 -- No policies: trusted server only. The runtime must authorize all access
 -- using live session + MFA + verified grant; never infer roles from email.
