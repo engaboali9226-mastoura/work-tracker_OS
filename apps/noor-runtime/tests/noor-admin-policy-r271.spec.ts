@@ -58,3 +58,9 @@ test("R271 denies account mutations to non-super-admin roles",()=>{
   assert.equal(authorizeAdminActionR271(ordinaryAdmin,"accounts:disable"),false);
   assert.equal(authorizeAdminActionR271(ordinaryAdmin,"entitlements:manage"),false);
 });
+
+
+test("R271 rejects absent or unknown server-side roles",()=>{
+  assert.equal(authorizeAdminActionR271({...valid,role:undefined},"accounts:list"),false);
+  assert.equal(authorizeAdminActionR271({...valid,role:"owner" as "admin"},"accounts:list"),false);
+});
