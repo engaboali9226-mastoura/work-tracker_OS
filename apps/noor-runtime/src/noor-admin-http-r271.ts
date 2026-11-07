@@ -58,7 +58,8 @@ export async function handleAdminAccountsR271(
     return;
   }
   // This endpoint accepts no body, avoiding ambiguous command parsing.
-  if (request.headers["transfer-encoding"] !== undefined ||
+  if (request.headers["content-type"] !== undefined ||
+      request.headers["transfer-encoding"] !== undefined ||
       (request.headers["content-length"] !== undefined &&
        request.headers["content-length"] !== "0")) {
     respond(response, 400);
