@@ -75,6 +75,7 @@ import {
 export interface PrivilegedPlatformRuntimeOperations {
   readonly sessionEstablishment:
     PrivilegedSessionEstablishmentOperation;
+  readonly sessionRevocation: Readonly<{execute(input:Readonly<{sessionId:string}>):Promise<void>}>;
 
   readonly personalToday:
     PersonalTodayOperation;
@@ -105,6 +106,7 @@ implements PrivilegedPlatformRuntimeOperations {
 
     public readonly sessionEstablishment:
       PrivilegedSessionEstablishmentOperation,
+    public readonly sessionRevocation: Readonly<{execute(input:Readonly<{sessionId:string}>):Promise<void>}>,
 
     public readonly personalToday:
       PersonalTodayOperation,
@@ -420,6 +422,7 @@ implements PrivilegedPlatformRuntimeHost {
         new DefaultPrivilegedPlatformRuntimeOperations(
           routeAccess,
           sessionEstablishment,
+          platform.services.session.revoke,
           personalToday,
           personalControl,
           teacherWork,
