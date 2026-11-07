@@ -11,5 +11,11 @@ CREATE TABLE IF NOT EXISTS public.noor_work_teacher_states_r264 (
 );
 ALTER TABLE public.noor_work_teacher_states_r264 ENABLE ROW LEVEL SECURITY;
 REVOKE ALL ON TABLE public.noor_work_teacher_states_r264 FROM anon, authenticated;
+-- R266: PostgreSQL table privileges are not automatic for newly created objects.
+-- RLS bypass does not imply SELECT/INSERT/UPDATE grants for PostgREST's
+-- service_role; without these grants the authenticated teacher API returns 503.
+-- Grant only the trusted server the three operations required by the
+-- owner-scoped runtime. Do not grant DELETE or browser roles.
+GRANT SELECT, INSERT, UPDATE ON TABLE public.noor_work_teacher_states_r264 TO service_role;
 -- Do not create public RLS policies or grant browser direct access.
 -- The trusted server uses Supabase service-role with explicit ownership checks.
