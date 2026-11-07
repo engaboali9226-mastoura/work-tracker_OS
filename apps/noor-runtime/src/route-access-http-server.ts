@@ -7,6 +7,7 @@ import type {
   Server,
   ServerResponse,
 } from "node:http";
+export type {IncomingMessage,ServerResponse} from "node:http";
 
 import type {
   RouteAccessEvidenceRequest,
