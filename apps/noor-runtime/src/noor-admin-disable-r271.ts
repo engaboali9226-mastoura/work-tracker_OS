@@ -5,12 +5,10 @@ export interface AdminDisableAccountStoreR271 {
   getAccount(accountId:string):Promise<Readonly<{
     accountId:string;isSuperAdmin:boolean;enabled:boolean;
   }> | null>;
-  disableIfUnchanged(input:Readonly<{
-    accountId:string;expectedActiveSuperAdminCount:number;
+  /** Atomic transaction: conditional disable AND audit insert, or neither. */
+  disableAndAuditAtomically(input:Readonly<{
+    accountId:string;actorAccountId:string;expectedActiveSuperAdminCount:number;
   }>):Promise<boolean>;
-}
-export interface AdminDisableAuditR271 {
-  record(input:Readonly<{actorAccountId:string;targetAccountId:string;outcome:"denied"|"success"}>):Promise<void>;
 }
 /**
  * Preflight for account disable. The store MUST enforce an atomic conditional
@@ -19,7 +17,7 @@ export interface AdminDisableAuditR271 {
  */
 export async function disableAdminAccountR271(
   input:Readonly<{actorAccountId:string;targetAccountId:string}>,
-  dependencies:Readonly<{store:AdminDisableAccountStoreR271;audit:AdminDisableAuditR271}>,
+  dependencies:Readonly<{store:AdminDisableAccountStoreR271}>,
 ):Promise<"disabled"|"denied"|"unavailable"> {
   if(!input.actorAccountId || !input.targetAccountId ||
      input.actorAccountId===input.targetAccountId) return "denied";
@@ -33,14 +31,11 @@ export async function disableAdminAccountR271(
          actorAccountId:input.actorAccountId,targetAccountId:input.targetAccountId,
          activeSuperAdminCount:count,targetIsSuperAdmin:target.isSuperAdmin,
        })) return "denied";
-    const changed=await dependencies.store.disableIfUnchanged({
-      accountId:input.targetAccountId,expectedActiveSuperAdminCount:count,
+    const changed=await dependencies.store.disableAndAuditAtomically({
+      accountId:input.targetAccountId,actorAccountId:input.actorAccountId,
+      expectedActiveSuperAdminCount:count,
     });
     if(!changed) return "denied";
-    await dependencies.audit.record({
-      actorAccountId:input.actorAccountId,targetAccountId:input.targetAccountId,
-      outcome:"success",
-    });
     return "disabled";
   } catch {
     return "unavailable";
