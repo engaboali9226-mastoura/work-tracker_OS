@@ -2,7 +2,7 @@ import {useEffect,useState} from "react";
 import {createNoorAdminBrowserAuthR271,type NoorAdminBrowserFactorR271} from "./noor-admin-browser-auth-r271.js";
 
 type Account=Readonly<{id:string;email:string;enabled:boolean}>;
-type Phase="loading"|"needs-auth"|"signing-in"|"mfa"|"enroll"|"verifying"|"ready"|"unavailable";
+type Phase="loading"|"needs-auth"|"signing-in"|"mfa"|"enroll"|"verifying"|"ready"|"unavailable"|"invitation"|"invitation-ready";
 const panel:React.CSSProperties={background:"#fff",border:"1px solid #e7e5df",borderRadius:22,
   boxShadow:"0 8px 26px rgba(18,38,45,.04)",padding:"clamp(18px,3vw,30px)",marginTop:20};
 const field:React.CSSProperties={display:"block",width:"100%",maxWidth:420,boxSizing:"border-box",
@@ -22,6 +22,7 @@ export function NoorAdminViewR271(){
   const [qr,setQr]=useState("");
   const [error,setError]=useState("");
   const [busy,setBusy]=useState(false);
+  const [invitationMode,setInvitationMode]=useState(false);
 
   async function refreshAccounts(signal?:AbortSignal):Promise<void>{
     try{
@@ -59,6 +60,7 @@ export function NoorAdminViewR271(){
     if(busy)return;
     setBusy(true);setError("");setPhase("signing-in");
     try{
+      setInvitationMode(false);
       const list=await client.signIn(email,password);
       setPassword("");
       setFactors(list);
@@ -82,19 +84,44 @@ export function NoorAdminViewR271(){
     if(busy || !factor)return;
     setBusy(true);setError("");setPhase("verifying");
     try{
-      await client.authenticate(factor,code);
-      setCode("");setQr("");
-      await refreshAccounts();
+      if(invitationMode){
+        await client.verifyEnrollment(factor,code);
+        setCode("");setQr("");
+        setPhase("invitation-ready");
+      }else{
+        await client.authenticate(factor,code);
+        setCode("");setQr("");
+        await refreshAccounts();
+      }
     }catch{
       setCode("");setError("لم ينجح التحقق. تأكد من الرمز وصلاحية الحساب.");
       setPhase(qr?"enroll":"mfa");
     }finally{setBusy(false);}
   }
+  async function acceptInvitation(event:React.FormEvent<HTMLFormElement>):Promise<void>{
+    event.preventDefault();
+    if(busy)return;
+    setBusy(true);setError("");
+    try{
+      const list=await client.acceptInvitation(password);
+      setPassword("");setInvitationMode(true);
+      setFactors(list);
+      if(list.length){setFactor(list[0]!.id);setPhase("mfa");}
+      else{setPhase("enroll");}
+    }catch{
+      setPassword("");
+      setError("لم يتم تأكيد الدعوة بعد. افتح رابط الدعوة من البريد ثم أعد المحاولة.");
+      setPhase("invitation");
+    }finally{setBusy(false);}
+  }
   async function revoke():Promise<void>{
-    setBusy(true);
-    try{await client.revoke();}
-    catch{setError("تعذر إبطال جلسة الإدارة عبر الخادم.");}
-    finally{setAccounts([]);setCode("");setQr("");setPhase("needs-auth");setBusy(false);}
+    if(busy)return;
+    setBusy(true);setError("");
+    try{
+      await client.revoke();
+      setAccounts([]);setCode("");setQr("");setPhase("needs-auth");
+    }catch{setError("تعذر إبطال جلسة الإدارة عبر الخادم. أعد المحاولة.");}
+    finally{setBusy(false);}
   }
   return <main dir="rtl" style={{minHeight:"100dvh",background:"#f7f5f0",color:"#243731",
     fontFamily:"-apple-system,BlinkMacSystemFont,system-ui,sans-serif",padding:"clamp(20px,5vw,50px)"}}>
@@ -110,6 +137,8 @@ export function NoorAdminViewR271(){
       {phase==="unavailable" && <section style={panel}>
         <p>لم يُجرَ أي تغيير على الحسابات.</p>
         <button type="button" style={button} onClick={()=>{setPhase("loading");void refreshAccounts();}}>إعادة المحاولة</button>
+        <button type="button" style={{...button,background:"#e7efea",color:"#285449",marginInlineStart:10}}
+          onClick={()=>{setPassword("");setError("");setPhase("invitation");}}>إكمال دعوة المدير</button>
       </section>}
       {(phase==="needs-auth" || phase==="signing-in") && <section style={panel}>
         <h2 style={{marginTop:0,fontSize:20}}>التحقق من هوية المدير</h2>
@@ -123,6 +152,32 @@ export function NoorAdminViewR271(){
             value={password} onChange={event=>setPassword(event.currentTarget.value)} required/>
           <button type="submit" style={button} disabled={busy}>{busy?"جارٍ التحقق…":"متابعة"}</button>
         </form>
+        <button type="button" style={{...button,background:"transparent",color:"#285449",paddingInlineStart:0,marginTop:14}}
+          onClick={()=>{setPassword("");setError("");setPhase("invitation");}}>لديك دعوة بريدية جديدة؟</button>
+      </section>}
+      {phase==="invitation" && <section style={panel}>
+        <h2 style={{marginTop:0,fontSize:20}}>تفعيل هوية المدير المستقلة</h2>
+        <p style={{color:"#65766e",lineHeight:1.8}}>
+          افتح رابط الدعوة من بريدك الإلكتروني باستخدام هذا المتصفح، ثم أدخل كلمة مرور جديدة.
+          لن تُمنح صلاحيات الإدارة تلقائيًا حتى يتم اعتماد الحساب والتحقق من MFA.
+        </p>
+        <form onSubmit={event=>{void acceptInvitation(event);}}>
+          <label htmlFor="noor-admin-invite-password">كلمة مرور جديدة (12 حرفًا على الأقل)</label>
+          <input id="noor-admin-invite-password" type="password" autoComplete="new-password"
+            style={field} minLength={12} maxLength={128} value={password}
+            onChange={event=>setPassword(event.currentTarget.value)} required/>
+          <button style={button} type="submit" disabled={busy}>
+            {busy?"جارٍ تأكيد الدعوة…":"تأكيد البريد وتعيين كلمة المرور"}
+          </button>
+        </form>
+      </section>}
+      {phase==="invitation-ready" && <section style={panel} role="status">
+        <h2 style={{marginTop:0,fontSize:20}}>تم التحقق من المصادقة الثنائية</h2>
+        <p style={{lineHeight:1.9}}>
+          اكتمل إعداد حساب Auth المستقل دون الوصول إلى بيانات مستخدمي نور.
+          تفعيل صلاحية المدير يتطلب التحقق من ربط الهوية بحساب نور ومنح اعتماد خادمي منفصل.
+        </p>
+        <a href="/" style={{color:"#285449"}}>العودة إلى منصة نور</a>
       </section>}
       {(phase==="mfa" || phase==="enroll" || phase==="verifying") && <section style={panel}>
         <h2 style={{marginTop:0,fontSize:20}}>المصادقة الثنائية</h2>
@@ -147,7 +202,7 @@ export function NoorAdminViewR271(){
           <input id="noor-admin-code" type="text" inputMode="numeric" pattern="[0-9]{6}"
             maxLength={6} autoComplete="one-time-code" style={{...field,direction:"ltr",textAlign:"center",letterSpacing:6}}
             value={code} onChange={event=>setCode(event.currentTarget.value.replace(/[^0-9]/g,""))} required/>
-          <button style={button} type="submit" disabled={busy}>{busy?"جارٍ التحقق…":"تحقق وافتح الإدارة"}</button>
+          <button style={button} type="submit" disabled={busy}>{busy?"جارٍ التحقق…":invitationMode?"تحقق من الرمز وأنهِ الإعداد":"تحقق وافتح الإدارة"}</button>
         </form>}
       </section>}
       {phase==="ready" && <section style={panel} aria-label="الحسابات">
