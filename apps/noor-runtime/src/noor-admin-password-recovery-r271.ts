@@ -13,7 +13,7 @@ export interface NoorAdminPasswordRecoveryProviderR271 {
 export interface NoorAdminPasswordRecoveryAuditR271 {
   record(input:Readonly<{
     actorAccountId:string;targetAuthUserId:string;action:"accounts:reset-password";
-    outcome:"requested"|"failed";
+    outcome:"initiated"|"requested"|"failed";
   }>):Promise<void>;
 }
 export async function requestNoorAdminPasswordRecoveryR271(
@@ -31,6 +31,10 @@ export async function requestNoorAdminPasswordRecoveryR271(
      !input.actorAccountId || !input.targetAuthUserId ||
      input.targetAuthUserId.length>128) return "denied";
   try{
+    await dependencies.audit.record({
+      actorAccountId:input.actorAccountId,targetAuthUserId:input.targetAuthUserId,
+      action:"accounts:reset-password",outcome:"initiated",
+    });
     const delivered=await dependencies.provider.sendRecoveryEmailForUserId(input.targetAuthUserId);
     await dependencies.audit.record({
       actorAccountId:input.actorAccountId,targetAuthUserId:input.targetAuthUserId,
