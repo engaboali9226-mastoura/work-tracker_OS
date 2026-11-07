@@ -37,6 +37,7 @@ export function authorizeAdminActionR271(
       !authority.verifiedAdminGrant || authority.assuranceLevel !== "aal2") {
     return false;
   }
+  if (authority.role !== "super_admin" && authority.role !== "admin") return false;
   if (action !== "accounts:list" && action !== "audit:list" &&
       authority.role !== "super_admin") return false;
   return !SENSITIVE_ACTIONS.has(action) || authority.reauthenticated === true;
