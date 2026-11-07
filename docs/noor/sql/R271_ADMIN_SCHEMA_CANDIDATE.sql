@@ -31,6 +31,58 @@ alter table public.noor_admin_accounts_r271 enable row level security;
 alter table public.noor_admin_audit_r271 enable row level security;
 revoke all on public.noor_admin_accounts_r271 from anon, authenticated;
 revoke all on public.noor_admin_audit_r271 from anon, authenticated;
+-- Atomic last-super-admin protection: the advisory transaction lock serializes
+-- all calls to this function. No browser role may execute this routine.
+create or replace function public.noor_admin_disable_account_r271(
+  p_actor_account_id text,
+  p_target_account_id text,
+  p_request_id uuid
+) returns boolean
+language plpgsql
+security definer
+set search_path = ''
+as $
+declare
+  v_actor uuid;
+  v_target uuid;
+  v_target_role text;
+  v_super_admin_count bigint;
+begin
+  if p_actor_account_id is null or p_target_account_id is null
+     or p_actor_account_id = p_target_account_id or p_request_id is null then
+    return false;
+  end if;
+  perform pg_catalog.pg_advisory_xact_lock(271, 1);
+  select auth_user_id into v_actor
+    from public.noor_admin_accounts_r271
+    where account_id = p_actor_account_id and enabled = true
+      and role = 'super_admin';
+  if v_actor is null then return false; end if;
+  select auth_user_id, role into v_target, v_target_role
+    from public.noor_admin_accounts_r271
+    where account_id = p_target_account_id and enabled = true
+    for update;
+  if v_target is null then return false; end if;
+  if v_target_role = 'super_admin' then
+    select count(*) into v_super_admin_count
+      from public.noor_admin_accounts_r271
+      where enabled = true and role = 'super_admin';
+    if v_super_admin_count <= 1 then return false; end if;
+  end if;
+  update public.noor_admin_accounts_r271
+    set enabled = false, updated_at = pg_catalog.now()
+    where auth_user_id = v_target;
+  insert into public.noor_admin_audit_r271
+    (actor_auth_user_id, target_auth_user_id, action, outcome, request_id)
+    values (v_actor, v_target, 'accounts:disable', 'success', p_request_id);
+  return true;
+end;
+$;
+revoke all on function public.noor_admin_disable_account_r271(text,text,uuid)
+  from public, anon, authenticated;
+grant execute on function public.noor_admin_disable_account_r271(text,text,uuid)
+  to service_role;
+
 -- No policies: trusted server only. The runtime must authorize all access
 -- using live session + MFA + verified grant; never infer roles from email.
 -- No bootstrap INSERT here: provision only after verified invitation.
