@@ -1,4 +1,4 @@
-import {mayDisableAdminAccountR271} from "./noor-admin-policy-r271.js";
+import {authorizeAdminActionR271,mayDisableAdminAccountR271,type AdminAuthorityR271} from "./noor-admin-policy-r271.js";
 
 export interface AdminDisableAccountStoreR271 {
   countActiveSuperAdmins():Promise<number>;
@@ -16,10 +16,11 @@ export interface AdminDisableAccountStoreR271 {
  * the final administrators. Never replace with a read-then-write update.
  */
 export async function disableAdminAccountR271(
-  input:Readonly<{actorAccountId:string;targetAccountId:string}>,
+  input:Readonly<{actorAccountId:string;targetAccountId:string;authority:AdminAuthorityR271|null}>,
   dependencies:Readonly<{store:AdminDisableAccountStoreR271}>,
 ):Promise<"disabled"|"denied"|"unavailable"> {
-  if(!input.actorAccountId || !input.targetAccountId ||
+  if(!authorizeAdminActionR271(input.authority,"accounts:disable") ||
+     !input.actorAccountId || !input.targetAccountId ||
      input.actorAccountId===input.targetAccountId) return "denied";
   try {
     const [target,count]=await Promise.all([
