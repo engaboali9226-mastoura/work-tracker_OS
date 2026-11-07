@@ -30,7 +30,7 @@ function setup(provider:{verify(input:Readonly<{accessToken:string;factorId:stri
 test("R271 production composition keeps step-up off without server TOTP adapter",async()=>{
   const composition=setup(undefined);
   assert.equal(composition.stepUp,null);
-  assert.equal(await composition.authorizeSensitiveAction("noor-session","accounts:delete"),false);
+  assert.equal(await composition.authorizeSensitiveAction("noor-session","accounts:delete","account-one"),false);
 });
 test("R271 fresh server-verified MFA authorizes exactly one sensitive operation",async()=>{
   let calls=0;
@@ -44,14 +44,14 @@ test("R271 fresh server-verified MFA authorizes exactly one sensitive operation"
     platformSessionId:"noor-session",accessToken:"initial-token",
   }),"authenticated");
   assert.ok(composition.stepUp);
-  assert.equal(await composition.authorizeSensitiveAction("noor-session","accounts:delete"),false);
+  assert.equal(await composition.authorizeSensitiveAction("noor-session","accounts:delete","account-one"),false);
   assert.equal(await composition.stepUp?.verify({
     platformSessionId:"noor-session",factorId:factor,code:"123456",
   }),true);
   assert.equal(calls,1);
-  assert.equal(await composition.authorizeSensitiveAction("noor-session","accounts:delete"),true);
-  assert.equal(await composition.authorizeSensitiveAction("noor-session","accounts:delete"),false);
-  assert.equal(await composition.authorizeSensitiveAction("noor-session","accounts:list"),false);
+  assert.equal(await composition.authorizeSensitiveAction("noor-session","accounts:delete","account-one"),true);
+  assert.equal(await composition.authorizeSensitiveAction("noor-session","accounts:delete","account-one"),false);
+  assert.equal(await composition.authorizeSensitiveAction("noor-session","accounts:list","account-one"),false);
 });
 test("R271 revoke destroys unconsumed MFA proof and Auth session binding",async()=>{
   const composition=setup({verify:async()=> "fresh-token"});
@@ -62,7 +62,7 @@ test("R271 revoke destroys unconsumed MFA proof and Auth session binding",async(
     platformSessionId:"noor-session",factorId:factor,code:"123456",
   }),true);
   composition.revokeSession("noor-session");
-  assert.equal(await composition.authorizeSensitiveAction("noor-session","accounts:delete"),false);
+  assert.equal(await composition.authorizeSensitiveAction("noor-session","accounts:delete","account-one"),false);
   assert.equal(await composition.resolveActor("noor-session"),null);
 });
 
