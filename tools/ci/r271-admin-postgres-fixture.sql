@@ -1,7 +1,7 @@
 -- Isolated PostgreSQL test database only; never apply to a real Supabase project.
 create role anon nologin;
 create role authenticated nologin;
-create role service_role nologin;
+create role service_role nologin bypassrls;
 create schema auth;
 create table auth.users (
   id uuid primary key
