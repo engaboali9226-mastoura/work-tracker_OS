@@ -31,6 +31,6 @@ test("R271 accepts server-verified admin only with MFA assurance",async()=>{
   });
   assert.deepEqual(await resolve("session"),{
     sessionActive:true,accountActive:true,verifiedAdminGrant:true,
-    assuranceLevel:"aal2",reauthenticated:true,
+    assuranceLevel:"aal2",reauthenticated:true,role:"super_admin",
   });
 });
