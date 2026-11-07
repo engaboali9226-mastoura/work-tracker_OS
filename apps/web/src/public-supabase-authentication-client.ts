@@ -218,3 +218,17 @@ export function createBrowserPublicSupabaseAuthenticationClient(
     },
   });
 }
+
+/**
+ * The sole sanctioned browser Supabase Auth adapter may construct a second
+ * ephemeral user-context client for administrator MFA. No service credentials,
+ * local storage, account queries or privileged authorization live here.
+ */
+export type PublicNoorAdminSupabaseClientR271=ReturnType<typeof createClient>;
+export function createNoorAdminUserAuthClientR271(
+  config:PublicAuthenticationConfiguration,
+):PublicNoorAdminSupabaseClientR271{
+  return createClient(config.supabaseUrl,config.supabasePublishableKey,{
+    auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false},
+  });
+}
