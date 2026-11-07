@@ -27,6 +27,9 @@ export async function handleNoorAdminSessionAuthenticationR271(
   request:IncomingMessage,response:ServerResponse,platformSessionId:string|null,
   dependencies:NoorAdminSessionAuthenticationHttpDependenciesR271,
 ):Promise<void>{
+  if(request.url!==NOOR_ADMIN_SESSION_AUTHENTICATION_PATH_R271 &&
+     request.url!==NOOR_ADMIN_SESSION_RENEW_PATH_R271 &&
+     request.url!==NOOR_ADMIN_SESSION_REVOKE_PATH_R271){respond(response,404);return;}
   if(request.method!=="POST"){respond(response,405);return;}
   if(!exactOrigin(request,dependencies.expectedOrigin)){respond(response,403);return;}
   if(!platformSessionId){respond(response,401);return;}
