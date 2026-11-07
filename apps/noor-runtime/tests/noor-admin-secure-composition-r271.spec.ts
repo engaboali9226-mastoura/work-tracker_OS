@@ -23,6 +23,7 @@ test("R271 secure composition does not grant authority without MFA proof exchang
   const composition=createNoorAdminSecureCompositionR271({
     client,session:{execute:async()=>({accountId:{toString:()=>"account-one"}})},
     now:()=>now,
+    sessionRegistry:{isActive:async()=>true},
   });
   assert.equal(await composition.resolveAuthority("noor-session"),null);
   assert.equal(await composition.authentication.authenticate({
