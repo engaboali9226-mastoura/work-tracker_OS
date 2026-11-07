@@ -27,3 +27,12 @@ test("R271 directory fails closed when Supabase is unavailable",async()=>{
   await assert.rejects(()=>new NoorAdminDirectoryR271(client).listAccounts(),
     /NOOR_ADMIN_DIRECTORY_UNAVAILABLE/);
 });
+
+
+test("R271 refuses to report a potentially truncated account directory",async()=>{
+  const client={auth:{admin:{listUsers:async()=>({error:null,data:{users:
+    Array.from({length:100},(_,i)=>({id:String(i),email:`u${i}@example.org`}))
+  }})}}} as unknown as SupabaseClient;
+  await assert.rejects(()=>new NoorAdminDirectoryR271(client).listAccounts(),
+    /NOOR_ADMIN_DIRECTORY_PAGINATION_REQUIRED/);
+});
