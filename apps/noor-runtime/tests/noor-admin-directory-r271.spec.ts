@@ -49,3 +49,14 @@ test("R271 rejects unbounded or repeated account pages",async()=>{
   await assert.rejects(()=>new NoorAdminDirectoryR271(client).listAccounts(),
     /NOOR_ADMIN_DIRECTORY_DUPLICATE/);
 });
+
+
+test("R271 interprets Supabase unbanned sentinel and future bans",async()=>{
+  const client={auth:{admin:{listUsers:async()=>({error:null,data:{users:[
+    {id:"active",email:"a@example.org",banned_until:"none"},
+    {id:"banned",email:"b@example.org",banned_until:"2099-01-01T00:00:00Z"},
+    {id:"invalid",email:"c@example.org",banned_until:"invalid"},
+  ]}})}}} as unknown as SupabaseClient;
+  const accounts=await new NoorAdminDirectoryR271(client).listAccounts();
+  assert.deepEqual(accounts.map(a=>a.enabled),[true,false,false]);
+});
