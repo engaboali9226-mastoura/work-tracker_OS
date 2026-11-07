@@ -27,7 +27,9 @@ export class NoorAdminDirectoryR271 {
           id:user.id,
           email:user.email??"",
           enabled:user.banned_until===undefined || user.banned_until===null ||
-            new Date(user.banned_until).getTime()<=Date.now(),
+            user.banned_until==="none" ||
+            (Number.isFinite(Date.parse(user.banned_until)) &&
+             Date.parse(user.banned_until)<=Date.now()),
         });
       }
       if(data.users.length<100) return accounts;
