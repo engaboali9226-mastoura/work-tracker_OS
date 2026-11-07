@@ -31,6 +31,7 @@ export class NoorAdminSessionAuthenticationR271 {
   public async authenticate(input:Readonly<{
     platformSessionId:string;accessToken:string;
   }>):Promise<"authenticated"|"denied"|"unavailable">{
+    if(!input || typeof input!=="object")return "denied";
     const {platformSessionId,accessToken}=input;
     if(typeof platformSessionId!=="string" || !platformSessionId ||
        platformSessionId.length>256 || typeof accessToken!=="string" ||
