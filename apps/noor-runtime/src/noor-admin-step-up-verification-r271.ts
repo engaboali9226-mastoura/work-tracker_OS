@@ -1,3 +1,4 @@
+import {createHash} from "node:crypto";
 import type {NoorAdminStepUpR271} from "./noor-admin-step-up-r271.js";
 
 export interface NoorAdminTrustedChallengeVerifierR271 {
@@ -18,6 +19,7 @@ export interface NoorAdminTrustedChallengeVerifierR271 {
  * platform/Auth sessions before this method is wired.
  */
 export class NoorAdminVerifiedStepUpIssuerR271 {
+  private readonly consumedChallenges=new Set<string>();
   public constructor(
     private readonly verifier:NoorAdminTrustedChallengeVerifierR271,
     private readonly proofs:Pick<NoorAdminStepUpR271,"recordVerifiedChallenge">,
@@ -30,6 +32,12 @@ export class NoorAdminVerifiedStepUpIssuerR271 {
   }>):Promise<boolean>{
     if(!input || !input.platformSessionId || !input.challengeId ||
        input.challengeId.length>256)return false;
+    const key=createHash("sha256").update(JSON.stringify([
+      input.authUserId,input.authSessionId,input.challengeId,
+    ])).digest("hex");
+    // Reserve before awaiting the verifier to deny concurrent replay.
+    if(this.consumedChallenges.has(key))return false;
+    this.consumedChallenges.add(key);
     try{
       const evidence=await this.verifier.verify(input);
       if(!evidence || !Number.isSafeInteger(evidence.verifiedAtMs))return false;
@@ -41,4 +49,6 @@ export class NoorAdminVerifiedStepUpIssuerR271 {
       });
     }catch{return false;}
   }
+  /** Revocation/shutdown clears ephemeral replay state, not a proof of freshness. */
+  public shutdown():void{this.consumedChallenges.clear();}
 }
