@@ -31,6 +31,11 @@ alter table public.noor_admin_accounts_r271 enable row level security;
 alter table public.noor_admin_audit_r271 enable row level security;
 revoke all on public.noor_admin_accounts_r271 from anon, authenticated;
 revoke all on public.noor_admin_audit_r271 from anon, authenticated;
+-- Supabase service_role does not automatically inherit SELECT/INSERT on
+-- newly created private application tables; grant only the operations
+-- required by the privileged runtime, never to browser roles.
+grant select on public.noor_admin_accounts_r271 to service_role;
+grant select, insert on public.noor_admin_audit_r271 to service_role;
 create schema if not exists noor_admin_internal;
 revoke all on schema noor_admin_internal from public, anon, authenticated;
 grant usage on schema noor_admin_internal to service_role;
