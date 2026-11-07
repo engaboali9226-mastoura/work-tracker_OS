@@ -31,11 +31,11 @@ extends RouteAccessEvidenceExecutor {
   readonly personalToday?: import("./personal-today-operation.js").PersonalTodayExecutor;
   readonly personalControl?: import("./personal-control-operation.js").PersonalControlExecutor;
   readonly teacherWork?: import("./noor-work-teacher-operation-r264.js").NoorWorkTeacherOperationR264;
-  readonly adminR271?: import("./noor-admin-http-r271.js").AdminHttpDependenciesR271;
-  readonly adminRecoveryR271?: import("./noor-admin-password-recovery-http-r271.js").NoorAdminRecoveryHttpDependenciesR271;
-  readonly adminAuthenticationR271?: import("./noor-admin-session-authentication-http-r271.js").NoorAdminSessionAuthenticationHttpDependenciesR271;
+  readonly adminR271?: import("./noor-admin-http-r271.js").AdminHttpDependenciesR271 | undefined;
+  readonly adminRecoveryR271?: import("./noor-admin-password-recovery-http-r271.js").NoorAdminRecoveryHttpDependenciesR271 | undefined;
+  readonly adminAuthenticationR271?: import("./noor-admin-session-authentication-http-r271.js").NoorAdminSessionAuthenticationHttpDependenciesR271 | undefined;
   readonly adminAuthenticationOperationR271?: import("./noor-admin-session-authentication-r271.js").NoorAdminSessionAuthenticationR271 | undefined;
-  readonly adminStepUpR271?: import("./noor-admin-step-up-http-r271.js").NoorAdminStepUpHttpDependenciesR271;
+  readonly adminStepUpR271?: import("./noor-admin-step-up-http-r271.js").NoorAdminStepUpHttpDependenciesR271 | undefined;
   readonly adminStepUpOperationR271?: import("./noor-admin-server-step-up-r271.js").NoorAdminServerStepUpR271 | undefined;
   readonly trustedPrivateJournalR221?: import("./noor-private-journal-r185.js").NoorPrivateJournalOperationR185 | undefined;
 }
