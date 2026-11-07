@@ -35,6 +35,8 @@ extends RouteAccessEvidenceExecutor {
   readonly adminRecoveryR271?: import("./noor-admin-password-recovery-http-r271.js").NoorAdminRecoveryHttpDependenciesR271;
   readonly adminAuthenticationR271?: import("./noor-admin-session-authentication-http-r271.js").NoorAdminSessionAuthenticationHttpDependenciesR271;
   readonly adminAuthenticationOperationR271?: import("./noor-admin-session-authentication-r271.js").NoorAdminSessionAuthenticationR271 | undefined;
+  readonly adminStepUpR271?: import("./noor-admin-step-up-http-r271.js").NoorAdminStepUpHttpDependenciesR271;
+  readonly adminStepUpOperationR271?: import("./noor-admin-server-step-up-r271.js").NoorAdminServerStepUpR271 | undefined;
   readonly trustedPrivateJournalR221?: import("./noor-private-journal-r185.js").NoorPrivateJournalOperationR185 | undefined;
 }
 
@@ -207,6 +209,19 @@ implements PrivilegedTransportRuntime {
           ? {adminAuthenticationR271:executor.adminAuthenticationR271}
           : (()=>{throw Error("R271_ADMIN_AUTHENTICATION_ORIGIN_MISMATCH");})();
 
+      if(executor.adminStepUpR271 && executor.adminStepUpOperationR271){
+        throw Error("R271_ADMIN_STEP_UP_DUPLICATE_SOURCE");
+      }
+      const adminStepUpOptions:Pick<RouteAccessHttpServerOptions,"adminStepUpR271"> =
+        executor.adminStepUpOperationR271!==undefined
+          ? {adminStepUpR271:{
+              operation:executor.adminStepUpOperationR271,
+              expectedOrigin:this.dependencies.httpConfiguration.publicOrigin,
+            }}
+          : executor.adminStepUpR271===undefined ? {} :
+          executor.adminStepUpR271.expectedOrigin===this.dependencies.httpConfiguration.publicOrigin
+            ? {adminStepUpR271:executor.adminStepUpR271}
+            : (()=>{throw Error("R271_ADMIN_STEP_UP_ORIGIN_MISMATCH");})();
       const teacherWorkOptions: Pick<RouteAccessHttpServerOptions,"teacherWorkR264"> =
         executor.teacherWork===undefined ? {} : {teacherWorkR264:{operation:executor.teacherWork,expectedOrigin:this.dependencies.httpConfiguration.publicOrigin}};
 
@@ -281,6 +296,7 @@ implements PrivilegedTransportRuntime {
             ...adminOptions,
             ...adminRecoveryOptions,
             ...adminAuthenticationOptions,
+            ...adminStepUpOptions,
             ...labJournalOptions,
             ...trustedJournalOptions,
           },
