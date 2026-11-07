@@ -31,6 +31,16 @@ begin
       'public.noor_admin_auth_session_active_r271(uuid,uuid)','EXECUTE') then
     raise exception 'R271 service_role cannot execute RPC';
   end if;
+  if not has_table_privilege('service_role','public.noor_admin_accounts_r271','SELECT') or
+     not has_table_privilege('service_role','public.noor_admin_audit_r271','INSERT') then
+    raise exception 'R271 service role lacks required application table privileges';
+  end if;
+  if has_table_privilege('anon','public.noor_admin_accounts_r271','SELECT') or
+     has_table_privilege('authenticated','public.noor_admin_accounts_r271','SELECT') or
+     has_table_privilege('anon','public.noor_admin_audit_r271','INSERT') or
+     has_table_privilege('authenticated','public.noor_admin_audit_r271','INSERT') then
+    raise exception 'R271 browser role has access to internal admin tables';
+  end if;
   if has_table_privilege('service_role','auth.sessions','SELECT') then
     raise exception 'R271 must never grant service_role direct Auth session SELECT';
   end if;
@@ -98,3 +108,14 @@ begin
     raise exception 'R271 did not record exactly one successful audit event'; end if;
 end
 $noor_isolated_admin$;
+
+-- Only the restricted service role, never a browser role, can append audit.
+set role service_role;
+insert into public.noor_admin_audit_r271(
+  actor_auth_user_id,action,outcome,request_id
+) values (
+  '11111111-1111-4111-8111-111111111111',
+  'audit:smoke-test','success',
+  'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'
+);
+reset role;
