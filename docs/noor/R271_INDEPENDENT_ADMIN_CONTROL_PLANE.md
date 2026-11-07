@@ -28,7 +28,7 @@ Base: production R270 a179cef7c26648b6624940e179f1963654c3fc95.
 7. Publish review PR; merge and deploy only after green gates and explicit account provisioning details; verify Render live SHA, smoke test, and rollback path.
 
 ## Provisioning input required before first account activation
-- A dedicated administrator email address, owned by the platform operator, to receive a secure invitation / password setup.
+- Approved dedicated administrator email: eng92fa64@gmail.com (user supplied 2026-11-07). Verify control of mailbox through a one-time invitation before assigning any admin role.
 - MFA enrollment on first sign-in.
 - Do not solicit a password in chat.
 
