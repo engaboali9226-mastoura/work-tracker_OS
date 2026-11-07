@@ -29,6 +29,7 @@ function fixture(options:{authId?:string;aal?:string;platformAccount?:string;adm
         ? {enabled:true,role:"super_admin" as const,authUserId:authId}:null;
     }},
     auth,bindings,now:()=>now,
+    sessionRegistry:{isActive:async()=>{events.push("auth-session");return true;}},
   });
   return {operation,bindings,events};
 }
@@ -36,7 +37,7 @@ test("R271 binds only matching verified AAL2 Supabase identity to live Noor sess
   const f=fixture();
   assert.equal(await f.operation.authenticate({platformSessionId:"noor-session",accessToken:"signed-token"}),"authenticated");
   assert.equal(await f.bindings.getAccessTokenForSession("noor-session"),"signed-token");
-  assert.deepEqual(f.events,["platform","admin:account-one","get-user","get-claims"]);
+  assert.deepEqual(f.events,["platform","admin:account-one","get-user","get-claims","auth-session"]);
 });
 test("R271 refuses identity mismatch, weak MFA, expired proof and revoked platform session",async()=>{
   for(const options of [
@@ -74,4 +75,19 @@ test("R271 renewal refuses another signed Supabase Auth session",async()=>{
   assert.equal(await f.operation.authenticate(input),"authenticated");
   const mismatch=fixture({authId:"33333333-3333-4333-8333-333333333333"});
   assert.equal(await mismatch.operation.renew(input),"denied");
+});
+
+test("R271 rejects login and renewal when Supabase Auth session is revoked",async()=>{
+  const f=fixture();
+  const input={platformSessionId:"noor-session",accessToken:"signed-token"};
+  assert.equal(await f.operation.authenticate(input),"authenticated");
+  const revoked=new NoorAdminSessionAuthenticationR271({
+    platformSession:{execute:async()=>({accountId:{toString:()=>"account-one"}})},
+    adminStore:{findActiveByAccountId:async()=>({enabled:true,role:"super_admin",authUserId:authId})},
+    auth:{getUser:async()=>({data:{user:{id:authId}},error:null}),getClaims:async()=>({data:{claims:{sub:authId,aal:"aal2",session_id:sessionId,iat:Math.floor(now/1000)-10,exp:Math.floor(now/1000)+120}},error:null})} as unknown as Pick<SupabaseClient["auth"],"getUser"|"getClaims">,
+    bindings:f.bindings,now:()=>now,sessionRegistry:{isActive:async()=>false},
+  });
+  assert.equal(await revoked.renew(input),"denied");
+  f.operation.revokeSession("noor-session");
+  assert.equal(await revoked.authenticate(input),"denied");
 });
