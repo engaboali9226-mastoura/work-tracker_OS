@@ -3,7 +3,8 @@ import type {NoorAdminAuthSessionRegistryR271} from "./noor-admin-supabase-assur
 const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu;
 
 /**
- * Privileged SQL-only lookup; auth.sessions must never be exposed to
+ * Privileged SQL-only lookup through a private SECURITY DEFINER function;
+ * direct service_role SELECT on auth.sessions is unavailable. auth.sessions must never be exposed to
  * PostgREST. The executor must use parameterized SQL, not interpolation.
  * This adapter never creates, deletes, or revokes Supabase sessions.
  */
@@ -15,10 +16,8 @@ export class NoorAdminAuthSessionRegistrySqlR271 implements NoorAdminAuthSession
     if(!input || !UUID.test(input.authSessionId) || !UUID.test(input.authUserId))return false;
     try{
       const rows=await this.query.execute(
-        `select exists (
-          select 1 from auth.sessions
-          where id = $1::uuid and user_id = $2::uuid
-            and (not_after is null or not_after > now())
+        `select noor_admin_internal.noor_admin_auth_session_active_r271(
+          $1::uuid, $2::uuid
         ) as active`,
         [input.authSessionId,input.authUserId],
       );
