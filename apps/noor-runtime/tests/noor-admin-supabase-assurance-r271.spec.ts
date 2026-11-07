@@ -12,7 +12,7 @@ function fixture(overrides:Record<string,unknown>={},token:string|null="signed-t
     getUser:async(access:string)=>{userCalls++;assert.equal(access,"signed-token");
       return {error:null,data:{user:{id}}};},
     getClaims:async(access:string)=>{claimsCalls++;assert.equal(access,"signed-token");
-      return {error:null,data:{claims:{sub:id,aal:"aal2",iat:1794059900,exp:1794061000,...overrides}}};},
+      return {error:null,data:{claims:{sub:id,aal:"aal2",session_id:"supabase-session",iat:1794059900,exp:1794061000,...overrides}}};},
   }} as unknown as SupabaseClient;
   const verifier=new NoorSupabaseAssuranceVerifierR271(client,{
     getAccessTokenForSession:async session=>{assert.equal(session,"noor-session");return token;},
@@ -29,7 +29,7 @@ test("R271 refuses absent server-bound access token without contacting Auth",asy
   assert.deepEqual(calls(),[0,0]);
 });
 test("R271 refuses weak MFA, identity mismatch, and expired signed claims",async()=>{
-  for(const claims of [{aal:"aal1"},{sub:"22222222-2222-4222-8222-222222222222"},{exp:1794050000}]){
+  for(const claims of [{aal:"aal1"},{sub:"22222222-2222-4222-8222-222222222222"},{exp:1794050000},{session_id:""}]){
     const {verifier}=fixture(claims);
     assert.equal(await verifier.verify("noor-session",id),null);
   }
