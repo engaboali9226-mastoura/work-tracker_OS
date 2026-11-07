@@ -95,10 +95,10 @@ export interface PrivilegedPlatformRuntimeOperations {
 
   readonly trustedPrivateJournalR221?: NoorPrivateJournalOperationR185 | undefined;
   readonly adminAuthenticationOperationR271?: NoorAdminSessionAuthenticationR271 | undefined;
-  readonly adminR271?: AdminHttpDependenciesR271;
-  readonly adminAuthenticationR271?: NoorAdminSessionAuthenticationHttpDependenciesR271;
-  readonly adminStepUpR271?: NoorAdminStepUpHttpDependenciesR271;
-  readonly adminRecoveryR271?: NoorAdminRecoveryHttpDependenciesR271;
+  readonly adminR271?: AdminHttpDependenciesR271 | undefined;
+  readonly adminAuthenticationR271?: NoorAdminSessionAuthenticationHttpDependenciesR271 | undefined;
+  readonly adminStepUpR271?: NoorAdminStepUpHttpDependenciesR271 | undefined;
+  readonly adminRecoveryR271?: NoorAdminRecoveryHttpDependenciesR271 | undefined;
 
   execute(
     input:
