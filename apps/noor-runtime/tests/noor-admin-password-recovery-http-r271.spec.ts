@@ -18,8 +18,7 @@ async function serve(
     void handleNoorAdminPasswordRecoveryR271(request,response,
       request.headers.cookie==="noor_session=valid"?"valid":null,{
         expectedOrigin:origin,
-        resolveAuthority:async()=>{events.push("authority");return permission;},
-        resolveActorAccountId:async()=>{events.push("actor");return "actor";},
+        resolveActor:async()=>{events.push("actor-resolved");return permission?{authority:permission,actorAccountId:"actor"}:null;},
         provider:{sendRecoveryEmailForUserId:async id=>{events.push("deliver:"+id);return true;}},
         createAudit:()=>({record:async event=>{events.push("audit:"+event.outcome);}}),
       });
@@ -49,7 +48,7 @@ test("R271 password recovery HTTP requires recent MFA step-up",async()=>{
   const events=await serve(async origin=>{
     assert.equal((await request(origin,{targetAuthUserId:target},{cookie:true})).status,403);
   },{...authority,reauthenticated:false});
-  assert.deepEqual(events,["authority"]);
+  assert.deepEqual(events,["actor-resolved"]);
 });
 test("R271 password recovery HTTP rejects forged origin and extra fields",async()=>{
   const events=await serve(async origin=>{
@@ -64,5 +63,5 @@ test("R271 password recovery HTTP authorizes and audits before delivery",async()
     assert.equal(response.status,202);
     assert.equal(response.headers.get("cache-control"),"no-store");
   });
-  assert.deepEqual(events,["authority","actor","audit:initiated","deliver:"+target,"audit:requested"]);
+  assert.deepEqual(events,["actor-resolved","audit:initiated","deliver:"+target,"audit:requested"]);
 });
