@@ -34,3 +34,13 @@ test("R271 accepts server-verified admin only with MFA assurance",async()=>{
     assuranceLevel:"aal2",reauthenticated:true,role:"super_admin",
   });
 });
+
+
+test("R271 refuses malformed assurance evidence from a trusted dependency",async()=>{
+  const resolve=createNoorAdminAuthorityResolverR271({
+    session:{execute:async()=>({accountId:{toString:()=>"account-1"}})},
+    store:{findActiveByAccountId:async()=>({enabled:true,role:"super_admin",authUserId:"auth-id"})},
+    assurance:{verify:async()=>({aal:"aal3" as "aal2",reauthenticated:true})},
+  });
+  assert.equal(await resolve("session"),null);
+});
