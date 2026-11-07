@@ -34,6 +34,7 @@ extends RouteAccessEvidenceExecutor {
   readonly adminR271?: import("./noor-admin-http-r271.js").AdminHttpDependenciesR271;
   readonly adminRecoveryR271?: import("./noor-admin-password-recovery-http-r271.js").NoorAdminRecoveryHttpDependenciesR271;
   readonly adminAuthenticationR271?: import("./noor-admin-session-authentication-http-r271.js").NoorAdminSessionAuthenticationHttpDependenciesR271;
+  readonly adminAuthenticationOperationR271?: import("./noor-admin-session-authentication-r271.js").NoorAdminSessionAuthenticationR271;
   readonly trustedPrivateJournalR221?: import("./noor-private-journal-r185.js").NoorPrivateJournalOperationR185 | undefined;
 }
 
@@ -191,8 +192,16 @@ implements PrivilegedTransportRuntime {
           ? {adminRecoveryR271:executor.adminRecoveryR271}
           : (()=>{throw Error("R271_ADMIN_RECOVERY_ORIGIN_MISMATCH");})();
 
+      if(executor.adminAuthenticationR271 && executor.adminAuthenticationOperationR271){
+        throw Error("R271_ADMIN_AUTHENTICATION_DUPLICATE_SOURCE");
+      }
       const adminAuthenticationOptions:Pick<RouteAccessHttpServerOptions,"adminAuthenticationR271"> =
-        executor.adminAuthenticationR271===undefined ? {} :
+        executor.adminAuthenticationOperationR271!==undefined
+          ? {adminAuthenticationR271:{
+              operation:executor.adminAuthenticationOperationR271,
+              expectedOrigin:this.dependencies.httpConfiguration.publicOrigin,
+            }}
+        : executor.adminAuthenticationR271===undefined ? {} :
         executor.adminAuthenticationR271.expectedOrigin===this.dependencies.httpConfiguration.publicOrigin
           ? {adminAuthenticationR271:executor.adminAuthenticationR271}
           : (()=>{throw Error("R271_ADMIN_AUTHENTICATION_ORIGIN_MISMATCH");})();
