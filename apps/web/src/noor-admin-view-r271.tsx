@@ -2,6 +2,10 @@ import {useEffect,useState} from "react";
 import {createNoorAdminBrowserAuthR271,type NoorAdminBrowserFactorR271} from "./noor-admin-browser-auth-r271.js";
 
 type Account=Readonly<{id:string;email:string;enabled:boolean}>;
+const recoveryLandingAtLoad=typeof window!=="undefined" &&
+  (new URLSearchParams(window.location.hash.slice(1)).get("type")==="recovery" ||
+   new URLSearchParams(window.location.search).get("type")==="recovery");
+
 type Phase="loading"|"needs-auth"|"signing-in"|"mfa"|"enroll"|"verifying"|"ready"|"unavailable"|"invitation"|"invitation-ready";
 const panel:React.CSSProperties={background:"#fff",border:"1px solid #e7e5df",borderRadius:22,
   boxShadow:"0 8px 26px rgba(18,38,45,.04)",padding:"clamp(18px,3vw,30px)",marginTop:20};
@@ -51,7 +55,24 @@ export function NoorAdminViewR271(){
   }
   useEffect(()=>{
     const abort=new AbortController();
-    void refreshAccounts(abort.signal);
+    if(recoveryLandingAtLoad){
+      void client.hasVerifiedRecoverySession().then(verified=>{
+        if(abort.signal.aborted)return;
+        if(verified){
+          setError("");
+          setPhase("invitation");
+        }else{
+          setError("رابط استرداد كلمة المرور غير صالح أو انتهت صلاحيته. اطلب رابطًا جديدًا.");
+          setPhase("needs-auth");
+        }
+      }).catch(()=>{
+        if(abort.signal.aborted)return;
+        setError("تعذر التحقق من رابط الاسترداد. اطلب رابطًا جديدًا.");
+        setPhase("needs-auth");
+      });
+    }else{
+      void refreshAccounts(abort.signal);
+    }
     return ()=>abort.abort();
   },[]);
 
