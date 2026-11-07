@@ -39,6 +39,11 @@ function validResponse(value:unknown):value is {revision:number;state:Work}{
 }
 const uid=()=>crypto.randomUUID();
 const formText=(f:FormData,k:string)=>String(f.get(k)??"").trim();
+const teacherClock=(utc:string):string=>new Intl.DateTimeFormat("en-GB",{
+ timeZone:"Asia/Riyadh",hour:"2-digit",minute:"2-digit",hour12:false,hourCycle:"h23",
+}).format(new Date(utc));
+const teacherInstant=(day:string,clock:string):string=>
+ new Date(day+"T"+clock+":00+03:00").toISOString();
 function Clock({now}:{now:Date}){
  const c=schoolClockR267(now);
  return <div className="nw-clock" aria-label="الساعة والتاريخ بتوقيت الرياض">
@@ -103,6 +108,8 @@ export function NoorWorkTeacherViewR264(){
  const [tab,setTab]=useState<Tab>("overview");
  const [now,setNow]=useState(()=>new Date());
  const [weekOffset,setWeekOffset]=useState(0);
+ const [arrivalTime,setArrivalTime]=useState("06:30");
+ const [departureTime,setDepartureTime]=useState("12:30");
  const [loading,setLoading]=useState(true);
  const [saving,setSaving]=useState(false);
  const [dirty,setDirty]=useState(false);
@@ -128,6 +135,8 @@ export function NoorWorkTeacherViewR264(){
  const percent=totalCount?Math.round(doneCount/totalCount*100):0;
  const todaySlots=sorted.filter(x=>x.day===new Date(today+"T12:00:00.000Z").getUTCDay());
  const daylog=work.workdays.find(x=>x.date===today);
+ const actualArrival=daylog?.checkIn?teacherClock(daylog.checkIn):"";
+ const actualDeparture=daylog?.checkOut?teacherClock(daylog.checkOut):"";
  const checked=(slotId:string,date:string)=>checks.find(x=>x.slotId===slotId&&x.date===date);
 
 
@@ -155,6 +164,10 @@ export function NoorWorkTeacherViewR264(){
   const id=window.setInterval(()=>setNow(new Date()),1000);
   return()=>window.clearInterval(id);
  },[]);
+ useEffect(()=>{
+  setArrivalTime(actualArrival||"06:30");
+  setDepartureTime(actualDeparture||"12:30");
+ },[today,actualArrival,actualDeparture]);
  useEffect(()=>{
   if(!dirty)return;
   const warn=(event:BeforeUnloadEvent)=>{event.preventDefault();event.returnValue="";};
@@ -193,6 +206,23 @@ export function NoorWorkTeacherViewR264(){
  },[work,revision,dirty,saving,saveError,status]);
  const submit=(fn:(f:FormData)=>void)=>(e:FormEvent<HTMLFormElement>)=>{
   e.preventDefault();const form=e.currentTarget;fn(new FormData(form));form.reset();
+ };
+ const updateDayStamp=(key:"checkIn"|"checkOut",clock:string,done:boolean):boolean=>{
+  if(done&&!/^([01]\\d|2[0-3]):[0-5]\\d$/.test(clock)){
+   setMessage("اختر وقتًا صحيحًا للحضور أو الانصراف.");return false;
+  }
+  const arrival=key==="checkIn"?(done?teacherInstant(today,clock):""):(daylog?.checkIn??"");
+  const departure=key==="checkOut"?(done?teacherInstant(today,clock):""):(done?(daylog?.checkOut??""):"");
+  if(departure&&(!arrival||Date.parse(departure)<Date.parse(arrival))){
+   setMessage("وقت الانصراف يجب أن يساوي وقت الحضور أو يأتي بعده.");return false;
+  }
+  edit(prev=>{
+   const row=prev.workdays.find(w=>w.date===today);
+   const next={id:row?.id??uid(),date:today,checkIn:arrival,checkOut:departure};
+   return {...prev,workdays:row?
+    prev.workdays.map(w=>w.id===row.id?next:w):[...prev.workdays,next]};
+  });
+  return true;
  };
  const updateLesson=(slotId:string,date:string,key:"prepared"|"attendanceRecorded",value:boolean)=>{
   edit(prev=>{
@@ -342,20 +372,41 @@ export function NoorWorkTeacherViewR264(){
    </Panel>
   </div>:null}
   {tab==="clock"?<div className="nw-duo">
-   <Panel title="تسجيل دوامك" description={"دوامك الشخصي · "+dayLabelR267(today)}>
-    <div className="nw-clock-records"><div><span>الحضور</span><strong>{daylog?.checkIn?new Date(daylog.checkIn).toLocaleTimeString("ar-SA",{hour:"2-digit",minute:"2-digit",timeZone:"Asia/Riyadh"}):"—"}</strong></div>
-     <div><span>الانصراف</span><strong>{daylog?.checkOut?new Date(daylog.checkOut).toLocaleTimeString("ar-SA",{hour:"2-digit",minute:"2-digit",timeZone:"Asia/Riyadh"}):"—"}</strong></div></div>
-    <div className="nw-actions"><button className="nw-primary" disabled={!!daylog?.checkIn} onClick={()=>
-      edit(prev=>({...prev,workdays:[...prev.workdays,{id:uid(),date:today,checkIn:new Date().toISOString(),checkOut:""}]}))
-    }>تسجيل الحضور</button>
-    <button className="nw-light-button" disabled={!daylog?.checkIn||!!daylog.checkOut} onClick={()=>
-      edit(prev=>({...prev,workdays:prev.workdays.map(x=>x.date===today?{...x,checkOut:new Date().toISOString()}:x)}))
-    }>تسجيل الانصراف</button></div>
-    <p className="nw-help">هذا سجل شخصي للمتابعة فقط؛ لا يرسل بيانات الدوام إلى جهة العمل.</p>
+   <Panel title="متابعة الحضور والانصراف" description={"دوامك الشخصي · "+dayLabelR267(today)}>
+    <p className="nw-shift-hint">الدوام المعتاد: ٦:٣٠ صباحًا — ١٢:٣٠ ظهرًا</p>
+    <div className="nw-staff-attendance">
+     <div className="nw-staff-attendance-line">
+      <label className="nw-check-item"><input type="checkbox" aria-label="تم تسجيل الحضور"
+       checked={Boolean(daylog?.checkIn)}
+       onChange={e=>{void updateDayStamp("checkIn",arrivalTime,e.target.checked);}}/>
+       <span>تم تسجيل الحضور <small>على نظام المدرسة</small></span></label>
+      <label className="nw-field"><span>اختر وقت الحضور</span>
+       <input type="time" aria-label="اختيار وقت الحضور" value={arrivalTime}
+        onChange={e=>{
+         const value=e.target.value;
+         if(daylog?.checkIn){if(value)void updateDayStamp("checkIn",value,true);}
+         else setArrivalTime(value);
+        }}/></label>
+     </div>
+     <div className="nw-staff-attendance-line">
+      <label className="nw-check-item"><input type="checkbox" aria-label="تم تسجيل الانصراف"
+       checked={Boolean(daylog?.checkOut)} disabled={!daylog?.checkIn}
+       onChange={e=>{void updateDayStamp("checkOut",departureTime,e.target.checked);}}/>
+       <span>تم تسجيل الانصراف <small>على نظام المدرسة</small></span></label>
+      <label className="nw-field"><span>اختر وقت الانصراف</span>
+       <input type="time" aria-label="اختيار وقت الانصراف" value={departureTime}
+        onChange={e=>{
+         const value=e.target.value;
+         if(daylog?.checkOut){if(value)void updateDayStamp("checkOut",value,true);}
+         else setDepartureTime(value);
+        }}/></label>
+     </div>
+    </div>
+    <p className="nw-help">حدد وقت الحضور أو الانصراف بنفسك، ثم اختر «تم». لا نستخدم وقت الضغط، ولا نرسل بياناتك إلى نظام المدرسة. يحفظ نور التغيير تلقائيًا.</p>
    </Panel>
-   <Panel title="سجل الأيام السابقة">{work.workdays.length?<ul className="nw-list">{[...work.workdays].reverse().slice(0,90).map(x=><li key={x.id}>
+   <Panel title="سجل الأيام السابقة">{work.workdays.length?<ul className="nw-list">{[...work.workdays].reverse().filter(x=>x.checkIn||x.checkOut).slice(0,90).map(x=><li key={x.id}>
     <b>{x.date}</b><span>{x.checkIn?new Date(x.checkIn).toLocaleTimeString("ar-SA",{timeZone:"Asia/Riyadh",hour:"2-digit",minute:"2-digit"}):"—"} — {x.checkOut?new Date(x.checkOut).toLocaleTimeString("ar-SA",{timeZone:"Asia/Riyadh",hour:"2-digit",minute:"2-digit"}):"—"}</span>
-   </li>)}</ul>:<Empty>لم تسجّل دوامًا بعد.</Empty>}</Panel>
+   </li>)}</ul>:<Empty>لم تُسجل حضورًا أو انصرافًا بعد.</Empty>}</Panel>
   </div>:null}
   {tab==="exams"?<div className="nw-duo">
    <Panel title="إضافة اختبار للمتابعة" description="سجل اسم التقييم وموعده فقط، ثم تابع الإجراءات بعلامات الإنجاز.">
@@ -375,7 +426,7 @@ export function NoorWorkTeacherViewR264(){
      const ck=examChecks.find(x=>x.assessmentId===a.id);
      return <article className="nw-exam-card" key={a.id}><div className="nw-exam-head"><strong>{a.title}</strong>
        <small>{a.group} · {a.date}</small></div>
-       <div className="nw-exam-checks">{([["prepared","تم تجهيز الاختبار"],["corrected","تم التصحيح"],["recorded","تم الرصد على منصة المدرسة"]] as const).map(([key,label])=>
+       <div className="nw-exam-checks">{([["prepared","تم تجهيز الاختبار"],["corrected","تم التصحيح"],["recorded","تم رصد الدرجات على منصة المدرسة"]] as const).map(([key,label])=>
         <label key={key} className="nw-check-item"><input type="checkbox" checked={ck?.[key]??false} onChange={e=>updateExam(a.id,key,e.target.checked)}/><span>{label}</span></label>
        )}</div></article>;
     })}</div>:<Empty>لا توجد اختبارات للمتابعة بعد.</Empty>}
