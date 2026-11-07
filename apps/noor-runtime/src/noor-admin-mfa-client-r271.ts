@@ -13,7 +13,7 @@ export class NoorAdminMfaClientR271 {
     return {factorId:result.data.id,qrCode:result.data.totp.qr_code};
   }
   public async verifyTotp(factorId:string,code:string):Promise<string>{
-    if(!/^[0-9a-f-]{36}$/i.test(factorId) || !/^\d{6}$/.test(code))
+    if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(factorId) || !/^\d{6}$/.test(code))
       throw new Error("NOOR_MFA_INVALID_INPUT");
     const challenge=await this.client.auth.mfa.challenge({factorId});
     if(challenge.error || !challenge.data?.id)throw new Error("NOOR_MFA_CHALLENGE_DENIED");
