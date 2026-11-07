@@ -21,7 +21,7 @@ async function serve(
         resolveAuthority:async()=>{events.push("authority");return permission;},
         resolveActorAccountId:async()=>{events.push("actor");return "actor";},
         provider:{sendRecoveryEmailForUserId:async id=>{events.push("deliver:"+id);return true;}},
-        audit:{record:async event=>{events.push("audit:"+event.outcome);}},
+        createAudit:()=>({record:async event=>{events.push("audit:"+event.outcome);}}),
       });
   });
   server.listen(0,"127.0.0.1");await once(server,"listening");
