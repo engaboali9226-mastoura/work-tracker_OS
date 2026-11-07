@@ -22,3 +22,16 @@ test("R271 invalid TOTP inputs never reach provider",async()=>{
   await assert.rejects(mfa.verifyTotp("invalid","123456"),/NOOR_MFA_INVALID_INPUT/);
   await assert.rejects(mfa.verifyTotp(id,"12"),/NOOR_MFA_INVALID_INPUT/);
 });
+
+test("R271 challenge rejection and invalid verification cannot yield a privileged token",async()=>{
+  const challengeDenied=new NoorAdminMfaClientR271({auth:{mfa:{
+    challenge:async()=>({error:new Error("invalid factor"),data:null}),
+  }}} as unknown as Pick<SupabaseClient,"auth">);
+  await assert.rejects(challengeDenied.verifyTotp(id,"123456"),/NOOR_MFA_CHALLENGE_DENIED/);
+  const verifyDenied=new NoorAdminMfaClientR271({auth:{mfa:{
+    challenge:async()=>({error:null,data:{id:"challenge"}}),
+    verify:async()=>({error:new Error("wrong code"),data:null}),
+  }}} as unknown as Pick<SupabaseClient,"auth">);
+  await assert.rejects(verifyDenied.verifyTotp(id,"123456"),/NOOR_MFA_VERIFY_DENIED/);
+  await assert.rejects(verifyDenied.verifyTotp("z".repeat(36),"123456"),/NOOR_MFA_INVALID_INPUT/);
+});
