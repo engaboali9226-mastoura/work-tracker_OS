@@ -25,6 +25,7 @@ export function createNoorAdminSecureCompositionR271(input:Readonly<{
     adminStore:store,
     auth:input.client.auth,
     bindings,
+    ...(input.sessionRegistry?{sessionRegistry:input.sessionRegistry}:{}),
     ...(input.now?{now:input.now}:{}),
   });
   const assurance=new NoorSupabaseAssuranceVerifierR271(input.client,bindings,input.now,input.sessionRegistry);
