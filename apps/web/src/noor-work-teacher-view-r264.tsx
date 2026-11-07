@@ -208,7 +208,7 @@ export function NoorWorkTeacherViewR264(){
   e.preventDefault();const form=e.currentTarget;fn(new FormData(form));form.reset();
  };
  const updateDayStamp=(key:"checkIn"|"checkOut",clock:string,done:boolean):boolean=>{
-  if(done&&!/^([01]\\d|2[0-3]):[0-5]\\d$/.test(clock)){
+  if(done&&!/^([01]\d|2[0-3]):[0-5]\d$/.test(clock)){
    setMessage("اختر وقتًا صحيحًا للحضور أو الانصراف.");return false;
   }
   const arrival=key==="checkIn"?(done?teacherInstant(today,clock):""):(daylog?.checkIn??"");
@@ -436,6 +436,6 @@ export function NoorWorkTeacherViewR264(){
   {saveError&&dirty?<div className="nw-save-dock" role="alert">
    <span>تعذر الحفظ التلقائي؛ ما زالت التغييرات موجودة هنا.</span>
    <button className="nw-primary" type="button" disabled={saving} onClick={()=>{setSaveError(false);setMessage("");}}>إعادة محاولة الحفظ</button>
-  </div>:null
+  </div>:null}
  </main>;
 }
