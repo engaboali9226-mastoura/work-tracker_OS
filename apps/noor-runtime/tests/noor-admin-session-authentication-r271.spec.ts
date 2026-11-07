@@ -57,3 +57,21 @@ test("R271 never authenticates empty session or access token",async()=>{
   assert.equal(await f.operation.authenticate({platformSessionId:"noor-session",accessToken:""}),"denied");
   assert.deepEqual(f.events,[]);
 });
+
+test("R271 admin renewal requires existing live binding and cannot resurrect revoked session",async()=>{
+  const f=fixture();
+  const input={platformSessionId:"noor-session",accessToken:"signed-token"};
+  assert.equal(await f.operation.renew(input),"denied");
+  assert.equal(await f.operation.authenticate(input),"authenticated");
+  assert.equal(await f.operation.renew(input),"authenticated");
+  f.operation.revokeSession("noor-session");
+  assert.equal(await f.bindings.getAccessTokenForSession("noor-session"),null);
+  assert.equal(await f.operation.renew(input),"denied");
+});
+test("R271 renewal refuses another signed Supabase Auth session",async()=>{
+  const f=fixture();
+  const input={platformSessionId:"noor-session",accessToken:"signed-token"};
+  assert.equal(await f.operation.authenticate(input),"authenticated");
+  const mismatch=fixture({authId:"33333333-3333-4333-8333-333333333333"});
+  assert.equal(await mismatch.operation.renew(input),"denied");
+});
