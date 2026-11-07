@@ -21,6 +21,12 @@ begin
       'noor_admin_internal.noor_admin_auth_session_active_r271(uuid,uuid)','EXECUTE') then
     raise exception 'R271 session functions exposed to browser roles';
   end if;
+  if has_function_privilege('anon',
+      'noor_admin_internal.noor_admin_disable_account_r271(text,text,uuid)','EXECUTE') or
+     has_function_privilege('authenticated',
+      'noor_admin_internal.noor_admin_disable_account_r271(text,text,uuid)','EXECUTE') then
+    raise exception 'R271 private account-disable function is exposed';
+  end if;
   if not has_function_privilege('service_role',
       'public.noor_admin_auth_session_active_r271(uuid,uuid)','EXECUTE') then
     raise exception 'R271 service_role cannot execute RPC';
@@ -53,6 +59,18 @@ begin
   ) then raise exception 'R271 missing session was accepted'; end if;
 end
 $noor_isolated_session$;
+reset role;
+
+-- Verify service_role may invoke the private definer, but cannot select
+-- protected tables directly. A nonexistent actor must always be denied.
+set role service_role;
+do $noor_service_role_disable$
+begin
+  if noor_admin_internal.noor_admin_disable_account_r271(
+    'unknown-actor','unknown-target','99999999-9999-4999-8999-999999999999'
+  ) then raise exception 'R271 unknown actor unexpectedly gained authority'; end if;
+end
+$noor_service_role_disable$;
 reset role;
 
 -- Last-super-admin race protection and audit are tested with fake accounts.
