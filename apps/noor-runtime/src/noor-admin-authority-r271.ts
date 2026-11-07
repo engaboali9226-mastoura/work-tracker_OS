@@ -41,6 +41,7 @@ export function createNoorAdminAuthorityResolverR271(dependencies:Readonly<{
         sessionActive:true,
         accountActive:true,
         verifiedAdminGrant:true,
+        role:admin.role,
         assuranceLevel:assurance.aal,
         reauthenticated:assurance.reauthenticated,
       };
