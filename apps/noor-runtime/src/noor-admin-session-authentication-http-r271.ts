@@ -2,9 +2,12 @@ import type {IncomingMessage,ServerResponse} from "./route-access-http-server.js
 import type {NoorAdminSessionAuthenticationR271} from "./noor-admin-session-authentication-r271.js";
 
 export const NOOR_ADMIN_SESSION_AUTHENTICATION_PATH_R271="/api/noor/admin/authenticate";
+export const NOOR_ADMIN_SESSION_RENEW_PATH_R271="/api/noor/admin/renew";
+export const NOOR_ADMIN_SESSION_REVOKE_PATH_R271="/api/noor/admin/revoke";
 export interface NoorAdminSessionAuthenticationHttpDependenciesR271 {
   readonly expectedOrigin:string;
   readonly operation:NoorAdminSessionAuthenticationR271;
+  readonly revokeSession?:(sessionId:string)=>void;
 }
 function respond(response:ServerResponse,status:number):void{
   response.writeHead(status,{"Cache-Control":"no-store","Content-Length":"0",
@@ -27,6 +30,16 @@ export async function handleNoorAdminSessionAuthenticationR271(
   if(request.method!=="POST"){respond(response,405);return;}
   if(!exactOrigin(request,dependencies.expectedOrigin)){respond(response,403);return;}
   if(!platformSessionId){respond(response,401);return;}
+  if(request.url===NOOR_ADMIN_SESSION_REVOKE_PATH_R271){
+    if(!dependencies.revokeSession){respond(response,503);return;}
+    if(request.headers["transfer-encoding"]!==undefined ||
+       (request.headers["content-length"]!==undefined && request.headers["content-length"]!=="0")){
+      respond(response,400);return;
+    }
+    try{dependencies.revokeSession(platformSessionId);respond(response,204);}
+    catch{respond(response,503);}
+    return;
+  }
   if(request.headers["content-type"]!=="application/json" ||
      request.headers["transfer-encoding"]!==undefined ||
      !/^[1-9][0-9]{0,4}$/.test(request.headers["content-length"]??"") ||
@@ -47,9 +60,9 @@ export async function handleNoorAdminSessionAuthenticationR271(
        Object.keys(value).length!==1 || !("accessToken" in value) ||
        typeof value.accessToken!=="string" || !value.accessToken ||
        value.accessToken.length>8192){respond(response,400);return;}
-    const result=await dependencies.operation.authenticate({
-      platformSessionId,accessToken:value.accessToken,
-    });
+    const result=request.url===NOOR_ADMIN_SESSION_RENEW_PATH_R271
+      ? await dependencies.operation.renew({platformSessionId,accessToken:value.accessToken})
+      : await dependencies.operation.authenticate({platformSessionId,accessToken:value.accessToken});
     respond(response,result==="authenticated"?204:result==="denied"?403:503);
   }catch{respond(response,503);}
 }
