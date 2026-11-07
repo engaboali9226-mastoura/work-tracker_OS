@@ -2,7 +2,7 @@ import {useEffect,useRef,useState} from "react";
 import type {FormEvent,ReactNode} from "react";
 import {
  addCivilDaysR267,dayLabelR267,riyadhDayR267,schoolClockR267,
- schoolWeekNumberR267,schoolWeekTitleR267,visibleTeachingSundayR270,
+ schoolWeekNumberR267,schoolWeekTitleR267,sundayOfR267,visibleTeachingSundayR270,
 } from "./noor-work-school-calendar-r267.js";
 import {workdayCountdownR268,WORKDAY_START_R268,WORKDAY_END_R268} from "./noor-work-day-countdown-r268.js";
 import {lessonTimingR269,schoolClockPartsR269} from "./noor-work-lesson-time-r269.js";
