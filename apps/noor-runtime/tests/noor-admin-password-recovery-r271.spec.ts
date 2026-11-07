@@ -33,7 +33,7 @@ test("R271 recovery requests mailbox delivery and records target identity",async
     audit:{record:async event=>{events.push("audit:"+event.targetAuthUserId+":"+event.outcome);}},
   });
   assert.equal(result,"requested");
-  assert.deepEqual(events,["auth:auth-target","audit:auth-target:requested"]);
+  assert.deepEqual(events,["audit:auth-target:initiated","auth:auth-target","audit:auth-target:requested"]);
 });
 test("R271 recovery fails closed when audit cannot be written",async()=>{
   const result=await requestNoorAdminPasswordRecoveryR271(input,{
@@ -41,4 +41,15 @@ test("R271 recovery fails closed when audit cannot be written",async()=>{
     audit:{record:async()=>{throw Error("offline");}},
   });
   assert.equal(result,"unavailable");
+});
+
+
+test("R271 refuses recovery delivery when audit initiation fails",async()=>{
+  let deliveries=0;
+  const result=await requestNoorAdminPasswordRecoveryR271(input,{
+    provider:{sendRecoveryEmailForUserId:async()=>{deliveries++;return true;}},
+    audit:{record:async()=>{throw Error("audit offline");}},
+  });
+  assert.equal(result,"unavailable");
+  assert.equal(deliveries,0);
 });
