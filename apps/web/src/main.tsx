@@ -57,6 +57,19 @@ import {
   createBrowserSessionEstablishmentClient,
 } from "./session-establishment-client.js";
 
+// Supabase password-recovery links can return to the application's Site URL (/).
+// Route only explicitly marked recovery callbacks to the separate admin onboarding
+// surface. Preserve the query and fragment until the ephemeral Auth client verifies
+// the recovery session; never log or copy tokens into application state.
+const recoveryHash = new URLSearchParams(window.location.hash.slice(1));
+const recoveryQuery = new URLSearchParams(window.location.search);
+if (window.location.pathname === "/" &&
+    (recoveryHash.get("type") === "recovery" ||
+     recoveryQuery.get("type") === "recovery")) {
+  window.history.replaceState(window.history.state, "",
+    "/admin" + window.location.search + window.location.hash);
+}
+
 const history =
   createBrowserHistory(
     window,

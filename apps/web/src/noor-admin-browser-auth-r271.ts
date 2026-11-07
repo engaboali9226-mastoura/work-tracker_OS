@@ -7,6 +7,7 @@ export interface NoorAdminBrowserAuthR271 {
   signIn(email:string,password:string):Promise<readonly NoorAdminBrowserFactorR271[]>;
   enroll():Promise<Readonly<{id:string;qrCode:string}>>;
   acceptInvitation(password:string):Promise<readonly NoorAdminBrowserFactorR271[]>;
+  hasVerifiedRecoverySession():Promise<boolean>;
   verifyEnrollment(factorId:string,code:string):Promise<void>;
   authenticate(factorId:string,code:string):Promise<void>;
   stepUp(factorId:string,code:string):Promise<void>;
@@ -78,6 +79,11 @@ export function createNoorAdminBrowserAuthR271(
     },
     async verifyEnrollment(factorId:string,code:string){
       await verifyUserTotp(factorId,code);
+    },
+    async hasVerifiedRecoverySession(){
+      const current=await authClient.auth.getSession();
+      return !current.error &&
+        !!current.data.session?.user?.email_confirmed_at;
     },
     async acceptInvitation(password:string){
       if(typeof password!=="string" || password.length<12 || password.length>128)
