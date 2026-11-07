@@ -65,3 +65,17 @@ test("R271 revoke destroys unconsumed MFA proof and Auth session binding",async(
   assert.equal(await composition.authorizeSensitiveAction("noor-session","accounts:delete"),false);
   assert.equal(await composition.resolveActor("noor-session"),null);
 });
+
+test("R271 denies challenge completion after in-flight session revoke",async()=>{
+  let start!:()=>void;let finish!:()=>void;
+  const started=new Promise<void>(resolve=>{start=resolve;});
+  const wait=new Promise<void>(resolve=>{finish=resolve;});
+  const composition=setup({verify:async()=>{start();await wait;return "fresh-token";}});
+  await composition.authentication.authenticate({platformSessionId:"noor-session",accessToken:"initial-token"});
+  const pending=composition.stepUp?.verify({platformSessionId:"noor-session",factorId:factor,code:"123456"});
+  assert.ok(pending);
+  await started;
+  composition.revokeSession("noor-session");
+  finish();
+  assert.equal(await pending,false);
+});
