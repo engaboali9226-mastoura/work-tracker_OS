@@ -36,7 +36,7 @@ export class NoorAdminVerifiedStepUpIssuerR271 {
       input.authUserId,input.authSessionId,input.challengeId,
     ])).digest("hex");
     // Reserve before awaiting the verifier to deny concurrent replay.
-    if(this.consumedChallenges.has(key))return false;
+    if(this.consumedChallenges.has(key) || this.consumedChallenges.size>=4096)return false;
     this.consumedChallenges.add(key);
     try{
       const evidence=await this.verifier.verify(input);
@@ -49,6 +49,4 @@ export class NoorAdminVerifiedStepUpIssuerR271 {
       });
     }catch{return false;}
   }
-  /** Revocation/shutdown clears ephemeral replay state, not a proof of freshness. */
-  public shutdown():void{this.consumedChallenges.clear();}
 }
