@@ -27,3 +27,20 @@ test("R271 invalid challenge or rejected server binding never reports authentica
   await assert.rejects(rejected.authenticate("factor","123456"),/NOOR_ADMIN_MFA_BINDING_DENIED/);
   await assert.rejects(rejected.renew("factor","123456"),/NOOR_ADMIN_MFA_RENEWAL_DENIED/);
 });
+
+test("R271 concurrent MFA exchanges are blocked and failures release the guard",async()=>{
+  let release!:()=>void;
+  let calls=0;
+  const pending=new Promise<void>(resolve=>{release=resolve;});
+  const exchange=new NoorAdminMfaExchangeR271(
+    {verifyTotp:async()=>{calls++;await pending;return "signed-token";}},
+    {post:async()=>({status:204})},
+  );
+  const first=exchange.authenticate("factor","123456");
+  await assert.rejects(exchange.renew("factor","123456"),/NOOR_ADMIN_MFA_EXCHANGE_IN_PROGRESS/);
+  assert.equal(calls,1);
+  release();
+  await first;
+  await exchange.renew("factor","123456");
+  assert.equal(calls,2);
+});
