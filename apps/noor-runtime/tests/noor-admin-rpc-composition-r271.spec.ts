@@ -43,12 +43,12 @@ test("R271 service-role RPC option verifies live Auth session and grants MFA ste
     platformSessionId:"noor-session",accessToken:"signed-jwt",
   }),"authenticated");
   assert.equal((await composition.resolveActor("noor-session"))?.actorAccountId,"account-one");
-  assert.equal(await composition.authorizeSensitiveAction("noor-session","accounts:delete"),false);
+  assert.equal(await composition.authorizeSensitiveAction("noor-session","accounts:delete","account-one"),false);
   assert.equal(await composition.stepUp?.verify({
     platformSessionId:"noor-session",factorId:factor,code:"123456",
   }),true);
-  assert.equal(await composition.authorizeSensitiveAction("noor-session","accounts:delete"),true);
-  assert.equal(await composition.authorizeSensitiveAction("noor-session","accounts:delete"),false);
+  assert.equal(await composition.authorizeSensitiveAction("noor-session","accounts:delete","account-one"),true);
+  assert.equal(await composition.authorizeSensitiveAction("noor-session","accounts:delete","account-one"),false);
   assert.ok(calls.length>=3);
   composition.shutdown();
   assert.equal(await composition.resolveActor("noor-session"),null);
