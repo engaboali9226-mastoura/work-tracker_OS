@@ -13,7 +13,8 @@ export interface AdminInvitationAuditR271 {
   record(input: Readonly<{
     actorAccountId: string;
     email: string;
-    invitedUserId: string;
+    invitedUserId: string | null;
+    outcome: "initiated" | "invited" | "failed";
     action: "admin-invitation";
   }>): Promise<void>;
 }
@@ -39,12 +40,16 @@ export async function inviteNoorAdminCandidateR271(
   }
   try {
     const email = input.email.trim().toLowerCase();
-    const result = await dependencies.provider.inviteUserByEmail(email);
-    if (result.error || !result.userId) return {kind:"unavailable"};
     await dependencies.audit.record({
       actorAccountId:input.actorAccountId, email,
-      invitedUserId:result.userId, action:"admin-invitation",
+      invitedUserId:null, outcome:"initiated", action:"admin-invitation",
     });
+    const result = await dependencies.provider.inviteUserByEmail(email);
+    await dependencies.audit.record({
+      actorAccountId:input.actorAccountId, email,
+      invitedUserId:result.userId, outcome:result.error || !result.userId?"failed":"invited", action:"admin-invitation",
+    });
+    if (result.error || !result.userId) return {kind:"unavailable"};
     return {kind:"invited", userId:result.userId};
   } catch {
     return {kind:"unavailable"};
