@@ -237,3 +237,16 @@
  .nw-r267 .nw-auto-save-indicator{padding:0 4px 13px}
 }
 @media(prefers-reduced-motion:reduce){.nw-r267 .nw-countdown-progress span{transition:none}}
+
+
+/* R269: visually fixed LTR time with the Arabic period clearly to its left.
+   Lesson phase reflects local time; school portal checkmarks are independent. */
+.nw-r267 .nw-clock-line{display:inline-flex;flex-direction:row;align-items:baseline;justify-content:flex-end;gap:10px;direction:ltr;max-width:100%;white-space:nowrap}
+.nw-r267 .nw-clock-line .nw-clock-time{display:inline;align-self:auto;text-align:left;direction:ltr;line-height:1.5}
+.nw-r267 .nw-clock-period{order:0;flex-shrink:0;color:#e4d2b4;font-weight:800;font-size:16px;line-height:1.5}
+.nw-r267 .nw-clock-line .nw-clock-time{order:1}
+.nw-r267 .nw-lesson-status.nw-lesson-active{color:#266a5c;background:#ddf3e8;border:1px solid #c3e5d4}
+.nw-r267 .nw-lesson-status.nw-lesson-upcoming{color:#667e8a;background:#ecf1f2}
+.nw-r267 .nw-lesson-status.nw-lesson-finished{color:#687d70;background:#edf3ed}
+.nw-r267 .nw-lesson-status.nw-lesson-unscheduled{color:#85795e;background:#f8f2e8}
+@media(max-width:400px){.nw-r267 .nw-clock-line{gap:6px}.nw-r267 .nw-clock-period{font-size:14px}}
