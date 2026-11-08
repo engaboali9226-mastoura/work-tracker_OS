@@ -1,6 +1,6 @@
 name: NOOR bounded daytime health heartbeat
 
-# Render Free can sleep after 15 minutes idle. A read-only /healthz request
+# Render Free can sleep after 15 minutes idle. A read-only /readyz request
 # during the core usage window reduces cold starts without maintaining 24/7
 # activity. Times are UTC: 03:00–18:59 UTC = 06:00–21:59 Riyadh.
 # This can consume up to ~16 free instance-hours/day, shared with n8n.
@@ -26,7 +26,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 3
     steps:
-      - name: Check only the public NOOR health endpoint
+      - name: Check NOOR public runtime readiness without touching accounts
         shell: bash
         run: |
           set -euo pipefail
@@ -34,6 +34,6 @@ jobs:
             --retry 2 --retry-delay 5 --retry-all-errors \
             --connect-timeout 8 --max-time 25 \
             --write-out '%{http_code}' \
-            'https://noor-personal.onrender.com/healthz')
-          echo "NOOR_HEALTH_HTTP=$http_code"
+            'https://noor-personal.onrender.com/readyz')
+          echo "NOOR_READY_HTTP=$http_code"
           test "$http_code" = "200"
