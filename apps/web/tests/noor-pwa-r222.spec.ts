@@ -26,7 +26,7 @@ test("R222 service worker never caches journals, sessions or API responses",()=>
  assert.match(worker,/request\.method!=="GET"/u);
  assert.match(worker,/fetch\(request,\{cache:"no-store"\}\)/u);
  assert.match(worker,/status:503/u);
- assert.match(worker,/يلزم الاتصال بالإنترنت/u);
+ assert.match(worker,/تعذر الاتصال بالخادم/u);
 });
 test("R222 registers service worker on production browser only and refreshes code safely",()=>{
  assert.match(entry,/\.env\?\.PROD/u);
@@ -35,4 +35,14 @@ test("R222 registers service worker on production browser only and refreshes cod
  assert.match(host,/\.webmanifest':'application\/manifest\+json'/u);
  assert.match(host,/pathname==='\/noor-service-worker\.js'/u);
  assert.match(host,/pathname==='\/noor\.webmanifest'/u);
+});
+
+test("R275 offline PWA retries only a public health probe and never caches private data",()=>{
+ assert.match(worker,/url\.pathname==="\/healthz"/u);
+ assert.match(worker,/fetch\('\/healthz'\s*,\s*\{cache:'no-store',credentials:'omit'/u);
+ assert.match(worker,/location\.reload\(\)/u);
+ assert.match(worker,/\[502,503,504\]\.includes\(response\.status\)/u);
+ assert.match(worker,/id="noor-retry"/u);
+ assert.match(worker,/attempts<limit/u);
+ assert.doesNotMatch(worker,/caches\.open|caches\.put|indexedDB|localStorage|sessionStorage/u);
 });
