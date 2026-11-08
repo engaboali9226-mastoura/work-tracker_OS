@@ -5,6 +5,8 @@ import {fileURLToPath} from 'node:url';
 
 const ROOT=fileURLToPath(new URL('../../',import.meta.url));
 const TYPES={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.json':'application/json; charset=utf-8','.webmanifest':'application/manifest+json','.svg':'image/svg+xml','.png':'image/png','.jpeg':'image/jpeg','.jpg':'image/jpeg','.webp':'image/webp','.ico':'image/x-icon','.woff':'font/woff','.woff2':'font/woff2'};
+// Synthetic startup page is public, stateless, and never includes personal data.
+const STARTING_DOCUMENT="<!doctype html><html lang=\"ar\" dir=\"rtl\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"><title>نور — جارٍ التجهيز</title><style>body{font-family:system-ui,-apple-system,sans-serif;background:#f8f5ee;color:#21384b;min-height:100dvh;margin:0;display:grid;place-items:center;text-align:center}.panel{padding:24px;max-width:500px}h1{font-size:36px}p{font-size:18px;line-height:1.8}</style></head><body><main class=\"panel\"><h1>نور</h1><p>جارٍ تجهيز منصة نور. ستفتح تلقائيًا فور جاهزيتها.</p><p id=\"status\" role=\"status\" aria-live=\"polite\">جارٍ التحقق من الاتصال…</p><button id=\"retry\" type=\"button\">إعادة المحاولة الآن</button></main><script>(function(){var active=false,attempts=0,next=null;var status=document.getElementById(\"status\");async function probe(){if(active)return;active=true;attempts++;var controller=new AbortController();var timer=setTimeout(function(){controller.abort()},9000);try{var r=await fetch(\"/readyz\",{cache:\"no-store\",credentials:\"omit\",signal:controller.signal});if(r.ok){status.textContent=\"نور جاهزة. جارٍ فتحها…\";location.reload();return}}catch(e){}finally{active=false;clearTimeout(timer)}status.textContent=\"الخادم قيد التجهيز. ستُعاد المحاولة تلقائيًا.\";next=setTimeout(probe,Math.min(30000,5000+attempts*2000))}function retry(){if(active)return;if(next)clearTimeout(next);probe()}document.getElementById(\"retry\").addEventListener(\"click\",retry);window.addEventListener(\"online\",retry);document.addEventListener(\"visibilitychange\",function(){if(!document.hidden)retry()});setTimeout(probe,1200)})();</script></body></html>";
 const HOP=new Set(['connection','keep-alive','proxy-authenticate','proxy-authorization','te','trailer','transfer-encoding','upgrade']);
 function forwarded(headers){
  const omitted=new Set([...HOP,...String(headers.connection??'').split(',').map(v=>v.trim().toLowerCase())]);
@@ -25,7 +27,7 @@ export function validatePublicBuildEnvironment(env){
 
 // Authentication, authorization, commands and persistence remain owned by the
 // existing runtime. This transport serves build files and streams API traffic.
-export async function createHostedWebServer({staticDirectory,apiOrigin,publicOrigin}){
+export async function createHostedWebServer({staticDirectory,apiOrigin,publicOrigin,isReady=()=>true}){
  const api=new URL(apiOrigin),origin=new URL(publicOrigin);
  if(!['http:','https:'].includes(origin.protocol)||origin.username||origin.password||origin.pathname!=='/'||origin.search||origin.hash)throw Error('PUBLIC_ORIGIN_INVALID');
  if(api.protocol!=='http:'||api.hostname!=='127.0.0.1'||api.username||api.password||api.pathname!=='/'||api.search||api.hash)throw Error('INTERNAL_API_ORIGIN_INVALID');
@@ -35,7 +37,13 @@ export async function createHostedWebServer({staticDirectory,apiOrigin,publicOri
    if(!req.url?.startsWith('/')||req.url.startsWith('//'))return reply(res,400,'Invalid request.',req.method);
    const url=new URL(req.url,origin);
    if(url.pathname==='/healthz')return reply(res,['GET','HEAD'].includes(req.method)?200:405,'ok',req.method);
+   if(url.pathname==='/readyz'){
+    if(!['GET','HEAD'].includes(req.method))return reply(res,405,'Method not allowed.',req.method);
+    return reply(res,isReady()?200:503,isReady()?'ready':'starting',req.method);
+   }
    if(url.pathname==='/api/noor'||url.pathname.startsWith('/api/noor/')){
+    // Never forward a protected request until its real runtime has started.
+    if(!isReady())return reply(res,503,'Service temporarily unavailable.',req.method);
     const upstream=http.request({hostname:api.hostname,port:api.port,method:req.method,path:req.url,headers:{...forwarded(req.headers),host:origin.host},agent},incoming=>{
      res.writeHead(incoming.statusCode??502,forwarded(incoming.headers));incoming.on('error',()=>res.destroy());incoming.pipe(res);
     });
@@ -44,6 +52,13 @@ export async function createHostedWebServer({staticDirectory,apiOrigin,publicOri
     req.once('aborted',()=>upstream.destroy());res.once('close',()=>{if(!res.writableEnded)upstream.destroy();});req.pipe(upstream);return;
    }
    if(!['GET','HEAD'].includes(req.method))return reply(res,405,'Method not allowed.',req.method);
+   // Permit the listener to bind promptly while auth/DB bootstraps. A visitor
+   // receives an auto-retrying, content-free recovery page until readiness.
+   if(!isReady() && (url.pathname==='/' || (!path.extname(url.pathname) && String(req.headers.accept??'').includes('text/html')))){
+    res.writeHead(503,{'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-store','X-Content-Type-Options':'nosniff','Referrer-Policy':'no-referrer'});
+    res.end(req.method==='HEAD'?undefined:STARTING_DOCUMENT);
+    return;
+   }
    let pathname;try{pathname=decodeURIComponent(url.pathname);}catch{return reply(res,400,'Invalid path.',req.method);}
    if(pathname.includes('\0')||pathname.includes('\\')||pathname.split('/').some(s=>s.startsWith('.')))return reply(res,403,'Forbidden.',req.method);
    let target=path.resolve(root,'.'+pathname);
@@ -75,12 +90,20 @@ async function main(){
  const httpConfiguration=readNoorRuntimeHttpConfigurationFromEnvironment();
  const host=createPrivilegedPlatformRuntimeHost(readNoorProductionRuntimeConfigurationFromEnvironment());
  const runtime=createPrivilegedTransportRuntime({host,httpConfiguration});let server;
+ let ready=false;
  try{
-  await runtime.start();
-  server=await createHostedWebServer({staticDirectory:path.join(ROOT,'apps/web/dist'),apiOrigin:'http://127.0.0.1:8787',publicOrigin:httpConfiguration.publicOrigin});
+  // Bind HTTP before potentially slow, private runtime initialization.
+  server=await createHostedWebServer({staticDirectory:path.join(ROOT,'apps/web/dist'),apiOrigin:'http://127.0.0.1:8787',publicOrigin:httpConfiguration.publicOrigin,isReady:()=>ready});
   await new Promise((resolve,reject)=>{server.once('error',reject);server.listen(port,'0.0.0.0',resolve);});
- }catch(error){await runtime.shutdown().catch(()=>{});throw error;}
- let stopping;const stop=()=>{stopping??=(async()=>{await new Promise(resolve=>server.close(resolve));await runtime.shutdown();})().catch(()=>{process.exitCode=1;});return stopping;};
+  await runtime.start();
+  ready=true;
+ }catch(error){
+  ready=false;
+  if(server?.listening)await new Promise(resolve=>server.close(resolve));
+  await runtime.shutdown().catch(()=>{});
+  throw error;
+ }
+ let stopping;const stop=()=>{stopping??=(async()=>{ready=false;await new Promise(resolve=>server.close(resolve));await runtime.shutdown();})().catch(()=>{process.exitCode=1;});return stopping;};
  process.once('SIGTERM',()=>{void stop();});process.once('SIGINT',()=>{void stop();});
  // Optional server-only reviewer bootstrap. Never interrupt the real site on failure.
  if(process.env.NOOR_REVIEWER_CREATE_ONCE==='YES'){
