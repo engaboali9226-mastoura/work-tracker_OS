@@ -10,7 +10,7 @@ async function close(server){await new Promise(resolve=>server.close(resolve));}
 function request(port,url,{method='GET',headers={},body}={}){return new Promise((resolve,reject)=>{
  const outgoing=http.request({hostname:'127.0.0.1',port,path:url,method,headers},incoming=>{const chunks=[];incoming.on('data',chunk=>chunks.push(chunk));incoming.on('error',reject);incoming.on('end',()=>resolve({status:incoming.statusCode,headers:incoming.headers,body:Buffer.concat(chunks).toString()}));});outgoing.on('error',reject);outgoing.end(body);
 });}
-async function fixture(fn){
+async function fixture(fn,{isReady=()=>true}={}){
  const dir=await fs.mkdtemp(path.join(os.tmpdir(),'noor-hosting-fixture-')),site=path.join(dir,'site');await fs.mkdir(path.join(site,'assets'),{recursive:true});
  await fs.writeFile(path.join(site,'index.html'),'<html>NOOR synthetic shell</html>');await fs.writeFile(path.join(site,'assets/app-fixture.js'),'console.log("fixture");');
  const observed=[];
@@ -19,7 +19,7 @@ async function fixture(fn){
   if(req.url==='/api/noor/session'){res.writeHead(204,{'Set-Cookie':'noor_session=fixture; HttpOnly; Secure; SameSite=Lax; Path=/api/noor'});res.end();}
   else{res.writeHead(200,{'Content-Type':'application/json','Cache-Control':'no-store'});res.end('{"fixture":true}');}
  });});
- const apiPort=await listen(api),server=await createHostedWebServer({staticDirectory:site,apiOrigin:`http://127.0.0.1:${apiPort}`,publicOrigin:'https://noor.example'}),port=await listen(server);
+ const apiPort=await listen(api),server=await createHostedWebServer({staticDirectory:site,apiOrigin:`http://127.0.0.1:${apiPort}`,publicOrigin:'https://noor.example',isReady}),port=await listen(server);
  try{await fn({dir,site,api,port,observed});}finally{await close(server);if(api.listening)await close(api);await fs.rm(dir,{recursive:true,force:true});}
 }
 test('serves the application and deep links without reading the API',()=>fixture(async({port,observed})=>{
@@ -56,3 +56,29 @@ test('rejects service credentials in public build configuration',()=>{
  assert.doesNotThrow(()=>validatePublicBuildEnvironment(env));assert.throws(()=>validatePublicBuildEnvironment({...env,VITE_NOOR_SUPABASE_PUBLISHABLE_KEY:'sb_secret_fixture'}),/PUBLIC_CONFIGURATION/);
  const token='e30.'+Buffer.from('{"role":"service_role"}').toString('base64url')+'.fixture';assert.throws(()=>validatePublicBuildEnvironment({...env,VITE_NOOR_SUPABASE_PUBLISHABLE_KEY:token}),/PUBLIC_CONFIGURATION/);assert.throws(()=>validatePublicBuildEnvironment({...env,SUPABASE_URL:'https://other.supabase.co'}),/AUTH_PROJECT_MISMATCH/);
 });
+
+let ready=false;
+test('R278: HTTP binds before backend readiness; automatic public recovery is stateless and protected API fails closed',()=>fixture(async({port,observed})=>{
+ assert.equal((await request(port,'/healthz')).status,200);
+ const starting=await request(port,'/readyz');
+ assert.equal(starting.status,503);
+ assert.equal(starting.body,'starting');
+ const waiting=await request(port,'/');
+ assert.equal(waiting.status,503);
+ assert.match(waiting.headers['content-type'],/text\/html/);
+ assert.equal(waiting.headers['cache-control'],'no-store');
+ assert.match(waiting.body,/جارٍ تجهيز منصة نور/);
+ assert.match(waiting.body,/\/readyz/);
+ assert.match(waiting.body,/location\.reload\(\)/);
+ const deep=await request(port,'/admin',{headers:{accept:'text/html'}});
+ assert.equal(deep.status,503);
+ const protectedResult=await request(port,'/api/noor/session',{method:'POST',body:'{}'});
+ assert.equal(protectedResult.status,503);
+ assert.deepEqual(observed,[]);
+ assert.equal((await request(port,'/readyz',{method:'POST'})).status,405);
+ ready=true;
+ assert.equal((await request(port,'/readyz')).status,200);
+ assert.equal((await request(port,'/')).status,200);
+ assert.equal((await request(port,'/api/noor/session',{method:'POST',body:'{}'})).status,204);
+ assert.equal(observed.length,1);
+},{isReady:()=>ready}));
