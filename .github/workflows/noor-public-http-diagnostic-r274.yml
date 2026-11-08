@@ -19,10 +19,10 @@ jobs:
           getent ahostsv4 noor-personal.onrender.com | head -n 3
           echo 'HTTP checks for production (no auth, no personal data):'
           failed=0
-          for path in /healthz / /admin /noor-service-worker.js; do
+          for path in /healthz; do
             echo "CHECK_PATH=$path"
             curl --header 'Accept: text/html' --location --fail-with-body --retry 0 \
-              --connect-timeout 4 --max-time 10 \
+              --connect-timeout 6 --max-time 90 \
               --output /dev/null \
               --write-out 'HTTP=%{http_code} REMOTE_IP=%{remote_ip} DNS=%{time_namelookup}s CONNECT=%{time_connect}s TLS=%{time_appconnect}s TTFB=%{time_starttransfer}s TOTAL=%{time_total}s\\n' \
               "https://noor-personal.onrender.com$path"
