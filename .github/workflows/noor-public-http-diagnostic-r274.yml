@@ -1,0 +1,29 @@
+name: NOOR public HTTP reachability diagnostic
+on:
+  push:
+    branches:
+      - diagnostic/noor-r274-public-http-check
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify-public-http:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Inspect external DNS and HTTPS
+        shell: bash
+        run: |
+          set +e
+          echo 'DNS resolution from GitHub runner:'
+          getent ahostsv4 noor-personal.onrender.com | head -n 3
+          echo 'HTTP checks for production (no auth, no personal data):'
+          for path in /healthz / /admin /noor-service-worker.js; do
+            echo "CHECK_PATH=$path"
+            curl --location --fail-with-body --retry 2 --retry-delay 3 --retry-all-errors \
+              --connect-timeout 8 --max-time 45 \
+              --output /dev/null \
+              --write-out 'HTTP=%{http_code} REMOTE_IP=%{remote_ip} DNS=%{time_namelookup}s CONNECT=%{time_connect}s TLS=%{time_appconnect}s TTFB=%{time_starttransfer}s TOTAL=%{time_total}s\\n' \
+              "https://noor-personal.onrender.com$path"
+            echo "CURL_STATUS=$?"
+          done
