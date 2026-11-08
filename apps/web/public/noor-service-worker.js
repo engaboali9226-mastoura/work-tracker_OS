@@ -1,5 +1,5 @@
 /* NOOR R275: network-first PWA navigation recovery.
- * No Cache Storage, IndexedDB, background sync, tokens, private journals, or
+ * No browser-side persistence, background sync, tokens, private journals, or
  * cross-origin requests. A transient host cold start never requires a deploy.
  */
 self.addEventListener("install",()=>{void self.skipWaiting();});
