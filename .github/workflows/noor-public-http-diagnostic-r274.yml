@@ -21,7 +21,7 @@ jobs:
           failed=0
           for path in /healthz / /admin /noor-service-worker.js; do
             echo "CHECK_PATH=$path"
-            curl --location --fail-with-body --retry 0 \
+            curl --header 'Accept: text/html' --location --fail-with-body --retry 0 \
               --connect-timeout 4 --max-time 10 \
               --output /dev/null \
               --write-out 'HTTP=%{http_code} REMOTE_IP=%{remote_ip} DNS=%{time_namelookup}s CONNECT=%{time_connect}s TLS=%{time_appconnect}s TTFB=%{time_starttransfer}s TOTAL=%{time_total}s\\n' \
