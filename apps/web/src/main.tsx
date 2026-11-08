@@ -25,7 +25,6 @@ import {
   NoorPersonalApplicationView,
 } from "./noor-personal-application-view.js";
 import {NoorWorkTeacherViewR264} from "./noor-work-teacher-view-r264.js";
-import {NoorAdminViewR271} from "./noor-admin-view-r271.js";
 import {
   createAuthenticationSessionController,
 } from "./authentication-session-controller.js";
@@ -56,19 +55,6 @@ import {
 import {
   createBrowserSessionEstablishmentClient,
 } from "./session-establishment-client.js";
-
-// Supabase password-recovery links can return to the application's Site URL (/).
-// Route only explicitly marked recovery callbacks to the separate admin onboarding
-// surface. Preserve the query and fragment until the ephemeral Auth client verifies
-// the recovery session; never log or copy tokens into application state.
-const recoveryHash = new URLSearchParams(window.location.hash.slice(1));
-const recoveryQuery = new URLSearchParams(window.location.search);
-if (window.location.pathname === "/" &&
-    (recoveryHash.get("type") === "recovery" ||
-     recoveryQuery.get("type") === "recovery")) {
-  window.history.replaceState(window.history.state, "",
-    "/admin" + window.location.search + window.location.hash);
-}
 
 const history =
   createBrowserHistory(
@@ -184,26 +170,6 @@ function ShellFoundation() {
     ],
   );
 
-  // A cold backend can fail the first authorization transport. Keep the
-  // application denied until fresh evidence arrives, then recover without
-  // requiring the user to reload or re-enter the application.
-  useEffect(() => {
-    if (routeAccess.pathname !== pathname ||
-        routeAccess.lifecycleState !== "running" ||
-        Object.hasOwn(routeAccess, "accessEvidence")) return;
-    const retry = () => {
-      if (!document.hidden) routeAccessController.retryUnavailable();
-    };
-    const interval = window.setInterval(retry, 30000);
-    window.addEventListener("online", retry);
-    document.addEventListener("visibilitychange", retry);
-    return () => {
-      window.clearInterval(interval);
-      window.removeEventListener("online", retry);
-      document.removeEventListener("visibilitychange", retry);
-    };
-  }, [pathname, routeAccess.pathname, routeAccess.lifecycleState, routeAccess.accessEvidence]);
-
   const routeAccessMatchesPath =
     routeAccess.pathname ===
       pathname;
@@ -230,12 +196,6 @@ function ShellFoundation() {
       authenticationState:
         authentication.kind,
     });
-
-  // The admin surface never mounts a privileged application by itself.
-  // All account data requires a live, server-verified admin response.
-  if (pathname === "/admin") {
-    return <NoorAdminViewR271 />;
-  }
 
   return (
     <PlatformShell

@@ -37,9 +37,6 @@ export interface RouteAccessEvidenceController {
   ):
   void;
 
-  retryUnavailable():
-  void;
-
   dispose():
   void;
 }
@@ -116,10 +113,9 @@ export function createRouteAccessEvidenceController(
     (
       pathname:
         string,
-      force = false,
     ) => {
       if (
-        !force && current.pathname ===
+        current.pathname ===
         pathname
       ) {
         return;
@@ -249,16 +245,6 @@ export function createRouteAccessEvidenceController(
         current,
 
     selectPathname,
-
-    // Repeat a failed transport request without trusting any prior evidence.
-    // Never retry successful authorization or an explicit server denial.
-    retryUnavailable:
-      () => {
-        if (current.lifecycleState === "running" &&
-            !Object.hasOwn(current, "accessEvidence")) {
-          selectPathname(current.pathname, true);
-        }
-      },
 
     dispose:
       () => {
