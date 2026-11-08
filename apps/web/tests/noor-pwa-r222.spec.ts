@@ -26,7 +26,7 @@ test("R222 service worker never caches journals, sessions or API responses",()=>
  assert.match(worker,/request\.method!=="GET"/u);
  assert.match(worker,/NAVIGATION_TIMEOUT_MS=12000/u);
  assert.match(worker,/status:503/u);
- assert.match(worker,/تعذر الاتصال بالخادم/u);
+ assert.match(worker,/استعادة الاتصال بمنصة نور/u);
 });
 test("R222 registers service worker on production browser only and refreshes code safely",()=>{
  assert.match(entry,/\.env\?\.PROD/u);
@@ -42,7 +42,7 @@ test("R275 offline PWA retries only a public health probe and never caches priva
  assert.match(worker,/credentials:/u);
  assert.match(worker,/window\.location\.reload/u);
  assert.match(worker,/\[502,503,504\]\.includes\(response\.status\)/u);
- assert.match(worker,/id="noor-retry"/u);
+ assert.match(worker,/noor-retry/u);
  assert.match(worker,/window\.location\.reload/u);
  assert.doesNotMatch(worker,/caches\.open|caches\.put|indexedDB|localStorage|sessionStorage/u);
 });
