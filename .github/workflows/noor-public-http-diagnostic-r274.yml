@@ -18,6 +18,7 @@ jobs:
           echo 'DNS resolution from GitHub runner:'
           getent ahostsv4 noor-personal.onrender.com | head -n 3
           echo 'HTTP checks for production (no auth, no personal data):'
+          failed=0
           for path in /healthz / /admin /noor-service-worker.js; do
             echo "CHECK_PATH=$path"
             curl --location --fail-with-body --retry 0 \
@@ -25,5 +26,8 @@ jobs:
               --output /dev/null \
               --write-out 'HTTP=%{http_code} REMOTE_IP=%{remote_ip} DNS=%{time_namelookup}s CONNECT=%{time_connect}s TLS=%{time_appconnect}s TTFB=%{time_starttransfer}s TOTAL=%{time_total}s\\n' \
               "https://noor-personal.onrender.com$path"
-            echo "CURL_STATUS=$?"
+            result=$?
+            echo "CURL_STATUS=$result"
+            if [[ "$result" -ne 0 ]]; then failed=1; fi
           done
+          exit "$failed"
