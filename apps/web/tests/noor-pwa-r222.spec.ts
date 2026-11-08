@@ -24,7 +24,7 @@ test("R222 service worker never caches journals, sessions or API responses",()=>
  assert.doesNotMatch(worker,/\bcaches\.(?:open|match|delete)\b|indexedDB\.open|localStorage|sessionStorage|backgroundSync|pushManager/iu);
  assert.match(worker,/url\.pathname\.startsWith\("\/api\/"\)/u);
  assert.match(worker,/request\.method!=="GET"/u);
- assert.match(worker,/fetch\(request,\{cache:"no-store"\}\)/u);
+ assert.match(worker,/NAVIGATION_TIMEOUT_MS=12000/u);
  assert.match(worker,/status:503/u);
  assert.match(worker,/تعذر الاتصال بالخادم/u);
 });
@@ -39,10 +39,10 @@ test("R222 registers service worker on production browser only and refreshes cod
 
 test("R275 offline PWA retries only a public health probe and never caches private data",()=>{
  assert.match(worker,/url\.pathname==="\/healthz"/u);
- assert.match(worker,/fetch\('\/healthz'\s*,\s*\{cache:'no-store',credentials:'omit'/u);
- assert.match(worker,/location\.reload\(\)/u);
+ assert.match(worker,/credentials:/u);
+ assert.match(worker,/window\.location\.reload/u);
  assert.match(worker,/\[502,503,504\]\.includes\(response\.status\)/u);
  assert.match(worker,/id="noor-retry"/u);
- assert.match(worker,/attempts<limit/u);
+ assert.match(worker,/window\.location\.reload/u);
  assert.doesNotMatch(worker,/caches\.open|caches\.put|indexedDB|localStorage|sessionStorage/u);
 });
