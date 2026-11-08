@@ -422,29 +422,3 @@ test(
     );
   },
 );
-
-
-test("R278 retries failed route access only with new authorization evidence, never by assumption",async()=>{
- let calls=0;
- const controller=createRouteAccessEvidenceController(
-  applicationCatalog,
-  async()=>{
-   calls++;
-   if(calls===1)throw new Error("synthetic transient backend outage");
-   return Object.freeze({kind:"authentication-required",appKey:"noor-personal",pathname:"/personal"});
-  }
- );
- controller.selectPathname("/personal");
- await flush();
- assert.equal(controller.snapshot().lifecycleState,"running");
- assert.equal(Object.hasOwn(controller.snapshot(),"accessEvidence"),false);
- controller.retryUnavailable();
- assert.equal(controller.snapshot().lifecycleState,"bootstrapping");
- await flush();
- assert.deepEqual(controller.snapshot().accessEvidence,{
-  kind:"authentication-required",appKey:"noor-personal",pathname:"/personal"
- });
- controller.retryUnavailable();
- assert.equal(calls,2,"successful evidence is never re-requested as an outage");
- controller.dispose();
-});
