@@ -1,6 +1,6 @@
 name: NOOR bounded daytime health heartbeat
 
-# Render Free can sleep after 15 minutes idle. A read-only /readyz request
+# Render Free can sleep after 15 minutes idle. A read-only readiness check with a guarded legacy fallback
 # during the core usage window reduces cold starts without maintaining 24/7
 # activity. Times are UTC: 03:00–18:59 UTC = 06:00–21:59 Riyadh.
 # This can consume up to ~16 free instance-hours/day, shared with n8n.
@@ -36,4 +36,18 @@ jobs:
             --write-out '%{http_code}' \
             'https://noor-personal.onrender.com/readyz')
           echo "NOOR_READY_HTTP=$http_code"
-          test "$http_code" = "200"
+          if [ "$http_code" = "200" ]; then
+            exit 0
+          fi
+          # Pre-administration baseline R270 exposes /healthz but not /readyz.
+          # A 404 triggers two public, cookie-free checks: liveness + HTML shell.
+          # 503 or other errors do NOT fall back to a misleading healthy state.
+          test "$http_code" = "404"
+          healthy=$(curl --silent --show-error --location --output /dev/null \
+            --connect-timeout 8 --max-time 25 --write-out '%{http_code}' \
+            'https://noor-personal.onrender.com/healthz')
+          shell=$(curl --silent --show-error --location --output /dev/null \
+            --header 'Accept: text/html' --connect-timeout 8 --max-time 25 \
+            --write-out '%{http_code}' 'https://noor-personal.onrender.com/')
+          echo "NOOR_BASELINE_HEALTH=$healthy NOOR_BASELINE_SHELL=$shell"
+          test "$healthy" = "200" && test "$shell" = "200"
