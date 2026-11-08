@@ -31,5 +31,11 @@ jobs:
             if [[ "$result" -ne 0 ]]; then failed=1; fi
           done
           echo "VERIFY_R278_WORKER_RELEASE"
-          curl --silent --show-error --fail --connect-timeout 6 --max-time 15 https://noor-personal.onrender.com/noor-service-worker.js | grep -q "NOOR R278" || failed=1
+          worker=$(curl --silent --show-error --fail --connect-timeout 6 --max-time 15 'https://noor-personal.onrender.com/noor-service-worker.js?diagnostic=r278') || failed=1
+          if [[ "$worker" == *"NOOR R278"* ]]; then
+            echo "R278_WORKER_VERIFIED=yes"
+          else
+            echo "R278_WORKER_VERIFIED=no"
+            failed=1
+          fi
           exit "$failed"
