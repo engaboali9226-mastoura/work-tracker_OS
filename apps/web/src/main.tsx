@@ -184,6 +184,26 @@ function ShellFoundation() {
     ],
   );
 
+  // A cold backend can fail the first authorization transport. Keep the
+  // application denied until fresh evidence arrives, then recover without
+  // requiring the user to reload or re-enter the application.
+  useEffect(() => {
+    if (routeAccess.pathname !== pathname ||
+        routeAccess.lifecycleState !== "running" ||
+        Object.hasOwn(routeAccess, "accessEvidence")) return;
+    const retry = () => {
+      if (!document.hidden) routeAccessController.retryUnavailable();
+    };
+    const interval = window.setInterval(retry, 30000);
+    window.addEventListener("online", retry);
+    document.addEventListener("visibilitychange", retry);
+    return () => {
+      window.clearInterval(interval);
+      window.removeEventListener("online", retry);
+      document.removeEventListener("visibilitychange", retry);
+    };
+  }, [pathname, routeAccess.pathname, routeAccess.lifecycleState, routeAccess.accessEvidence]);
+
   const routeAccessMatchesPath =
     routeAccess.pathname ===
       pathname;
