@@ -49,7 +49,7 @@ export async function smokePublicNoor(originInput,options={}) {
           const response=await requestPublic(fetchImpl,origin,pathname,requestTimeoutMs);
           if(response.status!==200)throw Error('NOOR_SMOKE_HTTP_'+pathname+':'+response.status);
           if(!response.contentType.toLowerCase().includes(contentType))throw Error('NOOR_SMOKE_TYPE_'+pathname);
-          if(contentType==='text/html' && !/<(?:!doctype html|html)\\b/i.test(response.body))
+          if(contentType==='text/html' && !/<!doctype html|<html/i.test(response.body))
             throw Error('NOOR_SMOKE_HTML_'+pathname);
           if(pathname==='/noor-service-worker.js' && !response.body.includes(marker))
             throw Error('NOOR_SMOKE_WORKER_VERSION_MISMATCH');
