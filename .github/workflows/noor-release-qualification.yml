@@ -1,0 +1,34 @@
+name: NOOR Release Qualification (candidate only)
+
+on:
+  pull_request:
+    branches:
+      - product/noor-personal-mvp
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  nonproduction-release-qualification:
+    name: Public hosting contract and release smoke unit tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Checkout candidate
+        uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24.x
+          cache: npm
+      - name: Install pinned dependencies
+        run: npm ci --include=dev
+      - name: Verify no-credential portable public health smoke
+        run: node --test tools/ci/noor-public-release-smoke.test.mjs
+      - name: Verify hosted transport and private boundary contract
+        run: npm run test:hosting
+
+# Existing Architecture Validation also runs full workspace tests and build on PRs
+# to production. This workflow deliberately never accesses production credentials,
+# runs a live application, applies SQL, or triggers a Render deployment.
