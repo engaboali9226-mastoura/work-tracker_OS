@@ -8,7 +8,7 @@ import { NoorWellbeingLabR165 } from "./noor-wellbeing-lab-r165.js";
 import { parseStatisticRows, summarizeProgress, statisticPeriods, statisticDays, statisticEligible, statisticInsights, statisticCalendar, shiftStatisticMonth, wholeWeekAchievement, yesterdayAchievement, validStatisticDate, shiftStatisticDate, type StatisticRow } from "./progress-statistics.js";
 import { loadCurrentTemperature } from "./public-weather-client.js";
 import { NoorR232TimeWindows } from "./noor-time-windows-r232.js";
-import { r283CarriedNightWindow, type R283PrecedingNight } from "./noor-islamic-daylight-r232.js";
+import { r232LocalWeekday, r283CarriedNightWindow, type R283PrecedingNight } from "./noor-islamic-daylight-r232.js";
 import { NoorHabitWeightManagerR251 } from "./noor-habit-weight-manager-r251.js";
 import { NoorR232ControlLocation } from "./noor-time-location-control-r232.js";
 import { readNoorR232Preferences,saveNoorR232Preferences,type NoorR232Preferences,type NoorR232City } from "./noor-time-display-preferences-r232.js";
@@ -122,7 +122,7 @@ type TodayViewModel = Readonly<{
     at: string;
   }>[];
   nextFajrAt: string | null;
-  precedingNight:R283PrecedingNight|null;
+  precedingNight?:R283PrecedingNight|null;
   location: HeaderLocation | null;
   locationRevisionId:string|null;
   tasks: readonly ExecutionItem[];
@@ -2253,8 +2253,14 @@ function Dashboard({ view:providedView, workspace, busy, actionError, onCommand,
   const nextKey = nextPrayer?.key ?? null;
 
   const night = nightCountdownState(view.prayerTimes,nowMs,view.nextFajrAt,view.precedingNight);
+  // The owner requested Jumu'ah to use the very same trusted Dhuhr instant.
+  const isFriday=r232LocalWeekday(nowMs,view.timeZone)===5;
   const eventTimes = [
-    ...view.prayerTimes.map(p=>p.key===nextPrayer?.key?{...p,at:nextPrayer.at}:p),
+    ...view.prayerTimes.map(p=>({
+      ...p,
+      label:isFriday&&p.key==="dhuhr"?"الجمعة":p.label,
+      at:p.key===nextPrayer?.key?nextPrayer.at:p.at,
+    })),
     ...(night ? [
       { key:"midnight", label:"منتصف الليل", at:night.midnight },
       { key:"last-third", label:"الثلث الأخير", at:night.lastThird },
