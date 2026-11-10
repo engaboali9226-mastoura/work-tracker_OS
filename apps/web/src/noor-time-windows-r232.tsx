@@ -17,12 +17,12 @@ function remaining(ms:number):string{
  const hour=Math.floor(seconds/3600),min=Math.floor(seconds%3600/60),sec=seconds%60;
  return [hour,min,sec].map(n=>String(n).padStart(2,"0")).join(":");
 }
-function WindowCard({title,window:interval,nowMs,timeZone,unavailable,showTimer=true,tone="day"}:{
+function WindowCard({title,window:interval,nowMs,timeZone,unavailable,showTimer=true,tone="day",nightCarry=false}:{
  title:string;window:R232Window|null;nowMs:number;timeZone:string;unavailable:string;
- showTimer?:boolean;tone?:"day"|"night"|"duha"|"friday";
+ showTimer?:boolean;tone?:"day"|"night"|"duha"|"friday";nightCarry?:boolean;
 }):ReactElement{
  const icon=tone==="day"?"☀":tone==="night"?"☾":tone==="duha"?"☀":"◷";
- const subtitle=tone==="day"?"من الفجر للمغرب":tone==="duha"?"بعد الشروق":tone==="night"?"من المغرب إلى الفجر":"حتى أذان الجمعة";
+ const subtitle=tone==="day"?"من الفجر للمغرب":tone==="duha"?"بعد الشروق":tone==="night"?(nightCarry?"حتى فجر اليوم":"حتى فجر الغد"):"حتى أذان الجمعة";
  const shortTitle=tone==="day"?"النهار":tone==="night"?"الليل":tone==="duha"?"الضحى":title;
  if(!interval)return <article className={`np-r232-window np-r234-window tone-${tone}`} data-phase="unavailable">
   <div className="np-r234-card-title"><span className="np-r234-symbol" aria-hidden="true">{icon}</span><h3 aria-label={title}>{shortTitle}</h3></div><p className="np-r248-subtitle">{subtitle}</p>
@@ -102,7 +102,7 @@ export function NoorR232TimeWindows({prayers,nowMs,timeZone,preferences,nextFajr
         nowMs={nowMs} timeZone={timeZone} showTimer={true}
         unavailable="لا توجد مواقيت فجر ومغرب مؤكدة لهذا اليوم."/>
     </div>
-    <WindowCard title="ساعات الليل الشرعي" tone="night" window={activeNight??windows.islamicNight}
+    <WindowCard title="ساعات الليل الشرعي" tone="night" window={activeNight??windows.islamicNight} nightCarry={activeNight!==null}
       nowMs={nowMs} timeZone={timeZone}
       unavailable="لم تتوفر مواقيت الغد من مصدر نور المعتمد."/>
    <p className="np-r232-note np-r237-detail-note">بداية الضحى تقديرية بعد الشروق بـ{preferences.afterSunrise} دقيقة، والنهاية قبل الظهر بـ{preferences.beforeDhuhr} دقائق. يمكن تغيير الهامش من مركز التحكم.</p>
