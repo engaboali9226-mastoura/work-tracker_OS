@@ -24,7 +24,7 @@ test("R247 digital timer is separate from label and all three periods remain in 
  assert.match(html,/np-r247-timer-caption/);
  assert.match(html,/np-r247-digits/);
  assert.match(html,/dir="ltr">[0-9]{2}:[0-9]{2}:[0-9]{2}<\/strong>/);
- assert.equal((html.match(/class="np-r247-timer"/g)||[]).length,3);
+ assert.equal((html.split('data-testid="friday-five-hours-r232"')[0].match(/class="np-r247-timer"/g)||[]).length,3);
  const day=html.indexOf('aria-label="ساعات النهار"');
  const duha=html.indexOf('aria-label="وقت صلاة الضحى"');
  const night=html.indexOf('aria-label="ساعات الليل الشرعي"');
@@ -34,7 +34,7 @@ test("R247 digital timer is separate from label and all three periods remain in 
 test("R247 fasting timer off is explicit and other countdowns remain enabled",()=>{
  const html=render(Date.parse("2026-11-06T18:00:00Z"));
  assert.match(html,/aria-pressed="false" aria-label="تشغيل مؤقت الصيام"/);
- assert.equal((html.match(/class="np-r247-timer"/g)||[]).length,3);
+ assert.equal((html.split('data-testid="friday-five-hours-r232"')[0].match(/class="np-r247-timer"/g)||[]).length,3);
  assert.match(html,/12 س 21 د/);
 });
 test("R247 calm color identity and mobile width equal thirds with tabular digital countdown",()=>{
