@@ -347,7 +347,7 @@ implements PersonalTodayExecutor {
         status:
           200 as const,
         body:
-          {...today,location,precedingNight,workspace:buildPersonalWorkspace(userId.toString(),scope.snapshot)},
+          {...today,location,...(precedingNight?{precedingNight}:{}),workspace:buildPersonalWorkspace(userId.toString(),scope.snapshot)},
       });
     } catch (error) {
       if (
