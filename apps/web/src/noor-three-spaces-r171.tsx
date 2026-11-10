@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type FormEvent, type ReactElement } from 'react';
 import { createPortal } from 'react-dom';
+import { createNoorDeveloperGitHubIssueUrlR282, NOOR_DEVELOPER_GITHUB_ISSUES_R282 } from './noor-developer-github-issues-r282.js';
 import type { NoorTrustedJournalPortR194 } from './noor-trusted-journal-dialog-adapter-r194.js';
 import { resolveNoorJournalReleaseModeR202 } from './noor-journal-release-gate-r202.js';
 
@@ -95,6 +96,11 @@ export function developerExportR171(notes:readonly NoteR171[]):{version:number;p
  return {version:1,proposals:notes.filter(x=>x.kind==='developer'&&x.shareApproved&&validateNoteR171(x)===null).map(({id,createdAt,localDate,title,body,category})=>({id,createdAt,localDate,title,body,category}))};
 }
 const STYLES=`
+.nr171-github-public{border:1px solid #9cb9ad;border-radius:13px;padding:14px;background:#ecf5ee;color:#20443a;display:grid;gap:9px}
+.nr171-github-public p{margin:0;line-height:1.7}
+.nr171-github-public a{font-weight:700;color:#245a8b;text-decoration:underline}
+.nr171-github-public small{color:#415e55;line-height:1.75}
+
 .nr171-shortcuts,.nr171-shortcuts *{box-sizing:border-box}
 .nr171-shortcuts{grid-column:1/-1;min-width:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;padding-top:13px;border-top:1px solid var(--border)}
 .nr171-shortcut{display:flex;align-items:center;gap:11px;min-width:0;min-height:64px;border:1px solid var(--border);border-radius:14px;padding:9px 12px;background:var(--panel-soft);color:var(--text);cursor:pointer;font:inherit;text-align:right;transition:background .16s}
@@ -382,6 +388,24 @@ export function NoorThreeSpacesR171({personalDate,storage=indexedNotesR173,trust
   try{const a=document.createElement('a');a.href=url;a.download=`noor-developer-proposals-${localDateR171()}.json`;document.body.appendChild(a);a.click();a.remove();setStatus('تم تجهيز ملف للمشاركة يدويًا. لم يُرسل إلى أي جهة.');}
   finally{window.setTimeout(()=>URL.revokeObjectURL(url),500);}
  };
+ const openDeveloperGitHub=(draft:Readonly<{kind:'developer';title:string;body:string;category:string}>,consent:boolean)=>{
+  try{
+   const url=createNoorDeveloperGitHubIssueUrlR282(draft,consent);
+   // User gesture opens GitHub; the author must explicitly create the issue there.
+   window.open(url,'_blank','noopener,noreferrer');
+   setError('');setStatus('فُتحت مسودة على GitHub. لا تُحفظ هناك إلا بعد الضغط على Create issue داخل GitHub.');
+  }catch(err){
+   const code=err instanceof Error?err.message:'';
+   setError(code==='NOOR_GITHUB_PUBLIC_CONSENT_REQUIRED'?'فعّل الموافقة الصريحة على النشر العام أولًا.':
+    code==='NOOR_GITHUB_ISSUE_URL_TOO_LONG'?'النص طويل لرابط GitHub. اختصره دون حذف معلومات مهمة، أو استخدم التصدير اليدوي.':
+    'أكمل عنوانًا ووصفًا صالحين ونوع المقترح قبل فتح GitHub.');
+  }
+ };
+ const composeGitHubFromForm=(event:import('react').MouseEvent<HTMLButtonElement>)=>{
+  const form=event.currentTarget.closest('form');if(!form){setError('تعذر الوصول إلى النموذج.');return;}
+  const data=new FormData(form);
+  openDeveloperGitHub({kind:'developer',title:String(data.get('title')??''),body:String(data.get('body')??''),category:String(data.get('category')??'')},data.get('githubPublicConsent')==='on');
+ };
  const keyDown=(event:import('react').KeyboardEvent<HTMLDivElement>)=>{
   if(event.key==='Escape'){event.preventDefault();close();return;}
   if(event.key!=='Tab')return;
@@ -409,10 +433,16 @@ export function NoorThreeSpacesR171({personalDate,storage=indexedNotesR173,trust
      {active==='developer'&&<label>نوع المقترح<select name="category" defaultValue="improvement"><option value="improvement">اقتراح تطوير</option><option value="issue">ملاحظة / مشكلة</option><option value="efficiency">زيادة الفاعلية</option><option value="ux">تحسين تجربة الاستخدام</option><option value="other">أخرى</option></select></label>}
      <label>{active==='ideas'?'تفاصيل الفكرة *':'وصف المشكلة أو المقترح *'}<textarea name="body" maxLength={4000} rows={5} required placeholder={active==='ideas'?'ما الفكرة؟ وما أول خطوة لتجربتها؟':'ما الذي يحتاج التحسين؟ وكيف تتصور الحل؟'}/></label>
      {active==='developer'&&<label className="nr171-check"><input type="checkbox" name="shareApproved"/><span>أوافق على تضمين هذا المقترح وحده في ملف أُصدّره يدويًا للمطوّر لاحقًا. لا يسمح ذلك بمشاركة مشاعري أو أفكاري الشخصية.</span></label>}
+     {active==='developer'&&<section className="nr171-github-public" aria-label="نشر مقترح على GitHub">
+      <p role="note"><strong>تطوير نور عبر GitHub Issues:</strong> مستودع نور عام؛ لا ترسل كلمات مرور أو بيانات شخصية أو تدوينات خاصة. لن تُرسل الملاحظة تلقائيًا عند الحفظ في نور.</p>
+      <label className="nr171-check"><input type="checkbox" name="githubPublicConsent"/><span>أفهم أن العنوان والوصف سيصبحان عامّين عند إنشاء Issue في GitHub، وأوافق على نشر هذا المقترح فقط.</span></label>
+      <div className="nr171-action"><button type="button" onClick={composeGitHubFromForm}>فتح مسودة GitHub</button><a href={NOOR_DEVELOPER_GITHUB_ISSUES_R282} target="_blank" rel="noopener noreferrer">سجل مشكلات التطوير على GitHub</a></div>
+      <small>يفتح GitHub النموذج جاهزًا. يجب تسجيل الدخول والضغط على Create issue هناك لتأكيد النشر. بيانات المشاعر والأفكار لا تُنقل.</small>
+     </section>}
     </>}
     <div className="nr171-action"><button className="nr171-primary" type="submit" disabled={!ready||saving}>{saving?"جارٍ الحفظ…":trustedJournal?"حفظ في الخدمة الموثوقة":"حفظ التدوينة في المختبر"}</button><button type="button" onClick={()=>{setView('history');setError('');}}>عرض السابق</button></div>
    </form>):<div><div className="nr171-action" style={{marginBottom:12}}><button type="button" onClick={()=>{setView('add');setConfirmDelete(null);}}>+ إضافة جديدة</button>{active==='developer'&&<button type="button" onClick={exportDeveloper}>تصدير المقترحات الموافق عليها للمطوّر</button>}</div>
-    {closed?<p className="nr171-info" role="status">السجل غير متاح حتى اعتماد خدمة التدوينات الآمنة؛ البيانات المحلية السابقة لم تُمس.</p>:current.length===0?<p className="nr171-empty">لا توجد تدوينات سابقة في هذه المساحة.</p>:current.map(n=><article className="nr171-record" key={n.id} data-testid={`r171-record-${n.kind}`}><h3>{n.title}</h3><time dateTime={n.createdAt}>{n.localDate}</time>{active==='feelings'&&<p className="nr171-record-meta">تقييم الشعور: {n.mood}/5</p>}{n.precedingEvent&&<p><strong>الحدث الذي سبق الشعور:</strong> {n.precedingEvent}</p>}<p>{n.body}</p>{n.helpful&&<p><strong>ما يساعدني:</strong> {n.helpful}</p>}{active==='developer'&&<p className="nr171-record-meta">{n.shareApproved?'موافقة محلية على التصدير — لم يُرسل':'خاص — غير مخصص للمشاركة'}</p>}<div className="nr171-action"><button type="button" onClick={()=>{void remove(n.id);}} disabled={saving}>{confirmDelete===n.id?'تأكيد الحذف':'حذف التدوينة'}</button>{confirmDelete===n.id&&<button type="button" onClick={()=>setConfirmDelete(null)}>إلغاء الحذف</button>}</div></article>)}
+    {closed?<p className="nr171-info" role="status">السجل غير متاح حتى اعتماد خدمة التدوينات الآمنة؛ البيانات المحلية السابقة لم تُمس.</p>:current.length===0?<p className="nr171-empty">لا توجد تدوينات سابقة في هذه المساحة.</p>:current.map(n=><article className="nr171-record" key={n.id} data-testid={`r171-record-${n.kind}`}><h3>{n.title}</h3><time dateTime={n.createdAt}>{n.localDate}</time>{active==='feelings'&&<p className="nr171-record-meta">تقييم الشعور: {n.mood}/5</p>}{n.precedingEvent&&<p><strong>الحدث الذي سبق الشعور:</strong> {n.precedingEvent}</p>}<p>{n.body}</p>{n.helpful&&<p><strong>ما يساعدني:</strong> {n.helpful}</p>}{active==='developer'&&<p className="nr171-record-meta">{n.shareApproved?'موافقة محلية على التصدير — لم يُرسل':'خاص — غير مخصص للمشاركة'}</p>}<div className="nr171-action"><button type="button" onClick={()=>{void remove(n.id);}} disabled={saving}>{confirmDelete===n.id?'تأكيد الحذف':'حذف التدوينة'}</button>{confirmDelete===n.id&&<button type="button" onClick={()=>setConfirmDelete(null)}>إلغاء الحذف</button>}{active==='developer'&&<button type="button" onClick={()=>{if(window.confirm('تنبيه: سيتم نشر عنوان ووصف هذه الملاحظة للعامة في GitHub بعد تأكيدك النهائي هناك. هل تريد المتابعة؟'))openDeveloperGitHub(n as NoteR171 & {kind:'developer'},true);}}>فتح في GitHub (عام)</button>}</div></article>)}
    </div>}
    </div>
   </div>
