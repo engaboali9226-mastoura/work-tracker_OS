@@ -8,6 +8,8 @@ export interface TaskSessionDraft {
     readonly target: number | null;
     readonly rangeStart: number | null;
     readonly rangeEnd: number | null;
+    /** Optional civil date in the owner's account calendar. Legacy undated sessions remain available. */
+    readonly scheduledDate?: string | null;
 }
 export interface TaskSession extends TaskSessionDraft {
     readonly order: number;
@@ -59,8 +61,18 @@ export function equalSessionTargets(total: number, count: number, discrete = fal
         (each + (i < remainder ? 1 : 0)) / (discrete ? 1 : SCALE));
 }
 
+export function validSessionDateR286(value: unknown): value is string {
+    if(typeof value!=="string"||!/^\\d{4}-\\d{2}-\\d{2}$/.test(value))return false;
+    const instant=Date.parse(value+"T00:00:00.000Z");
+    return Number.isFinite(instant) && new Date(instant).toISOString().slice(0,10)===value;
+}
+export function sessionScheduledOnDateR286(plan: TaskSessionPlan, date: string): boolean {
+    // An undated session is intentionally available under its original parent schedule.
+    return plan.sessions.some(s=>!s.scheduledDate||s.scheduledDate===date);
+}
 function sameDraft(session: TaskSession, input: TaskSessionDraft): boolean {
-    return session.target === input.target && session.rangeStart === input.rangeStart && session.rangeEnd === input.rangeEnd;
+    return session.target === input.target && session.rangeStart === input.rangeStart && session.rangeEnd === input.rangeEnd &&
+        (session.scheduledDate??null)===(input.scheduledDate??null);
 }
 /** All plans are owner-scoped because they live inside an existing ExecutionDefinition. */
 export function prepareTaskSessionPlan(
@@ -85,6 +97,7 @@ export function prepareTaskSessionPlan(
         if (!d || typeof d.id !== "string" || d.id.length < 1 || d.id.length > 256
             || typeof d.title !== "string" || !d.title.trim() || d.title.length > 120
             || typeof d.objective !== "string" || d.objective.length > 500
+            || !(d.scheduledDate===undefined||d.scheduledDate===null||validSessionDateR286(d.scheduledDate))
             || !(d.target === null || sessionQuantity(d.target) && d.target > 0)
             || !(d.rangeStart === null && d.rangeEnd === null ||
                 Number.isSafeInteger(d.rangeStart) && Number.isSafeInteger(d.rangeEnd) &&
@@ -100,6 +113,7 @@ export function prepareTaskSessionPlan(
         return {
             id: d.id, title: d.title.trim(), objective: d.objective.trim(),
             target: d.target, rangeStart: d.rangeStart, rangeEnd: d.rangeEnd,
+            scheduledDate:d.scheduledDate??null,
             order: index + 1, note: old?.note ?? "", completedAt: old?.completedAt ?? null,
             createdAt: old?.createdAt ?? now, updatedAt: altered ? now : old!.updatedAt,
             revision: (old?.revision ?? 0) + (old && altered ? 1 : 0),
