@@ -2190,7 +2190,14 @@ function Dashboard({ view:providedView, workspace, busy, actionError, onCommand,
   },0);
   const completionRate=todayWeight?Math.round(dayWeighted/todayWeight*100):0;
   const achievementDate=providedView.localDate??workspace?.statistics.currentDate??civilLocalDate(nowMs,view.timeZone);
-  const todayRows:StatisticRow[]=[...providedView.tasks,...providedView.habits].map(item=>({id:item.id,definitionId:item.definitionId,title:item.title,kind:item.kind,date:achievementDate,weight:item.weight,status:item.status,amount:0,unit:""}));
+  const todayRows:StatisticRow[]=[...providedView.tasks,...providedView.habits].map(item=>{
+    const def=definitionsById.get(item.definitionId);
+    const credit=def?.sessionPlan?Math.min(1,Math.max(0,def.activityLog
+      .filter(entry=>entry.taskSessionId&&entry.localDate===achievementDate)
+      .reduce((sum,entry)=>sum+(entry.sessionDayCredit??0),0))):(item.status==="Completed"?1:0);
+    return {id:item.id,definitionId:item.definitionId,title:item.title,kind:item.kind,
+      date:achievementDate,weight:item.weight,status:item.status,amount:0,unit:"",credit};
+  });
   const achievementWeek=wholeWeekAchievement(workspace?.statistics.rows??[],achievementDate,todayRows),yesterday=yesterdayAchievement(workspace?.statistics.rows??[],historyDate??achievementDate);
   // NOOR_WEEK_HISTORY_NAV_R109: visual paging only. Historical mutations remain R108 commands.
   const firstHistoryDate=(workspace?.statistics.rows??[]).filter(r=>r.date<=achievementDate).map(r=>r.date).sort()[0]??null;
