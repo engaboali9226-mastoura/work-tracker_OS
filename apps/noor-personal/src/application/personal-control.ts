@@ -1,6 +1,6 @@
 const DEFAULT_PERSONAL_CATEGORIES=["الصحة والرياضة","العبادات","العمل","التعلم","الأسرة","الشؤون الشخصية","الأدوية والمكملات الغذائية"] as const;
 import { IntlTimeZoneAdapter } from "../domain/time.js";
-import { prepareTaskSessionPlan, sessionProgress, sessionStatus, sessionQuantity, sessionDayCredit, sessionEventCredit, isPageUnit, type TaskSessionPlanDraft } from "../domain/task-sessions.js";
+import { prepareTaskSessionPlan, sessionProgress, sessionStatus, sessionQuantity, sessionDayCredit, sessionEventCredit, isPageUnit, validSessionDateR286, type TaskSessionPlanDraft } from "../domain/task-sessions.js";
 import { applyFinanceOperation, emptyFinanceLedger, parseFinanceOperation, type FinanceOperation, type FinanceLedger } from "../domain/model.js";
 import type {
     AutomationOutboxEvent,
@@ -242,14 +242,16 @@ function parseTaskSessionDraft(value: unknown): TaskSessionPlanDraft | null | un
        ||!Array.isArray(value.sessions)||value.sessions.length>200)return undefined;
     const sessions: TaskSessionPlanDraft["sessions"][number][]=[];
     for(const d of value.sessions) {
-        if(!isRecord(d)||!exactKeys(d,["id","title","objective","target","rangeStart","rangeEnd"])
+        if(!isRecord(d)||!exactKeys(d,["id","title","objective","target","rangeStart","rangeEnd",...(Object.hasOwn(d,"scheduledDate")?["scheduledDate"]:[])])
            ||!boundedIdentifier(d.id)||!boundedText(d.title,120)
            ||typeof d.objective!=="string"||d.objective.length>500
+            ||!(d.scheduledDate===undefined||d.scheduledDate===null||validSessionDateR286(d.scheduledDate))
            ||!(d.target===null||typeof d.target==="number"&&sessionQuantity(d.target)&&d.target>0)
            ||!(d.rangeStart===null&&d.rangeEnd===null||Number.isSafeInteger(d.rangeStart)&&Number.isSafeInteger(d.rangeEnd)&&
               Number(d.rangeStart)>=1&&Number(d.rangeEnd)>=Number(d.rangeStart)&&Number(d.rangeEnd)<=1e9))return undefined;
         sessions.push({id:d.id,title:(d.title as string).trim(),objective:d.objective.trim(),target:d.target as number|null,
-          rangeStart:d.rangeStart as number|null,rangeEnd:d.rangeEnd as number|null});
+          rangeStart:d.rangeStart as number|null,rangeEnd:d.rangeEnd as number|null,
+           scheduledDate:d.scheduledDate as string|null|undefined});
     }
     if(new Set(sessions.map(s=>s.id)).size!==sessions.length)return undefined;
     return {distribution:value.distribution as "equal"|"custom",sessions};
@@ -740,6 +742,8 @@ export class PersonalCommandService {
                     }
                     const day=activePersonalDay(transaction,userId,now);
                     if(instance.personalDayId!==day.id)throw new PersonalControlError("EXECUTION_NOT_CURRENT");
+                    if(session.scheduledDate && session.scheduledDate!==day.boundary.localDate)
+                        throw new Error("TASK_SESSION_NOT_SCHEDULED_TODAY");
                     if(!["Pending","Planned","InProgress"].includes(instance.status)||definition.state!=="Active")
                         throw new PersonalControlError("DEFINITION_STATE_CONFLICT");
                     if(log.length>=10000)throw new Error("ACTIVITY_LIMIT_REACHED");
