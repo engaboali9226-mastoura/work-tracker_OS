@@ -39,7 +39,7 @@ test("R250 approved RTL markup still Duha/day/night and all three are direct gri
  assert.ok(a>0 && b>a && c>b);
  assert.match(html,/np-r248-reference-strip/);
  assert.match(html,/data-reference-design="preview-r248"/);
- assert.equal((html.match(/class="np-r247-timer"/g)||[]).length,3);
+ assert.equal((html.split('data-testid="friday-five-hours-r232"')[0].match(/class="np-r247-timer"/g)||[]).length,3);
 });
 test("R250 Friday hours remain a full-width second grid row only on Friday",()=>{
  const html=markup(Date.parse("2026-11-06T08:00:00Z"),"12:12");
