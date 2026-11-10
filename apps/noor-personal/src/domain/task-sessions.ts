@@ -1,4 +1,4 @@
-import type { ActivityEntry, IsoInstant, ProgressMeasurement } from "./model.js";
+import type { ActivityEntry, IsoInstant, ProgressMeasurement, Schedule } from "./model.js";
 
 export type TaskSessionStatus = "Planned" | "InProgress" | "Completed";
 export interface TaskSessionDraft {
@@ -67,8 +67,27 @@ export function validSessionDateR286(value: unknown): value is string {
     return Number.isFinite(instant) && new Date(instant).toISOString().slice(0,10)===value;
 }
 export function sessionScheduledOnDateR286(plan: TaskSessionPlan, date: string): boolean {
-    // An undated session is intentionally available under its original parent schedule.
+    // An undated session remains eligible under its existing parent schedule.
     return plan.sessions.some(s=>!s.scheduledDate||s.scheduledDate===date);
+}
+/** A scheduled session must correspond to a real recurrence of its parent task.
+ * No real user data or timezone is inferred: civil dates and Sunday=0 weekday
+ * numbers use the existing task scheduling convention.
+ */
+export function assertTaskSessionDatesMatchParentR286(
+    plan: TaskSessionPlan | undefined,
+    schedule: Schedule,
+    startDate: string,
+    endDate: string | null,
+): void {
+    for(const s of plan?.sessions??[]){
+        const date=s.scheduledDate;
+        if(!date)continue; // Backward-compatible undated sessions.
+        if(!validSessionDateR286(date)||date<startDate||(endDate!==null&&date>endDate)||
+           schedule.kind==="OneTime"&&date!==schedule.localDate||
+           schedule.kind==="Weekdays"&&!schedule.weekdays.includes(new Date(date+"T00:00:00.000Z").getUTCDay()))
+            throw new Error("TASK_SESSION_DATE_OUTSIDE_TASK_SCHEDULE");
+    }
 }
 function sameDraft(session: TaskSession, input: TaskSessionDraft): boolean {
     return session.target === input.target && session.rangeStart === input.rangeStart && session.rangeEnd === input.rangeEnd &&
