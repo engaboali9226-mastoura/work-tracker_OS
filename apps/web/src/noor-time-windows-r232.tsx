@@ -2,6 +2,7 @@ import type {ReactElement} from "react";
 import {r232Countdown,r232DailyWindows,r283FridayHoursAtDhuhr,r283CarriedNightWindow,r232LocalWeekday,r232FastingCountdownEnabled,
  type R232Window,type R283PrecedingNight} from "./noor-islamic-daylight-r232.js";
 import type {NoorR232Preferences} from "./noor-time-display-preferences-r232.js";
+import {fridayVirtueR284,NOOR_FRIDAY_VIRTUES_SOURCE_R284} from "./noor-friday-virtues-r284.js";
 
 type Prayer=Readonly<{key:string;at:string}>;
 function clock(ms:number,zone:string):string{
@@ -17,13 +18,14 @@ function remaining(ms:number):string{
  const hour=Math.floor(seconds/3600),min=Math.floor(seconds%3600/60),sec=seconds%60;
  return [hour,min,sec].map(n=>String(n).padStart(2,"0")).join(":");
 }
-function WindowCard({title,window:interval,nowMs,timeZone,unavailable,showTimer=true,tone="day",nightCarry=false}:{
+function WindowCard({title,window:interval,nowMs,timeZone,unavailable,showTimer=true,tone="day",nightCarry=false,fridayHour}:{
  title:string;window:R232Window|null;nowMs:number;timeZone:string;unavailable:string;
- showTimer?:boolean;tone?:"day"|"night"|"duha"|"friday";nightCarry?:boolean;
+ showTimer?:boolean;tone?:"day"|"night"|"duha"|"friday";nightCarry?:boolean;fridayHour?:1|2|3|4|5;
 }):ReactElement{
  const icon=tone==="day"?"☀":tone==="night"?"☾":tone==="duha"?"☀":"◷";
  const subtitle=tone==="day"?"من الفجر للمغرب":tone==="duha"?"بعد الشروق":tone==="night"?(nightCarry?"حتى فجر اليوم":"حتى فجر الغد"):"حتى أذان الجمعة";
  const shortTitle=tone==="day"?"النهار":tone==="night"?"الليل":tone==="duha"?"الضحى":title;
+ const fridayVirtue=fridayHour===undefined?null:fridayVirtueR284(fridayHour);
  if(!interval)return <article className={`np-r232-window np-r234-window tone-${tone}`} data-phase="unavailable">
   <div className="np-r234-card-title"><span className="np-r234-symbol" aria-hidden="true">{icon}</span><h3 aria-label={title}>{shortTitle}</h3></div><p className="np-r248-subtitle">{subtitle}</p>
   <p className="np-r232-help">{unavailable}</p>
@@ -36,6 +38,7 @@ function WindowCard({title,window:interval,nowMs,timeZone,unavailable,showTimer=
     <span className="np-r234-state">{state.phase==="active"?"جارٍ الآن":state.phase==="finished"?"انتهت":"لم تبدأ بعد"}</span>
   </div>
   <p className="np-r248-subtitle">{subtitle}</p>
+  {fridayVirtue?<p className="np-r284-friday-virtue" data-testid={`friday-virtue-${fridayHour}`}><span aria-hidden="true">{fridayVirtue.icon}</span><span>{fridayVirtue.description}</span></p>:null}
   <div className="np-r234-times" dir="rtl">
     <span className="np-r234-time-point"><small>من</small><strong>{clock(interval.startMs,timeZone)}</strong></span>
     <span className="np-r234-time-line" aria-hidden="true"/>
@@ -108,15 +111,16 @@ export function NoorR232TimeWindows({prayers,nowMs,timeZone,preferences,nextFajr
    <p className="np-r232-note np-r237-detail-note">بداية الضحى تقديرية بعد الشروق بـ{preferences.afterSunrise} دقيقة، والنهاية قبل الظهر بـ{preferences.beforeDhuhr} دقائق. يمكن تغيير الهامش من مركز التحكم.</p>
    {friday?<div className="np-r232-friday np-r235-friday-inline np-r237-friday-inline" data-testid="friday-five-hours-r232">
     <h3>ساعات الجمعة الخمس</h3>
-    <p className="np-r232-note">من ارتفاع الشمس إلى موعد الظهر المعتمد يوم الجمعة، موزعة على خمس فترات متساوية.</p>
+    <p className="np-r232-note">من ارتفاع الشمس إلى موعد الظهر المعتمد يوم الجمعة، موزعة على خمس فترات متساوية. فضائل التبكير بالترتيب الوارد في الحديث، وليست حسابًا رقميًا للأجر.</p>
     {fridayHours?<div className="np-r232-five-grid np-r235-five-rows np-r237-friday-hours">
      {fridayHours.map(hour=><WindowCard key={hour.number}
        title={`الساعة ${["الأولى","الثانية","الثالثة","الرابعة","الخامسة"][hour.number-1]}`}
-       tone="friday"
+       tone="friday" fridayHour={hour.number}
        window={hour} nowMs={nowMs} timeZone={timeZone} unavailable="—"/>)}
     </div>:<p role="status" className="np-r232-help">
      يلزم توفر وقت الشروق والظهر المعتمدين ليوم الجمعة من نور.
     </p>}
+    <p className="np-r284-friday-source">{NOOR_FRIDAY_VIRTUES_SOURCE_R284}. يعتمد الحساب الزمني على مواقيت نور، وقد تختلف بداية ساعات التبكير باختلاف الاجتهاد الفقهي ووقت خروج الإمام.</p>
    </div>:null}
    </div>
   </section>;
