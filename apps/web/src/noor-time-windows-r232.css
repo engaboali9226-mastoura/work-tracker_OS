@@ -1347,3 +1347,9 @@
     transition: none;
   }
 }
+
+/* R284: unobtrusive virtue annotation; leaves R248 rhythm geometry untouched. */
+.np-r284-friday-virtue{display:flex;align-items:center;justify-content:center;gap:5px;margin:3px 0 6px;font-size:clamp(10px,.8vw,12px);font-weight:650;line-height:1.4;color:var(--np-text,#283e46);text-align:center}
+.np-r284-friday-virtue span:first-child{font-size:clamp(17px,1.7vw,22px);line-height:1.2}
+.np-r284-friday-source{margin:4px 0 0;font-size:11px;line-height:1.6;color:var(--np-muted,#617781);text-align:right}
+@media(max-width:600px){.np-r284-friday-virtue{flex-direction:column;gap:2px;font-size:10px}.np-r284-friday-source{font-size:10px}}
