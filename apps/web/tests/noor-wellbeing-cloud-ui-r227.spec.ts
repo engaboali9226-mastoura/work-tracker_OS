@@ -35,7 +35,7 @@ test('R227 cloud personal-space reloads saved fields, awaits persistence, and ne
   await act(async()=>button('مؤشرات اليوم').click());
   assert.equal(dom.window.document.querySelector<HTMLInputElement>('input[type="number"]')!.value,'7500');assert.match(dom.window.document.querySelector('[role="dialog"]')!.textContent!,/Synthetic/);
   await submit();assert.equal(signals[0].apps[0].minutes,20);assert.match(dom.window.document.querySelector('[role="status"]')!.textContent!,/تم حفظ مؤشرات/);
-  await act(async()=>button('تفريغ المشاعر').click());await act(async()=>button('حذف التدوينة').click());assert.equal(reflections.length,1);await act(async()=>button('تأكيد حذف التدوينة').click());assert.equal(reflections.length,0);
+  await act(async()=>button('مشاعري · تفريغ المشاعر').click());await act(async()=>button('حذف التدوينة').click());assert.equal(reflections.length,1);await act(async()=>button('تأكيد حذف التدوينة').click());assert.equal(reflections.length,0);
   await close();failRead=true;await open();assert.equal(dom.window.document.querySelector('fieldset')?.disabled,true);assert.match(dom.window.document.querySelector('[role="alert"]')!.textContent!,/تعذر فتح التخزين الآمن/);
  }finally{
   await act(async()=>root.unmount());dom.window.close();for(const[key,d]of previous){if(d)Object.defineProperty(globalThis,key,d);else Reflect.deleteProperty(globalThis,key);}
