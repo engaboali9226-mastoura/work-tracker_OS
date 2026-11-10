@@ -113,7 +113,7 @@ export function prepareTaskSessionPlan(
         return {
             id: d.id, title: d.title.trim(), objective: d.objective.trim(),
             target: d.target, rangeStart: d.rangeStart, rangeEnd: d.rangeEnd,
-            scheduledDate:d.scheduledDate??null,
+            ...(d.scheduledDate?{scheduledDate:d.scheduledDate}:{}),
             order: index + 1, note: old?.note ?? "", completedAt: old?.completedAt ?? null,
             createdAt: old?.createdAt ?? now, updatedAt: altered ? now : old!.updatedAt,
             revision: (old?.revision ?? 0) + (old && altered ? 1 : 0),
