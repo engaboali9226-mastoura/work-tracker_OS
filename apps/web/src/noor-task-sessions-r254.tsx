@@ -25,6 +25,12 @@ export function sessionProgressR254(log:readonly SessionEntryR254[],id:string):n
 export function sessionFinishedR254(s:StoredTaskSessionR254,log:readonly SessionEntryR254[]):boolean{
   return !!s.completedAt||s.target!==null&&sessionProgressR254(log,s.id)>=s.target;
 }
+/** R285: exact remaining goal is committed by a single checkbox through existing
+ * owner-authorized activity commands. This is not an additional achievement. */
+export function sessionRemainingR285(s:StoredTaskSessionR254,log:readonly SessionEntryR254[]):number|null{
+  if(s.target===null)return null;
+  return Math.max(0,round(s.target-sessionProgressR254(log,s.id)));
+}
 function makeSession(i:number,target:number|null=null,start:number|null=null,end:number|null=null):NoorTaskSessionDraft{
   return {id:globalThis.crypto.randomUUID(),title:"الجلسة "+i,objective:"",target,rangeStart:start,rangeEnd:end};
 }
@@ -57,13 +63,14 @@ export function TaskSessionPlannerR254({enabled,setEnabled,distribution,setDistr
         <div className="nts-actions"><button type="button" disabled={busy||i===0} onClick={()=>{const v=[...sessions];[v[i-1],v[i]]=[v[i]!,v[i-1]!];setSessions(v);}}>↑</button><button type="button" disabled={busy||i===sessions.length-1} onClick={()=>{const v=[...sessions];[v[i],v[i+1]]=[v[i+1]!,v[i]!];setSessions(v);}}>↓</button><button type="button" disabled={busy} onClick={()=>setSessions(sessions.filter((_,j)=>j!==i))}>إزالة</button></div>
       </fieldset>)}
       <button type="button" disabled={busy||sessions.length>=200} onClick={()=>setSessions([...sessions,makeSession(sessions.length+1)])}>+ إضافة جلسة</button>
+      {target!==null?<p className="nts-plan-total" data-testid="r285-session-target-total" role="status">مجموع المستهدفات المحددة: {round(sessions.reduce((sum,session)=>sum+(session.target??0),0))} من {target} {unit||"وحدة"}{sessions.some(s=>s.target===null)?" · توجد جلسات لم تحدد كميتها بعد":""}</p>:null}
       <small>يمكنك تعديل الجلسات القادمة وإعادة ترتيبها. نطاقات الصفحات يجب أن تكون صحيحة وغير متداخلة وأن يساوي عدد صفحات كل نطاق مستهدفه.</small>
       {error?<p role="alert">{error}</p>:null}
     </div>:null}
   </section>;
 }
-function OneSessionR254({session,log,definitionId,executionId,busy,onCommand,reading,pageUnit}:{session:StoredTaskSessionR254;log:readonly SessionEntryR254[];definitionId:string;executionId:string|null;busy:boolean;onCommand:(c:NoorPersonalCommandInput)=>Promise<boolean>;reading:boolean;pageUnit:boolean}):ReactElement{
-  const s=session,progress=sessionProgressR254(log,s.id),done=sessionFinishedR254(s,log);
+function OneSessionR254({session,log,definitionId,executionId,busy,onCommand,reading,pageUnit,unit}:{session:StoredTaskSessionR254;log:readonly SessionEntryR254[];definitionId:string;executionId:string|null;busy:boolean;onCommand:(c:NoorPersonalCommandInput)=>Promise<boolean>;reading:boolean;pageUnit:boolean;unit:string}):ReactElement{
+  const s=session,progress=sessionProgressR254(log,s.id),done=sessionFinishedR254(s,log),remainingTarget=sessionRemainingR285(s,log);
   const [note,setNote]=useState(s.note),[amount,setAmount]=useState(""),[activityNote,setActivityNote]=useState(""),[error,setError]=useState("");
   const [noteBaseRevision,setNoteBaseRevision]=useState(s.revision);
   const savingCommand=useRef(false);
@@ -71,7 +78,7 @@ function OneSessionR254({session,log,definitionId,executionId,busy,onCommand,rea
   const acquire=()=>{if(busy||savingCommand.current)return false;savingCommand.current=true;setSaving(true);return true;};
   const release=()=>{savingCommand.current=false;setSaving(false);};
   const updateNote=(value:string)=>{if(note===s.note)setNoteBaseRevision(s.revision);setNote(value);};
-  const entryId=useRef(globalThis.crypto.randomUUID());
+  const entryId=useRef(globalThis.crypto.randomUUID()),completionEntryId=useRef(globalThis.crypto.randomUUID());
   // Refresh server notes without erasing an unsaved local draft after a background sync.
   const previousServerNote=useRef({text:s.note,revision:s.revision});
   useEffect(()=>{
@@ -121,16 +128,35 @@ function OneSessionR254({session,log,definitionId,executionId,busy,onCommand,rea
   };
   const complete=async()=>{
     if(busy||savingCommand.current||done||!executionId)return;setError("");
+    // A quantified session is completed by recording only the REMAINING amount.
+    // Its existing credit is earned only once via the server's activity log.
+    const command:NoorPersonalCommandInput=remainingTarget===null
+      ?{type:"complete-task-session",executionId,taskSessionId:s.id,entryId:completionEntryId.current}
+      :{type:"record-task-session-progress",executionId,taskSessionId:s.id,
+         entryId:completionEntryId.current,amount:remainingTarget,note:activityNote};
+    if(remainingTarget!==null&&(!(remainingTarget>0)||pageUnit&&!Number.isSafeInteger(remainingTarget))){
+      setError("المقدار المتبقي للجلسة غير صالح؛ حدّث بيانات المهمة.");return;
+    }
     if(!acquire())return;
     try{
-      if(await onCommand({type:"complete-task-session",executionId,taskSessionId:s.id,entryId:entryId.current}))
-        entryId.current=globalThis.crypto.randomUUID();
-      else setError("تعذر تسجيل الإتمام؛ حاول مرة أخرى.");
-    }catch{setError("تعذر الاتصال أثناء تسجيل الإتمام؛ حاول مرة أخرى.");}
+      if(await onCommand(command)){
+        completionEntryId.current=globalThis.crypto.randomUUID();
+        if(remainingTarget!==null){setAmount("");setActivityNote("");}
+      }else setError("لم يتأكد حفظ إتمام الجلسة؛ لا نعيد إنشاء النشاط حتى نتحقق من الخادم.");
+    }catch{setError("تعذر الاتصال أثناء إتمام الجلسة؛ حاول مرة أخرى دون فقدان تقدمك.");}
     finally{release();}
   };
   return <details className="nts-session" data-testid={"session-detail-"+s.id}>
-    <summary><span><strong>{s.order}. {s.title}</strong>{s.objective?<small>{s.objective}</small>:null}</span><span>{done?"مكتملة":progress>0?"قيد التنفيذ":"لم تبدأ"}{s.target!==null?" · "+progress+" / "+s.target:""}</span></summary>
+    <summary><span><strong>{s.order}. {s.title}</strong>{s.objective?<small>{s.objective}</small>:null}</span><span>{done?"مكتملة":progress>0?"قيد التنفيذ":"لم تبدأ"}{s.target!==null?" · "+progress+" / "+s.target:""}</span>
+      <label className="nts-check-session" onClick={event=>event.stopPropagation()}>
+        <input type="checkbox" checked={done} disabled={busy||saving||done||!executionId}
+          data-testid={"r285-session-complete-"+s.id}
+          aria-label={done?"تم إنجاز "+s.title:"تأكيد إنجاز "+s.title+" بالكامل"}
+          onKeyDown={event=>event.stopPropagation()}
+          onChange={event=>{event.stopPropagation();if(event.currentTarget.checked)void complete();}}/>
+        <span>{done?"تمت":remainingTarget===null?"تمت الجلسة":'تمت '+(reading?"جلسة القراءة":"الجلسة")+" ("+remainingTarget+" "+(unit||"وحدة")+")"}</span>
+      </label>
+    </summary>
     <div className="nts-session-body">
       {s.rangeStart!==null?<p>النطاق: {s.rangeStart}–{s.rangeEnd}</p>:null}
       {s.target!==null?<progress value={progress} max={s.target} aria-label={"تقدم "+s.title}/>:null}
@@ -208,9 +234,9 @@ function TaskGeneralNoteR254({definitionId,revisionId,storedNote,busy,onCommand}
 export function TaskSessionListR254({plan,log,definitionId,executionId,busy,onCommand,title,revisionId,taskGeneralNote="",unit=""}:{plan:StoredTaskSessionPlanR254;log:readonly SessionEntryR254[];definitionId:string;executionId:string|null;busy:boolean;onCommand:(c:NoorPersonalCommandInput)=>Promise<boolean>;title:string;revisionId?:string;taskGeneralNote?:string;unit?:string}):ReactElement{
   const count=plan.sessions.filter(s=>sessionFinishedR254(s,log)).length;
   return <details className="nts-list" data-testid="task-sessions-r254">
-    <summary>الجلسات: {count} / {plan.sessions.length} مكتملة <small>التفاصيل والملاحظات</small></summary>
+    <summary>الجلسات: {count} / {plan.sessions.length} مكتملة <small>{plan.sessions.some(s=>s.target!==null)?'حدد تم للجلسة المكتملة أو سجل مقدارًا جزئيًا؛ كل تقدم يدخل في إنجاز يوم تسجيله.':'اضغط تم بعد تنفيذ كل جلسة؛ تُحتسب مرة واحدة من وزن المهمة.'}</small></summary>
     <div className="nts-list-body">
-      {plan.sessions.length?plan.sessions.map(s=><OneSessionR254 key={s.id} session={s} log={log} definitionId={definitionId} executionId={executionId} busy={busy} onCommand={onCommand} reading={/قراء|كتاب|reading|book/i.test(title)} pageUnit={isWholePageUnitR254(unit)}/>):<p>يمكنك إضافة جلسات لاحقًا من تعديل المهمة.</p>}
+      {plan.sessions.length?plan.sessions.map(s=><OneSessionR254 key={s.id} session={s} log={log} definitionId={definitionId} executionId={executionId} busy={busy} onCommand={onCommand} reading={/قراء|كتاب|reading|book/i.test(title)} pageUnit={isWholePageUnitR254(unit)} unit={unit}/>):<p>يمكنك إضافة جلسات لاحقًا من تعديل المهمة.</p>}
       <details className="nts-summary"><summary>الملاحظات والإنجازات</summary>
         {revisionId?<TaskGeneralNoteR254 definitionId={definitionId} revisionId={revisionId} storedNote={taskGeneralNote} busy={busy} onCommand={onCommand}/>:null}
         {plan.sessions.filter(s=>s.note).slice().sort((a,b)=>a.updatedAt.localeCompare(b.updatedAt)).map(s=><div key={s.id}><strong>{s.title}</strong><time dateTime={s.updatedAt}>{s.updatedAt.slice(0,10)}</time><p>{s.note}</p></div>)}
@@ -219,4 +245,4 @@ export function TaskSessionListR254({plan,log,definitionId,executionId,busy,onCo
   </details>;
 }
 
-export const TASK_SESSION_STYLES_R254 = "\n.np-page .np-activity-item:has(.nts-list){flex-wrap:wrap}\n.np-page .nts-list{flex-basis:100%;width:100%;min-width:0;border-top:1px solid var(--border);margin-top:5px;padding:3px}\n.np-page .nts-list>summary{cursor:pointer;display:flex;justify-content:space-between;gap:8px;font-size:12px;padding:9px;font-weight:650;color:var(--text)}\n.np-page .nts-list-body{display:grid;gap:9px;max-height:65dvh;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding:5px 2px calc(12px + env(safe-area-inset-bottom,0px))}\n.np-page .nts-session{border:1px solid var(--border);border-radius:12px;background:var(--panel-soft);min-width:0}\n.np-page .nts-session>summary{display:flex;align-items:flex-start;flex-wrap:wrap;justify-content:space-between;gap:7px;cursor:pointer;padding:10px;font-size:12px}\n.np-page .nts-session>summary span:first-child{display:grid;gap:3px;min-width:0;flex:1}\n.np-page .nts-session>summary small{color:var(--muted);overflow-wrap:anywhere}\n.np-page .nts-session-body{display:grid;gap:9px;padding:12px;border-top:1px solid var(--border)}\n.np-page .nts-stack,.np-page .nts-planner-body{display:grid;gap:9px;min-width:0}\n.np-page .nts-session-body progress{width:100%;accent-color:var(--gold)}\n.np-page .nts-session-body label,.np-page .nts-plan label{display:grid;gap:5px;font-size:12px;min-width:0}\n.np-page .nts-session-body :is(input,textarea),.np-page .nts-plan :is(input:not([type=checkbox]),select){width:100%;min-width:0;border:1px solid var(--border-strong);background:var(--panel);color:var(--text);border-radius:9px;padding:9px;font:inherit}\n.np-page .nts-plan{display:grid;grid-column:1/-1;gap:10px;border:1px solid var(--border);border-radius:13px;padding:12px}\n.np-page .nts-plan .nts-toggle{display:flex;align-items:center;gap:8px}\n.np-page .nts-plan .nts-toggle input{width:auto}\n.np-page .nts-editor{min-width:0;display:grid;gap:8px;border:1px solid var(--border);border-radius:10px;padding:12px}\n.np-page .nts-three{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}\n.np-page .nts-actions,.np-page .nts-split{display:flex;align-items:end;gap:7px;flex-wrap:wrap}\n.np-page .nts-split small{flex-basis:100%}\n.np-page .nts-session-body button,.np-page .nts-plan button{border:1px solid var(--border-strong);background:var(--panel);color:var(--text);border-radius:9px;padding:9px 12px;font:inherit;min-height:44px;cursor:pointer}\n.np-page .nts-session-body button:disabled,.np-page .nts-plan button:disabled{opacity:.55;cursor:default}\n.np-page .nts-error{color:#a43f49}\n.np-page .nts-summary{border-top:1px solid var(--border);padding:10px}\n.np-page .nts-summary p{white-space:pre-wrap;overflow-wrap:anywhere}\n.np-page .nts-summary div{border-bottom:1px solid var(--border);padding:8px}\n.np-page .nts-summary time{display:block;color:var(--muted)}\n.np-page .nts-general-note{display:grid;gap:8px;padding:8px 0}\n.np-page .nts-general-note label{display:grid;gap:6px}\n.np-page .nts-general-note textarea{width:100%;min-width:0;resize:vertical;min-height:104px;padding:9px;border-radius:9px;border:1px solid var(--border-strong);background:var(--panel);color:var(--text);font:inherit}\n.np-page .nts-general-note button{min-height:44px;padding:9px;border-radius:9px;background:var(--panel);border:1px solid var(--border-strong);color:var(--text);cursor:pointer}\n.np-page .nts-conflict{display:grid;gap:7px;min-width:0;padding:10px;border:1px solid var(--border-strong);border-radius:11px;background:var(--panel-soft)}\n.np-page .nts-conflict strong{font-size:12px}\n.np-page .nts-conflict p{margin:0;overflow-wrap:anywhere;white-space:pre-wrap}\n.np-page .nts-server-note{max-height:140px;overflow:auto;padding:9px;border-radius:8px;background:var(--panel)}\n.np-page .nts-conflict-actions{display:flex;gap:8px;flex-wrap:wrap}\n.np-page .nts-conflict-actions button{min-height:44px;flex:1 1 140px}\n@media(max-width:700px){.np-page .nts-list-body{max-height:62dvh}.np-page .nts-three input{padding:8px 4px!important}}\n";
+export const TASK_SESSION_STYLES_R254 = "\n.np-page .nts-plan-total{font-size:12px;color:var(--muted);margin:0;line-height:1.6}\n.np-page .nts-check-session{display:flex;align-items:center;gap:6px;min-height:32px;cursor:pointer;font-size:11px;font-weight:650;white-space:nowrap;flex-basis:100%;justify-content:flex-end}\n.np-page .nts-check-session input{width:20px;height:20px;accent-color:var(--gold);flex:none}\n.np-page .nts-check-session:has(input:disabled){opacity:.7;cursor:default}\n.np-page .np-activity-item:has(.nts-list){flex-wrap:wrap}\n.np-page .nts-list{flex-basis:100%;width:100%;min-width:0;border-top:1px solid var(--border);margin-top:5px;padding:3px}\n.np-page .nts-list>summary{cursor:pointer;display:flex;justify-content:space-between;gap:8px;font-size:12px;padding:9px;font-weight:650;color:var(--text)}\n.np-page .nts-list-body{display:grid;gap:9px;max-height:65dvh;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding:5px 2px calc(12px + env(safe-area-inset-bottom,0px))}\n.np-page .nts-session{border:1px solid var(--border);border-radius:12px;background:var(--panel-soft);min-width:0}\n.np-page .nts-session>summary{display:flex;align-items:flex-start;flex-wrap:wrap;justify-content:space-between;gap:7px;cursor:pointer;padding:10px;font-size:12px}\n.np-page .nts-session>summary span:first-child{display:grid;gap:3px;min-width:0;flex:1}\n.np-page .nts-session>summary small{color:var(--muted);overflow-wrap:anywhere}\n.np-page .nts-session-body{display:grid;gap:9px;padding:12px;border-top:1px solid var(--border)}\n.np-page .nts-stack,.np-page .nts-planner-body{display:grid;gap:9px;min-width:0}\n.np-page .nts-session-body progress{width:100%;accent-color:var(--gold)}\n.np-page .nts-session-body label,.np-page .nts-plan label{display:grid;gap:5px;font-size:12px;min-width:0}\n.np-page .nts-session-body :is(input,textarea),.np-page .nts-plan :is(input:not([type=checkbox]),select){width:100%;min-width:0;border:1px solid var(--border-strong);background:var(--panel);color:var(--text);border-radius:9px;padding:9px;font:inherit}\n.np-page .nts-plan{display:grid;grid-column:1/-1;gap:10px;border:1px solid var(--border);border-radius:13px;padding:12px}\n.np-page .nts-plan .nts-toggle{display:flex;align-items:center;gap:8px}\n.np-page .nts-plan .nts-toggle input{width:auto}\n.np-page .nts-editor{min-width:0;display:grid;gap:8px;border:1px solid var(--border);border-radius:10px;padding:12px}\n.np-page .nts-three{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}\n.np-page .nts-actions,.np-page .nts-split{display:flex;align-items:end;gap:7px;flex-wrap:wrap}\n.np-page .nts-split small{flex-basis:100%}\n.np-page .nts-session-body button,.np-page .nts-plan button{border:1px solid var(--border-strong);background:var(--panel);color:var(--text);border-radius:9px;padding:9px 12px;font:inherit;min-height:44px;cursor:pointer}\n.np-page .nts-session-body button:disabled,.np-page .nts-plan button:disabled{opacity:.55;cursor:default}\n.np-page .nts-error{color:#a43f49}\n.np-page .nts-summary{border-top:1px solid var(--border);padding:10px}\n.np-page .nts-summary p{white-space:pre-wrap;overflow-wrap:anywhere}\n.np-page .nts-summary div{border-bottom:1px solid var(--border);padding:8px}\n.np-page .nts-summary time{display:block;color:var(--muted)}\n.np-page .nts-general-note{display:grid;gap:8px;padding:8px 0}\n.np-page .nts-general-note label{display:grid;gap:6px}\n.np-page .nts-general-note textarea{width:100%;min-width:0;resize:vertical;min-height:104px;padding:9px;border-radius:9px;border:1px solid var(--border-strong);background:var(--panel);color:var(--text);font:inherit}\n.np-page .nts-general-note button{min-height:44px;padding:9px;border-radius:9px;background:var(--panel);border:1px solid var(--border-strong);color:var(--text);cursor:pointer}\n.np-page .nts-conflict{display:grid;gap:7px;min-width:0;padding:10px;border:1px solid var(--border-strong);border-radius:11px;background:var(--panel-soft)}\n.np-page .nts-conflict strong{font-size:12px}\n.np-page .nts-conflict p{margin:0;overflow-wrap:anywhere;white-space:pre-wrap}\n.np-page .nts-server-note{max-height:140px;overflow:auto;padding:9px;border-radius:8px;background:var(--panel)}\n.np-page .nts-conflict-actions{display:flex;gap:8px;flex-wrap:wrap}\n.np-page .nts-conflict-actions button{min-height:44px;flex:1 1 140px}\n@media(max-width:700px){.np-page .nts-list-body{max-height:62dvh}.np-page .nts-three input{padding:8px 4px!important}}\n";
