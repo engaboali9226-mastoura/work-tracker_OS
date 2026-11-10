@@ -1,6 +1,6 @@
 const DEFAULT_PERSONAL_CATEGORIES=["الصحة والرياضة","العبادات","العمل","التعلم","الأسرة","الشؤون الشخصية","الأدوية والمكملات الغذائية"] as const;
 import { IntlTimeZoneAdapter } from "../domain/time.js";
-import { prepareTaskSessionPlan, sessionProgress, sessionStatus, sessionQuantity, sessionDayCredit, sessionEventCredit, isPageUnit, validSessionDateR286, type TaskSessionPlanDraft } from "../domain/task-sessions.js";
+import { prepareTaskSessionPlan, sessionProgress, sessionStatus, sessionQuantity, sessionDayCredit, sessionEventCredit, isPageUnit, validSessionDateR286, assertTaskSessionDatesMatchParentR286, sessionScheduledOnDateR286, type TaskSessionPlanDraft } from "../domain/task-sessions.js";
 import { applyFinanceOperation, emptyFinanceLedger, parseFinanceOperation, type FinanceOperation, type FinanceLedger } from "../domain/model.js";
 import type {
     AutomationOutboxEvent,
@@ -704,6 +704,7 @@ export class PersonalCommandService {
                     if(definition.kind!=="Task"||definition.revisionId!==command.expectedRevisionId)
                         throw new PersonalControlError("DEFINITION_STATE_CONFLICT");
                     const plan=prepareTaskSessionPlan(definition.sessionPlan,parsed.plan,definition.activityLog??[],definition.measurement,now);
+                    assertTaskSessionDatesMatchParentR286(plan,definition.schedule,definition.effectiveFromDate,definition.effectiveUntilDate??null);
                     const {sessionPlan:_old,...base}=definition;
                     transaction.saveDefinition({...base,...(plan?{sessionPlan:plan}:{}),revisionId:this.dependencies.idGenerator.next("definition-revision")});
                     return;
@@ -833,6 +834,7 @@ export class PersonalCommandService {
                     const nextPlan=Object.hasOwn(command,"sessionPlan")
                       ?prepareTaskSessionPlan(definition.sessionPlan,command.sessionPlan??null,definition.activityLog??[],command.measurement,now)
                       :definition.sessionPlan;
+                    assertTaskSessionDatesMatchParentR286(nextPlan,commandSchedule(command),command.startDate,command.endDate);
                     if(nextPlan&&command.measurement&&nextPlan.sessions.reduce((n,s)=>n+(s.target??0),0)+
                        (definition.activityLog??[]).filter(e=>!e.taskSessionId).reduce((n,e)=>n+e.amount,0)>command.measurement.target)
                         throw new Error("TASK_SESSION_TARGET_EXCEEDS_TASK");
@@ -1001,6 +1003,7 @@ export class PersonalCommandService {
                         ...(command.timeOfDay?{timeOfDay:command.timeOfDay}:{}),
                     };
 
+                    assertTaskSessionDatesMatchParentR286(definition.sessionPlan,definition.schedule,definition.effectiveFromDate,definition.effectiveUntilDate??null);
                     transaction.saveDefinition(definition);
                     return;
                 }
@@ -1339,7 +1342,7 @@ export function buildPersonalWorkspace(
     );
 
     const days=new Map(personalDays.map(d=>[d.id,d.boundary.localDate])),defs=new Map(definitions.map(d=>[d.id,d]));
-    const rows:PersonalStatisticRow[]=execution.flatMap(e=>{const date=days.get(e.personalDayId)??e.scheduleOccurrenceKey;if(!/^\d{4}-\d{2}-\d{2}$/.test(date)||!currentLocalDate||date>currentLocalDate)return [];const d=defs.get(e.definitionId);return [{id:e.id,definitionId:e.definitionId,title:d?.title??e.title,kind:e.kind,date,weight:Number.isFinite(e.eligibility.weight)&&e.eligibility.weight>0?e.eligibility.weight:1,status:e.status,amount:(d?.activityLog??[]).filter(a=>a.executionId===e.id).reduce((n,a)=>n+a.amount,0),unit:d?.measurement?.unit??"",credit:d?.sessionPlan
+    const rows:PersonalStatisticRow[]=execution.flatMap(e=>{const date=days.get(e.personalDayId)??e.scheduleOccurrenceKey;if(!/^\d{4}-\d{2}-\d{2}$/.test(date)||!currentLocalDate||date>currentLocalDate)return [];const d=defs.get(e.definitionId);if(d?.sessionPlan?.sessions.length&&!sessionScheduledOnDateR286(d.sessionPlan,date)&&e.status!=="Completed")return [];return [{id:e.id,definitionId:e.definitionId,title:d?.title??e.title,kind:e.kind,date,weight:Number.isFinite(e.eligibility.weight)&&e.eligibility.weight>0?e.eligibility.weight:1,status:e.status,amount:(d?.activityLog??[]).filter(a=>a.executionId===e.id).reduce((n,a)=>n+a.amount,0),unit:d?.measurement?.unit??"",credit:d?.sessionPlan
         ?sessionDayCredit(d.activityLog??[],date)
         :(e.status==="Completed"?1:0)}];});
     return Object.freeze({
