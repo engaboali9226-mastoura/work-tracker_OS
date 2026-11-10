@@ -8,6 +8,7 @@ import { NoorWellbeingLabR165 } from "./noor-wellbeing-lab-r165.js";
 import { parseStatisticRows, summarizeProgress, statisticPeriods, statisticDays, statisticEligible, statisticInsights, statisticCalendar, shiftStatisticMonth, wholeWeekAchievement, yesterdayAchievement, validStatisticDate, shiftStatisticDate, type StatisticRow } from "./progress-statistics.js";
 import { loadCurrentTemperature } from "./public-weather-client.js";
 import { NoorR232TimeWindows } from "./noor-time-windows-r232.js";
+import { r283CarriedNightWindow, type R283PrecedingNight } from "./noor-islamic-daylight-r232.js";
 import { NoorHabitWeightManagerR251 } from "./noor-habit-weight-manager-r251.js";
 import { NoorR232ControlLocation } from "./noor-time-location-control-r232.js";
 import { readNoorR232Preferences,saveNoorR232Preferences,type NoorR232Preferences,type NoorR232City } from "./noor-time-display-preferences-r232.js";
@@ -121,6 +122,7 @@ type TodayViewModel = Readonly<{
     at: string;
   }>[];
   nextFajrAt: string | null;
+  precedingNight:R283PrecedingNight|null;
   location: HeaderLocation | null;
   locationRevisionId:string|null;
   tasks: readonly ExecutionItem[];
@@ -1439,6 +1441,20 @@ function buildViewModel(today: unknown): TodayViewModel | null {
         return at ? [{ key, label, at }] : [];
       })
     : [];
+  // R283: only trust the owner-scoped previous night supplied by the server.
+  // Requiring its end to equal *today's* Fajr prevents a stale midnight snapshot
+  // or manually changed timezone from inventing a new Islamic-night interval.
+  const precedingRaw=isRecord(today.precedingNight)?today.precedingNight:null;
+  const precedingMaghrib=precedingRaw?stringValue(precedingRaw.maghribAt):null;
+  const precedingIsha=precedingRaw?stringValue(precedingRaw.ishaAt):null;
+  const precedingFajr=precedingRaw?stringValue(precedingRaw.fajrAt):null;
+  const todayFajr=prayerTimes.find(p=>p.key==="fajr")?.at;
+  const precedingNight:R283PrecedingNight|null=precedingMaghrib&&precedingIsha&&precedingFajr
+    && precedingFajr===todayFajr
+    && r283CarriedNightWindow(Date.parse(precedingIsha),{
+      maghribAt:precedingMaghrib,ishaAt:precedingIsha,fajrAt:precedingFajr,
+    })!==null
+    ? {maghribAt:precedingMaghrib,ishaAt:precedingIsha,fajrAt:precedingFajr}:null;
   let nextPrayer: TodayViewModel["nextPrayer"] = null;
   if (isRecord(today.nextPrayer)) {
     const name = stringValue(today.nextPrayer.name);
@@ -1452,6 +1468,7 @@ function buildViewModel(today: unknown): TodayViewModel | null {
     nextPrayer,
     prayerTimes,
     nextFajrAt,
+    precedingNight,
     location,
     locationRevisionId,
     tasks,
@@ -1520,15 +1537,25 @@ export function nightCountdownState(
   prayerTimes: readonly Readonly<{ key: string; label: string; at: string }>[],
   nowMs: number,
   nextFajrAt?: string | null,
-): Readonly<{ midnight: string; lastThird: string; enabled: boolean }> | null {
-  const milestones = nightMilestones(prayerTimes,nextFajrAt);
-  if (!milestones) return null;
-  const maghribMs = Date.parse(prayerTimes.find(prayer => prayer.key === "maghrib")?.at ?? "");
-  const ishaMs = Date.parse(prayerTimes.find(prayer => prayer.key === "isha")?.at ?? "");
-  const nextFajrMs = Date.parse(nextFajrAt ?? "");
-  const valid = [nowMs,maghribMs,ishaMs,nextFajrMs].every(Number.isFinite)
-    && ishaMs >= maghribMs && ishaMs < nextFajrMs;
-  return { ...milestones, enabled: valid && nowMs >= ishaMs && nowMs < nextFajrMs };
+  precedingNight?:R283PrecedingNight|null,
+): Readonly<{ midnight: string; lastThird: string; endsAt:string; enabled: boolean; carriedOver:boolean }> | null {
+  const carried=r283CarriedNightWindow(nowMs,precedingNight);
+  if(carried&&precedingNight){
+    const milestones=nightMilestones([
+      {key:"maghrib",label:"المغرب",at:precedingNight.maghribAt},
+    ],precedingNight.fajrAt);
+    if(milestones)return {...milestones,endsAt:precedingNight.fajrAt,
+      enabled:nowMs>=Date.parse(precedingNight.ishaAt),carriedOver:true};
+  }
+  const milestones=nightMilestones(prayerTimes,nextFajrAt);
+  if(!milestones)return null;
+  const maghribMs=Date.parse(prayerTimes.find(prayer=>prayer.key==="maghrib")?.at??"");
+  const ishaMs=Date.parse(prayerTimes.find(prayer=>prayer.key==="isha")?.at??"");
+  const nextFajrMs=Date.parse(nextFajrAt??"");
+  const valid=[nowMs,maghribMs,ishaMs,nextFajrMs].every(Number.isFinite)
+    && ishaMs>=maghribMs&&ishaMs<nextFajrMs;
+  return {...milestones,endsAt:new Date(nextFajrMs).toISOString(),
+    enabled:valid&&nowMs>=ishaMs&&nowMs<nextFajrMs,carriedOver:false};
 }
 
 // NOOR_COUNTDOWN_ROLLOVER_R81
@@ -2225,7 +2252,7 @@ function Dashboard({ view:providedView, workspace, busy, actionError, onCommand,
 
   const nextKey = nextPrayer?.key ?? null;
 
-  const night = nightCountdownState(view.prayerTimes,nowMs,view.nextFajrAt);
+  const night = nightCountdownState(view.prayerTimes,nowMs,view.nextFajrAt,view.precedingNight);
   const eventTimes = [
     ...view.prayerTimes.map(p=>p.key===nextPrayer?.key?{...p,at:nextPrayer.at}:p),
     ...(night ? [
@@ -2313,7 +2340,9 @@ function Dashboard({ view:providedView, workspace, busy, actionError, onCommand,
           const [prayerClock,prayerPeriod] = formatTime(prayer.at,view.timeZone).split(/\s+/);
           const isNext = prayer.key === nextKey;
           const isNightEvent = prayer.key === "midnight" || prayer.key === "last-third";
-          const nightRemaining = isNightEvent ? remainingPrayerSeconds(prayer.at,nowMs) : 0;
+          const lastThirdStarted=prayer.key==="last-third"&&nowMs>=Date.parse(prayer.at);
+           const countdownTarget=lastThirdStarted&&night?night.endsAt:prayer.at;
+           const nightRemaining=isNightEvent?remainingPrayerSeconds(countdownTarget,nowMs):0;
           const showNightCountdown = isNightEvent && night?.enabled && nightRemaining > 0;
 
           return <div className={`np-prayer ${isNext ? "is-next" : ""} ${isNightEvent ? "np-night-event" : ""}`} data-prayer-key={prayer.key} data-event-at={prayer.at} data-night-countdown-active={isNightEvent ? String(Boolean(night?.enabled)) : undefined} key={prayer.key}>
@@ -2324,7 +2353,7 @@ function Dashboard({ view:providedView, workspace, busy, actionError, onCommand,
               <svg aria-hidden="true" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.3" stroke="currentColor" strokeWidth="1.5"/><path d="M12 7.8v4.6l3 1.7" stroke="currentColor" strokeLinecap="round" strokeWidth="1.5"/></svg>
               <span className="np-countdown-digits">{formatCountdown(countdown)}</span>
             </span> : null}
-            {showNightCountdown ? <span className="np-countdown" aria-label={`المتبقي حتى ${prayer.label}`} data-testid={`night-countdown-${prayer.key}`}>
+            {showNightCountdown ? <span className="np-countdown" aria-label={lastThirdStarted?"المتبقي من الثلث الأخير حتى الفجر":`المتبقي حتى ${prayer.label}`} data-testid={`night-countdown-${prayer.key}`}>
               <svg aria-hidden="true" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.3" stroke="currentColor" strokeWidth="1.5"/><path d="M12 7.8v4.6l3 1.7" stroke="currentColor" strokeLinecap="round" strokeWidth="1.5"/></svg>
               <span className="np-countdown-digits">{formatCountdown(nightRemaining)}</span>
             </span> : null}
@@ -2333,7 +2362,7 @@ function Dashboard({ view:providedView, workspace, busy, actionError, onCommand,
       </div>
     </section>
 
-    <NoorR232TimeWindows prayers={view.prayerTimes} nowMs={nowMs} timeZone={view.timeZone} preferences={timePreferences} onPreferencesChange={onTimePreferencesChange} nextFajrAt={view.nextFajrAt??undefined}/>
+    <NoorR232TimeWindows prayers={view.prayerTimes} nowMs={nowMs} timeZone={view.timeZone} preferences={timePreferences} onPreferencesChange={onTimePreferencesChange} nextFajrAt={view.nextFajrAt??undefined} precedingNight={view.precedingNight}/>
 
     {actionError ? <p className="np-action-error" role="alert">{actionError}</p> : null}
 
