@@ -30,8 +30,8 @@ export function createNoorDeveloperGitHubIssueUrlR282(
   if(!category) throw new Error('NOOR_GITHUB_INVALID_CATEGORY');
   const params=new URLSearchParams({
     title:'[NOOR Development] '+title,
-    body:'## النوع\\n'+category+'\\n\\n## وصف المشكلة أو المقترح\\n'+body+
-      '\\n\\n---\\nأُرسلت هذه الملاحظة عبر واجهة «تطوير نور» بموافقة صاحبها على النشر العام. لا تتضمن هذه العملية بيانات حساب نور أو تدويناته الخاصة.',
+    body:'## النوع\n'+category+'\n\n## وصف المشكلة أو المقترح\n'+body+
+      '\n\n---\nأُرسلت هذه الملاحظة عبر واجهة «تطوير نور» بموافقة صاحبها على النشر العام. لا تتضمن هذه العملية بيانات حساب نور أو تدويناته الخاصة.',
   });
   const url=NOOR_DEVELOPER_GITHUB_ISSUES_R282+'/new?'+params.toString();
   // GitHub rejects excessively long GET links. Never silently truncate user-authored notes.
