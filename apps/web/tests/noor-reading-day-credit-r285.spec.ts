@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import React from "react";
+import React,{act,createElement} from "react";
+import {JSDOM} from "jsdom";
+import {createRoot} from "react-dom/client";
 import {renderToStaticMarkup} from "react-dom/server";
 import {sessionRemainingR285,TaskSessionListR254,type StoredTaskSessionR254} from "../src/noor-task-sessions-r254.js";
 import {parseStatisticRows,summarizeProgress,wholeWeekAchievement,statisticDays,type StatisticRow} from "../src/progress-statistics.js";
@@ -53,4 +55,47 @@ test("R285 full task weight is never added on top of session event credit",()=>{
 test("R285 rejects malformed forged credit while retaining legacy rows",()=>{
  assert.deepEqual(parseStatisticRows([row({credit:1.01}),row({credit:-.001}),row({credit:Number.NaN})]),[]);
  assert.equal(parseStatisticRows([row({status:"Completed",credit:1})]).length,1);
+});
+
+test("R285 checkbox logs only remaining pages, guards simultaneous taps and reuses failed acknowledgement ID",async()=>{
+ const dom=new JSDOM('<!doctype html><html dir="rtl"><body><div id="root"></div></body></html>',{url:"http://noor-reading-test.invalid"});
+ const globals={window:dom.window,document:dom.window.document,navigator:dom.window.navigator,
+   Node:dom.window.Node,Element:dom.window.Element,HTMLElement:dom.window.HTMLElement,
+   HTMLInputElement:dom.window.HTMLInputElement,IS_REACT_ACT_ENVIRONMENT:true};
+ const previous=new Map<string,PropertyDescriptor|undefined>();
+ for(const [key,val] of Object.entries(globals)){
+   previous.set(key,Object.getOwnPropertyDescriptor(globalThis,key));
+   Object.defineProperty(globalThis,key,{configurable:true,writable:true,value:val});
+ }
+ const root=createRoot(dom.window.document.getElementById("root")!);
+ let accepted=false;const sent:any[]=[];
+ const render=async(logRows=log,sessionRow=session)=>act(async()=>{
+   root.render(createElement(TaskSessionListR254,{plan:{distribution:"equal",sessions:[sessionRow]},
+    log:logRows,definitionId:"book",executionId:"today",busy:false,
+    onCommand:async command=>{sent.push(command);return accepted;},title:"قراءة كتاب",unit:"صفحة"}));
+ });
+ try{
+   await render();
+   const input=()=>dom.window.document.querySelector<HTMLInputElement>('[data-testid="r285-session-complete-reading-1"]')!;
+   assert.equal(input().checked,false);
+   await act(async()=>input().click());
+   assert.equal(sent.length,1);
+   assert.equal(sent[0].type,"record-task-session-progress");
+   assert.equal(sent[0].amount,10);
+   assert.equal(sent[0].taskSessionId,"reading-1");
+   assert.ok(sent[0].entryId);
+   assert.equal(input().checked,false,"failed confirmation cannot claim done");
+   accepted=true;
+   await act(async()=>input().click());
+   assert.equal(sent.length,2);
+   assert.deepEqual(sent[0],sent[1],"lost server acknowledgement must retry same immutable activity ID");
+   await render([...log,{id:sent[1].entryId,executionId:"today",localDate:"2026-11-10",at:"2026-11-10T12:00:00Z",note:"",amount:10,taskSessionId:"reading-1",sessionDayCredit:10/300}],{...session,completedAt:"2026-11-10T12:00:00Z"});
+   assert.equal(input().checked,true);
+   assert.equal(input().disabled,true);
+   assert.equal(sent.length,2,"rerendered completed session cannot submit twice");
+ }finally{
+   await act(async()=>root.unmount());
+   for(const [key,desc] of previous){if(desc)Object.defineProperty(globalThis,key,desc);else Reflect.deleteProperty(globalThis,key);}
+   dom.window.close();
+ }
 });
