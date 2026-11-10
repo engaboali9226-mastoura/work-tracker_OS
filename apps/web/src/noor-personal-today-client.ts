@@ -1,4 +1,4 @@
-export type NoorTaskSessionDraft = Readonly<{id:string;title:string;objective:string;target:number|null;rangeStart:number|null;rangeEnd:number|null}>;
+export type NoorTaskSessionDraft = Readonly<{id:string;title:string;objective:string;target:number|null;rangeStart:number|null;rangeEnd:number|null;scheduledDate?:string|null}>;
 export type NoorTaskSessionPlanDraft = Readonly<{distribution:"equal"|"custom";sessions:readonly NoorTaskSessionDraft[]}>;
 
 export type NoorPersonalTodayResult =

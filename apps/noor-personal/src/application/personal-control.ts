@@ -1,6 +1,6 @@
 const DEFAULT_PERSONAL_CATEGORIES=["الصحة والرياضة","العبادات","العمل","التعلم","الأسرة","الشؤون الشخصية","الأدوية والمكملات الغذائية"] as const;
 import { IntlTimeZoneAdapter } from "../domain/time.js";
-import { prepareTaskSessionPlan, sessionProgress, sessionStatus, sessionQuantity, sessionDayCredit, sessionEventCredit, isPageUnit, type TaskSessionPlanDraft } from "../domain/task-sessions.js";
+import { prepareTaskSessionPlan, sessionProgress, sessionStatus, sessionQuantity, sessionDayCredit, sessionEventCredit, isPageUnit, validSessionDateR286, assertTaskSessionDatesMatchParentR286, sessionScheduledOnDateR286, type TaskSessionPlanDraft } from "../domain/task-sessions.js";
 import { applyFinanceOperation, emptyFinanceLedger, parseFinanceOperation, type FinanceOperation, type FinanceLedger } from "../domain/model.js";
 import type {
     AutomationOutboxEvent,
@@ -242,14 +242,16 @@ function parseTaskSessionDraft(value: unknown): TaskSessionPlanDraft | null | un
        ||!Array.isArray(value.sessions)||value.sessions.length>200)return undefined;
     const sessions: TaskSessionPlanDraft["sessions"][number][]=[];
     for(const d of value.sessions) {
-        if(!isRecord(d)||!exactKeys(d,["id","title","objective","target","rangeStart","rangeEnd"])
+        if(!isRecord(d)||!exactKeys(d,["id","title","objective","target","rangeStart","rangeEnd",...(Object.hasOwn(d,"scheduledDate")?["scheduledDate"]:[])])
            ||!boundedIdentifier(d.id)||!boundedText(d.title,120)
            ||typeof d.objective!=="string"||d.objective.length>500
+            ||!(d.scheduledDate===undefined||d.scheduledDate===null||validSessionDateR286(d.scheduledDate))
            ||!(d.target===null||typeof d.target==="number"&&sessionQuantity(d.target)&&d.target>0)
            ||!(d.rangeStart===null&&d.rangeEnd===null||Number.isSafeInteger(d.rangeStart)&&Number.isSafeInteger(d.rangeEnd)&&
               Number(d.rangeStart)>=1&&Number(d.rangeEnd)>=Number(d.rangeStart)&&Number(d.rangeEnd)<=1e9))return undefined;
         sessions.push({id:d.id,title:(d.title as string).trim(),objective:d.objective.trim(),target:d.target as number|null,
-          rangeStart:d.rangeStart as number|null,rangeEnd:d.rangeEnd as number|null});
+          rangeStart:d.rangeStart as number|null,rangeEnd:d.rangeEnd as number|null,
+           ...(d.scheduledDate?{scheduledDate:d.scheduledDate as string}:{})});
     }
     if(new Set(sessions.map(s=>s.id)).size!==sessions.length)return undefined;
     return {distribution:value.distribution as "equal"|"custom",sessions};
@@ -702,6 +704,7 @@ export class PersonalCommandService {
                     if(definition.kind!=="Task"||definition.revisionId!==command.expectedRevisionId)
                         throw new PersonalControlError("DEFINITION_STATE_CONFLICT");
                     const plan=prepareTaskSessionPlan(definition.sessionPlan,parsed.plan,definition.activityLog??[],definition.measurement,now);
+                    assertTaskSessionDatesMatchParentR286(plan,definition.schedule,definition.effectiveFromDate,definition.effectiveUntilDate??null);
                     const {sessionPlan:_old,...base}=definition;
                     transaction.saveDefinition({...base,...(plan?{sessionPlan:plan}:{}),revisionId:this.dependencies.idGenerator.next("definition-revision")});
                     return;
@@ -740,6 +743,8 @@ export class PersonalCommandService {
                     }
                     const day=activePersonalDay(transaction,userId,now);
                     if(instance.personalDayId!==day.id)throw new PersonalControlError("EXECUTION_NOT_CURRENT");
+                    if(session.scheduledDate && session.scheduledDate!==day.boundary.localDate)
+                        throw new Error("TASK_SESSION_NOT_SCHEDULED_TODAY");
                     if(!["Pending","Planned","InProgress"].includes(instance.status)||definition.state!=="Active")
                         throw new PersonalControlError("DEFINITION_STATE_CONFLICT");
                     if(log.length>=10000)throw new Error("ACTIVITY_LIMIT_REACHED");
@@ -829,6 +834,7 @@ export class PersonalCommandService {
                     const nextPlan=Object.hasOwn(command,"sessionPlan")
                       ?prepareTaskSessionPlan(definition.sessionPlan,command.sessionPlan??null,definition.activityLog??[],command.measurement,now)
                       :definition.sessionPlan;
+                    assertTaskSessionDatesMatchParentR286(nextPlan,commandSchedule(command),command.startDate,command.endDate);
                     if(nextPlan&&command.measurement&&nextPlan.sessions.reduce((n,s)=>n+(s.target??0),0)+
                        (definition.activityLog??[]).filter(e=>!e.taskSessionId).reduce((n,e)=>n+e.amount,0)>command.measurement.target)
                         throw new Error("TASK_SESSION_TARGET_EXCEEDS_TASK");
@@ -997,6 +1003,7 @@ export class PersonalCommandService {
                         ...(command.timeOfDay?{timeOfDay:command.timeOfDay}:{}),
                     };
 
+                    assertTaskSessionDatesMatchParentR286(definition.sessionPlan,definition.schedule,definition.effectiveFromDate,definition.effectiveUntilDate??null);
                     transaction.saveDefinition(definition);
                     return;
                 }
@@ -1335,7 +1342,7 @@ export function buildPersonalWorkspace(
     );
 
     const days=new Map(personalDays.map(d=>[d.id,d.boundary.localDate])),defs=new Map(definitions.map(d=>[d.id,d]));
-    const rows:PersonalStatisticRow[]=execution.flatMap(e=>{const date=days.get(e.personalDayId)??e.scheduleOccurrenceKey;if(!/^\d{4}-\d{2}-\d{2}$/.test(date)||!currentLocalDate||date>currentLocalDate)return [];const d=defs.get(e.definitionId);return [{id:e.id,definitionId:e.definitionId,title:d?.title??e.title,kind:e.kind,date,weight:Number.isFinite(e.eligibility.weight)&&e.eligibility.weight>0?e.eligibility.weight:1,status:e.status,amount:(d?.activityLog??[]).filter(a=>a.executionId===e.id).reduce((n,a)=>n+a.amount,0),unit:d?.measurement?.unit??"",credit:d?.sessionPlan
+    const rows:PersonalStatisticRow[]=execution.flatMap(e=>{const date=days.get(e.personalDayId)??e.scheduleOccurrenceKey;if(!/^\d{4}-\d{2}-\d{2}$/.test(date)||!currentLocalDate||date>currentLocalDate)return [];const d=defs.get(e.definitionId);if(d?.sessionPlan?.sessions.length&&!sessionScheduledOnDateR286(d.sessionPlan,date)&&e.status!=="Completed")return [];return [{id:e.id,definitionId:e.definitionId,title:d?.title??e.title,kind:e.kind,date,weight:Number.isFinite(e.eligibility.weight)&&e.eligibility.weight>0?e.eligibility.weight:1,status:e.status,amount:(d?.activityLog??[]).filter(a=>a.executionId===e.id).reduce((n,a)=>n+a.amount,0),unit:d?.measurement?.unit??"",credit:d?.sessionPlan
         ?sessionDayCredit(d.activityLog??[],date)
         :(e.status==="Completed"?1:0)}];});
     return Object.freeze({
