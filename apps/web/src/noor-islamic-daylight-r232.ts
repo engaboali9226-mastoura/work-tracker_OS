@@ -118,6 +118,18 @@ export function r283FridayHoursAtDhuhr(input:Readonly<{
  return Object.freeze(result);
 }
 
+/** R283: authenticated previous-night endpoints returned by NOOR's Today service.
+ * Never infer prior Maghrib from today's date or from a fixed 24-hour offset.
+ */
+export type R283PrecedingNight=Readonly<{maghribAt:string;ishaAt:string;fajrAt:string}>;
+export function r283CarriedNightWindow(nowMs:number,prior:R283PrecedingNight|null|undefined):R232Window|null{
+ if(!prior||!Number.isFinite(nowMs))return null;
+ const start=Date.parse(prior.maghribAt),isha=Date.parse(prior.ishaAt),end=Date.parse(prior.fajrAt);
+ if(![start,isha,end].every(Number.isFinite)||!(start<isha&&isha<end)||
+  nowMs<start||nowMs>=end)return null;
+ return windowFrom(start,end,MAX_NIGHT);
+}
+
 export function r232Countdown(window:R232Window,nowMs:number):Readonly<{
   phase:"upcoming"|"active"|"finished";
   remainingSeconds:number;elapsedSeconds:number;progress:number;
