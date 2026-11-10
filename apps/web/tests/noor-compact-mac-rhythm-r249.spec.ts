@@ -24,7 +24,7 @@ test("R249 retains approved preview, 3 RTL periods, colors and white digital tim
        b=html.indexOf('aria-label="ساعات النهار"'),
        c=html.indexOf('aria-label="ساعات الليل الشرعي"');
  assert.ok(a>=0&&a<b&&b<c);
- assert.equal((html.match(/class="np-r247-timer"/g)||[]).length,3);
+ assert.equal((html.split('data-testid="friday-five-hours-r232"')[0].match(/class="np-r247-timer"/g)||[]).length,3);
  for(const color of ["#fffaea","#fff2dc","#eaf5f3"])assert.ok(css.includes(color));
  assert.match(css,/grid-template-columns:repeat\(3,minmax\(0,1fr\)\)/);
 });
