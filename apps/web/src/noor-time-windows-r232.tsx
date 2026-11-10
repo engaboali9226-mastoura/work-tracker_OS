@@ -1,6 +1,6 @@
 import type {ReactElement} from "react";
-import {r232Countdown,r232DailyWindows,r283FridayHoursAtDhuhr,r232LocalWeekday,r232FastingCountdownEnabled,
- type R232Window} from "./noor-islamic-daylight-r232.js";
+import {r232Countdown,r232DailyWindows,r283FridayHoursAtDhuhr,r283CarriedNightWindow,r232LocalWeekday,r232FastingCountdownEnabled,
+ type R232Window,type R283PrecedingNight} from "./noor-islamic-daylight-r232.js";
 import type {NoorR232Preferences} from "./noor-time-display-preferences-r232.js";
 
 type Prayer=Readonly<{key:string;at:string}>;
@@ -22,7 +22,7 @@ function WindowCard({title,window:interval,nowMs,timeZone,unavailable,showTimer=
  showTimer?:boolean;tone?:"day"|"night"|"duha"|"friday";
 }):ReactElement{
  const icon=tone==="day"?"☀":tone==="night"?"☾":tone==="duha"?"☀":"◷";
- const subtitle=tone==="day"?"من الفجر للمغرب":tone==="duha"?"بعد الشروق":tone==="night"?"حتى فجر الغد":"حتى أذان الجمعة";
+ const subtitle=tone==="day"?"من الفجر للمغرب":tone==="duha"?"بعد الشروق":tone==="night"?"من المغرب إلى الفجر":"حتى أذان الجمعة";
  const shortTitle=tone==="day"?"النهار":tone==="night"?"الليل":tone==="duha"?"الضحى":title;
  if(!interval)return <article className={`np-r232-window np-r234-window tone-${tone}`} data-phase="unavailable">
   <div className="np-r234-card-title"><span className="np-r234-symbol" aria-hidden="true">{icon}</span><h3 aria-label={title}>{shortTitle}</h3></div><p className="np-r248-subtitle">{subtitle}</p>
@@ -57,13 +57,15 @@ function WindowCard({title,window:interval,nowMs,timeZone,unavailable,showTimer=
  </article>;
 }
 
-export function NoorR232TimeWindows({prayers,nowMs,timeZone,preferences,nextFajrAt,onPreferencesChange}:{
+export function NoorR232TimeWindows({prayers,nowMs,timeZone,preferences,nextFajrAt,precedingNight,onPreferencesChange}:{
  prayers:readonly Prayer[];nowMs:number;timeZone:string;
  preferences:NoorR232Preferences;nextFajrAt?:string|undefined;
+ precedingNight?:R283PrecedingNight|null;
  onPreferencesChange?:(value:NoorR232Preferences)=>void;
 }):ReactElement {
  const windows=r232DailyWindows(prayers,nextFajrAt,
    preferences.afterSunrise,preferences.beforeDhuhr);
+ const activeNight=r283CarriedNightWindow(nowMs,precedingNight);
  const fasting=r232FastingCountdownEnabled({
    fastingStartMs:windows.fastingDay?.startMs??NaN,timeZone,
    outsideRamadanEnabled:preferences.fastingTimerOutsideRamadan,
@@ -100,7 +102,7 @@ export function NoorR232TimeWindows({prayers,nowMs,timeZone,preferences,nextFajr
         nowMs={nowMs} timeZone={timeZone} showTimer={true}
         unavailable="لا توجد مواقيت فجر ومغرب مؤكدة لهذا اليوم."/>
     </div>
-    <WindowCard title="ساعات الليل الشرعي" tone="night" window={windows.islamicNight}
+    <WindowCard title="ساعات الليل الشرعي" tone="night" window={activeNight??windows.islamicNight}
       nowMs={nowMs} timeZone={timeZone}
       unavailable="لم تتوفر مواقيت الغد من مصدر نور المعتمد."/>
    <p className="np-r232-note np-r237-detail-note">بداية الضحى تقديرية بعد الشروق بـ{preferences.afterSunrise} دقيقة، والنهاية قبل الظهر بـ{preferences.beforeDhuhr} دقائق. يمكن تغيير الهامش من مركز التحكم.</p>
