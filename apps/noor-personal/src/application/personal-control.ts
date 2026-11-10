@@ -251,7 +251,7 @@ function parseTaskSessionDraft(value: unknown): TaskSessionPlanDraft | null | un
               Number(d.rangeStart)>=1&&Number(d.rangeEnd)>=Number(d.rangeStart)&&Number(d.rangeEnd)<=1e9))return undefined;
         sessions.push({id:d.id,title:(d.title as string).trim(),objective:d.objective.trim(),target:d.target as number|null,
           rangeStart:d.rangeStart as number|null,rangeEnd:d.rangeEnd as number|null,
-           scheduledDate:d.scheduledDate as string|null|undefined});
+           ...(d.scheduledDate?{scheduledDate:d.scheduledDate as string}:{})});
     }
     if(new Set(sessions.map(s=>s.id)).size!==sessions.length)return undefined;
     return {distribution:value.distribution as "equal"|"custom",sessions};
