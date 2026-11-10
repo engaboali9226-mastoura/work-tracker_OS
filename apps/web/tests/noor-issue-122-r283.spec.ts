@@ -51,7 +51,7 @@ test("R283 rhythm shows no countdown before a window, counts only while active",
  // Duha active, day active, night upcoming, five Friday segments upcoming.
  assert.match(html,/tone-night" data-phase="upcoming"/);
  assert.match(html,/لم تبدأ بعد/u);
- assert.doesNotMatch(html,/تبدأ بعد/u);
+ assert.doesNotMatch(html,/<span class="np-r247-timer-caption">تبدأ بعد/u);
  assert.match(html,/role="timer"/u);
  const nightSlice=html.split('tone-night" data-phase="upcoming"')[1]!.split('</article>')[0]!;
  assert.doesNotMatch(nightSlice,/np-r247-digits/u);
