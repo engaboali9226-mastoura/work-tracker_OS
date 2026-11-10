@@ -1,5 +1,4 @@
 import {useEffect,useRef,useState,type ReactElement} from "react";
-import {r232ParseFridayClock} from "./noor-islamic-daylight-r232.js";
 import {noorSharedCivilDateWindow} from "./noor-shared-date-window-r245.js";
 import {type NoorR232City,type NoorR232Preferences} from "./noor-time-display-preferences-r232.js";
 type Result=Readonly<{name:string;country:string;latitude:number;longitude:number;timeZone:string}>;
@@ -199,16 +198,8 @@ export function NoorR232ControlLocation({serverZone,preferences,onChange,onCommi
       {[5,10,15,20].map(v=><option key={v} value={v}>{v} دقيقة</option>)}
      </select>
     </label>
-    <label>أذان الجمعة في المسجد (24 ساعة)
-     <input aria-label="موعد أذان الجمعة" className="np-input"
-      type="time" value={preferences.fridayAdhan} onChange={e=>{
-       const value=e.target.value;
-       if(!value||r232ParseFridayClock(value)!==null)
-        onChange({...preferences,fridayAdhan:value});
-      }}/>
-    </label>
+    <p className="np-r232-note" role="note">ساعات الجمعة الخمس تنتهي تلقائيًا عند وقت صلاة الظهر المعتمد من نور. لا يلزم إدخال وقت يدوي.</p>
    </div>
-   <p className="np-r232-note">لا يفترض نور أن أذان الجمعة يساوي الظهر. موعد المسجد يُستخدم فقط في تقسيم الساعات الخمس.</p>
    <div className="np-r232-location-search">
     <label htmlFor="np-r232-city-search">البحث عن المدينة والمنطقة الزمنية</label>
     <div className="np-r232-search-row">
