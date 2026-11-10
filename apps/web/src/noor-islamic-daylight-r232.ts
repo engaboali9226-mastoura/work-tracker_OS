@@ -88,6 +88,48 @@ export function r232FridayFiveHours(input:Readonly<{
   }
   return Object.freeze(result);
 }
+/** R283: user-requested Friday rule: end the five Friday windows at the exact
+ * authenticated Dhuhr instant of *this same civil Friday*. The old mosque-
+ * clock helper is retained only for backward-compatibility with older callers.
+ */
+export function r283FridayHoursAtDhuhr(input:Readonly<{
+ nowMs:number;timeZone:string;prayers:readonly R232Prayer[];
+ sunriseOffsetMinutes?:number;
+}>):readonly R232FridayHour[]|null {
+ if(!Number.isFinite(input.nowMs)||r232LocalWeekday(input.nowMs,input.timeZone)!==5)return null;
+ const sunrise=time(input.prayers,"sunrise"),dhuhr=time(input.prayers,"dhuhr");
+ if(!Number.isFinite(sunrise)||!Number.isFinite(dhuhr))return null;
+ const offset=input.sunriseOffsetMinutes??20;
+ if(!Number.isSafeInteger(offset)||offset<15||offset>30)return null;
+ const localDate=(ms:number)=>new Intl.DateTimeFormat("en-CA",{
+   year:"numeric",month:"2-digit",day:"2-digit",timeZone:input.timeZone,
+ }).format(new Date(ms));
+ const fridayDate=localDate(input.nowMs);
+ if(localDate(sunrise)!==fridayDate||localDate(dhuhr)!==fridayDate)return null;
+ const startMs=sunrise+offset*MINUTE;
+ const full=windowFrom(startMs,dhuhr,16*60*MINUTE);
+ if(!full||full.durationMs<5*MINUTE)return null;
+ const result:R232FridayHour[]=[];
+ for(let k=0;k<5;k++){
+  const a=Math.round(startMs+full.durationMs*k/5);
+  const b=k===4?dhuhr:Math.round(startMs+full.durationMs*(k+1)/5);
+  result.push(Object.freeze({number:(k+1) as R232FridayHour["number"],startMs:a,endMs:b,durationMs:b-a}));
+ }
+ return Object.freeze(result);
+}
+
+/** R283: authenticated previous-night endpoints returned by NOOR's Today service.
+ * Never infer prior Maghrib from today's date or from a fixed 24-hour offset.
+ */
+export type R283PrecedingNight=Readonly<{maghribAt:string;ishaAt:string;fajrAt:string}>;
+export function r283CarriedNightWindow(nowMs:number,prior:R283PrecedingNight|null|undefined):R232Window|null{
+ if(!prior||!Number.isFinite(nowMs))return null;
+ const start=Date.parse(prior.maghribAt),isha=Date.parse(prior.ishaAt),end=Date.parse(prior.fajrAt);
+ if(![start,isha,end].every(Number.isFinite)||!(start<isha&&isha<end)||
+  nowMs<start||nowMs>=end)return null;
+ return windowFrom(start,end,MAX_NIGHT);
+}
+
 export function r232Countdown(window:R232Window,nowMs:number):Readonly<{
   phase:"upcoming"|"active"|"finished";
   remainingSeconds:number;elapsedSeconds:number;progress:number;

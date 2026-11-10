@@ -51,7 +51,7 @@ test("R232 countdown and duha obey separate prayer time boundaries",()=>{
  assert.throws(()=>r232DailyWindows(prayers,undefined,14,10),/R232_INVALID_DUHA_POLICY/);
  assert.equal(r232DailyWindows(prayers.filter(p=>p.key!=="sunrise")).duha,null);
 });
-test("R232 Friday section appears on Friday only; unavailable clock is not fabricated",()=>{
+test("R283 Friday section automatically follows authoritative Dhuhr without a manual clock",()=>{
  const render=(nowMs:number,fridayAdhan:string)=>renderToStaticMarkup(createElement(NoorR232TimeWindows,{
   prayers,nowMs,timeZone:zone,preferences:{...NOOR_R232_DEFAULT,fridayAdhan},
  }));
@@ -61,8 +61,8 @@ test("R232 Friday section appears on Friday only; unavailable clock is not fabri
  assert.match(fridayMarkup,/وقت صلاة الضحى/u);
  assert.doesNotMatch(render(thursday,"12:12"),/data-testid="friday-five-hours-r232"/u);
  const noClock=render(friday,"");
- assert.match(noClock,/اضبط موعد أذان الجمعة/u);
- assert.doesNotMatch(noClock,/الساعة الخامسة/u);
+ assert.match(noClock,/الساعة الخامسة/u);
+ assert.doesNotMatch(noClock,/اضبط موعد أذان الجمعة/u);
 });
 test("R232 city preference is display-only and cannot change authority of prayer times",()=>{
  const data=readFileSync(new URL("../src/noor-time-location-control-r232.tsx",import.meta.url),"utf8");

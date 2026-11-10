@@ -24,7 +24,7 @@ test("R248 exact reference composition: Duha / daylight / night with subtitle an
  const night=html.indexOf('aria-label="ساعات الليل الشرعي"');
  assert.ok(duha>0 && day>duha && night>day);
  for(const caption of ["بعد الشروق","من الفجر للمغرب","حتى فجر الغد"])assert.ok(html.includes(caption));
- assert.equal((html.match(/class="np-r247-timer"/g)||[]).length,3);
+ assert.equal((html.split('data-testid="friday-five-hours-r232"')[0].match(/class="np-r247-timer"/g)||[]).length,3);
 });
 test("R248 colors and layout strictly match reference cards, inner white timers",()=>{
  const css=readFileSync(new URL("../src/noor-time-windows-r232.css",import.meta.url),"utf8");
