@@ -972,7 +972,7 @@ const PAGE_STYLES = `
 .np-page .np-caffeine-led-r295{width:11px;height:11px;border-radius:50%;display:block;flex:0 0 11px}
 .np-page .np-caffeine-green{background:#e9f5ee;color:#205b42;border-color:#b9dfc9}
 .np-page .np-caffeine-green .np-caffeine-led-r295{background:#21965d}
-.np-page .np-caffeine-yellow{background:#fff5df;color:#835c15;border-color:#ecd69b}
+.np-page .np-caffeine-yellow{background:var(--panel-soft);color:var(--text);border-color:var(--border-strong);border-inline-start:3px solid #bd913a}
 .np-page .np-caffeine-yellow .np-caffeine-led-r295{background:#d8a12f}
 .np-page .np-caffeine-red{background:#fff0ee;color:#8e3437;border-color:#e5b4b0}
 .np-page .np-caffeine-red .np-caffeine-led-r295{background:#db525a}
@@ -984,6 +984,12 @@ const PAGE_STYLES = `
 .np-page .np-caffeine-time-picker-r295{padding:13px;border:1px solid var(--border-strong);border-radius:13px;background:var(--panel-soft);display:grid;gap:10px}
 .np-page .np-caffeine-time-options-r295{display:flex;gap:6px;flex-wrap:wrap}
 .np-page .np-caffeine-time-options-r295 button{min-height:38px;font-size:12px}
+.np-page .np-caffeine-time-options-r295 button{border-radius:999px;padding:8px 12px;white-space:normal}
+.np-page .np-caffeine-time-hint-r297{font-size:11px;line-height:1.7;color:var(--muted)}
+.np-page .np-caffeine-pending-r297{font-size:12px;color:var(--muted);margin:6px 0}
+.np-page .np-caffeine-yellow .np-caffeine-reason-r296{color:var(--muted)}
+.np-page .np-caffeine-signal-r295{padding:8px 11px;border-radius:10px}
+
 .np-page .np-caffeine-time-options-r295 button[aria-pressed=true]{background:var(--text);border-color:var(--text);color:var(--panel)}
 .np-page .np-caffeine-time-picker-r295 label{display:flex;gap:7px;align-items:center}
 .np-page .np-beverages-r294 .np-caffeine-time-picker-r295 label input{width:130px}
