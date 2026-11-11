@@ -18,17 +18,20 @@ function validCount(value:string,max:number):number|null{
  const n=Number(value);return value.trim()!==""&&Number.isInteger(n)&&n>=1&&n<=max?n:null;
 }
 const LABELS_R295:{value:string;label:string}[]=[
- {value:"now",label:"الآن"},
+ {value:"now",label:"الآن · الوقت الحالي"},
+ {value:"dawn",label:"فجرًا · 05:00"},
+ {value:"duha",label:"ضحى · 09:00"},
  {value:"morning",label:"صباحًا · 08:00"},
  {value:"before-noon",label:"قبل الظهر · 10:30"},
  {value:"noon",label:"ظهرًا · 13:00"},
  {value:"afternoon",label:"عصرًا · 16:00"},
  {value:"evening",label:"مساءً · 19:00"},
+ {value:"after-isha",label:"بعد العشاء · 21:00"},
  {value:"night",label:"ليلًا · 22:00"},
- {value:"manual",label:"وقت يدوي"}
+ {value:"manual",label:"تحديد الساعة يدويًا"}
 ];
 const PRESET_R295:Readonly<Record<string,string>>={
- morning:"08:00","before-noon":"10:30",noon:"13:00",afternoon:"16:00",evening:"19:00",night:"22:00"
+ dawn:"05:00",duha:"09:00",morning:"08:00","before-noon":"10:30",noon:"13:00",afternoon:"16:00",evening:"19:00","after-isha":"21:00",night:"22:00"
 };
 function kindLabel(value:CaffeineKindR295){return value==="coffee"?"قهوة":value==="tea"?"شاي":"مشروب آخر";}
 export function NoorBeverageTrackerR294({rows,allNames=[],localDate,busy,onCommand,historical=false,timeZone="Asia/Riyadh"}:{
@@ -44,6 +47,7 @@ export function NoorBeverageTrackerR294({rows,allNames=[],localDate,busy,onComma
  const [confirmArchive,setConfirmArchive]=useState<string|null>(null);
  const [saving,setSaving]=useState(false),[error,setError]=useState("");
  const [quickId,setQuickId]=useState<string|null>(null),[timeChoice,setTimeChoice]=useState("now");
+ const [pendingFirstKind,setPendingFirstKind]=useState<"coffee"|"tea"|null>(null);
  const [manualClock,setManualClock]=useState("12:00");
  const ownerBedtime=rows[0]?.plan.sleepTime;
  const [bedtime,setBedtime]=useState(validClockR295(ownerBedtime)?ownerBedtime:"00:00");
@@ -95,6 +99,11 @@ export function NoorBeverageTrackerR294({rows,allNames=[],localDate,busy,onComma
   if(ok)uncertain.current=null;
   return ok;
  };
+ useEffect(()=>{
+  if(!pendingFirstKind)return;
+  const matching=rows.find(r=>kindForDrinkR295(r)===pendingFirstKind);
+  if(matching){setQuickId(matching.id);setTimeChoice("now");setPendingFirstKind(null);}
+ },[rows,pendingFirstKind]);
  const chooseQuick=(row:BeverageRowR294)=>{
   setQuickId(row.id);setTimeChoice("now");setManualClock(localClockR295(new Date().toISOString(),timeZone)??"12:00");setError("");
  };
@@ -106,11 +115,23 @@ export function NoorBeverageTrackerR294({rows,allNames=[],localDate,busy,onComma
   const ok=await adjust(quickRow,1,time);
   if(ok)setQuickId(null);
  };
- const quickCoffeeOrTea=(kind:"coffee"|"tea")=>{
+ const quickCoffeeOrTea=async(kind:"coffee"|"tea")=>{
   const row=rows.find(r=>kindForDrinkR295(r)===kind);
   if(row){chooseQuick(row);return;}
-  setNewKind(kind);setNewName(kind==="coffee"?"قهوة":"شاي");
-  setNewTarget(kind==="coffee"?"2":"2");setNewMl("");setAdding(true);setError("");
+  // The first tap creates the same protected daily habit definition; as soon
+  // as its row arrives, show the clock options rather than a setup form.
+  if(busy||saving||pendingFirstKind)return;
+  const name=kind==="coffee"?"قهوة":"شاي";
+  if(allNames.some(x=>x.trim()===name)){
+   setNewKind(kind);setNewName(name);setNewTarget("2");setAdding(true);
+   setError("يوجد نوع بهذا الاسم؛ افتح عداده أو عدّل نوعه قبل التسجيل.");return;
+  }
+  setPendingFirstKind(kind);
+  const ok=await run({type:"create-definition",kind:"Habit",title:name,category:"الصحة والرياضة",
+   startDate:localDate,endDate:null,scheduleKind:"Daily",weekdays:[],
+   importance:"Optional",weight:1,beveragePlan:{targetServings:2,kind,sleepTime:ownerSleep}},
+   "تعذر إنشاء عداد المشروب؛ تحقق من القائمة قبل إعادة الطلب.");
+  if(!ok)setPendingFirstKind(null);
  };
  const beginEdit=(row:BeverageRowR294)=>{
   setEditing(row.id);setEditName(row.title);setEditTarget(String(row.plan.targetServings));
@@ -153,17 +174,18 @@ export function NoorBeverageTrackerR294({rows,allNames=[],localDate,busy,onComma
    </div>
   </div>
   {!historical?<div className="np-caffeine-quick-r295" aria-label="تسجيل كوب">
-    <button type="button" onClick={()=>quickCoffeeOrTea("coffee")} disabled={busy||saving}>+ قهوة</button>
-    <button type="button" onClick={()=>quickCoffeeOrTea("tea")} disabled={busy||saving}>+ شاي</button>
+    <button type="button" onClick={()=>{void quickCoffeeOrTea("coffee");}} disabled={busy||saving}>+ قهوة</button>
+    <button type="button" onClick={()=>{void quickCoffeeOrTea("tea");}} disabled={busy||saving}>+ شاي</button>
    </div>:null}
   {quickRow&&!historical?<div className="np-caffeine-time-picker-r295" data-testid="r295-time-picker">
-   <strong>تسجيل {quickRow.title} — متى شربته؟</strong>
+   <strong>تسجيل {quickRow.title} — اختر الوقت أولًا</strong>
+   <small className="np-caffeine-time-hint-r297">الفترات أوقات تقريبية ثابتة للتسجيل السريع، وليست مواقيت الصلاة. لتسجيل الساعة الدقيقة اختر «تحديد الساعة يدويًا».</small>
    <div className="np-caffeine-time-options-r295">{LABELS_R295.map(option=><button type="button"
      key={option.value} aria-pressed={timeChoice===option.value} onClick={()=>setTimeChoice(option.value)}>{option.label}</button>)}</div>
    {timeChoice==="manual"?<label>وقت الشرب <input type="time" aria-label="الوقت اليدوي للشرب"
      value={manualClock} onChange={e=>setManualClock(e.currentTarget.value)}/></label>:null}
    <div className="np-caffeine-picker-actions-r295">
-    <button type="button" disabled={busy||saving} onClick={()=>{void register();}}>تسجيل كوب</button>
+    <button type="button" disabled={busy||saving} onClick={()=>{void register();}}>{saving?"جارٍ تأكيد الحفظ…":"تأكيد تسجيل الكوب"}</button>
     <button type="button" disabled={saving} onClick={()=>setQuickId(null)}>إلغاء</button>
    </div>
   </div>:null}
@@ -230,6 +252,7 @@ export function NoorBeverageTrackerR294({rows,allNames=[],localDate,busy,onComma
   </div>:null}
   <small className="np-beverage-foot-r294">{historical?"عرض سجلات هذا اليوم دون تغييرها.":"يُحفظ التسجيل في حسابك؛ صحّح العدد بزر الناقص."}</small>
   </details>
+  {pendingFirstKind?<p role="status" className="np-caffeine-pending-r297">جارٍ تجهيز عداد {pendingFirstKind==="coffee"?"القهوة":"الشاي"} لأول مرة…</p>:null}
   {error?<p role="alert" className="np-beverage-error-r294">{error}</p>:null}
  </section>;
 }
