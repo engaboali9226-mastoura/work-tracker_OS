@@ -66,7 +66,7 @@ type ExecutionItem = Readonly<{
   kind: "Task" | "Habit";
 }>;
 
-type ActivityEntry = Readonly<{ id:string; executionId:string; localDate:string; at:string; note:string; amount:number; endReason:"achieved"|"expired"|"cancelled"|null; taskSessionId?:string; sessionDayCredit?:number }>;
+type ActivityEntry = Readonly<{ id:string; executionId:string; localDate:string; at:string; note:string; amount:number; endReason:"achieved"|"expired"|"cancelled"|null; taskSessionId?:string; sessionDayCredit?:number; beverageTime?:string }>;
 type DefinitionItem = Readonly<{
   weight:number;
   displayOrder?:number;
@@ -1428,7 +1428,7 @@ function definitionItems(value: unknown): readonly DefinitionItem[] | null {
       ? item.schedule.weekdays.filter((day): day is number => typeof day === "number" && Number.isInteger(day))
       : [];
     const measurement=isRecord(item.measurement) && typeof item.measurement.target==="number" && Number.isFinite(item.measurement.target) && item.measurement.target>0 && typeof item.measurement.unit==="string" ? {target:item.measurement.target,unit:item.measurement.unit} : undefined;
-    const activityLog: ActivityEntry[] = Array.isArray(item.activityLog) ? item.activityLog.filter((e): e is ActivityEntry => isRecord(e) && typeof e.id==="string" && typeof e.executionId==="string" && typeof e.at==="string" && typeof e.localDate==="string" && typeof e.note==="string" && typeof e.amount==="number" && Number.isFinite(e.amount) && [null,"achieved","expired","cancelled"].includes(e.endReason as null)) : [];
+    const activityLog: ActivityEntry[] = Array.isArray(item.activityLog) ? item.activityLog.filter((e): e is ActivityEntry => isRecord(e) && typeof e.id==="string" && typeof e.executionId==="string" && typeof e.at==="string" && typeof e.localDate==="string" && typeof e.note==="string" && typeof e.amount==="number" && Number.isFinite(e.amount) && [null,"achieved","expired","cancelled"].includes(e.endReason as null) && (e.beverageTime===undefined||typeof e.beverageTime==="string"&&/^([01]\d|2[0-3]):[0-5]\d$/.test(e.beverageTime))) : [];
     const sourcePlan=item.sessionPlan;
     const parsedSessions:StoredTaskSessionR254[]|null=isRecord(sourcePlan)&&Array.isArray(sourcePlan.sessions)&&sourcePlan.sessions.length<=200
       ?sourcePlan.sessions.every((s:unknown)=>isRecord(s)&&typeof s.id==="string"&&typeof s.title==="string"&&typeof s.objective==="string"&&typeof s.note==="string"&&Number.isInteger(s.revision)&&Number.isInteger(s.order)&&typeof s.createdAt==="string"&&typeof s.updatedAt==="string"&&(s.completedAt===null||typeof s.completedAt==="string")&&(s.target===null||typeof s.target==="number")&&(s.rangeStart===null||Number.isSafeInteger(s.rangeStart))&&(s.rangeEnd===null||Number.isSafeInteger(s.rangeEnd)))
@@ -1440,8 +1440,12 @@ function definitionItems(value: unknown): readonly DefinitionItem[] | null {
     const sourceDrink=item.beveragePlan;
     const beveragePlan:NoorBeveragePlanR294|undefined=kind==="Habit"&&isRecord(sourceDrink)&&
       Number.isInteger(sourceDrink.targetServings)&&Number(sourceDrink.targetServings)>=1&&Number(sourceDrink.targetServings)<=30&&
-      (sourceDrink.servingMl===undefined||Number.isInteger(sourceDrink.servingMl)&&Number(sourceDrink.servingMl)>=1&&Number(sourceDrink.servingMl)<=2000)
-      ?{targetServings:sourceDrink.targetServings as number,...(sourceDrink.servingMl!==undefined?{servingMl:sourceDrink.servingMl as number}:{})}:undefined;
+      (sourceDrink.servingMl===undefined||Number.isInteger(sourceDrink.servingMl)&&Number(sourceDrink.servingMl)>=1&&Number(sourceDrink.servingMl)<=2000)&&
+      (sourceDrink.kind===undefined||["coffee","tea","other"].includes(String(sourceDrink.kind)))&&
+      (sourceDrink.sleepTime===undefined||typeof sourceDrink.sleepTime==="string"&&/^([01]\d|2[0-3]):[0-5]\d$/.test(sourceDrink.sleepTime))
+      ?{targetServings:sourceDrink.targetServings as number,...(sourceDrink.servingMl!==undefined?{servingMl:sourceDrink.servingMl as number}:{}),
+       ...(typeof sourceDrink.kind==="string"?{kind:sourceDrink.kind as NoorBeveragePlanR294["kind"]}:{}),
+       ...(typeof sourceDrink.sleepTime==="string"?{sleepTime:sourceDrink.sleepTime}:{})}:undefined;
     result.push({ weight:typeof item.weight==="number"&&item.weight>0?item.weight:1,...(typeof item.displayOrder==='number'&&Number.isSafeInteger(item.displayOrder)?{displayOrder:item.displayOrder}:{}),...(typeof item.timeOfDay==='string'?{timeOfDay:item.timeOfDay}:{}),...(quranPlan?{quranPlan}:{}),...(beveragePlan?{beveragePlan}:{}),id, revisionId:stringValue(item.revisionId)??"", title, state, kind, category, scheduleKind, weekdays, startDate, endDate, importance, ...(measurement?{measurement}:{}), ...(sessionPlan?{sessionPlan}:{}), ...(taskGeneralNote!==undefined?{taskGeneralNote}:{}), ...(description!==undefined?{description}:{}), activityLog });
   }
   return result;
@@ -1782,7 +1786,7 @@ export function DefinitionForm({busy,onCommand,onSavingChange,defaultStartDate,d
   if(!noorExistingCategory(selectedCategory,categoryChoices)){setError("اختر تصنيفًا مسجلًا أو أضف تصنيفًا جديدًا أولًا.");return;}
   if(showCategoryAdd){setError("أكمل إضافة التصنيف أو ألغِ إضافة التصنيف قبل حفظ العنصر.");return;}
   const endDate=selectedKind==="Habit"&&duration==="continuous"?null:text("endDate")||null;
-  const fields={weight:Number(text("weight")||initial?.weight||1),...(selectedKind==="Habit"&&text("timeOfDay")?{timeOfDay:text("timeOfDay")}:{}),...(selectedKind==="Habit"&&(quranEnabled||initial?.quranPlan)?{quranPlan:quranEnabled?{anchorDate:quranAnchorDate,firstQuarter:quranFirstQuarter,repeatOccurrences:quranRepeatOccurrences}:null}:{}),kind:selectedKind,title:text("title"),category:selectedCategory,description:text("description"),...(initial?.beveragePlan&&selectedKind==="Habit"?{beveragePlan:{targetServings:Number(beverageTarget),...(beverageMl?{servingMl:Number(beverageMl)}:{})}}:{}),startDate:text("startDate"),endDate,scheduleKind,weekdays:scheduleKind==="Weekdays"?days:[],importance:text("importance") as "Essential"|"Important"|"Supporting"|"Optional",...(selectedKind==="Task"&&text("progressTarget")?{measurement:{target:Number(text("progressTarget")),unit:text("progressUnit")}}:{}),...(selectedKind==="Task"&&(sessionEnabled||initial?.sessionPlan)?{sessionPlan:sessionEnabled?{distribution:sessionDistribution,sessions:sessionDrafts}:null}:{})};
+  const fields={weight:Number(text("weight")||initial?.weight||1),...(selectedKind==="Habit"&&text("timeOfDay")?{timeOfDay:text("timeOfDay")}:{}),...(selectedKind==="Habit"&&(quranEnabled||initial?.quranPlan)?{quranPlan:quranEnabled?{anchorDate:quranAnchorDate,firstQuarter:quranFirstQuarter,repeatOccurrences:quranRepeatOccurrences}:null}:{}),kind:selectedKind,title:text("title"),category:selectedCategory,description:text("description"),...(initial?.beveragePlan&&selectedKind==="Habit"?{beveragePlan:{targetServings:Number(beverageTarget),...(beverageMl?{servingMl:Number(beverageMl)}:{}),...(initial.beveragePlan.kind?{kind:initial.beveragePlan.kind}:{}),...(initial.beveragePlan.sleepTime?{sleepTime:initial.beveragePlan.sleepTime}:{})}}:{}),startDate:text("startDate"),endDate,scheduleKind,weekdays:scheduleKind==="Weekdays"?days:[],importance:text("importance") as "Essential"|"Important"|"Supporting"|"Optional",...(selectedKind==="Task"&&text("progressTarget")?{measurement:{target:Number(text("progressTarget")),unit:text("progressUnit")}}:{}),...(selectedKind==="Task"&&(sessionEnabled||initial?.sessionPlan)?{sessionPlan:sessionEnabled?{distribution:sessionDistribution,sessions:sessionDrafts}:null}:{})};
   setError("");definitionSaveLock.current=true;onSavingChange?.(true);
   let ok=false;
   try{ok=await onCommand(initial?{...fields,type:"update-definition",definitionId:initial.id,expectedRevisionId:initial.revisionId}:{...fields,type:"create-definition"});}
@@ -2535,7 +2539,7 @@ function Dashboard({ view:providedView, workspace, busy, actionError, onCommand,
     {/* NOOR_MINIMAL_DAY_STRIP_R111: date only; navigation stays in the weekly strip. */}
     
     <NoorBeverageTrackerR294 rows={beverageRows} allNames={(workspace?.definitions??[]).filter(d=>d.kind==="Habit"&&!!d.beveragePlan&&d.state!=="Archived").map(d=>d.title)}
-      localDate={view.localDate??""} busy={busy} onCommand={onCommand} historical={historyDate!==null}/>
+      localDate={view.localDate??""} timeZone={view.timeZone} busy={busy} onCommand={onCommand} historical={historyDate!==null}/>
 
     <div className="np-main-grid np-daily-only" data-history-page={historyDate?"historical":"current"}>
       <div className="np-execution-stack">
