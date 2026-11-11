@@ -116,3 +116,42 @@ test("R294: edit beverage target and preserve previous owner history and plans",
  await assert.rejects(()=>f.service.execute("other",parsePersonalCommand({...updated,expectedRevisionId:f.drink().revisionId})),/DEFINITION_NOT_FOUND/);
  assert.equal(f.drink().activityLog.length,1);
 });
+
+
+test("R295: typed drink category and owner bedtime are allowlisted and survive owner editing",async()=>{
+ const typed={targetServings:2,servingMl:180,kind:"coffee",sleepTime:"23:30"};
+ assert.deepEqual(parsePersonalCommand({...template,beveragePlan:typed})?.beveragePlan,typed);
+ for(const invalid of [
+  {...typed,kind:"energy"}, {...typed,sleepTime:"24:00"},
+  {...typed,sleepTime:"1:00"},{...typed,sleepTime:"23:75"},
+  {...typed,personalData:"forbidden"}]){
+  assert.equal(parsePersonalCommand({...template,beveragePlan:invalid}),null);
+ }
+ const f=fixture();
+ await f.service.execute("owner",parsePersonalCommand({...template,type:"update-definition",definitionId:base.id,
+  expectedRevisionId:base.revisionId,title:"قهوة",beveragePlan:typed}));
+ assert.deepEqual(f.drink().beveragePlan,typed);
+ assert.equal(f.drink().activityLog?.length??0,0);
+});
+
+test("R295: owner-selected serving time is persisted separately from server audit instant, with idempotent retry",async()=>{
+ const f=fixture();
+ const item={...cmd("r295-1"),beverageTime:"19:30"};
+ assert.deepEqual(parsePersonalCommand(item),item);
+ for(const wrong of ["24:00","-1:00","19:60"," 19:30","23:5",19,null]){
+  assert.equal(parsePersonalCommand({...item,beverageTime:wrong}),null);
+ }
+ assert.equal(parsePersonalCommand({...cmd("invalid-undo",-1),beverageTime:"19:30"}),null);
+ assert.equal(parsePersonalCommand({...item,extraData:"foreign"}),null);
+ await f.service.execute("owner",parsePersonalCommand(item));
+ assert.equal(f.drink().activityLog?.[0]?.beverageTime,"19:30");
+ assert.equal(f.drink().activityLog?.[0]?.at,now);
+ await f.service.execute("owner",parsePersonalCommand(item));
+ assert.equal(f.drink().activityLog?.length,1);
+ await assert.rejects(()=>f.service.execute("owner",parsePersonalCommand({...item,beverageTime:"20:30"})),/BEVERAGE_ENTRY_ID_CONFLICT/);
+ await assert.rejects(()=>f.service.execute("other",parsePersonalCommand({...cmd("foreign-r295"),beverageTime:"18:00"})),/EXECUTION_NOT_FOUND/);
+ assert.equal(f.drink().activityLog?.length,1);
+ await f.service.execute("owner",parsePersonalCommand(cmd("r295-correction",-1)));
+ assert.equal(f.drink().activityLog?.[1]?.beverageTime,undefined);
+ assert.equal(f.drink().activityLog?.reduce((n,e)=>n+e.amount,0),0);
+});
