@@ -2129,7 +2129,7 @@ function ControlCenter({ busy, orderingPending=false, workspace, executions, onC
   return <div className="np-cc-shell" data-testid="control-center-r65">
     <header className="np-cc-header"><div className="np-cc-heading"><div className="np-logo-frame np-cc-header-logo"><img alt="شعار نور" className="np-platform-logo" src="/noor-platform-logo.jpeg" /></div><div className="np-cc-heading-copy"><h1 className="np-control-title">مركز التحكم</h1></div></div><div className="np-cc-header-actions"><button aria-label="العودة إلى اليوم" className="np-cc-button" onClick={onClose} type="button">العودة لليوم ←</button><button aria-label="تسجيل الخروج والعودة إلى شاشة الدخول" className="np-cc-button" disabled={busy||logoutPending} onClick={onLogout} type="button">{logoutPending?"جارٍ الخروج…":"تسجيل الخروج"}</button></div></header>
     <section className="np-card np-control np-cc"><div className="np-cc-layout">
-      <nav aria-label="أقسام مركز التحكم" className="np-cc-nav">{([["Habit","العادات"],["Task","المهام"],["categories","التصنيفات"],["ordering","الترتيب"],["weights","الأوزان"],["statistics","الإحصائيات"],["finance","المالية"],["appearance","المظهر"],["location","التوقيت والموقع"]] as const).map(([id,label])=><button aria-current={section===id?"page":undefined} className={`np-cc-nav-item${section===id?" is-selected":""}`} key={id} onClick={event=>{changeSection(id);event.currentTarget.scrollIntoView?.({block:"nearest",inline:"center"});}} type="button">{icon(id)}<span>{label}</span>{(id==="Habit"||id==="Task")?<small>{definitions.filter(d=>d.kind===id&&d.state==="Active").length}</small>:null}</button>)}<p className="np-cc-nav-note">إدارة هادئة لعاداتك ومهامك.<br/>إنجاز اليوم في شاشة اليوم.</p></nav>
+      <nav aria-label="أقسام مركز التحكم" className="np-cc-nav">{([["Habit","العادات"],["Task","المهام"],["categories","التصنيفات"],["ordering","الترتيب"],["weights","الأوزان"],["statistics","الإحصائيات"],["finance","المالية"],["appearance","المظهر"],["location","التوقيت والموقع"]] as const).map(([id,label])=><button aria-current={section===id?"page":undefined} className={`np-cc-nav-item${section===id?" is-selected":""}`} key={id} onClick={event=>{changeSection(id);event.currentTarget.scrollIntoView?.({block:"nearest",inline:"center"});}} type="button">{icon(id)}<span>{label}</span>{(id==="Habit"||id==="Task")?<small>{definitions.filter(d=>d.kind===id&&d.state==="Active").length}</small>:null}</button>)}</nav>
       <main className="np-cc-main">
         {section==="statistics"?<StatisticsCenter workspace={workspace}/>:section==="weights"?<NoorHabitWeightManagerR251 definitions={workspace?.definitions??[]} executions={executions} busy={busy} onCommand={onCommand}/>:section==="ordering"?<DisplayOrderManager workspace={workspace} busy={busy&&!orderingPending} onCommand={onCommand}/>:section==="categories"?<CategoryManager categories={workspace?.categories??COMMON_CATEGORIES} busy={busy} onCommand={onCommand}/>:section==="finance"?<FinanceCenter ledger={workspace?.finance ?? null} busy={busy} onCommand={onCommand} today={defaultStartDate}/>:section==="location"?<NoorR232ControlLocation serverZone={timeZone} preferences={timePreferences} onChange={onTimePreferences} onCommit={onLocationCommit}/>:section==="appearance"?<><div className="np-cc-title"><div><h2>مظهر نور</h2><p>اختيارك يُحفظ على هذا المتصفح.</p></div></div><div aria-label="اختيار المظهر" className="np-cc-themes">{([["noor","نور","دفء كريمي ولمسات ذهبية"],["light","فاتح","أبيض ورمادي بألوان هادئة"],["dark","داكن","سطوح فحمية ونصوص واضحة"]] as const).map(([id,title,copy])=><button aria-pressed={appearance===id} className={`np-cc-theme ${id}`} key={id} onClick={()=>onAppearance(id)} type="button"><span aria-hidden="true" className="np-cc-theme-preview"><i/><i/><i/></span><strong>{title}</strong><span>{copy}</span><small>{appearance===id?"المظهر الحالي":"اختيار المظهر"}</small></button>)}</div></>:<>
           <div className="np-cc-title"><div><h2>{kind==="Habit"?"العادات":"المهام"}</h2><p>{kind==="Habit"?"ابنِ روتينك، خطوة بخطوة.":"أنشئ وعدّل وحدد المواعيد والأوزان والجلسات، أو أوقف المهمة وأرشفها دون حذف سجلها."}</p></div><button className="np-cc-button primary" onClick={()=>{setEditing(undefined);setFormError(null);setFormSession(value=>value+1);setCreating(true);}} type="button" aria-expanded={creating}>{kind==="Habit"?"+ إضافة عادة":"+ إضافة مهمة"}</button></div>
@@ -2306,7 +2306,7 @@ function NoorCategoryIcon({category}:{category:string}):ReactElement {
   </span>;
 }
 
-function Dashboard({ view:providedView, workspace, busy, actionError, onCommand, onOpenControl, onLogout, logoutPending, nowMs,pendingIds=[],lockedIds=[],onHistoryCommand,timePreferences,onTimePreferencesChange }: { view: TodayViewModel; onLogout:()=>void; logoutPending:boolean; workspace: WorkspaceViewModel | null; busy: boolean; actionError: string | null; onCommand: (command: NoorPersonalCommandInput) => Promise<boolean>; onHistoryCommand: (command:NoorPersonalCommandInput)=>Promise<boolean>; onOpenControl: () => void; nowMs: number;pendingIds?:readonly string[];lockedIds?:readonly string[];timePreferences:NoorR232Preferences;onTimePreferencesChange:(value:NoorR232Preferences)=>void }): ReactElement {
+function Dashboard({ view:providedView, workspace, busy, actionError, onCommand, onOpenControl, onRefresh, reconnecting, nowMs,pendingIds=[],lockedIds=[],onHistoryCommand,timePreferences,onTimePreferencesChange }: { view: TodayViewModel; onRefresh:()=>void; reconnecting:boolean; workspace: WorkspaceViewModel | null; busy: boolean; actionError: string | null; onCommand: (command: NoorPersonalCommandInput) => Promise<boolean>; onHistoryCommand: (command:NoorPersonalCommandInput)=>Promise<boolean>; onOpenControl: () => void; nowMs: number;pendingIds?:readonly string[];lockedIds?:readonly string[];timePreferences:NoorR232Preferences;onTimePreferencesChange:(value:NoorR232Preferences)=>void }): ReactElement {
   // Today's execution projection is authoritative for recurrence and the personal-day boundary.
   const definitionsById = new Map((workspace?.definitions ?? []).map(definition => [definition.id, definition] as const));
   // NOOR_INPAGE_HISTORY_R110: the selected date drives the existing day grid.
@@ -2466,8 +2466,8 @@ function Dashboard({ view:providedView, workspace, busy, actionError, onCommand,
         <button aria-label="فتح مركز التحكم" className="np-icon-btn np-control-icon" onClick={onOpenControl} title="مركز التحكم" type="button">
           <svg aria-hidden="true" fill="none" viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="5" rx="2.5" stroke="currentColor" strokeWidth="1.6"/><circle cx="7" cy="7" r="1.35" fill="currentColor"/><rect x="3" y="14.5" width="18" height="5" rx="2.5" stroke="currentColor" strokeWidth="1.6"/><circle cx="17" cy="17" r="1.35" fill="currentColor"/></svg>
         </button>
-        <button aria-label="تسجيل الخروج والعودة إلى شاشة الدخول" title="تسجيل الخروج" className="np-icon-btn np-signout-icon-r269" disabled={busy||logoutPending} onClick={onLogout} type="button">
-          <svg aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M10 5H5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h5M14 8l4 4-4 4m-10-4h14"/></svg>
+        <button aria-label="إعادة الاتصال" title="إعادة الاتصال" className="np-icon-btn np-reconnect-r296" disabled={reconnecting||busy} onClick={onRefresh} type="button">
+          <svg aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M20 7v5h-5M4 17v-5h5"/><path d="M6.8 9A7 7 0 0 1 19.3 12M17.2 15A7 7 0 0 1 4.7 12"/></svg>
         </button>
       </div>
 
@@ -2693,6 +2693,13 @@ export function NoorPersonalApplicationView({ initialResult, initialWorkspace }:
     setWorkspaceResult(previous=>workspace.kind==="unavailable" && previous?.kind==="success"?previous:workspace);
   };
   const refreshInBackground=()=>{const sequence=++syncSequence.current;setSyncing(true);void refresh().finally(()=>{if(sequence===syncSequence.current)setSyncing(false);});};
+  const [reconnecting,setReconnecting]=useState(false);
+  const reconnect=async()=>{
+    if(reconnecting||busy||commandInFlight.current||fastChanges.length||orderChanges.length)return;
+    setReconnecting(true);setActionError(null);
+    try{await refresh(true);}catch{setActionError("تعذر الاتصال. حاول مجددًا.");}
+    finally{setReconnecting(false);}
+  };
 
   useEffect(() => {
     if (initialResult === undefined || initialWorkspace === undefined) {
@@ -2930,12 +2937,12 @@ export function NoorPersonalApplicationView({ initialResult, initialWorkspace }:
   } else if (result.kind === "setup-required") {
     content = <StatePage copy="يلزم استكمال إعداد الموقع وسياسة الصلاة قبل بدء يوم نور." title="الإعداد مطلوب" />;
   } else if (result.kind === "unavailable" || !view) {
-    content = <StatePage copy="تعذر تحميل بيانات نور حاليًا." title="الخدمة غير متاحة" />;
+    content = <section className="np-reconnect-state-r296" role="status"><StatePage copy="تعذر الاتصال بالخادم." title="الاتصال متوقف" /><button data-testid="r296-reconnect" type="button" disabled={reconnecting||busy||fastChanges.length>0||orderChanges.length>0} onClick={()=>{void reconnect();}}>{reconnecting?"جارٍ الاتصال…":"إعادة الاتصال"}</button></section>;
   } else {
     const defaultStartDate = civilLocalDate(nowMs, view.timeZone);
     content = controlOpen
       ? <>{actionError ? <p className="np-action-error" role="alert">{actionError}</p> : null}<ControlCenter orderingPending={orderChanges.length>0} appearance={appearance} onAppearance={chooseAppearance} timeZone={view.timeZone} timePreferences={timePreferences} onTimePreferences={chooseTimePreferences} onLocationCommit={commitAccountLocation} executions={[...view.tasks,...view.habits]} busy={busy} defaultStartDate={defaultStartDate} onClose={() => setControlOpen(false)} onLogout={()=>{void signOut();}} logoutPending={logoutPending} onCommand={controlCommand} workspace={workspace} /></>
-      : <Dashboard actionError={actionError} busy={busy&&!fastChanges.length&&!orderChanges.length} pendingIds={fastChanges.map(c=>c.executionId)} lockedIds={fastChanges.filter(c=>c.command.type==='record-activity'&&(c.command.amount>0||c.command.endReason!==null)||c.command.type==='record-historical-progress'&&c.command.amount>0).map(c=>c.executionId)} nowMs={nowMs} timePreferences={timePreferences} onTimePreferencesChange={chooseTimePreferences} onCommand={fastCommand} onHistoryCommand={fastCommand} onOpenControl={() => setControlOpen(true)} onLogout={()=>{void signOut();}} logoutPending={logoutPending} view={view} workspace={workspace} />;
+      : <Dashboard actionError={actionError} busy={busy&&!fastChanges.length&&!orderChanges.length} pendingIds={fastChanges.map(c=>c.executionId)} lockedIds={fastChanges.filter(c=>c.command.type==='record-activity'&&(c.command.amount>0||c.command.endReason!==null)||c.command.type==='record-historical-progress'&&c.command.amount>0).map(c=>c.executionId)} nowMs={nowMs} timePreferences={timePreferences} onTimePreferencesChange={chooseTimePreferences} onCommand={fastCommand} onHistoryCommand={fastCommand} onOpenControl={() => setControlOpen(true)} onRefresh={()=>{void reconnect();}} reconnecting={reconnecting} view={view} workspace={workspace} />;
   }
 
   return <><style>{PAGE_STYLES+TASK_SESSION_STYLES_R254+`.np-page .np-cc-inline-detail .nts-list-body{max-height:none;overflow-y:visible}
@@ -2943,9 +2950,26 @@ export function NoorPersonalApplicationView({ initialResult, initialWorkspace }:
   .np-page .np-cc-header .np-cc-header-logo .np-platform-logo{display:block;width:100%;height:100%;object-fit:contain;object-position:center;border-radius:50%;margin:0}
   .np-page .np-cc-header-actions{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:8px;margin-inline-start:auto}
   .np-page .np-topbar .np-top-actions{gap:7px}
-  .np-page .np-topbar .np-signout-icon-r269{width:44px;height:44px;border-radius:13px;box-shadow:none;color:var(--text)}
-  .np-page .np-topbar .np-signout-icon-r269 svg{width:20px;height:20px}
-  @media(max-width:700px){.np-page .np-cc-header{flex-wrap:wrap}.np-page .np-cc-header .np-cc-header-logo{width:48px;height:48px;flex-basis:48px}.np-page .np-cc-header-actions{width:100%;justify-content:flex-start}.np-page .np-topbar .np-top-actions{gap:5px}.np-page .np-topbar .np-signout-icon-r269{width:38px;height:38px}}
+  .np-page .np-reconnect-r296{width:44px;height:44px;border-radius:13px;box-shadow:none;color:var(--text)}
+  .np-page .np-reconnect-r296 svg{width:20px;height:20px}
+  .np-page .np-reconnect-state-r296{display:grid;justify-items:center;gap:12px;padding:30px 0}
+  .np-page .np-reconnect-state-r296>button{padding:12px 24px;border:1px solid var(--border-strong);border-radius:12px;background:var(--text);color:#fff;font:inherit;cursor:pointer}
+  .np-page .np-beverages-r294{max-width:720px;width:100%;gap:8px;padding:12px 16px;border-radius:18px;box-shadow:0 6px 22px #102a4310}
+  .np-page .np-beverages-head-r294 h2{font-size:15px}
+  .np-page .np-caffeine-summary-r295{grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center}
+  .np-page .np-caffeine-tally-r295{gap:5px}
+  .np-page .np-caffeine-tally-r295>div{padding:5px 7px;gap:0;background:transparent;border:0}
+  .np-page .np-caffeine-tally-r295 strong{font-size:18px}
+  .np-page .np-caffeine-signal-r295{padding:7px 9px;gap:5px;flex-wrap:nowrap}
+  .np-page .np-caffeine-signal-r295 strong{font-size:11px;white-space:nowrap}
+  .np-page .np-caffeine-controls-r295{padding:0}
+  .np-page .np-caffeine-options-r296{margin-inline-start:auto}
+  .np-page .np-caffeine-settings-r296{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding-top:8px}
+  .np-page .np-caffeine-options-r296 summary,.np-page .np-beverages-detail-r296 summary,.np-page .np-caffeine-recent-r296 summary{cursor:pointer;color:var(--muted);font-size:12px;list-style:none}
+  .np-page .np-caffeine-options-r296 summary::-webkit-details-marker,.np-page .np-beverages-detail-r296 summary::-webkit-details-marker,.np-page .np-caffeine-recent-r296 summary::-webkit-details-marker{display:none}
+  .np-page .np-beverages-detail-r296[open],.np-page .np-caffeine-recent-r296[open]{border-top:1px solid var(--border);padding-top:8px}
+  .np-page .np-beverages-list-r294,.np-page .np-caffeine-history-r295{margin-top:8px}
+  @media(max-width:700px){.np-page .np-cc-header{flex-wrap:wrap}.np-page .np-cc-header .np-cc-header-logo{width:48px;height:48px;flex-basis:48px}.np-page .np-cc-header-actions{width:100%;justify-content:flex-start}.np-page .np-topbar .np-top-actions{gap:5px}.np-page .np-topbar .np-reconnect-r296{width:38px;height:38px}.np-page .np-caffeine-signal-r295 strong{font-size:10px}.np-page .np-beverages-r294{padding:10px}.np-page .np-caffeine-tally-r295 strong{font-size:16px}}
   `}</style><section className={`np-page${!result ? " np-page-entry-loading" : result.kind === "success" ? " np-page-entry-ready" : ""}`} data-appearance={appearance} data-design-version="r62-visible-layout-fix" dir="rtl"><div className="np-wrap"><div className="np-save-notices" data-save-feedback="classic-achievement-r95">{orderError?<p className="np-failed-save" role="alert">{orderError}</p>:null}{failedChanges.map((change,i)=><div className="np-failed-save" role="alert" key={fastFailureKey(change)}><span>لم يتأكد الحفظ: {change.title}. تم إرجاع العرض لآخر بيانات مؤكدة.</span>{change.command.type==='edit-activity-note'?<p>{change.command.note??'حذف الملاحظة'}</p>:null}{change.command.type==='record-activity'||change.command.type==='record-historical-progress'?<p>{change.command.note}{change.command.amount>0?` · الكمية: ${change.command.amount}`:''}</p>:null}<button type="button" disabled={fastChanges.some(c=>c.executionId===change.executionId)} onClick={()=>{setFailedChanges(previous=>previous.filter((_,j)=>j!==i));void fastCommand(change.command);}}>إعادة المحاولة</button><button type="button" onClick={()=>setFailedChanges(previous=>previous.filter((_,j)=>j!==i))}>تجاهل التغيير غير المحفوظ</button></div>)}</div>{content}</div></section></>;
 }
 
