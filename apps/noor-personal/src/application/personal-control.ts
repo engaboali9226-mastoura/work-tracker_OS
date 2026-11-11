@@ -35,7 +35,7 @@ export type PersonalCommand =
     | Readonly<{type:"edit-task-session-note";definitionId:string;taskSessionId:string;expectedRevision:number;note:string}>
     | Readonly<{type:"record-task-session-progress";executionId:string;taskSessionId:string;entryId:string;amount:number;note:string}>
     | Readonly<{type:"complete-task-session";executionId:string;taskSessionId:string;entryId:string}>
-    | Readonly<{type:"adjust-beverage-serving";executionId:string;entryId:string;delta:1|-1}>
+    | Readonly<{type:"adjust-beverage-serving";executionId:string;entryId:string;delta:1|-1;beverageTime?:string}>
     | Readonly<{type:"set-account-location";requestId:string;expectedRevisionId:string;city:{name:string;country:string;latitude:number;longitude:number;timeZone:string}}>
     | Readonly<{type:"correct-historical-execution";executionId:string;localDate:LocalDate;expectedStatus:ExecutionStatus;completed:boolean}>
     | Readonly<{type:"record-historical-progress";executionId:string;localDate:LocalDate;entryId:string;note:string;amount:number}>
@@ -333,10 +333,13 @@ export function parsePersonalCommand(
         return {type:"complete-task-session",executionId:value.executionId,taskSessionId:value.taskSessionId,entryId:value.entryId};
     }
     if(value.type==="adjust-beverage-serving"){
-        if(!exactKeys(value,["type","executionId","entryId","delta"])||
+        if(!exactKeys(value,["type","executionId","entryId","delta",...(Object.hasOwn(value,"beverageTime")?["beverageTime"]:[])])||
            !boundedIdentifier(value.executionId)||!boundedIdentifier(value.entryId)||
-           (value.delta!==1&&value.delta!==-1))return null;
-        return {type:"adjust-beverage-serving",executionId:value.executionId,entryId:value.entryId,delta:value.delta};
+           (value.delta!==1&&value.delta!==-1)||
+           (Object.hasOwn(value,"beverageTime")&&(value.delta!==1||typeof value.beverageTime!=="string"||
+           !/^([01]\d|2[0-3]):[0-5]\d$/.test(value.beverageTime))))return null;
+        return {type:"adjust-beverage-serving",executionId:value.executionId,entryId:value.entryId,delta:value.delta,
+            ...(typeof value.beverageTime==="string"?{beverageTime:value.beverageTime}:{})};
     }
     if(value.type==="finance"){
         if(!exactKeys(value,["type","operation"]))return null;
@@ -430,10 +433,15 @@ export function parsePersonalCommand(
         if(Object.hasOwn(value,"beveragePlan")){
             const source=value.beveragePlan;
             if(source===null)beveragePlan=null;
-            else if(isRecord(source)&&exactKeys(source,["targetServings",...(Object.hasOwn(source,"servingMl")?["servingMl"]:[])])&&
+            else if(isRecord(source)&&exactKeys(source,["targetServings",...(Object.hasOwn(source,"servingMl")?["servingMl"]:[]),
+                ...(Object.hasOwn(source,"kind")?["kind"]:[]),...(Object.hasOwn(source,"sleepTime")?["sleepTime"]:[])])&&
                 Number.isInteger(source.targetServings)&&Number(source.targetServings)>=1&&Number(source.targetServings)<=30&&
-                (source.servingMl===undefined||Number.isInteger(source.servingMl)&&Number(source.servingMl)>=1&&Number(source.servingMl)<=2000))
-                beveragePlan={targetServings:source.targetServings as number,...(source.servingMl!==undefined?{servingMl:source.servingMl as number}:{})};
+                (source.servingMl===undefined||Number.isInteger(source.servingMl)&&Number(source.servingMl)>=1&&Number(source.servingMl)<=2000)&&
+                (source.kind===undefined||["coffee","tea","other"].includes(String(source.kind)))&&
+                (source.sleepTime===undefined||typeof source.sleepTime==="string"&&/^([01]\d|2[0-3]):[0-5]\d$/.test(source.sleepTime)))
+                beveragePlan={targetServings:source.targetServings as number,...(source.servingMl!==undefined?{servingMl:source.servingMl as number}:{}),
+                    ...(typeof source.kind==="string"?{kind:source.kind as BeverageHabitPlan["kind"]}:{}),
+                    ...(typeof source.sleepTime==="string"?{sleepTime:source.sleepTime}:{})};
             else return null;
         }
         if(Object.hasOwn(value,"beveragePlan")&&
@@ -924,7 +932,7 @@ export class PersonalCommandService {
                     if(!definition?.beveragePlan||definition.state!=="Active")throw new PersonalControlError("DEFINITION_STATE_CONFLICT");
                     const log=definition.activityLog??[],prior=log.find(e=>e.id===parsed.entryId);
                     if(prior){
-                        if(prior.executionId!==instance.id||prior.amount!==parsed.delta||prior.note!==""||prior.endReason!==null)
+                        if(prior.executionId!==instance.id||prior.amount!==parsed.delta||prior.note!==""||prior.endReason!==null||(prior.beverageTime??null)!==(parsed.beverageTime??null))
                             throw new Error("BEVERAGE_ENTRY_ID_CONFLICT");
                         return;
                     }
@@ -938,8 +946,7 @@ export class PersonalCommandService {
                     const next=previous+parsed.delta;
                     if(!Number.isSafeInteger(previous)||!Number.isSafeInteger(next)||next<0||next>60)
                         throw new Error("BEVERAGE_DAILY_COUNT_OUT_OF_RANGE");
-                    const entry={id:parsed.entryId,executionId:instance.id,localDate:day.boundary.localDate,at:now,
-                        note:"",amount:parsed.delta,endReason:null};
+                    const entry={id:parsed.entryId,executionId:instance.id,localDate:day.boundary.localDate,at:now,\n                         note:"",amount:parsed.delta,endReason:null,...(parsed.beverageTime?{beverageTime:parsed.beverageTime}:{})};
                     transaction.saveDefinition({...definition,activityLog:[...log,entry]});
                     const status:ExecutionStatus=next>=definition.beveragePlan.targetServings?"Completed":defaultOpenStatus(instance);
                     if(instance.status!==status){
