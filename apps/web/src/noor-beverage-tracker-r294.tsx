@@ -129,7 +129,7 @@ export function NoorBeverageTrackerR294({rows,allNames=[],localDate,busy,onComma
   const first=rows[0];
   if(!first){setError("أضف مشروبًا أولًا لحفظ موعد النوم في حسابك.");return;}
   if(first.plan.sleepTime===bedtime)return;
-  await run(buildDefinition(first,{...first.plan,sleepTime:bedtime}),
+  await run({type:"set-beverage-bedtime",sleepTime:bedtime},
     "تعذر حفظ وقت النوم. حاول مجددًا، وستظل القيمة السابقة معتمدة حتى نجاح الحفظ.");
  };
  return <section className="np-card np-beverages-r294" data-testid="r294-beverage-tracker" aria-label="سجل المشروبات اليومي">
