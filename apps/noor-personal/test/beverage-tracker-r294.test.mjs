@@ -155,3 +155,28 @@ test("R295: owner-selected serving time is persisted separately from server audi
  assert.equal(f.drink().activityLog?.[1]?.beverageTime,undefined);
  assert.equal(f.drink().activityLog?.reduce((n,e)=>n+e.amount,0),0);
 });
+
+
+test("R295: bedtime is one atomic owner-scoped setting across coffee and tea, preserving separate logs",async()=>{
+ const teaDef={...base,id:"tea-id",revisionId:"tea-rev",title:"شاي",
+  beveragePlan:{targetServings:1,kind:"tea",sleepTime:"00:00"},activityLog:[]};
+ const otherOwner={...base,id:"foreign-id",userId:"someone-else",revisionId:"foreign-rev",
+  beveragePlan:{targetServings:2,kind:"coffee",sleepTime:"22:30"}};
+ const f=fixture([{...base,beveragePlan:{targetServings:2,kind:"coffee",sleepTime:"00:00"}},teaDef,otherOwner]);
+ const command={type:"set-beverage-bedtime",sleepTime:"23:15"};
+ assert.deepEqual(parsePersonalCommand(command),command);
+ for(const wrong of ["24:00","6:00","23:60",null,10]){
+  assert.equal(parsePersonalCommand({...command,sleepTime:wrong}),null);
+ }
+ assert.equal(parsePersonalCommand({...command,foreign:"value"}),null);
+ await f.service.execute("owner",parsePersonalCommand(cmd("old-first")));
+ await f.service.execute("owner",parsePersonalCommand(command));
+ const defs=f.store.snapshot().definitions;
+ assert.equal(defs.find(d=>d.id==="coffee-id").beveragePlan.sleepTime,"23:15");
+ assert.equal(defs.find(d=>d.id==="tea-id").beveragePlan.sleepTime,"23:15");
+ assert.equal(defs.find(d=>d.id==="foreign-id").beveragePlan.sleepTime,"22:30");
+ assert.equal(defs.find(d=>d.id==="coffee-id").activityLog.length,1);
+ const revised=defs.find(d=>d.id==="coffee-id").revisionId;
+ await f.service.execute("owner",parsePersonalCommand(command));
+ assert.equal(f.store.snapshot().definitions.find(d=>d.id==="coffee-id").revisionId,revised,"same bedtime is idempotent");
+});
