@@ -1,0 +1,66 @@
+name: NOOR Live Release Attestation
+
+on:
+  push:
+    branches:
+      - product/noor-personal-mvp
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Newer releases supersede pending checks against obsolete commit IDs.
+concurrency:
+  group: noor-live-release-attestation
+  cancel-in-progress: true
+
+jobs:
+  verify-live:
+    name: Verify public Render release fingerprint and static routes
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Await verified published SHA without account access
+        env:
+          EXPECTED_SHA: ${{ github.sha }}
+          ORIGIN: https://noor-personal.onrender.com
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ ! "$EXPECTED_SHA" =~ ^[a-f0-9]{40}$ ]]; then
+            echo "::error::Invalid expected Git SHA from GitHub."
+            exit 1
+          fi
+
+          # Only GET/HEAD public URLs. No cookies, credentials, user data or deployment tokens.
+          matched=0
+          for attempt in $(seq 1 12); do
+            headers="$(mktemp)"
+            status="$(curl --silent --show-error --head --connect-timeout 10 --max-time 25 --dump-header "$headers" --output /dev/null --write-out '%{http_code}' "$ORIGIN/healthz")" || status="000"
+            actual="$(tr -d '\r' < "$headers" | awk 'tolower($1)=="x-noor-release-sha:" {print $2}' | tail -n 1)"
+            rm -f "$headers"
+            echo "NOOR live attestation attempt $attempt: HTTP $status; revision ${actual:-missing}"
+            if [[ "$status" == "200" && "$actual" == "$EXPECTED_SHA" ]]; then
+              matched=1
+              break
+            fi
+            if [[ "$attempt" != "12" ]]; then sleep 20; fi
+          done
+          if [[ "$matched" != "1" ]]; then
+            echo "::error::Render LIVE Git SHA did not match the canonical branch within the bounded probe. Release remains unverified; inspect service deploy history."
+            exit 1
+          fi
+
+          echo "NOOR deployment revision matches canonical commit: $EXPECTED_SHA"
+          for resource in "/" "/noor-personal" "/noor-service-worker.js" "/noor.webmanifest"; do
+            accept="text/html"
+            if [[ "$resource" == "/noor-service-worker.js" ]]; then accept="text/javascript"; fi
+            if [[ "$resource" == "/noor.webmanifest" ]]; then accept="application/manifest+json"; fi
+            code="$(curl --silent --show-error --connect-timeout 10 --max-time 25 --location --header "Accept: $accept" --output /dev/null --write-out '%{http_code}' "$ORIGIN$resource")"
+            echo "NOOR public route $resource: HTTP $code"
+            if [[ "$code" != "200" ]]; then
+              echo "::error::Unexpected status on $resource; Render live acceptance is not complete."
+              exit 1
+            fi
+          done
+          echo "NOOR public release attestation PASS (not an authenticated mobile acceptance test)."
