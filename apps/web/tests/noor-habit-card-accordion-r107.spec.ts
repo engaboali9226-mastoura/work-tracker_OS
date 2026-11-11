@@ -38,7 +38,7 @@ test("R107: full existing completion and note controls remain mounted inside exp
   assert.ok(source.includes('className="np-list">{items.map(({execution:item,definition})=><ActivityCard'));
   assert.ok(source.includes('busy={busy||lockedIds.includes(item.id)}'));
   assert.ok(source.includes('pending={pendingIds.includes(item.id)}'));
-  assert.ok(source.includes('onCommand={historyDate?historicalCommand:onCommand} historicalDate={historyDate}/>)}</div>'));
+  assert.ok(source.includes('onCommand={historyDate?historicalCommand:onCommand} historicalDate={historyDate} todayDate={view.localDate??undefined}/>)}</div>'));
   assert.ok(source.includes('data-habit-layout="tracker-r76"'));
   assert.ok(source.includes('habitCardDisplayTitle(category)'));
   assert.ok(!source.includes('np-card-scroll-hint'));
