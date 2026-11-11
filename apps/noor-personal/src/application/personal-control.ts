@@ -946,7 +946,8 @@ export class PersonalCommandService {
                     const next=previous+parsed.delta;
                     if(!Number.isSafeInteger(previous)||!Number.isSafeInteger(next)||next<0||next>60)
                         throw new Error("BEVERAGE_DAILY_COUNT_OUT_OF_RANGE");
-                    const entry={id:parsed.entryId,executionId:instance.id,localDate:day.boundary.localDate,at:now,\n                         note:"",amount:parsed.delta,endReason:null,...(parsed.beverageTime?{beverageTime:parsed.beverageTime}:{})};
+                    const entry={id:parsed.entryId,executionId:instance.id,localDate:day.boundary.localDate,at:now,
+                         note:"",amount:parsed.delta,endReason:null,...(parsed.beverageTime?{beverageTime:parsed.beverageTime}:{})};
                     transaction.saveDefinition({...definition,activityLog:[...log,entry]});
                     const status:ExecutionStatus=next>=definition.beveragePlan.targetServings?"Completed":defaultOpenStatus(instance);
                     if(instance.status!==status){
