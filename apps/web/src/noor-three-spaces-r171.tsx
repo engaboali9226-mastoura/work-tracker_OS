@@ -190,7 +190,7 @@ const STYLES=`
 .nr171-form :is(input,select,textarea)::placeholder{color:var(--nr-muted);opacity:.8}
 .nr171-form :is(input,select,textarea):hover{border-color:var(--nr-muted)}
 .nr171-form :is(input,select,textarea):focus{outline:0;border-color:var(--nr-ring);box-shadow:0 0 0 3px rgba(71,139,174,.20)}
-.nr171-form textarea{resize:vertical;min-height:105px;max-height:45vh;line-height:1.85}
+.nr171-form textarea{resize:vertical;min-height:105px;max-height:45vh;line-height:1.85;direction:rtl;text-align:start;unicode-bidi:normal;white-space:pre-wrap;overflow-wrap:anywhere}
 .nr171-form textarea[name=body]{min-height:162px}
 .nr171-form select{appearance:auto;cursor:pointer}
 .nr171-modal button{border-radius:11px;border:1px solid var(--nr-line);background:var(--nr-surface);color:var(--nr-primary);font-size:13px;font-weight:650;transition:background .16s ease,border-color .16s ease,transform .16s ease;min-height:44px}
@@ -336,6 +336,16 @@ export function NoorThreeSpacesR171({personalDate,storage=indexedNotesR173,trust
  const show=(kind:SpaceKindR171,event:import('react').MouseEvent<HTMLButtonElement>)=>{
   opener.current=event.currentTarget;setActive(kind);setView(kind==='feelings'&&r202Production?'history':'add');setError('');setConfirmDelete(null);setStatus('');
  };
+ // R289: My Space is the only production entry for legacy feelings.
+ // Read the same owner-scoped journal; never copy/migrate/delete archived notes.
+ useEffect(()=>{
+  if(typeof document==="undefined")return;
+  const openArchive=()=>{
+   setActive("feelings");setView("history");setError("");setConfirmDelete(null);setStatus("");
+  };
+  document.addEventListener("noor:open-legacy-feelings",openArchive);
+  return()=>document.removeEventListener("noor:open-legacy-feelings",openArchive);
+ },[]);
  const close=()=>{setActive(null);setError('');setConfirmDelete(null);};
  const save=async(event:FormEvent<HTMLFormElement>)=>{
   event.preventDefault();if(!active||saving)return;
@@ -419,7 +429,7 @@ export function NoorThreeSpacesR171({personalDate,storage=indexedNotesR173,trust
   if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first?.focus();}
  };
  return <><style>{STYLES}</style><div className="nr171-shortcuts" aria-label="مساحات التدوين في إنجاز اليوم" data-testid="noor-three-spaces-r171">
-  {(['feelings','ideas','developer'] as const).map(kind=><button key={kind} type="button" className={`nr171-shortcut nr171-${kind}`} data-testid={`r171-shortcut-${kind}`} onClick={event=>show(kind,event)} aria-label={`فتح ${TITLES_R171[kind]} وإضافة أو مراجعة التدوينات${kind==="feelings"&&r202Production?" — السجل السابق فقط":""}`}>
+  {(r202Production?(['ideas','developer'] as const):(['feelings','ideas','developer'] as const)).map(kind=><button key={kind} type="button" className={`nr171-shortcut nr171-${kind}`} data-testid={`r171-shortcut-${kind}`} onClick={event=>show(kind,event)} aria-label={`فتح ${TITLES_R171[kind]} وإضافة أو مراجعة التدوينات${kind==="feelings"&&r202Production?" — السجل السابق فقط":""}`}>
    <span className="nr171-icon" aria-hidden="true">{kind==='feelings'?<svg className="nr180-symbol" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M20.3 9.1c0 4-5.1 8.1-8.3 10.5C8.8 17.2 3.7 13.1 3.7 9.1a4.7 4.7 0 0 1 8.3-3 4.7 4.7 0 0 1 8.3 3Z"/></svg>:kind==='ideas'?<svg className="nr180-symbol" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M9 17.2h6m-5.1 2.9h4.2M12 2.7a6.3 6.3 0 0 0-3.6 11.4c.7.5 1.2 1.4 1.3 2.3h4.6c.1-.9.6-1.8 1.3-2.3A6.3 6.3 0 0 0 12 2.7Z"/></svg>:<svg className="nr180-symbol" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M4 6h16M4 12h16M4 18h16"/><circle cx="9" cy="6" r="2" fill="var(--nr180-surface,#fffefa)"/><circle cx="16" cy="12" r="2" fill="var(--nr180-surface,#fffefa)"/><circle cx="11" cy="18" r="2" fill="var(--nr180-surface,#fffefa)"/></svg>}</span>
 
   </button>)}
@@ -431,11 +441,11 @@ export function NoorThreeSpacesR171({personalDate,storage=indexedNotesR173,trust
    <nav className="nr171-tabs" role="tablist" aria-label="إضافة أو سجل المساحة">{!legacyFeelingsArchiveR285?<button role="tab" type="button" aria-selected={view==='add'} onClick={()=>{setView('add');setError('');}}>إضافة جديدة</button>:null}<button role="tab" type="button" aria-selected={view==='history'} onClick={()=>{setView('history');setError('');}}>السجل السابق ({current.length})</button></nav>
    <div className="nr171-scroll"><p className="nr171-info" role="note">{closed?'التدوينات الخاصة غير متاحة مؤقتًا في هذا الإصدار حتى اعتماد التخزين المشفّر المرتبط بحسابك. لن تُحفظ بياناتك في هذا المتصفح، ولم تُحذف أي تدوينات محلية قديمة.':trustedJournal?'مختبر الخدمة الموثوقة: تُرسل هذه التدوينة الجديدة فقط إلى خادم المختبر المصرّح به، ولا يتم نقل سجلات IndexedDB القديمة أو حذفها. لا تستخدم بيانات خاصة حتى اعتماد الإصدار النهائي.':'مختبر محلي فقط: السجل يُحفظ في IndexedDB داخل هذا المتصفح دون تشفير أو مزامنة، وقد يراه مستخدم الجهاز. استخدم بيانات تجريبية، ولا تكتب معلومات شديدة الخصوصية. لا يُرسل شيء إلى المطوّر تلقائيًا.'}</p>
    {storageError&&<p className="nr171-error" role="alert">{trustedJournal?'خدمة المختبر الموثوقة غير متاحة. لا يوجد رجوع تلقائي إلى IndexedDB.':'التخزين المحلي غير متاح. لن تُحفظ التدوينات حتى تفعّله.'}</p>}{error&&<p className="nr171-error" role="alert">{error}</p>}{status&&<p className="nr171-status" role="status">{status}</p>}
-   {view==='add'?(closed?<p className="nr171-info" role="status">الحفظ متوقف لحماية خصوصيتك. لن يتم حفظ أي تدوينة محليًا أو إرسالها للخادم في هذا الوضع.</p>:legacyFeelingsArchiveR285?<p className="nr171-info" role="status">التدوين الجديد عبر «مساحتي» فقط؛ السجل القديم لم يُحذف.</p>:<form className="nr171-form" key={active} onSubmit={save} data-testid={`r171-form-${active}`}>
+   {view==='add'?(closed?<p className="nr171-info" role="status">الحفظ متوقف لحماية خصوصيتك. لن يتم حفظ أي تدوينة محليًا أو إرسالها للخادم في هذا الوضع.</p>:legacyFeelingsArchiveR285?<p className="nr171-info" role="status">التدوين الجديد عبر «مساحتي» فقط؛ السجل القديم لم يُحذف.</p>:<form className="nr171-form" dir="rtl" key={active} onSubmit={save} data-testid={`r171-form-${active}`}>
     <label>عنوان مختصر *<input name="title" maxLength={100} placeholder={active==='feelings'?'مثلًا: شعور بالراحة بعد الصلاة':active==='ideas'?'عنوان الفكرة':'ملخص المقترح'} required/></label>
-    {active==='feelings'?<><label>كيف كان شعورك؟<select name="mood" defaultValue="3" required><option value="1">1 — صعب جدًا</option><option value="2">2 — غير مريح</option><option value="3">3 — متوازن</option><option value="4">4 — جيد</option><option value="5">5 — جيد جدًا</option></select></label><label>ما الحدث الذي سبق ذلك الشعور؟<textarea name="precedingEvent" maxLength={500} rows={2} placeholder="صف ما حدث قبل أن تشعر بهذه الطريقة"/></label><label>ماذا شعرت أو فكّرت؟ *<textarea name="body" maxLength={4000} rows={4} required placeholder="مساحة حرة لكتابة ما بداخلك"/></label><label>ما الذي ساعدني أو قد يساعدني؟ (اختياري)<textarea name="helpful" maxLength={500} rows={2}/></label></>:<>
+    {active==='feelings'?<><label>كيف كان شعورك؟<select name="mood" defaultValue="3" required><option value="1">1 — صعب جدًا</option><option value="2">2 — غير مريح</option><option value="3">3 — متوازن</option><option value="4">4 — جيد</option><option value="5">5 — جيد جدًا</option></select></label><label>ما الحدث الذي سبق ذلك الشعور؟<textarea dir="rtl" name="precedingEvent" maxLength={500} rows={2} placeholder="صف ما حدث قبل أن تشعر بهذه الطريقة"/></label><label>ماذا شعرت أو فكّرت؟ *<textarea dir="rtl" name="body" maxLength={4000} rows={4} required placeholder="مساحة حرة لكتابة ما بداخلك"/></label><label>ما الذي ساعدني أو قد يساعدني؟ (اختياري)<textarea dir="rtl" name="helpful" maxLength={500} rows={2}/></label></>:<>
      {active==='developer'&&<label>نوع المقترح<select name="category" defaultValue="improvement"><option value="improvement">اقتراح تطوير</option><option value="issue">ملاحظة / مشكلة</option><option value="efficiency">زيادة الفاعلية</option><option value="ux">تحسين تجربة الاستخدام</option><option value="other">أخرى</option></select></label>}
-     <label>{active==='ideas'?'تفاصيل الفكرة *':'وصف المشكلة أو المقترح *'}<textarea name="body" maxLength={4000} rows={5} required placeholder={active==='ideas'?'ما الفكرة؟ وما أول خطوة لتجربتها؟':'ما الذي يحتاج التحسين؟ وكيف تتصور الحل؟'}/></label>
+     <label>{active==='ideas'?'تفاصيل الفكرة *':'وصف المشكلة أو المقترح *'}<textarea dir="rtl" name="body" dir="rtl" maxLength={4000} rows={5} required placeholder={active==='ideas'?'ما الفكرة؟ وما أول خطوة لتجربتها؟':'ما الذي يحتاج التحسين؟ وكيف تتصور الحل؟'}/></label>
      {active==='developer'&&<label className="nr171-check"><input type="checkbox" name="shareApproved"/><span>أوافق على تضمين هذا المقترح وحده في ملف أُصدّره يدويًا للمطوّر لاحقًا. لا يسمح ذلك بمشاركة مشاعري أو أفكاري الشخصية.</span></label>}
      {active==='developer'&&<section className="nr171-github-public" aria-label="نشر مقترح على GitHub">
       <p role="note"><strong>تطوير نور عبر GitHub Issues:</strong> مستودع نور عام؛ لا ترسل كلمات مرور أو بيانات شخصية أو تدوينات خاصة. لن تُرسل الملاحظة تلقائيًا عند الحفظ في نور.</p>

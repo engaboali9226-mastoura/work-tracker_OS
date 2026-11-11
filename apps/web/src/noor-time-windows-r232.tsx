@@ -45,7 +45,7 @@ function WindowCard({title,window:interval,nowMs,timeZone,unavailable,showTimer=
     <span className="np-r234-time-point"><small>إلى</small><strong>{clock(interval.endMs,timeZone)}</strong></span>
   </div>
   <div className="np-r234-card-bottom">
-    <span className="np-r234-duration">المدة {duration(interval.durationMs)}</span>
+    <span className="np-r234-duration" data-testid={tone==="day"?"r288-day-total-hours":tone==="night"?"r288-night-total-hours":undefined}>{tone==="day"?"إجمالي ساعات النهار":tone==="night"?"إجمالي ساعات الليل":"المدة"}: {duration(interval.durationMs)}</span>
     {showTimer?<div className="np-r247-timer" role={state.phase==="active"?"timer":"status"} aria-label={state.phase==="finished"?"انتهت الفترة":state.phase==="upcoming"?"لم تبدأ بعد":"الوقت المتبقي"}>
        {state.phase==="active"?<>
          <span className="np-r247-timer-caption">متبقٍ</span>
