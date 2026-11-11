@@ -1,5 +1,7 @@
 import {quranQuarterR289,quranQuarterForDateR289,validQuranPlanR289,type QuranHabitPlanR289} from "./noor-quran-quarters-r289.js";
 import {TaskSessionPlannerR254,TaskSessionListR254,sessionFinishedR254,TASK_SESSION_STYLES_R254,type StoredTaskSessionPlanR254,type StoredTaskSessionR254} from "./noor-task-sessions-r254.js";
+import {NoorBeverageTrackerR294,type BeverageRowR294} from "./noor-beverage-tracker-r294.js";
+import type {NoorBeveragePlanR294} from "./noor-personal-today-client.js";
 import {shouldRefreshNoorOnResume} from "./noor-resume-sync-r259.js";
 import {revokeNoorBrowserSessionR269} from "./noor-session-logout-client-r269.js";
 import type {NoorTaskSessionDraft} from "./noor-personal-today-client.js";
@@ -70,6 +72,7 @@ type DefinitionItem = Readonly<{
   displayOrder?:number;
   timeOfDay?:string;
   quranPlan?:QuranHabitPlanR289;
+  beveragePlan?:NoorBeveragePlanR294;
   revisionId:string;
   measurement?: {target:number;unit:string};
   activityLog: readonly ActivityEntry[];
@@ -957,6 +960,30 @@ const PAGE_STYLES = `
 .np-page .np-habit-help-r288[open]{flex-basis:100%}
 .np-page .np-habit-help-r288-content{padding:8px 10px;border:1px solid var(--border);border-radius:9px;background:var(--panel-soft);color:var(--text);line-height:1.7}
 .np-page .np-habit-help-r288-content p{margin:3px 0;overflow-wrap:anywhere}
+/* NOOR R294 BEVERAGE TRACKER */
+.np-page .np-beverages-r294{display:grid;gap:12px;padding:16px;border:1px solid var(--border);border-radius:16px;margin-top:10px}
+.np-page .np-beverages-head-r294{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.np-page .np-beverages-head-r294 h2{margin:0;font-size:18px}
+.np-page .np-beverages-head-r294 p,.np-page .np-beverages-empty-r294,.np-page .np-beverage-foot-r294{font-size:12px;line-height:1.8;color:var(--muted);margin:2px 0}
+.np-page .np-beverages-r294 button{cursor:pointer;min-height:38px;padding:7px 10px;border-radius:9px;border:1px solid var(--border-strong);background:var(--panel);color:var(--text);font:inherit}
+.np-page .np-beverages-r294 button:disabled{opacity:.5;cursor:default}
+.np-page .np-beverages-form-r294,.np-page .np-beverage-edit-r294{display:flex;gap:9px;flex-wrap:wrap;align-items:end;background:var(--panel-soft);padding:11px;border-radius:11px}
+.np-page .np-beverages-form-r294 label,.np-page .np-beverage-edit-r294 label{display:grid;gap:5px;flex:1 1 140px;font-size:12px}
+.np-page .np-beverages-r294 input{width:100%;box-sizing:border-box;min-height:40px;border:1px solid var(--border-strong);background:var(--panel);color:var(--text);border-radius:8px;padding:7px;font:inherit;min-width:0}
+.np-page .np-beverages-suggest-r294{display:flex;flex-wrap:wrap;gap:6px;width:100%}
+.np-page .np-beverages-list-r294{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:9px}
+.np-page .np-beverage-row-r294{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;background:var(--panel-soft);padding:11px;border:1px solid var(--border);border-radius:11px;min-width:0}
+.np-page .np-beverage-title-r294{display:grid;gap:4px;flex:1 1 110px;min-width:0}
+.np-page .np-beverage-title-r294 strong{font-size:14px}
+.np-page .np-beverage-title-r294 small{font-size:11px;color:var(--muted)}
+.np-page .np-beverage-title-r294 progress{width:100%;height:6px;accent-color:var(--gold)}
+.np-page .np-beverage-actions-r294{display:flex;align-items:center;gap:7px;flex-wrap:wrap;justify-content:flex-end}
+.np-page .np-beverage-actions-r294>button{min-width:38px}
+.np-page .np-beverage-actions-r294 span{font-size:11px;color:var(--muted)}
+.np-page .np-beverage-actions-r294 span.np-beverage-goal-r294{color:var(--text)}
+.np-page .np-beverage-edit-r294{flex-basis:100%}
+.np-page .np-beverage-error-r294{color:#a43f49;font-size:12px}
+@media(max-width:700px){.np-page .np-beverages-r294{padding:12px}.np-page .np-beverages-list-r294{grid-template-columns:minmax(0,1fr)}}
 .np-page .np-definition-description-r293{white-space:pre-wrap;overflow-wrap:anywhere;unicode-bidi:plaintext;line-height:1.8}
 /* NOOR_COLLAPSIBLE_HABIT_CARDS_R107_BEGIN */
 /* Replace masonry with stable aligned rows for compact CLOSED categories. */
@@ -1410,7 +1437,12 @@ function definitionItems(value: unknown): readonly DefinitionItem[] | null {
     const taskGeneralNote=typeof item.taskGeneralNote==="string"&&item.taskGeneralNote.length<=10000?item.taskGeneralNote:undefined;
     const description=typeof item.description==="string"&&item.description.length<=2000?item.description:undefined;
     const quranPlan=kind==="Habit"&&validQuranPlanR289(item.quranPlan)?item.quranPlan:undefined;
-    result.push({ weight:typeof item.weight==="number"&&item.weight>0?item.weight:1,...(typeof item.displayOrder==='number'&&Number.isSafeInteger(item.displayOrder)?{displayOrder:item.displayOrder}:{}),...(typeof item.timeOfDay==='string'?{timeOfDay:item.timeOfDay}:{}),...(quranPlan?{quranPlan}:{}),id, revisionId:stringValue(item.revisionId)??"", title, state, kind, category, scheduleKind, weekdays, startDate, endDate, importance, ...(measurement?{measurement}:{}), ...(sessionPlan?{sessionPlan}:{}), ...(taskGeneralNote!==undefined?{taskGeneralNote}:{}), ...(description!==undefined?{description}:{}), activityLog });
+    const sourceDrink=item.beveragePlan;
+    const beveragePlan:NoorBeveragePlanR294|undefined=kind==="Habit"&&isRecord(sourceDrink)&&
+      Number.isInteger(sourceDrink.targetServings)&&Number(sourceDrink.targetServings)>=1&&Number(sourceDrink.targetServings)<=30&&
+      (sourceDrink.servingMl===undefined||Number.isInteger(sourceDrink.servingMl)&&Number(sourceDrink.servingMl)>=1&&Number(sourceDrink.servingMl)<=2000)
+      ?{targetServings:sourceDrink.targetServings as number,...(sourceDrink.servingMl!==undefined?{servingMl:sourceDrink.servingMl as number}:{})}:undefined;
+    result.push({ weight:typeof item.weight==="number"&&item.weight>0?item.weight:1,...(typeof item.displayOrder==='number'&&Number.isSafeInteger(item.displayOrder)?{displayOrder:item.displayOrder}:{}),...(typeof item.timeOfDay==='string'?{timeOfDay:item.timeOfDay}:{}),...(quranPlan?{quranPlan}:{}),...(beveragePlan?{beveragePlan}:{}),id, revisionId:stringValue(item.revisionId)??"", title, state, kind, category, scheduleKind, weekdays, startDate, endDate, importance, ...(measurement?{measurement}:{}), ...(sessionPlan?{sessionPlan}:{}), ...(taskGeneralNote!==undefined?{taskGeneralNote}:{}), ...(description!==undefined?{description}:{}), activityLog });
   }
   return result;
 }
@@ -1711,6 +1743,8 @@ export function DefinitionForm({busy,onCommand,onSavingChange,defaultStartDate,d
  const quranOptInTouched=useRef(false);
  const quranAnchorTouched=useRef(!!initial?.quranPlan);
  const [quranAnchorDate,setQuranAnchorDate]=useState(initial?.quranPlan?.anchorDate??initial?.startDate??defaultStartDate);
+ const [beverageTarget,setBeverageTarget]=useState(String(initial?.beveragePlan?.targetServings??1));
+ const [beverageMl,setBeverageMl]=useState(initial?.beveragePlan?.servingMl?String(initial.beveragePlan.servingMl):"");
  const [quranFirstQuarter,setQuranFirstQuarter]=useState(initial?.quranPlan?.firstQuarter??1);
  const [quranRepeatOccurrences,setQuranRepeatOccurrences]=useState(initial?.quranPlan?.repeatOccurrences??1);
  const [taskTarget,setTaskTarget]=useState(initial?.measurement?.target?.toString()??"");
@@ -1748,7 +1782,7 @@ export function DefinitionForm({busy,onCommand,onSavingChange,defaultStartDate,d
   if(!noorExistingCategory(selectedCategory,categoryChoices)){setError("اختر تصنيفًا مسجلًا أو أضف تصنيفًا جديدًا أولًا.");return;}
   if(showCategoryAdd){setError("أكمل إضافة التصنيف أو ألغِ إضافة التصنيف قبل حفظ العنصر.");return;}
   const endDate=selectedKind==="Habit"&&duration==="continuous"?null:text("endDate")||null;
-  const fields={weight:Number(text("weight")||initial?.weight||1),...(selectedKind==="Habit"&&text("timeOfDay")?{timeOfDay:text("timeOfDay")}:{}),...(selectedKind==="Habit"&&(quranEnabled||initial?.quranPlan)?{quranPlan:quranEnabled?{anchorDate:quranAnchorDate,firstQuarter:quranFirstQuarter,repeatOccurrences:quranRepeatOccurrences}:null}:{}),kind:selectedKind,title:text("title"),category:selectedCategory,description:text("description"),startDate:text("startDate"),endDate,scheduleKind,weekdays:scheduleKind==="Weekdays"?days:[],importance:text("importance") as "Essential"|"Important"|"Supporting"|"Optional",...(selectedKind==="Task"&&text("progressTarget")?{measurement:{target:Number(text("progressTarget")),unit:text("progressUnit")}}:{}),...(selectedKind==="Task"&&(sessionEnabled||initial?.sessionPlan)?{sessionPlan:sessionEnabled?{distribution:sessionDistribution,sessions:sessionDrafts}:null}:{})};
+  const fields={weight:Number(text("weight")||initial?.weight||1),...(selectedKind==="Habit"&&text("timeOfDay")?{timeOfDay:text("timeOfDay")}:{}),...(selectedKind==="Habit"&&(quranEnabled||initial?.quranPlan)?{quranPlan:quranEnabled?{anchorDate:quranAnchorDate,firstQuarter:quranFirstQuarter,repeatOccurrences:quranRepeatOccurrences}:null}:{}),kind:selectedKind,title:text("title"),category:selectedCategory,description:text("description"),...(initial?.beveragePlan&&selectedKind==="Habit"?{beveragePlan:{targetServings:Number(beverageTarget),...(beverageMl?{servingMl:Number(beverageMl)}:{})}}:{}),startDate:text("startDate"),endDate,scheduleKind,weekdays:scheduleKind==="Weekdays"?days:[],importance:text("importance") as "Essential"|"Important"|"Supporting"|"Optional",...(selectedKind==="Task"&&text("progressTarget")?{measurement:{target:Number(text("progressTarget")),unit:text("progressUnit")}}:{}),...(selectedKind==="Task"&&(sessionEnabled||initial?.sessionPlan)?{sessionPlan:sessionEnabled?{distribution:sessionDistribution,sessions:sessionDrafts}:null}:{})};
   setError("");definitionSaveLock.current=true;onSavingChange?.(true);
   let ok=false;
   try{ok=await onCommand(initial?{...fields,type:"update-definition",definitionId:initial.id,expectedRevisionId:initial.revisionId}:{...fields,type:"create-definition"});}
@@ -1762,7 +1796,8 @@ export function DefinitionForm({busy,onCommand,onSavingChange,defaultStartDate,d
   <div className="np-field full"><label className="np-label" htmlFor="definition-description-r293">الوصف (اختياري) — يظهر عند علامة الاستفهام</label><textarea dir="rtl" id="definition-description-r293" name="description" className="np-input" rows={3} maxLength={2000} defaultValue={initial?.description??""} placeholder="أضف تعليمات تنفيذ العادة أو تفاصيل المهمة…"/></div>
   <div className="np-field" data-testid="definition-category-guard-r163"><label className="np-label" htmlFor="definition-category">التصنيف *</label><select className="np-select" id="definition-category" name="category" required disabled={busy} value={selectedCategory} onChange={event=>{setSelectedCategory(event.currentTarget.value);setError("");}}><option value="" disabled>اختر تصنيفًا موجودًا</option>{categoryChoices.map(category=><option value={category} key={category}>{category}</option>)}</select><button className="np-category-add-trigger-r163" type="button" aria-expanded={showCategoryAdd} disabled={busy} onClick={()=>{setShowCategoryAdd(value=>!value);setNewCategory("");setCategoryError("");setError("");}}>+ التصنيف غير موجود؟ أضف تصنيفًا جديدًا</button>{showCategoryAdd?<div className="np-category-proposal-r163"><label className="np-label" htmlFor="definition-new-category">اسم التصنيف الجديد</label><input id="definition-new-category" className="np-input" maxLength={60} value={newCategory} onInput={event=>{setNewCategory(event.currentTarget.value);setCategoryError("");}} onChange={event=>{setNewCategory(event.currentTarget.value);setCategoryError("");}} placeholder="مثال: تنمية المهارات"/><div className="np-category-proposal-actions-r163"><button type="button" disabled={busy} onClick={()=>{void addCategory();}}>إضافة وتحديد التصنيف</button><button type="button" disabled={busy} onClick={()=>{setShowCategoryAdd(false);setCategoryError("");}}>إلغاء</button></div>{categoryError?<p role="alert" className="np-action-error">{categoryError}</p>:null}</div>:null}</div>
   {selectedKind==='Habit'?<div className="np-field"><label className="np-label" htmlFor="definition-time">موعد تنفيذ العادة (اختياري)</label><input className="np-input" id="definition-time" name="timeOfDay" type="time" defaultValue={initial?.timeOfDay}/><small>مناسب للأدوية والمكملات. موعد للعرض والتنظيم؛ لا يرسل تنبيهًا حاليًا.</small></div>:null}
-  {selectedKind==="Habit"?<div className="np-field full np-quran-plan-r289" data-testid="r289-quran-plan-editor">
+  {initial?.beveragePlan&&selectedKind==="Habit"?<div className="np-field full" data-testid="r294-definition-drink-settings"><strong>عداد المشروب اليومي</strong><p>يُسجل كل كوب في تاريخ يومه، ويكتمل المستهدف تلقائيًا.</p><label>عدد المرات اليومي<input type="number" min="1" max="30" required value={beverageTarget} onChange={e=>setBeverageTarget(e.currentTarget.value)}/></label><label>حجم الحصة بالملليلتر (اختياري)<input type="number" min="1" max="2000" value={beverageMl} onChange={e=>setBeverageMl(e.currentTarget.value)}/></label></div>:null}
+  {selectedKind==="Habit"&&!initial?.beveragePlan?<div className="np-field full np-quran-plan-r289" data-testid="r289-quran-plan-editor">
     <label><input type="checkbox" checked={quranEnabled} disabled={busy} onChange={e=>{quranOptInTouched.current=true;setQuranEnabled(e.currentTarget.checked);}}/> ورد قرآني متتابع: ربع حزب كل يوم استحقاق (للورد والتسميع والمراجعة)</label>
     {quranEnabled?<div className="np-quran-plan-fields-r289">
       <label>تاريخ أول ربع (يبدأ افتراضيًا من بداية استعمال العادة)<input type="date" required value={quranAnchorDate} onChange={e=>{quranAnchorTouched.current=true;setQuranAnchorDate(e.currentTarget.value);}} data-testid="r289-quran-anchor-date"/></label>
@@ -1775,7 +1810,7 @@ export function DefinitionForm({busy,onCommand,onSavingChange,defaultStartDate,d
   {selectedKind==="Habit"?<div className="np-field full"><label className="np-label" htmlFor="definition-duration">مدة العادة</label><select className="np-select" id="definition-duration" value={duration} onChange={e=>{setDuration(e.currentTarget.value);if(e.currentTarget.value==="continuous"&&scheduleKind==="OneTime")setScheduleKind("Daily");}}><option value="continuous">مستمرة — بدون نهاية</option><option value="limited">محددة — بداية ونهاية</option></select><small className="np-cc-help">العادة المستمرة تتكرر وفق جدولها، ويُسجّل إتمامها وملاحظاتها لكل يوم على حدة.</small></div>:null}
   <GregorianDateInput id="definition-start" name="startDate" label="تاريخ البداية الميلادي" required defaultValue={initial?.startDate??defaultStartDate} onValueChange={date=>{setPlannerStartDate(date);if(!quranAnchorTouched.current&&date)setQuranAnchorDate(date);}}/>
   {selectedKind==="Task"||duration==="limited"?<GregorianDateInput id="definition-end" name="endDate" label="تاريخ النهاية الميلادي" required={selectedKind==="Habit"} defaultValue={initial?.endDate??""} onValueChange={setPlannerEndDate}/>:<div className="np-field"><span className="np-label">النهاية</span><p className="np-cc-help">مستمرة حتى توقفها أو تغيّر مدتها.</p></div>}
-  <div className="np-field full"><label className="np-label" htmlFor="definition-repeat">التكرار *</label><select className="np-select" id="definition-repeat" name="scheduleKind" value={scheduleKind} onChange={e=>setScheduleKind(e.currentTarget.value as typeof scheduleKind)}><option value="Daily">يوميًا — 7 أيام في الأسبوع</option><option value="Weekdays">أيام محددة من الأسبوع</option><option value="OneTime" disabled={selectedKind==="Habit"&&duration==="continuous"}>مرة واحدة</option></select></div>
+  <div className="np-field full"><label className="np-label" htmlFor="definition-repeat">التكرار *</label><select className="np-select" id="definition-repeat" name="scheduleKind" disabled={!!initial?.beveragePlan} value={scheduleKind} onChange={e=>setScheduleKind(e.currentTarget.value as typeof scheduleKind)}><option value="Daily">يوميًا — 7 أيام في الأسبوع</option><option value="Weekdays">أيام محددة من الأسبوع</option><option value="OneTime" disabled={selectedKind==="Habit"&&duration==="continuous"}>مرة واحدة</option></select></div>
   {scheduleKind==="Weekdays"?<div className="np-field full"><span className="np-label">أيام التكرار: {days.length} من 7 *</span><div className="np-weekdays">{WEEKDAYS.map(([value,label])=><label className="np-weekday" key={value}><input type="checkbox" name="weekday" value={value} checked={days.includes(value)} onChange={e=>setDays(e.currentTarget.checked?[...days,value].sort():days.filter(d=>d!==value))}/>{label}</label>)}</div></div>:null}
   {selectedKind==="Task"?<><div className="np-field"><label className="np-label" htmlFor="progress-target">الكمية المستهدفة (اختياري)</label><input className="np-input" id="progress-target" name="progressTarget" type="number" min="0.000001" max="1000000000" step="0.000001" value={taskTarget} onChange={e=>setTaskTarget(e.currentTarget.value)}/></div><div className="np-field"><label className="np-label" htmlFor="progress-unit">وحدة الإنجاز</label><input className="np-input" id="progress-unit" name="progressUnit" maxLength={30} value={taskUnit} onChange={e=>setTaskUnit(e.currentTarget.value)}/></div><TaskSessionPlannerR254 enabled={sessionEnabled} setEnabled={setSessionEnabled} distribution={sessionDistribution} setDistribution={setSessionDistribution} sessions={sessionDrafts} setSessions={setSessionDrafts} target={taskTarget?Number(taskTarget):null} unit={taskUnit} busy={busy} parentStartDate={plannerStartDate} parentEndDate={plannerEndDate||null} parentScheduleKind={scheduleKind} parentWeekdays={days}/></>:null}
   <div className="np-field full"><label className="np-label" htmlFor="definition-weight">وزن الإنجاز *</label><input className="np-input" id="definition-weight" name="weight" type="number" min="1" max="100" step="1" required defaultValue={initial?.weight??1}/><small>من 1 إلى 100. مثلًا: وزن 10 يساوي تأثير عشر عادات وزن كل منها 1. التعديل يطبّق على اليوم وما بعده، ويحافظ على أوزان الأيام السابقة.</small></div>
@@ -2292,9 +2327,18 @@ function Dashboard({ view:providedView, workspace, busy, actionError, onCommand,
   const weekFormats=useMemo(()=>({date:new Intl.DateTimeFormat("ar-SA-u-ca-gregory-nu-latn",{day:"numeric",month:"numeric",timeZone:"UTC"}),weekday:new Intl.DateTimeFormat("ar-SA-u-ca-gregory-nu-latn",{weekday:"long",timeZone:"UTC"})}),[]);
   const weekDateLabel=(date:string,weekday=false)=>(weekday?weekFormats.weekday:weekFormats.date).format(new Date(date+"T00:00:00Z"));
 
+  const beverageRows=useMemo<readonly BeverageRowR294[]>(()=>view.habits.flatMap(execution=>{
+    const definition=definitionsById.get(execution.definitionId);
+    if(!definition?.beveragePlan||definition.state==="Archived")return [];
+    return [{id:definition.id,executionId:execution.id,title:definition.title,category:definition.category,
+      ...(definition.description!==undefined?{description:definition.description}:{}),
+      revisionId:definition.revisionId,startDate:definition.startDate,endDate:definition.endDate,
+      weight:definition.weight,importance:definition.importance as BeverageRowR294["importance"],status:execution.status,
+      plan:definition.beveragePlan,log:definition.activityLog}];
+  }),[view.habits,workspace]);
   const grouped = useMemo(() => {
     const map=new Map<string,{definition?:DefinitionItem;execution:ExecutionItem}[]>();
-    for(const execution of view.habits){const definition=definitionsById.get(execution.definitionId),category=(definition?.category??'عام').trim().replace(/\s+/g,' ');const rows=map.get(category)??[];rows.push({...(definition?{definition}:{}),execution});map.set(category,rows);}
+    for(const execution of view.habits){const definition=definitionsById.get(execution.definitionId);if(definition?.beveragePlan)continue;const category=(definition?.category??'عام').trim().replace(/\s+/g,' ');const rows=map.get(category)??[];rows.push({...(definition?{definition}:{}),execution});map.set(category,rows);}
     for(const rows of map.values())rows.sort((a,b)=>(a.definition?.displayOrder??Number.MAX_SAFE_INTEGER)-(b.definition?.displayOrder??Number.MAX_SAFE_INTEGER)||(a.definition?.timeOfDay??'99:99').localeCompare(b.definition?.timeOfDay??'99:99')||(a.definition?.title??a.execution?.title??'').localeCompare(b.definition?.title??b.execution?.title??'','ar'));
     const categories=(workspace?.categories??[]).map(c=>c.trim().replace(/\s+/g,' '));const rank=(c:string)=>{const i=categories.indexOf(c);return i<0?Number.MAX_SAFE_INTEGER:i;};
     return [...map.entries()].sort(([a],[b])=>rank(a)-rank(b)||a.localeCompare(b,'ar'));
@@ -2490,6 +2534,9 @@ function Dashboard({ view:providedView, workspace, busy, actionError, onCommand,
     </section>
     {/* NOOR_MINIMAL_DAY_STRIP_R111: date only; navigation stays in the weekly strip. */}
     
+    <NoorBeverageTrackerR294 rows={beverageRows} allNames={(workspace?.definitions??[]).filter(d=>d.kind==="Habit"&&d.state!=="Archived").map(d=>d.title)}
+      localDate={view.localDate??""} busy={busy} onCommand={onCommand} historical={historyDate!==null}/>
+
     <div className="np-main-grid np-daily-only" data-history-page={historyDate?"historical":"current"}>
       <div className="np-execution-stack">
         <section aria-label="عادات اليوم" className="np-habits-section np-history-page">
