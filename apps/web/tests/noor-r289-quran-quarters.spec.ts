@@ -18,22 +18,22 @@ test("R289: 240 independent quarter-of-Hizb opening references and provenance bo
  assert.equal(quranQuarterR289(241),null);
 });
 test("R289: owner-selected quarter advances on eligible scheduled days, not daily calendar when weekly",()=>{
- const p={firstQuarter:1,repeatOccurrences:2};
+ const p={anchorDate:"2026-11-11",firstQuarter:1,repeatOccurrences:2};
  assert.equal(quranQuarterForDateR289(p,"2026-11-11","2026-11-11","Daily",[])?.number,1);
  assert.equal(quranQuarterForDateR289(p,"2026-11-11","2026-11-12","Daily",[])?.number,1);
  assert.equal(quranQuarterForDateR289(p,"2026-11-11","2026-11-13","Daily",[])?.number,2);
  assert.equal(quranQuarterForDateR289({...p,repeatOccurrences:1},"2026-11-11","2026-11-13","Weekdays",[3,5])?.number,2);
  assert.equal(quranQuarterForDateR289({...p,repeatOccurrences:1},"2026-11-11","2026-11-18","Weekdays",[3,5])?.number,3);
  assert.equal(quranQuarterForDateR289({...p,repeatOccurrences:1},"2026-11-11","2026-11-14","Weekdays",[3,5]),null);
- assert.equal(quranQuarterForDateR289({firstQuarter:240,repeatOccurrences:1},"2026-11-11","2026-11-12","Daily",[])?.number,1);
+ assert.equal(quranQuarterForDateR289({anchorDate:"2026-11-11",firstQuarter:240,repeatOccurrences:1},"2026-11-11","2026-11-12","Daily",[])?.number,1);
  assert.equal(quranQuarterForDateR289(p,"2026-11-11","2026-11-10","Daily",[]),null);
  assert.equal(quranQuarterForDateR289(p,"2026-11-11","2026-11-12","OneTime",[]),null);
 });
 test("R289: reject malformed plans and invalid civil dates, no guessing",()=>{
- for(const plan of [null,{}, {firstQuarter:0,repeatOccurrences:1},{firstQuarter:241,repeatOccurrences:1},{firstQuarter:1,repeatOccurrences:0},{firstQuarter:1,repeatOccurrences:1,token:"sensitive"}]){
+ for(const plan of [null,{}, {anchorDate:"2026-11-11",firstQuarter:0,repeatOccurrences:1},{anchorDate:"2026-11-11",firstQuarter:241,repeatOccurrences:1},{anchorDate:"2026-11-11",firstQuarter:1,repeatOccurrences:0},{anchorDate:"2026-11-11",firstQuarter:1,repeatOccurrences:1,token:"sensitive"}]){
    assert.equal(validQuranPlanR289(plan),false);
  }
- assert.equal(quranQuarterForDateR289({firstQuarter:1,repeatOccurrences:1},"2026-11-11","2026-02-30","Daily",[]),null);
+ assert.equal(quranQuarterForDateR289({anchorDate:"2026-11-11",firstQuarter:1,repeatOccurrences:1},"2026-11-11","2026-02-30","Daily",[]),null);
 });
 test("R289: habit form offers a separate owner-specific quarter selector and preview",()=>{
  const html=renderToStaticMarkup(createElement(DefinitionForm,{busy:false,onCommand:async()=>true,defaultStartDate:"2026-11-11",defaultKind:"Habit",categories:["العبادات"]}));

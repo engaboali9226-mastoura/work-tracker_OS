@@ -1689,6 +1689,7 @@ export function DefinitionForm({busy,onCommand,onSavingChange,defaultStartDate,d
  const [sessionDistribution,setSessionDistribution]=useState<"equal"|"custom">(initial?.sessionPlan?.distribution??"custom");
  const [sessionDrafts,setSessionDrafts]=useState<NoorTaskSessionDraft[]>(()=>initial?.sessionPlan?.sessions.map(s=>({id:s.id,title:s.title,objective:s.objective,target:s.target,rangeStart:s.rangeStart,rangeEnd:s.rangeEnd,scheduledDate:s.scheduledDate??null}))??[]);
  const [quranEnabled,setQuranEnabled]=useState(!!initial?.quranPlan);
+ const [quranAnchorDate,setQuranAnchorDate]=useState(initial?.quranPlan?.anchorDate??defaultStartDate);
  const [quranFirstQuarter,setQuranFirstQuarter]=useState(initial?.quranPlan?.firstQuarter??1);
  const [quranRepeatOccurrences,setQuranRepeatOccurrences]=useState(initial?.quranPlan?.repeatOccurrences??1);
  const [taskTarget,setTaskTarget]=useState(initial?.measurement?.target?.toString()??"");
@@ -1726,7 +1727,7 @@ export function DefinitionForm({busy,onCommand,onSavingChange,defaultStartDate,d
   if(!noorExistingCategory(selectedCategory,categoryChoices)){setError("اختر تصنيفًا مسجلًا أو أضف تصنيفًا جديدًا أولًا.");return;}
   if(showCategoryAdd){setError("أكمل إضافة التصنيف أو ألغِ إضافة التصنيف قبل حفظ العنصر.");return;}
   const endDate=selectedKind==="Habit"&&duration==="continuous"?null:text("endDate")||null;
-  const fields={weight:Number(text("weight")||initial?.weight||1),...(selectedKind==="Habit"&&text("timeOfDay")?{timeOfDay:text("timeOfDay")}:{}),...(selectedKind==="Habit"&&(quranEnabled||initial?.quranPlan)?{quranPlan:quranEnabled?{firstQuarter:quranFirstQuarter,repeatOccurrences:quranRepeatOccurrences}:null}:{}),kind:selectedKind,title:text("title"),category:selectedCategory,startDate:text("startDate"),endDate,scheduleKind,weekdays:scheduleKind==="Weekdays"?days:[],importance:text("importance") as "Essential"|"Important"|"Supporting"|"Optional",...(selectedKind==="Task"&&text("progressTarget")?{measurement:{target:Number(text("progressTarget")),unit:text("progressUnit")}}:{}),...(selectedKind==="Task"&&(sessionEnabled||initial?.sessionPlan)?{sessionPlan:sessionEnabled?{distribution:sessionDistribution,sessions:sessionDrafts}:null}:{})};
+  const fields={weight:Number(text("weight")||initial?.weight||1),...(selectedKind==="Habit"&&text("timeOfDay")?{timeOfDay:text("timeOfDay")}:{}),...(selectedKind==="Habit"&&(quranEnabled||initial?.quranPlan)?{quranPlan:quranEnabled?{anchorDate:quranAnchorDate,firstQuarter:quranFirstQuarter,repeatOccurrences:quranRepeatOccurrences}:null}:{}),kind:selectedKind,title:text("title"),category:selectedCategory,startDate:text("startDate"),endDate,scheduleKind,weekdays:scheduleKind==="Weekdays"?days:[],importance:text("importance") as "Essential"|"Important"|"Supporting"|"Optional",...(selectedKind==="Task"&&text("progressTarget")?{measurement:{target:Number(text("progressTarget")),unit:text("progressUnit")}}:{}),...(selectedKind==="Task"&&(sessionEnabled||initial?.sessionPlan)?{sessionPlan:sessionEnabled?{distribution:sessionDistribution,sessions:sessionDrafts}:null}:{})};
   setError("");definitionSaveLock.current=true;onSavingChange?.(true);
   let ok=false;
   try{ok=await onCommand(initial?{...fields,type:"update-definition",definitionId:initial.id,expectedRevisionId:initial.revisionId}:{...fields,type:"create-definition"});}
@@ -1742,9 +1743,10 @@ export function DefinitionForm({busy,onCommand,onSavingChange,defaultStartDate,d
   {selectedKind==="Habit"?<div className="np-field full np-quran-plan-r289" data-testid="r289-quran-plan-editor">
     <label><input type="checkbox" checked={quranEnabled} disabled={busy} onChange={e=>setQuranEnabled(e.currentTarget.checked)}/> ربط هذه العادة بأرباع الحزب من القرآن (اختياري)</label>
     {quranEnabled?<div className="np-quran-plan-fields-r289">
+      <label>تاريخ بدء الورد<input type="date" required value={quranAnchorDate} onChange={e=>setQuranAnchorDate(e.currentTarget.value)} data-testid="r289-quran-anchor-date"/></label>
       <label>أول ربع في الورد<select disabled={busy} value={quranFirstQuarter} onChange={e=>setQuranFirstQuarter(Number(e.currentTarget.value))} data-testid="r289-first-quarter">{Array.from({length:240},(_,i)=>i+1).map(n=><option value={n} key={n}>{n}. {quranQuarterR289(n)?.surahName}، آية {quranQuarterR289(n)?.ayah}</option>)}</select></label>
       <label>عدد مرات تكرار الربع قبل الانتقال للتالي<input type="number" disabled={busy} min="1" max="30" step="1" value={quranRepeatOccurrences} onChange={e=>setQuranRepeatOccurrences(Number(e.currentTarget.value))} data-testid="r289-repeat-quarter"/></label>
-      <p>بداية الربع: {quranQuarterR289(quranFirstQuarter)?.opening??"غير متاحة"}. تُحتسب الأيام المستحقة لهذه العادة فقط؛ ويمكن تخصيص خطة مستقلة لكل ورد أو حفظ أو مراجعة.</p>
+      <p>بداية الربع: {quranQuarterR289(quranFirstQuarter)?.opening??"غير متاحة"}. يبدأ العد من تاريخ بدء الورد، وليس تاريخ إنشاء العادة القديمة. تُحتسب أيام العادة المستحقة فقط؛ ويمكن تخصيص خطة مستقلة لكل ورد أو حفظ أو مراجعة.</p>
     </div>:null}
    </div>:null}
   <div className="np-field"><label className="np-label" htmlFor="definition-importance">الأهمية *</label><select className="np-select" id="definition-importance" name="importance" defaultValue={initial?.importance??"Supporting"}><option value="Essential">أساسي</option><option value="Important">مهم</option><option value="Supporting">داعم</option><option value="Optional">اختياري</option></select></div>

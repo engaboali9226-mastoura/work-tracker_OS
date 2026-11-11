@@ -174,6 +174,7 @@ export interface ProgressMeasurement { readonly target: number; readonly unit: s
 /** Owner-selected Quran recitation habit cycle. The first quarter is displayed on
  * the first scheduled occurrence; subsequent quarters advance only on scheduled days. */
 export interface QuranHabitPlan {
+    readonly anchorDate: LocalDate; // civil date chosen by the owner, not the old habit creation date
     readonly firstQuarter: number; // 1..240, quarter of a hizb
     readonly repeatOccurrences: number; // 1..30 scheduled executions per quarter
 }

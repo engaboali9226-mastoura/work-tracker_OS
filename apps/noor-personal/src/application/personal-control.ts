@@ -240,12 +240,13 @@ function importance(
 /** Exact owner-controlled Quran quarter configuration, never inferred from a title. */
 function parseQuranHabitPlan(value:unknown):QuranHabitPlan|null|undefined{
     if(value===null)return null;
-    if(!isRecord(value)||!exactKeys(value,["firstQuarter","repeatOccurrences"])
+    if(!isRecord(value)||!exactKeys(value,["anchorDate","firstQuarter","repeatOccurrences"])
+        ||!localDate(value.anchorDate)
         ||typeof value.firstQuarter!=="number"||!Number.isInteger(value.firstQuarter)
         ||value.firstQuarter<1||value.firstQuarter>240
         ||typeof value.repeatOccurrences!=="number"||!Number.isInteger(value.repeatOccurrences)
         ||value.repeatOccurrences<1||value.repeatOccurrences>30)return undefined;
-    return {firstQuarter:value.firstQuarter,repeatOccurrences:value.repeatOccurrences};
+    return {anchorDate:value.anchorDate as string,firstQuarter:value.firstQuarter,repeatOccurrences:value.repeatOccurrences};
 }
 
 function parseTaskSessionDraft(value: unknown): TaskSessionPlanDraft | null | undefined {

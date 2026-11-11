@@ -12,7 +12,7 @@ const day={id:"owner-day",userId:"owner",boundary:{key:"owner-day",localDate:dat
  state:"Open",version:1,createdAt:now,updatedAt:now};
 const base={type:"create-definition",kind:"Habit",title:"الورد القرآني",category:"العبادات",
  startDate:date,endDate:null,scheduleKind:"Daily",weekdays:[],importance:"Essential",weight:10};
-const plan={firstQuarter:2,repeatOccurrences:3};
+const plan={anchorDate:date,firstQuarter:2,repeatOccurrences:3};
 const fixture=()=>{const store=new InMemoryFoundationStore({personalDays:[day],definitions:[],dailyExecution:[]});
  const service=new PersonalCommandService({clock:{now:()=>now},idGenerator:new SequenceIdGenerator(),transaction:store});
  return {store,service};};
@@ -21,9 +21,9 @@ test("R289: strict Quran quarter plan allowlist and legacy habit compatibility",
  assert.deepEqual(parsePersonalCommand({...base,quranPlan:plan})?.quranPlan,plan);
  assert.equal(parsePersonalCommand({...base,quranPlan:null})?.quranPlan,null);
  for(const invalid of [
-  {firstQuarter:0,repeatOccurrences:1},{firstQuarter:241,repeatOccurrences:1},
-  {firstQuarter:1.5,repeatOccurrences:1},{firstQuarter:1,repeatOccurrences:31},
-  {firstQuarter:1,repeatOccurrences:1,secret:"x"},[],false]){
+  {anchorDate:date,firstQuarter:0,repeatOccurrences:1},{anchorDate:date,firstQuarter:241,repeatOccurrences:1},
+  {anchorDate:date,firstQuarter:1.5,repeatOccurrences:1},{anchorDate:date,firstQuarter:1,repeatOccurrences:31},
+  {anchorDate:date,firstQuarter:1,repeatOccurrences:1,secret:"x"},{anchorDate:"2026-02-30",firstQuarter:1,repeatOccurrences:1},[],false]){
    assert.equal(parsePersonalCommand({...base,quranPlan:invalid}),null);
  }
  assert.equal(parsePersonalCommand({...base,kind:"Task",quranPlan:plan}),null);
@@ -33,7 +33,7 @@ test("R289: owner creates, modifies and clears Quran plan without mutating histo
  const first=f.store.snapshot().definitions[0];
  assert.equal(first.kind,"Habit");assert.deepEqual(first.quranPlan,plan);
  const revised={...base,type:"update-definition",definitionId:first.id,expectedRevisionId:first.revisionId,
-   quranPlan:{firstQuarter:120,repeatOccurrences:2}};
+   quranPlan:{anchorDate:date,firstQuarter:120,repeatOccurrences:2}};
  await f.service.execute("owner",parsePersonalCommand(revised));
  const second=f.store.snapshot().definitions[0];
  assert.deepEqual(second.quranPlan,revised.quranPlan);
