@@ -4,7 +4,7 @@ import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
-import {createHostedWebServer,validatePublicBuildEnvironment} from './serve-noor.mjs';
+import {createHostedWebServer,validatePublicBuildEnvironment,publicReleaseCommit} from './serve-noor.mjs';
 async function listen(server){await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));return server.address().port;}
 async function close(server){await new Promise(resolve=>server.close(resolve));}
 function request(port,url,{method='GET',headers={},body}={}){return new Promise((resolve,reject)=>{
@@ -19,9 +19,32 @@ async function fixture(fn){
   if(req.url==='/api/noor/session'){res.writeHead(204,{'Set-Cookie':'noor_session=fixture; HttpOnly; Secure; SameSite=Lax; Path=/api/noor'});res.end();}
   else{res.writeHead(200,{'Content-Type':'application/json','Cache-Control':'no-store'});res.end('{"fixture":true}');}
  });});
- const apiPort=await listen(api),server=await createHostedWebServer({staticDirectory:site,apiOrigin:`http://127.0.0.1:${apiPort}`,publicOrigin:'https://noor.example'}),port=await listen(server);
+ const apiPort=await listen(api),server=await createHostedWebServer({staticDirectory:site,apiOrigin:`http://127.0.0.1:${apiPort}`,publicOrigin:'https://noor.example',releaseCommit:'A'.repeat(40)}),port=await listen(server);
  try{await fn({dir,site,api,port,observed});}finally{await close(server);if(api.listening)await close(api);await fs.rm(dir,{recursive:true,force:true});}
 }
+test('R291 healthz includes only validated commit fingerprint, no secrets or user data',()=>fixture(async({port,observed})=>{
+ const get=await request(port,'/healthz');
+ assert.equal(get.status,200);
+ assert.equal(get.body,'ok');
+ assert.equal(get.headers['cache-control'],'no-store');
+ assert.equal(get.headers['x-noor-release-sha'],'a'.repeat(40));
+ assert.equal(get.headers['set-cookie'],undefined);
+ const head=await request(port,'/healthz',{method:'HEAD'});
+ assert.equal(head.status,200);
+ assert.equal(head.body,'');
+ assert.equal(head.headers['x-noor-release-sha'],'a'.repeat(40));
+ const wrongMethod=await request(port,'/healthz',{method:'POST'});
+ assert.equal(wrongMethod.status,405);
+ assert.deepEqual(observed,[]);
+}));
+test('R291 release fingerprint rejects missing, malformed, secret-like and extended values',()=>{
+ assert.equal(publicReleaseCommit('A'.repeat(40)),'a'.repeat(40));
+ assert.equal(publicReleaseCommit('1234'),null);
+ assert.equal(publicReleaseCommit('1234'+'.'.repeat(36)),null);
+ assert.equal(publicReleaseCommit('a'.repeat(64)),null);
+ assert.equal(publicReleaseCommit('a'.repeat(40)+'\\nX-User-Secret:value'),null);
+ assert.equal(publicReleaseCommit(undefined),null);
+});
 test('serves the application and deep links without reading the API',()=>fixture(async({port,observed})=>{
  const root=await request(port,'/'),deep=await request(port,'/noor-personal/control',{headers:{accept:'text/html'}});
  assert.equal(root.status,200);assert.equal(root.headers['cache-control'],'no-store');assert.match(root.body,/synthetic shell/);assert.equal(deep.body,root.body);assert.deepEqual(observed,[]);
