@@ -980,20 +980,20 @@ const PAGE_STYLES = `
 .np-page .np-caffeine-controls-r295{padding:8px 0;justify-content:space-between}
 .np-page .np-caffeine-quick-r295>button{font-weight:700}
 .np-page .np-caffeine-bedtime-r295{display:flex;gap:8px;align-items:center;font-size:12px}
-.np-page .np-caffeine-bedtime-r295 input{width:115px}
+.np-page .np-beverages-r294 .np-caffeine-bedtime-r295 input{width:115px}
 .np-page .np-caffeine-time-picker-r295{padding:13px;border:1px solid var(--border-strong);border-radius:13px;background:var(--panel-soft);display:grid;gap:10px}
 .np-page .np-caffeine-time-options-r295{display:flex;gap:6px;flex-wrap:wrap}
 .np-page .np-caffeine-time-options-r295 button{min-height:38px;font-size:12px}
 .np-page .np-caffeine-time-options-r295 button[aria-pressed=true]{background:var(--text);border-color:var(--text);color:var(--panel)}
 .np-page .np-caffeine-time-picker-r295 label{display:flex;gap:7px;align-items:center}
-.np-page .np-caffeine-time-picker-r295 label input{width:130px}
+.np-page .np-beverages-r294 .np-caffeine-time-picker-r295 label input{width:130px}
 .np-page .np-caffeine-picker-actions-r295>button:first-child{background:var(--text);color:var(--panel);font-weight:700}
 .np-page .np-caffeine-history-r295{display:grid;gap:7px}
 .np-page .np-caffeine-history-r295>strong{font-size:12px}
 .np-page .np-caffeine-history-r295 ol{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:7px}
 .np-page .np-caffeine-history-r295 li{padding:5px 9px;border:1px solid var(--border);border-radius:9px;background:var(--panel-soft);font-size:11px;display:flex;align-items:center;gap:8px}
 .np-page .np-caffeine-history-r295 time{font-variant-numeric:tabular-nums;font-weight:700}
-@media(max-width:600px){.np-page .np-caffeine-controls-r295{align-items:stretch}.np-page .np-caffeine-tally-r295 strong{font-size:19px}.np-page .np-caffeine-bedtime-r295{justify-content:space-between}.np-page .np-caffeine-bedtime-r295 input{width:125px}}
+@media(max-width:600px){.np-page .np-caffeine-controls-r295{align-items:stretch}.np-page .np-caffeine-tally-r295 strong{font-size:19px}.np-page .np-caffeine-bedtime-r295{justify-content:space-between}.np-page .np-beverages-r294 .np-caffeine-bedtime-r295 input{width:125px}}
 /* NOOR R294 BEVERAGE TRACKER */
 .np-page .np-beverages-r294{display:grid;gap:12px;padding:16px;border:1px solid var(--border);border-radius:16px;margin-top:10px}
 .np-page .np-beverages-head-r294{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
