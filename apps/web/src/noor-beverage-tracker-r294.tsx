@@ -132,8 +132,9 @@ export function NoorBeverageTrackerR294({rows,allNames=[],localDate,busy,onComma
   const first=rows[0];
   if(!first){setError("أضف مشروبًا أولًا لحفظ موعد النوم في حسابك.");return;}
   if(first.plan.sleepTime===bedtime)return;
-  await run({type:"set-beverage-bedtime",sleepTime:bedtime},
+  const ok=await run({type:"set-beverage-bedtime",sleepTime:bedtime},
     "تعذر حفظ وقت النوم. حاول مجددًا، وستظل القيمة السابقة معتمدة حتى نجاح الحفظ.");
+  if(!ok)setBedtime(validClockR295(ownerBedtime)?ownerBedtime:"00:00");
  };
  return <section className="np-card np-beverages-r294" data-testid="r294-beverage-tracker" aria-label="سجل المشروبات اليومي">
   <header className="np-beverages-head-r294"><div><h2>{historical?"مشروبات اليوم المحدد":"المشروبات المنبّهة اليوم"}</h2>
