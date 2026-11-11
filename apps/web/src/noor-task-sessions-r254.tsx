@@ -40,7 +40,8 @@ export function sessionRemainingR285(s:StoredTaskSessionR254,log:readonly Sessio
 }
 /** Keep optional dates truly optional without ever opening an empty native 1900-era picker. */
 function SessionDateFieldR293({value,onChange,suggestedDate,testId,busy}:{value:string|null|undefined;onChange:(value:string|null)=>void;suggestedDate:string;testId:string;busy:boolean}):ReactElement{
-  const today=new Date().toISOString().slice(0,10);
+  const now=new Date();
+  const today=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}-${String(now.getDate()).padStart(2,"0")}`;
   const proposed=/^\d{4}-\d{2}-\d{2}$/.test(suggestedDate)&&suggestedDate>today?suggestedDate:today;
   return <label>تاريخ الجلسة المجدول (اختياري)
     {value?<span className="nts-date-picker-r293"><input type="date" data-testid={testId} value={value} disabled={busy} onChange={e=>onChange(e.currentTarget.value||null)}/><button type="button" disabled={busy} onClick={()=>onChange(null)}>بدون موعد</button></span>
