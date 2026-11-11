@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import {createElement} from "react";
 import {renderToStaticMarkup} from "react-dom/server";
 import {readFileSync} from "node:fs";
-import {DefinitionForm} from "../src/noor-personal-application-view.js";
+import {DefinitionForm,isQuarterHabitR293} from "../src/noor-personal-application-view.js";
 import {TaskSessionPlannerR254,sessionCompletionDayR293} from "../src/noor-task-sessions-r254.js";
 import {quranQuarterForDateR289} from "../src/noor-quran-quarters-r289.js";
 
@@ -19,6 +19,12 @@ test("R293: both task and habit forms offer optional saved description and date 
    assert.doesNotMatch(html,/value="1900"/);
    assert.ok(html.indexOf(">2026</option>")>=0,"current year is a selectable year");
  }
+});
+test("R293: only explicitly named Quran habits receive a suggested plan; unrelated reviews remain opt-in",()=>{
+ for(const title of ["الورد اليومي","الورد","التسميع","المراجعة","ورد يومي"])
+   assert.equal(isQuarterHabitR293(title),true,title);
+ for(const title of ["مراجعة الفيزياء","مراجعة كتاب","ورد الرياضة","قراءة القرآن","التلاوة"])
+   assert.equal(isQuarterHabitR293(title),false,title);
 });
 test("R293: editing each Quran habit suggests its original first use date, with independent quarter choice",()=>{
  for(const title of ["الورد اليومي","التسميع","المراجعة"]){
