@@ -30,7 +30,7 @@ test("R100 initial Personal load is a full-page quiet welcome, not a top card", 
 
 test("R100 actual service failure remains visible and is not disguised as loading", () => {
   const html = renderPersonal({ kind: "unavailable" });
-  assert.match(html, /الخدمة غير متاحة/u);
+  assert.match(html, /نور غير متصل/u);assert.match(html, /إعادة الاتصال/u);
   assert.match(html, /تعذر تحميل بيانات نور حاليًا/u);
   assert.doesNotMatch(html, /data-testid="noor-personal-initial-loading-r100"/u);
   assert.doesNotMatch(html, /class="np-page np-page-entry-loading"/u);
