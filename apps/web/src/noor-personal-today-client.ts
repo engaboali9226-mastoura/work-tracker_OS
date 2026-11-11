@@ -1,4 +1,5 @@
 export type NoorQuranHabitPlanR289=Readonly<{anchorDate:string;firstQuarter:number;repeatOccurrences:number}>;
+export type NoorBeveragePlanR294=Readonly<{targetServings:number;servingMl?:number}>;
 export type NoorTaskSessionDraft = Readonly<{id:string;title:string;objective:string;target:number|null;rangeStart:number|null;rangeEnd:number|null;scheduledDate?:string|null}>;
 export type NoorTaskSessionPlanDraft = Readonly<{distribution:"equal"|"custom";sessions:readonly NoorTaskSessionDraft[]}>;
 
@@ -29,6 +30,7 @@ export type NoorPersonalCommandInput =
   | Readonly<{type:"edit-task-session-note";definitionId:string;taskSessionId:string;expectedRevision:number;note:string}>
   | Readonly<{type:"record-task-session-progress";executionId:string;taskSessionId:string;entryId:string;amount:number;note:string}>
   | Readonly<{type:"complete-task-session";executionId:string;taskSessionId:string;entryId:string}>
+  | Readonly<{type:"adjust-beverage-serving";executionId:string;entryId:string;delta:1|-1}>
   | Readonly<{type:"set-account-location";requestId:string;expectedRevisionId:string;city:{name:string;country:string;latitude:number;longitude:number;timeZone:string}}>
   | Readonly<{type:"rebalance-habit-weights";changes:readonly Readonly<{definitionId:string;expectedRevisionId:string;weight:number}>[]}>
   | Readonly<{type:"correct-historical-execution";executionId:string;localDate:string;expectedStatus:"Completed"|"Missed"|"Pending"|"Planned"|"InProgress";completed:boolean}>
@@ -36,7 +38,7 @@ export type NoorPersonalCommandInput =
   | Readonly<{type:"edit-activity-note";executionId:string;entryId:string;expectedNote:string;note:string|null}>
     | Readonly<{type:"reorder-display";scope:"Habit"|"Task"|"categories";expected:readonly string[];order:readonly string[]}>
     | Readonly<{type:"manage-category";action:"add"|"rename";name:string;previousName:string|null}>
-  | Readonly<{type:"update-definition";weight?:number;definitionId:string;expectedRevisionId:string;kind:"Task"|"Habit";title:string;category:string;description?:string;startDate:string;endDate:string|null;scheduleKind:"OneTime"|"Daily"|"Weekdays";weekdays:readonly number[];importance:"Essential"|"Important"|"Supporting"|"Optional";timeOfDay?:string;quranPlan?:NoorQuranHabitPlanR289|null;measurement?:{target:number;unit:string};sessionPlan?:NoorTaskSessionPlanDraft|null}>
+  | Readonly<{type:"update-definition";weight?:number;definitionId:string;expectedRevisionId:string;kind:"Task"|"Habit";title:string;category:string;description?:string;startDate:string;endDate:string|null;scheduleKind:"OneTime"|"Daily"|"Weekdays";weekdays:readonly number[];importance:"Essential"|"Important"|"Supporting"|"Optional";timeOfDay?:string; quranPlan?:NoorQuranHabitPlanR289|null;beveragePlan?:NoorBeveragePlanR294|null;measurement?:{target:number;unit:string};sessionPlan?:NoorTaskSessionPlanDraft|null}>
   | Readonly<{type:"finance";operation:FinanceOperation}>
   | Readonly<{ type: "record-activity"; executionId: string; entryId: string; note: string; amount: number; endReason: "achieved" | "expired" | "cancelled" | null }>
   | Readonly<{ type: "delete-definition"; definitionId: string; confirm: true }>
@@ -45,6 +47,7 @@ export type NoorPersonalCommandInput =
       weight?:number;
       timeOfDay?: string;
       quranPlan?: NoorQuranHabitPlanR289 | null;
+      beveragePlan?: NoorBeveragePlanR294 | null;
       measurement?: { target: number; unit: string };
       sessionPlan?: NoorTaskSessionPlanDraft | null;
       kind: "Task" | "Habit";
