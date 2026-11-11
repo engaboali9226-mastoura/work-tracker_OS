@@ -10,8 +10,12 @@ function forwarded(headers){
  const omitted=new Set([...HOP,...String(headers.connection??'').split(',').map(v=>v.trim().toLowerCase())]);
  return Object.fromEntries(Object.entries(headers).filter(([key])=>!omitted.has(key.toLowerCase())));
 }
-function reply(res,status,text,method='GET'){
- res.writeHead(status,{'Content-Type':'text/plain; charset=utf-8','Cache-Control':'no-store','X-Content-Type-Options':'nosniff'});
+/** Release fingerprint contains only the public Git revision, never environment secrets. */
+export function publicReleaseCommit(value){
+ return typeof value==='string'&&/^[a-f0-9]{40}$/i.test(value)?value.toLowerCase():null;
+}
+function reply(res,status,text,method='GET',extraHeaders={}){
+ res.writeHead(status,{'Content-Type':'text/plain; charset=utf-8','Cache-Control':'no-store','X-Content-Type-Options':'nosniff',...extraHeaders});
  res.end(method==='HEAD'?undefined:text);
 }
 export function validatePublicBuildEnvironment(env){
@@ -25,16 +29,17 @@ export function validatePublicBuildEnvironment(env){
 
 // Authentication, authorization, commands and persistence remain owned by the
 // existing runtime. This transport serves build files and streams API traffic.
-export async function createHostedWebServer({staticDirectory,apiOrigin,publicOrigin}){
+export async function createHostedWebServer({staticDirectory,apiOrigin,publicOrigin,releaseCommit=null}){
  const api=new URL(apiOrigin),origin=new URL(publicOrigin);
  if(!['http:','https:'].includes(origin.protocol)||origin.username||origin.password||origin.pathname!=='/'||origin.search||origin.hash)throw Error('PUBLIC_ORIGIN_INVALID');
  if(api.protocol!=='http:'||api.hostname!=='127.0.0.1'||api.username||api.password||api.pathname!=='/'||api.search||api.hash)throw Error('INTERNAL_API_ORIGIN_INVALID');
  const root=await realpath(staticDirectory),agent=new http.Agent({keepAlive:true,maxSockets:16});
+ const releaseSha=publicReleaseCommit(releaseCommit);
  const server=http.createServer(async(req,res)=>{
   try{
    if(!req.url?.startsWith('/')||req.url.startsWith('//'))return reply(res,400,'Invalid request.',req.method);
    const url=new URL(req.url,origin);
-   if(url.pathname==='/healthz')return reply(res,['GET','HEAD'].includes(req.method)?200:405,'ok',req.method);
+   if(url.pathname==='/healthz')return reply(res,['GET','HEAD'].includes(req.method)?200:405,'ok',req.method,releaseSha?{'X-Noor-Release-Sha':releaseSha}:{});
    if(url.pathname==='/api/noor'||url.pathname.startsWith('/api/noor/')){
     const upstream=http.request({hostname:api.hostname,port:api.port,method:req.method,path:req.url,headers:{...forwarded(req.headers),host:origin.host},agent},incoming=>{
      res.writeHead(incoming.statusCode??502,forwarded(incoming.headers));incoming.on('error',()=>res.destroy());incoming.pipe(res);
@@ -77,7 +82,7 @@ async function main(){
  const runtime=createPrivilegedTransportRuntime({host,httpConfiguration});let server;
  try{
   await runtime.start();
-  server=await createHostedWebServer({staticDirectory:path.join(ROOT,'apps/web/dist'),apiOrigin:'http://127.0.0.1:8787',publicOrigin:httpConfiguration.publicOrigin});
+  server=await createHostedWebServer({staticDirectory:path.join(ROOT,'apps/web/dist'),apiOrigin:'http://127.0.0.1:8787',publicOrigin:httpConfiguration.publicOrigin,releaseCommit:process.env.RENDER_GIT_COMMIT});
   await new Promise((resolve,reject)=>{server.once('error',reject);server.listen(port,'0.0.0.0',resolve);});
  }catch(error){await runtime.shutdown().catch(()=>{});throw error;}
  let stopping;const stop=()=>{stopping??=(async()=>{await new Promise(resolve=>server.close(resolve));await runtime.shutdown();})().catch(()=>{process.exitCode=1;});return stopping;};
