@@ -924,6 +924,16 @@ const PAGE_STYLES = `
 }
 /* NOOR_COMPACT_ALIGNED_CARDS_R106_END */
 
+/* NOOR_CONTEXTUAL_HABIT_DETAILS_R288 */
+.np-page .np-habit-title-with-help-r288{display:flex;align-items:flex-start;gap:7px;min-width:0;flex-wrap:wrap}
+.np-page .np-habit-title-with-help-r288>.np-item-title{min-width:0;flex:1 1 130px}
+.np-page .np-habit-help-r288{min-width:24px;max-width:100%;font-size:11px}
+.np-page .np-habit-help-r288>summary{list-style:none;cursor:pointer;display:grid;place-items:center;width:24px;height:24px;border:1px solid var(--border-strong);border-radius:50%;background:var(--panel-soft);color:var(--muted);font-weight:750}
+.np-page .np-habit-help-r288>summary::-webkit-details-marker{display:none}
+.np-page .np-habit-help-r288>summary:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.np-page .np-habit-help-r288[open]{flex-basis:100%}
+.np-page .np-habit-help-r288-content{padding:8px 10px;border:1px solid var(--border);border-radius:9px;background:var(--panel-soft);color:var(--text);line-height:1.7}
+.np-page .np-habit-help-r288-content p{margin:3px 0;overflow-wrap:anywhere}
 /* NOOR_COLLAPSIBLE_HABIT_CARDS_R107_BEGIN */
 /* Replace masonry with stable aligned rows for compact CLOSED categories. */
 .np-page .np-habits-section .np-category-grid{
@@ -2072,7 +2082,7 @@ function ActivityCard({item,definition,busy,pending=false,historicalDate=null,to
   else setError("تعذر تأكيد الحفظ. بياناتك ما زالت هنا؛ يمكنك إعادة المحاولة.");
  };
  return <div className={`np-item np-activity-item${task?"":" np-habit-row"}${completed?" is-completed":""}`} data-testid={`activity-card-${item.id}`}>
-  <div className="np-item-main"><p className="np-item-title">{displayTitle}</p>{definition?.timeOfDay?<time className="np-habit-time" dateTime={definition.timeOfDay}>◷ {definition.timeOfDay}</time>:null}{task?<div className="np-item-meta"><span className="np-kind-badge">مهمة</span><span>{ended && latest?.endReason ? END_REASON_LABELS[latest.endReason] : STATUS_LABELS[item.status] ?? item.status}</span></div>:null}
+  <div className="np-item-main">{task?<p className="np-item-title">{displayTitle}</p>:<div className="np-habit-title-with-help-r288"><p className="np-item-title">{displayTitle}</p>{definition?<details className="np-habit-help-r288" data-testid={`r288-habit-help-${definition.id}`}><summary aria-label={`تفاصيل عادة ${displayTitle}`} title="تفاصيل العادة">؟</summary><div className="np-habit-help-r288-content"><strong>بيانات العادة المسجلة</strong><p>التصنيف: {definition.category}</p><p>التكرار: {scheduleLabel(definition)}</p><p>الأهمية: {({Essential:"أساسي",Important:"مهم",Supporting:"داعم",Optional:"اختياري"} as Record<string,string>)[definition.importance]??definition.importance} · وزن الإنجاز: {definition.weight}</p>{definition.timeOfDay?<p>موعد التنفيذ: {definition.timeOfDay}</p>:null}</div></details>:null}</div>}{definition?.timeOfDay?<time className="np-habit-time" dateTime={definition.timeOfDay}>◷ {definition.timeOfDay}</time>:null}{task?<div className="np-item-meta"><span className="np-kind-badge">مهمة</span><span>{ended && latest?.endReason ? END_REASON_LABELS[latest.endReason] : STATUS_LABELS[item.status] ?? item.status}</span></div>:null}
   {definition?.measurement ? <div className="np-progress-copy"><span>{arabicNumber(total)} / {arabicNumber(definition.measurement.target)} {definition.measurement.unit}</span><progress aria-label={`تقدم ${displayTitle}`} max={definition.measurement.target} value={total}/></div> : null}
   {latestNote?.note ? <p className="np-activity-note">{latestNote.note}</p> : null}</div>
   <div className="np-activity-actions"><button aria-label={`تسجيل ملاحظة${task?" أو تقدم":""}: ${displayTitle}`} title="تسجيل ملاحظة" className="np-btn secondary np-pencil" onClick={()=>open("note")} type="button"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="m15 5 4 4M4 20l4-1 12-12a2.8 2.8 0 0 0-4-4L4 15l-1 6Z" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"/></svg></button>
