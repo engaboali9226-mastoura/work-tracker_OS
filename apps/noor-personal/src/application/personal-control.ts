@@ -9,6 +9,7 @@ import type {
     ExecutionDefinition,
     ExecutionStatus,
     ImportanceLevel,
+    QuranHabitPlan,
     LocalDate,
     PersonalDay,
     Schedule,
@@ -40,7 +41,7 @@ export type PersonalCommand =
     | Readonly<{type:"rebalance-habit-weights";changes:readonly Readonly<{definitionId:string;expectedRevisionId:string;weight:number}>[]}>
     | Readonly<{type:"reorder-display";scope:"Habit"|"Task"|"categories";expected:readonly string[];order:readonly string[]}>
     | Readonly<{type:"manage-category"; action:"add"|"rename"; name:string; previousName:string|null}>
-    | Readonly<{type:"update-definition";weight?:number;definitionId:string;expectedRevisionId:string;kind:DefinitionKind;title:string;category:string;startDate:LocalDate;endDate:LocalDate|null;scheduleKind:Schedule["kind"];weekdays:readonly number[];importance:ImportanceLevel;timeOfDay?:string;measurement?:{readonly target:number;readonly unit:string};sessionPlan?:TaskSessionPlanDraft|null}>
+    | Readonly<{type:"update-definition";weight?:number;definitionId:string;expectedRevisionId:string;kind:DefinitionKind;title:string;category:string;startDate:LocalDate;endDate:LocalDate|null;scheduleKind:Schedule["kind"];weekdays:readonly number[];importance:ImportanceLevel;timeOfDay?:string;quranPlan?:QuranHabitPlan|null;measurement?:{readonly target:number;readonly unit:string};sessionPlan?:TaskSessionPlanDraft|null}>
     | Readonly<{type:"finance";operation:FinanceOperation}>
     | Readonly<{ type: "record-activity"; executionId: string; entryId: string; note: string; amount: number; endReason: "achieved" | "expired" | "cancelled" | null }>
     | Readonly<{ readonly type: "delete-definition"; readonly definitionId: string; readonly confirm: true }>
@@ -48,6 +49,7 @@ export type PersonalCommand =
         readonly type: "create-definition";
         readonly weight?: number;
         readonly timeOfDay?: string;
+        readonly quranPlan?: QuranHabitPlan | null;
         readonly measurement?: { readonly target: number; readonly unit: string };
         readonly sessionPlan?: TaskSessionPlanDraft | null;
         readonly kind: DefinitionKind;
@@ -235,6 +237,17 @@ function importance(
 }
 
 
+/** Exact owner-controlled Quran quarter configuration, never inferred from a title. */
+function parseQuranHabitPlan(value:unknown):QuranHabitPlan|null|undefined{
+    if(value===null)return null;
+    if(!isRecord(value)||!exactKeys(value,["firstQuarter","repeatOccurrences"])
+        ||typeof value.firstQuarter!=="number"||!Number.isInteger(value.firstQuarter)
+        ||value.firstQuarter<1||value.firstQuarter>240
+        ||typeof value.repeatOccurrences!=="number"||!Number.isInteger(value.repeatOccurrences)
+        ||value.repeatOccurrences<1||value.repeatOccurrences>30)return undefined;
+    return {firstQuarter:value.firstQuarter,repeatOccurrences:value.repeatOccurrences};
+}
+
 function parseTaskSessionDraft(value: unknown): TaskSessionPlanDraft | null | undefined {
     if(value===null)return null;
     if(!isRecord(value)||!exactKeys(value,["distribution","sessions"])
@@ -382,6 +395,7 @@ export function parsePersonalCommand(
                     ...(Object.hasOwn(value,"measurement") ? ["measurement"] : []),
                     ...(Object.hasOwn(value,"sessionPlan") ? ["sessionPlan"] : []),
                     ...(Object.hasOwn(value,"timeOfDay") ? ["timeOfDay"] : []),
+                    ...(Object.hasOwn(value,"quranPlan") ? ["quranPlan"] : []),
                 ],
             )
             || (
@@ -398,6 +412,8 @@ export function parsePersonalCommand(
         }
 
         if(Object.hasOwn(value,'timeOfDay')&&(value.kind!=='Habit'||typeof value.timeOfDay!=='string'||!/^([01]\d|2[0-3]):[0-5]\d$/.test(value.timeOfDay)))return null;
+        const quranPlan=Object.hasOwn(value,'quranPlan')?parseQuranHabitPlan(value.quranPlan):undefined;
+        if(Object.hasOwn(value,'quranPlan')&&(value.kind!=='Habit'||quranPlan===undefined))return null;
         let measurement: {target:number;unit:string} | undefined;
         if (Object.hasOwn(value,"measurement")) {
             const m=value.measurement;
@@ -451,6 +467,7 @@ export function parsePersonalCommand(
             ...(measurement ? {measurement} : {}),
             ...(Object.hasOwn(value,"sessionPlan") ? {sessionPlan:sessionPlan!} : {}),
             ...(typeof value.timeOfDay==='string'?{timeOfDay:value.timeOfDay}:{}),
+            ...(Object.hasOwn(value,'quranPlan')?{quranPlan:quranPlan!}:{}),
             title,
             category,
             startDate,
@@ -839,8 +856,9 @@ export class PersonalCommandService {
                        (definition.activityLog??[]).filter(e=>!e.taskSessionId).reduce((n,e)=>n+e.amount,0)>command.measurement.target)
                         throw new Error("TASK_SESSION_TARGET_EXCEEDS_TASK");
                     if(definition.measurement && (!command.measurement || command.measurement.unit!==definition.measurement.unit || command.measurement.target<total))throw new Error("EDIT_PROGRESS_CONFLICT");
-                    const {effectiveUntilDate:_end,measurement:_measurement,timeOfDay:_timeOfDay,sessionPlan:_sessionPlan,...preserved}=definition;
-                    transaction.saveDefinition({...preserved,revisionId:this.dependencies.idGenerator.next("definition-revision"),title:command.title,category:command.category,schedule:commandSchedule(command),effectiveFromDate:command.startDate,...(command.endDate?{effectiveUntilDate:command.endDate}:{}),importance:command.importance,...(command.weight!==undefined?{weight:command.weight}:{}),...(command.measurement?{measurement:command.measurement}:{}),...(command.timeOfDay?{timeOfDay:command.timeOfDay}:{}),...(nextPlan?{sessionPlan:nextPlan}:{})});
+                    const nextQuranPlan=Object.hasOwn(command,"quranPlan")?command.quranPlan:definition.quranPlan;
+                    const {effectiveUntilDate:_end,measurement:_measurement,timeOfDay:_timeOfDay,quranPlan:_previousQuranPlan,sessionPlan:_sessionPlan,...preserved}=definition;
+                    transaction.saveDefinition({...preserved,revisionId:this.dependencies.idGenerator.next("definition-revision"),title:command.title,category:command.category,schedule:commandSchedule(command),effectiveFromDate:command.startDate,...(command.endDate?{effectiveUntilDate:command.endDate}:{}),importance:command.importance,...(command.weight!==undefined?{weight:command.weight}:{}),...(command.measurement?{measurement:command.measurement}:{}),...(command.timeOfDay?{timeOfDay:command.timeOfDay}:{}),...(nextQuranPlan?{quranPlan:nextQuranPlan}:{}),...(nextPlan?{sessionPlan:nextPlan}:{})});
                     if(command.weight!==undefined&&command.weight!==definition.weight){
                         const day=transaction.findOpenPersonalDayContaining(userId,now);
                         if(day)for(const item of transaction.listDailyExecution(day.id))if(item.definitionId===definition.id)transaction.saveDailyExecution({...item,eligibility:{...item.eligibility,weight:command.weight},version:item.version+1,updatedAt:now});
@@ -1001,6 +1019,7 @@ export class PersonalCommandService {
                         ...(command.measurement ? {measurement:command.measurement} : {}),
                         ...(command.sessionPlan?{sessionPlan:prepareTaskSessionPlan(undefined,command.sessionPlan,[],command.measurement,now)!}:{}),
                         ...(command.timeOfDay?{timeOfDay:command.timeOfDay}:{}),
+                        ...(command.quranPlan?{quranPlan:command.quranPlan}:{}),
                     };
 
                     assertTaskSessionDatesMatchParentR286(definition.sessionPlan,definition.schedule,definition.effectiveFromDate,definition.effectiveUntilDate??null);
