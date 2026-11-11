@@ -957,6 +957,7 @@ const PAGE_STYLES = `
 .np-page .np-habit-help-r288[open]{flex-basis:100%}
 .np-page .np-habit-help-r288-content{padding:8px 10px;border:1px solid var(--border);border-radius:9px;background:var(--panel-soft);color:var(--text);line-height:1.7}
 .np-page .np-habit-help-r288-content p{margin:3px 0;overflow-wrap:anywhere}
+.np-page .np-definition-description-r293{white-space:pre-wrap;overflow-wrap:anywhere;unicode-bidi:plaintext;line-height:1.8}
 /* NOOR_COLLAPSIBLE_HABIT_CARDS_R107_BEGIN */
 /* Replace masonry with stable aligned rows for compact CLOSED categories. */
 .np-page .np-habits-section .np-category-grid{
