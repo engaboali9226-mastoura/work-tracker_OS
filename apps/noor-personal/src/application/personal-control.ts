@@ -36,6 +36,7 @@ export type PersonalCommand =
     | Readonly<{type:"record-task-session-progress";executionId:string;taskSessionId:string;entryId:string;amount:number;note:string}>
     | Readonly<{type:"complete-task-session";executionId:string;taskSessionId:string;entryId:string}>
     | Readonly<{type:"adjust-beverage-serving";executionId:string;entryId:string;delta:1|-1;beverageTime?:string}>
+     | Readonly<{type:"set-beverage-bedtime";sleepTime:string}>
     | Readonly<{type:"set-account-location";requestId:string;expectedRevisionId:string;city:{name:string;country:string;latitude:number;longitude:number;timeZone:string}}>
     | Readonly<{type:"correct-historical-execution";executionId:string;localDate:LocalDate;expectedStatus:ExecutionStatus;completed:boolean}>
     | Readonly<{type:"record-historical-progress";executionId:string;localDate:LocalDate;entryId:string;note:string;amount:number}>
@@ -331,6 +332,11 @@ export function parsePersonalCommand(
         if(!exactKeys(value,["type","executionId","taskSessionId","entryId"]) ||
            !boundedIdentifier(value.executionId)||!boundedIdentifier(value.taskSessionId)||!boundedIdentifier(value.entryId))return null;
         return {type:"complete-task-session",executionId:value.executionId,taskSessionId:value.taskSessionId,entryId:value.entryId};
+    }
+    if(value.type==="set-beverage-bedtime"){
+        if(!exactKeys(value,["type","sleepTime"])||typeof value.sleepTime!=="string"||
+           !/^([01]\d|2[0-3]):[0-5]\d$/.test(value.sleepTime))return null;
+        return {type:"set-beverage-bedtime",sleepTime:value.sleepTime};
     }
     if(value.type==="adjust-beverage-serving"){
         if(!exactKeys(value,["type","executionId","entryId","delta",...(Object.hasOwn(value,"beverageTime")?["beverageTime"]:[])])||
@@ -920,6 +926,20 @@ export class PersonalCommandService {
                                 }
                             }
                         }
+                    }
+                    return;
+                }
+                if(command.type==="set-beverage-bedtime"){
+                    const parsed=parsePersonalCommand(command);
+                    if(!parsed||parsed.type!=="set-beverage-bedtime")throw new Error("BEVERAGE_BEDTIME_INVALID");
+                    // One atomic owner-scoped transaction updates every active drink plan;
+                    // existing serving events, targets and unrelated habits are untouched.
+                    for(const definition of transaction.listDefinitions(userId)){
+                        if(definition.userId!==userId||!definition.beveragePlan||definition.state==="Archived")continue;
+                        if(definition.beveragePlan.sleepTime===parsed.sleepTime)continue;
+                        transaction.saveDefinition({...definition,
+                            revisionId:this.dependencies.idGenerator.next("definition-revision"),
+                            beveragePlan:{...definition.beveragePlan,sleepTime:parsed.sleepTime}});
                     }
                     return;
                 }
