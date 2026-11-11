@@ -27,7 +27,7 @@ test('R111 preserves original daily views and R107 accordion cards',()=>{
   assert.match(s,/NOOR_COLLAPSIBLE_HABIT_CARDS_R107_BEGIN/);
   assert.match(s,/data-testid="habit-category-grid"/);
   assert.match(s,/data-testid="habit-category-card"/);
-  assert.match(s,/<span>كل قسم، خطوة للأمام<\/span>/);
+  assert.doesNotMatch(s,/<span>كل قسم، خطوة للأمام<\/span>/);
   assert.match(s,/historyDate\?historicalCommand:onCommand/);
   assert.match(s,/NOOR_INPAGE_HISTORY_R110/);
   assert.doesNotMatch(s,/np-inpage-history-banner button\{/);
