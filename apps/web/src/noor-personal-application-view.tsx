@@ -66,7 +66,7 @@ type ExecutionItem = Readonly<{
   kind: "Task" | "Habit";
 }>;
 
-type ActivityEntry = Readonly<{ id:string; executionId:string; localDate:string; at:string; note:string; amount:number; endReason:"achieved"|"expired"|"cancelled"|null; taskSessionId?:string; sessionDayCredit?:number }>;
+type ActivityEntry = Readonly<{ id:string; executionId:string; localDate:string; at:string; note:string; amount:number; endReason:"achieved"|"expired"|"cancelled"|null; taskSessionId?:string; sessionDayCredit?:number; beverageTime?:string }>;
 type DefinitionItem = Readonly<{
   weight:number;
   displayOrder?:number;
@@ -960,6 +960,40 @@ const PAGE_STYLES = `
 .np-page .np-habit-help-r288[open]{flex-basis:100%}
 .np-page .np-habit-help-r288-content{padding:8px 10px;border:1px solid var(--border);border-radius:9px;background:var(--panel-soft);color:var(--text);line-height:1.7}
 .np-page .np-habit-help-r288-content p{margin:3px 0;overflow-wrap:anywhere}
+/* NOOR R295 CAFFEINE ADVISORY CARD */
+.np-page .np-caffeine-summary-r295{display:grid;gap:10px}
+.np-page .np-caffeine-tally-r295{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+.np-page .np-caffeine-tally-r295>div{display:flex;flex-direction:column;gap:3px;align-items:center;justify-content:center;min-width:0;padding:11px 6px;border:1px solid var(--border);background:var(--panel-soft);border-radius:12px}
+.np-page .np-caffeine-tally-r295 span{font-size:11px;color:var(--muted);text-align:center}
+.np-page .np-caffeine-tally-r295 strong{font-size:23px;font-variant-numeric:tabular-nums}
+.np-page .np-caffeine-signal-r295{display:flex;gap:7px 10px;align-items:center;flex-wrap:wrap;border-radius:12px;padding:10px 12px;border:1px solid var(--border)}
+.np-page .np-caffeine-signal-r295 strong{font-size:13px}
+.np-page .np-caffeine-signal-r295 span:last-child{font-size:12px;line-height:1.6}
+.np-page .np-caffeine-led-r295{width:11px;height:11px;border-radius:50%;display:block;flex:0 0 11px}
+.np-page .np-caffeine-green{background:#e9f5ee;color:#205b42;border-color:#b9dfc9}
+.np-page .np-caffeine-green .np-caffeine-led-r295{background:#21965d}
+.np-page .np-caffeine-yellow{background:#fff5df;color:#835c15;border-color:#ecd69b}
+.np-page .np-caffeine-yellow .np-caffeine-led-r295{background:#d8a12f}
+.np-page .np-caffeine-red{background:#fff0ee;color:#8e3437;border-color:#e5b4b0}
+.np-page .np-caffeine-red .np-caffeine-led-r295{background:#db525a}
+.np-page .np-caffeine-controls-r295,.np-page .np-caffeine-quick-r295,.np-page .np-caffeine-picker-actions-r295{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.np-page .np-caffeine-controls-r295{padding:8px 0;justify-content:space-between}
+.np-page .np-caffeine-quick-r295>button{font-weight:700}
+.np-page .np-caffeine-bedtime-r295{display:flex;gap:8px;align-items:center;font-size:12px}
+.np-page .np-beverages-r294 .np-caffeine-bedtime-r295 input{width:115px}
+.np-page .np-caffeine-time-picker-r295{padding:13px;border:1px solid var(--border-strong);border-radius:13px;background:var(--panel-soft);display:grid;gap:10px}
+.np-page .np-caffeine-time-options-r295{display:flex;gap:6px;flex-wrap:wrap}
+.np-page .np-caffeine-time-options-r295 button{min-height:38px;font-size:12px}
+.np-page .np-caffeine-time-options-r295 button[aria-pressed=true]{background:var(--text);border-color:var(--text);color:var(--panel)}
+.np-page .np-caffeine-time-picker-r295 label{display:flex;gap:7px;align-items:center}
+.np-page .np-beverages-r294 .np-caffeine-time-picker-r295 label input{width:130px}
+.np-page .np-caffeine-picker-actions-r295>button:first-child{background:var(--text);color:var(--panel);font-weight:700}
+.np-page .np-caffeine-history-r295{display:grid;gap:7px}
+.np-page .np-caffeine-history-r295>strong{font-size:12px}
+.np-page .np-caffeine-history-r295 ol{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:7px}
+.np-page .np-caffeine-history-r295 li{padding:5px 9px;border:1px solid var(--border);border-radius:9px;background:var(--panel-soft);font-size:11px;display:flex;align-items:center;gap:8px}
+.np-page .np-caffeine-history-r295 time{font-variant-numeric:tabular-nums;font-weight:700}
+@media(max-width:600px){.np-page .np-caffeine-controls-r295{align-items:stretch}.np-page .np-caffeine-tally-r295 strong{font-size:19px}.np-page .np-caffeine-bedtime-r295{justify-content:space-between}.np-page .np-beverages-r294 .np-caffeine-bedtime-r295 input{width:125px}}
 /* NOOR R294 BEVERAGE TRACKER */
 .np-page .np-beverages-r294{display:grid;gap:12px;padding:16px;border:1px solid var(--border);border-radius:16px;margin-top:10px}
 .np-page .np-beverages-head-r294{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
@@ -969,7 +1003,7 @@ const PAGE_STYLES = `
 .np-page .np-beverages-r294 button:disabled{opacity:.5;cursor:default}
 .np-page .np-beverages-form-r294,.np-page .np-beverage-edit-r294{display:flex;gap:9px;flex-wrap:wrap;align-items:end;background:var(--panel-soft);padding:11px;border-radius:11px}
 .np-page .np-beverages-form-r294 label,.np-page .np-beverage-edit-r294 label{display:grid;gap:5px;flex:1 1 140px;font-size:12px}
-.np-page .np-beverages-r294 input{width:100%;box-sizing:border-box;min-height:40px;border:1px solid var(--border-strong);background:var(--panel);color:var(--text);border-radius:8px;padding:7px;font:inherit;min-width:0}
+.np-page .np-beverages-r294 input,.np-page .np-beverages-r294 select{width:100%;box-sizing:border-box;min-height:40px;border:1px solid var(--border-strong);background:var(--panel);color:var(--text);border-radius:8px;padding:7px;font:inherit;min-width:0}
 .np-page .np-beverages-suggest-r294{display:flex;flex-wrap:wrap;gap:6px;width:100%}
 .np-page .np-beverages-list-r294{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:9px}
 .np-page .np-beverage-row-r294{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;background:var(--panel-soft);padding:11px;border:1px solid var(--border);border-radius:11px;min-width:0}
@@ -1428,7 +1462,7 @@ function definitionItems(value: unknown): readonly DefinitionItem[] | null {
       ? item.schedule.weekdays.filter((day): day is number => typeof day === "number" && Number.isInteger(day))
       : [];
     const measurement=isRecord(item.measurement) && typeof item.measurement.target==="number" && Number.isFinite(item.measurement.target) && item.measurement.target>0 && typeof item.measurement.unit==="string" ? {target:item.measurement.target,unit:item.measurement.unit} : undefined;
-    const activityLog: ActivityEntry[] = Array.isArray(item.activityLog) ? item.activityLog.filter((e): e is ActivityEntry => isRecord(e) && typeof e.id==="string" && typeof e.executionId==="string" && typeof e.at==="string" && typeof e.localDate==="string" && typeof e.note==="string" && typeof e.amount==="number" && Number.isFinite(e.amount) && [null,"achieved","expired","cancelled"].includes(e.endReason as null)) : [];
+    const activityLog: ActivityEntry[] = Array.isArray(item.activityLog) ? item.activityLog.filter((e): e is ActivityEntry => isRecord(e) && typeof e.id==="string" && typeof e.executionId==="string" && typeof e.at==="string" && typeof e.localDate==="string" && typeof e.note==="string" && typeof e.amount==="number" && Number.isFinite(e.amount) && [null,"achieved","expired","cancelled"].includes(e.endReason as null) && (e.beverageTime===undefined||typeof e.beverageTime==="string"&&/^([01]\d|2[0-3]):[0-5]\d$/.test(e.beverageTime))) : [];
     const sourcePlan=item.sessionPlan;
     const parsedSessions:StoredTaskSessionR254[]|null=isRecord(sourcePlan)&&Array.isArray(sourcePlan.sessions)&&sourcePlan.sessions.length<=200
       ?sourcePlan.sessions.every((s:unknown)=>isRecord(s)&&typeof s.id==="string"&&typeof s.title==="string"&&typeof s.objective==="string"&&typeof s.note==="string"&&Number.isInteger(s.revision)&&Number.isInteger(s.order)&&typeof s.createdAt==="string"&&typeof s.updatedAt==="string"&&(s.completedAt===null||typeof s.completedAt==="string")&&(s.target===null||typeof s.target==="number")&&(s.rangeStart===null||Number.isSafeInteger(s.rangeStart))&&(s.rangeEnd===null||Number.isSafeInteger(s.rangeEnd)))
@@ -1440,8 +1474,12 @@ function definitionItems(value: unknown): readonly DefinitionItem[] | null {
     const sourceDrink=item.beveragePlan;
     const beveragePlan:NoorBeveragePlanR294|undefined=kind==="Habit"&&isRecord(sourceDrink)&&
       Number.isInteger(sourceDrink.targetServings)&&Number(sourceDrink.targetServings)>=1&&Number(sourceDrink.targetServings)<=30&&
-      (sourceDrink.servingMl===undefined||Number.isInteger(sourceDrink.servingMl)&&Number(sourceDrink.servingMl)>=1&&Number(sourceDrink.servingMl)<=2000)
-      ?{targetServings:sourceDrink.targetServings as number,...(sourceDrink.servingMl!==undefined?{servingMl:sourceDrink.servingMl as number}:{})}:undefined;
+      (sourceDrink.servingMl===undefined||Number.isInteger(sourceDrink.servingMl)&&Number(sourceDrink.servingMl)>=1&&Number(sourceDrink.servingMl)<=2000)&&
+      (sourceDrink.kind===undefined||["coffee","tea","other"].includes(String(sourceDrink.kind)))&&
+      (sourceDrink.sleepTime===undefined||typeof sourceDrink.sleepTime==="string"&&/^([01]\d|2[0-3]):[0-5]\d$/.test(sourceDrink.sleepTime))
+      ?{targetServings:sourceDrink.targetServings as number,...(sourceDrink.servingMl!==undefined?{servingMl:sourceDrink.servingMl as number}:{}),
+       ...(typeof sourceDrink.kind==="string"?{kind:sourceDrink.kind as NoorBeveragePlanR294["kind"]}:{}),
+       ...(typeof sourceDrink.sleepTime==="string"?{sleepTime:sourceDrink.sleepTime}:{})}:undefined;
     result.push({ weight:typeof item.weight==="number"&&item.weight>0?item.weight:1,...(typeof item.displayOrder==='number'&&Number.isSafeInteger(item.displayOrder)?{displayOrder:item.displayOrder}:{}),...(typeof item.timeOfDay==='string'?{timeOfDay:item.timeOfDay}:{}),...(quranPlan?{quranPlan}:{}),...(beveragePlan?{beveragePlan}:{}),id, revisionId:stringValue(item.revisionId)??"", title, state, kind, category, scheduleKind, weekdays, startDate, endDate, importance, ...(measurement?{measurement}:{}), ...(sessionPlan?{sessionPlan}:{}), ...(taskGeneralNote!==undefined?{taskGeneralNote}:{}), ...(description!==undefined?{description}:{}), activityLog });
   }
   return result;
@@ -1782,7 +1820,7 @@ export function DefinitionForm({busy,onCommand,onSavingChange,defaultStartDate,d
   if(!noorExistingCategory(selectedCategory,categoryChoices)){setError("اختر تصنيفًا مسجلًا أو أضف تصنيفًا جديدًا أولًا.");return;}
   if(showCategoryAdd){setError("أكمل إضافة التصنيف أو ألغِ إضافة التصنيف قبل حفظ العنصر.");return;}
   const endDate=selectedKind==="Habit"&&duration==="continuous"?null:text("endDate")||null;
-  const fields={weight:Number(text("weight")||initial?.weight||1),...(selectedKind==="Habit"&&text("timeOfDay")?{timeOfDay:text("timeOfDay")}:{}),...(selectedKind==="Habit"&&(quranEnabled||initial?.quranPlan)?{quranPlan:quranEnabled?{anchorDate:quranAnchorDate,firstQuarter:quranFirstQuarter,repeatOccurrences:quranRepeatOccurrences}:null}:{}),kind:selectedKind,title:text("title"),category:selectedCategory,description:text("description"),...(initial?.beveragePlan&&selectedKind==="Habit"?{beveragePlan:{targetServings:Number(beverageTarget),...(beverageMl?{servingMl:Number(beverageMl)}:{})}}:{}),startDate:text("startDate"),endDate,scheduleKind,weekdays:scheduleKind==="Weekdays"?days:[],importance:text("importance") as "Essential"|"Important"|"Supporting"|"Optional",...(selectedKind==="Task"&&text("progressTarget")?{measurement:{target:Number(text("progressTarget")),unit:text("progressUnit")}}:{}),...(selectedKind==="Task"&&(sessionEnabled||initial?.sessionPlan)?{sessionPlan:sessionEnabled?{distribution:sessionDistribution,sessions:sessionDrafts}:null}:{})};
+  const fields={weight:Number(text("weight")||initial?.weight||1),...(selectedKind==="Habit"&&text("timeOfDay")?{timeOfDay:text("timeOfDay")}:{}),...(selectedKind==="Habit"&&(quranEnabled||initial?.quranPlan)?{quranPlan:quranEnabled?{anchorDate:quranAnchorDate,firstQuarter:quranFirstQuarter,repeatOccurrences:quranRepeatOccurrences}:null}:{}),kind:selectedKind,title:text("title"),category:selectedCategory,description:text("description"),...(initial?.beveragePlan&&selectedKind==="Habit"?{beveragePlan:{targetServings:Number(beverageTarget),...(beverageMl?{servingMl:Number(beverageMl)}:{}),...(initial.beveragePlan.kind?{kind:initial.beveragePlan.kind}:{}),...(initial.beveragePlan.sleepTime?{sleepTime:initial.beveragePlan.sleepTime}:{})}}:{}),startDate:text("startDate"),endDate,scheduleKind,weekdays:scheduleKind==="Weekdays"?days:[],importance:text("importance") as "Essential"|"Important"|"Supporting"|"Optional",...(selectedKind==="Task"&&text("progressTarget")?{measurement:{target:Number(text("progressTarget")),unit:text("progressUnit")}}:{}),...(selectedKind==="Task"&&(sessionEnabled||initial?.sessionPlan)?{sessionPlan:sessionEnabled?{distribution:sessionDistribution,sessions:sessionDrafts}:null}:{})};
   setError("");definitionSaveLock.current=true;onSavingChange?.(true);
   let ok=false;
   try{ok=await onCommand(initial?{...fields,type:"update-definition",definitionId:initial.id,expectedRevisionId:initial.revisionId}:{...fields,type:"create-definition"});}
@@ -2535,7 +2573,7 @@ function Dashboard({ view:providedView, workspace, busy, actionError, onCommand,
     {/* NOOR_MINIMAL_DAY_STRIP_R111: date only; navigation stays in the weekly strip. */}
     
     <NoorBeverageTrackerR294 rows={beverageRows} allNames={(workspace?.definitions??[]).filter(d=>d.kind==="Habit"&&!!d.beveragePlan&&d.state!=="Archived").map(d=>d.title)}
-      localDate={view.localDate??""} busy={busy} onCommand={onCommand} historical={historyDate!==null}/>
+      localDate={view.localDate??""} timeZone={view.timeZone} busy={busy} onCommand={onCommand} historical={historyDate!==null}/>
 
     <div className="np-main-grid np-daily-only" data-history-page={historyDate?"historical":"current"}>
       <div className="np-execution-stack">

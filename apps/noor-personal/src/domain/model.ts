@@ -168,6 +168,7 @@ export interface ActivityEntry {
     readonly endReason: "achieved" | "expired" | "cancelled" | null;
     readonly taskSessionId?: string;
     readonly sessionDayCredit?: number;
+    readonly beverageTime?: string; // owner-entered wall clock; `at` remains the immutable audit instant
 }
 export interface ProgressMeasurement { readonly target: number; readonly unit: string; }
 
@@ -184,6 +185,8 @@ export interface QuranHabitPlan {
 export interface BeverageHabitPlan {
     readonly targetServings: number; // 1..30 daily servings
     readonly servingMl?: number; // optional size 1..2000 ml, informational
+    readonly kind?: "coffee" | "tea" | "other";
+    readonly sleepTime?: string; // owner-selected HH:MM, default 00:00
 }
 
 export interface ExecutionDefinition {

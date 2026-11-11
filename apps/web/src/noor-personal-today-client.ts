@@ -1,5 +1,5 @@
 export type NoorQuranHabitPlanR289=Readonly<{anchorDate:string;firstQuarter:number;repeatOccurrences:number}>;
-export type NoorBeveragePlanR294=Readonly<{targetServings:number;servingMl?:number}>;
+export type NoorBeveragePlanR294=Readonly<{targetServings:number;servingMl?:number;kind?:"coffee"|"tea"|"other";sleepTime?:string}>;
 export type NoorTaskSessionDraft = Readonly<{id:string;title:string;objective:string;target:number|null;rangeStart:number|null;rangeEnd:number|null;scheduledDate?:string|null}>;
 export type NoorTaskSessionPlanDraft = Readonly<{distribution:"equal"|"custom";sessions:readonly NoorTaskSessionDraft[]}>;
 
@@ -30,7 +30,8 @@ export type NoorPersonalCommandInput =
   | Readonly<{type:"edit-task-session-note";definitionId:string;taskSessionId:string;expectedRevision:number;note:string}>
   | Readonly<{type:"record-task-session-progress";executionId:string;taskSessionId:string;entryId:string;amount:number;note:string}>
   | Readonly<{type:"complete-task-session";executionId:string;taskSessionId:string;entryId:string}>
-  | Readonly<{type:"adjust-beverage-serving";executionId:string;entryId:string;delta:1|-1}>
+  | Readonly<{type:"adjust-beverage-serving";executionId:string;entryId:string;delta:1|-1;beverageTime?:string}>
+   | Readonly<{type:"set-beverage-bedtime";sleepTime:string}>
   | Readonly<{type:"set-account-location";requestId:string;expectedRevisionId:string;city:{name:string;country:string;latitude:number;longitude:number;timeZone:string}}>
   | Readonly<{type:"rebalance-habit-weights";changes:readonly Readonly<{definitionId:string;expectedRevisionId:string;weight:number}>[]}>
   | Readonly<{type:"correct-historical-execution";executionId:string;localDate:string;expectedStatus:"Completed"|"Missed"|"Pending"|"Planned"|"InProgress";completed:boolean}>
