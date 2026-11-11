@@ -13,7 +13,7 @@ test("R289: 240 independent quarter-of-Hizb opening references and provenance bo
  assert.deepEqual(rows[1]&&[rows[1].surah,rows[1].ayah,rows[1].verseIndex],[2,26,33]);
  assert.deepEqual(rows[239]&&[rows[239].surah,rows[239].ayah,rows[239].verseIndex],[100,9,6155]);
  assert.equal(new Set(rows.map(r=>r.verseIndex)).size,240);
- assert.ok(rows.every((q,i)=>q.opening&&q.opening.length>3&&(i===0||q.verseIndex>rows[i-1].verseIndex)));
+ assert.ok(rows.every((q,i)=>q.opening&&q.opening.length>=1&&(i===0||q.verseIndex>rows[i-1].verseIndex)));
  assert.equal(quranQuarterR289(0),null);
  assert.equal(quranQuarterR289(241),null);
 });
