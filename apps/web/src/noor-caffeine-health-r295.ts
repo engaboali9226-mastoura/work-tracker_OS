@@ -8,7 +8,7 @@ export type DrinkRowR295=Readonly<{id:string;title:string;executionId:string;
  log:readonly DrinkEventR295[]}>;
 export const DEFAULT_SLEEP_R295="00:00";
 export function validClockR295(v:unknown):v is string{
- return typeof v==="string"&&/^([01]\\d|2[0-3]):[0-5]\\d$/.test(v);
+ return typeof v==="string"&&/^([01]\d|2[0-3]):[0-5]\d$/.test(v);
 }
 export function kindForDrinkR295(row:DrinkRowR295):CaffeineKindR295{
  if(row.plan.kind)return row.plan.kind;
