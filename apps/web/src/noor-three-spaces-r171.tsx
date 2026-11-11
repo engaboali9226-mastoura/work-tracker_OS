@@ -336,6 +336,16 @@ export function NoorThreeSpacesR171({personalDate,storage=indexedNotesR173,trust
  const show=(kind:SpaceKindR171,event:import('react').MouseEvent<HTMLButtonElement>)=>{
   opener.current=event.currentTarget;setActive(kind);setView(kind==='feelings'&&r202Production?'history':'add');setError('');setConfirmDelete(null);setStatus('');
  };
+ // R289: My Space is the only production entry for legacy feelings.
+ // Read the same owner-scoped journal; never copy/migrate/delete archived notes.
+ useEffect(()=>{
+  if(typeof document==="undefined")return;
+  const openArchive=()=>{
+   setActive("feelings");setView("history");setError("");setConfirmDelete(null);setStatus("");
+  };
+  document.addEventListener("noor:open-legacy-feelings",openArchive);
+  return()=>document.removeEventListener("noor:open-legacy-feelings",openArchive);
+ },[]);
  const close=()=>{setActive(null);setError('');setConfirmDelete(null);};
  const save=async(event:FormEvent<HTMLFormElement>)=>{
   event.preventDefault();if(!active||saving)return;
@@ -419,7 +429,7 @@ export function NoorThreeSpacesR171({personalDate,storage=indexedNotesR173,trust
   if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first?.focus();}
  };
  return <><style>{STYLES}</style><div className="nr171-shortcuts" aria-label="مساحات التدوين في إنجاز اليوم" data-testid="noor-three-spaces-r171">
-  {(['feelings','ideas','developer'] as const).map(kind=><button key={kind} type="button" className={`nr171-shortcut nr171-${kind}`} data-testid={`r171-shortcut-${kind}`} onClick={event=>show(kind,event)} aria-label={`فتح ${TITLES_R171[kind]} وإضافة أو مراجعة التدوينات${kind==="feelings"&&r202Production?" — السجل السابق فقط":""}`}>
+  {(r202Production?(['ideas','developer'] as const):(['feelings','ideas','developer'] as const)).map(kind=><button key={kind} type="button" className={`nr171-shortcut nr171-${kind}`} data-testid={`r171-shortcut-${kind}`} onClick={event=>show(kind,event)} aria-label={`فتح ${TITLES_R171[kind]} وإضافة أو مراجعة التدوينات${kind==="feelings"&&r202Production?" — السجل السابق فقط":""}`}>
    <span className="nr171-icon" aria-hidden="true">{kind==='feelings'?<svg className="nr180-symbol" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M20.3 9.1c0 4-5.1 8.1-8.3 10.5C8.8 17.2 3.7 13.1 3.7 9.1a4.7 4.7 0 0 1 8.3-3 4.7 4.7 0 0 1 8.3 3Z"/></svg>:kind==='ideas'?<svg className="nr180-symbol" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M9 17.2h6m-5.1 2.9h4.2M12 2.7a6.3 6.3 0 0 0-3.6 11.4c.7.5 1.2 1.4 1.3 2.3h4.6c.1-.9.6-1.8 1.3-2.3A6.3 6.3 0 0 0 12 2.7Z"/></svg>:<svg className="nr180-symbol" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M4 6h16M4 12h16M4 18h16"/><circle cx="9" cy="6" r="2" fill="var(--nr180-surface,#fffefa)"/><circle cx="16" cy="12" r="2" fill="var(--nr180-surface,#fffefa)"/><circle cx="11" cy="18" r="2" fill="var(--nr180-surface,#fffefa)"/></svg>}</span>
 
   </button>)}
