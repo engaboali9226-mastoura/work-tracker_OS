@@ -1672,7 +1672,7 @@ function GregorianDateInput({id,name,label,defaultValue="",required=false,max,on
  const error=any&&!all?'أكمل اليوم والشهر والسنة.':max&&value>max?'اختر تاريخًا لا يتجاوز الحد المسموح.':'';
  useEffect(()=>{first.current?.setCustomValidity(error);},[error]);
  useEffect(()=>{onValueChange?.(value);},[value,onValueChange]);
- const yearNow=new Date().getFullYear(),years=[...new Set([...Array.from({length:121},(_,i)=>yearNow+20-i),...(parts.year?[Number(parts.year)]:[])])].sort((a,b)=>b-a);
+ const yearNow=new Date().getFullYear(),years=[...new Set([...Array.from({length:101},(_,i)=>yearNow-i),...Array.from({length:20},(_,i)=>yearNow+i+1),...(parts.year?[Number(parts.year)]:[])])];
  const months=['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
  return <fieldset className="np-field np-gregorian-date"><legend id={`${id}-label`} className="np-label">{label}{required?' *':''}</legend><div className="np-gregorian-parts" role="group" aria-labelledby={`${id}-label`}>
  <select ref={first} aria-label={`${label}: اليوم الميلادي`} required={required} value={parts.day} onChange={e=>change('day',e.currentTarget.value)}><option value="">اليوم</option>{Array.from({length:countDays(parts.year,parts.month)},(_,i)=>String(i+1).padStart(2,'0')).map(day=><option value={day} key={day}>{day}</option>)}</select>
