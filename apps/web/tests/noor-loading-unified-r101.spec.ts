@@ -55,7 +55,7 @@ test("R101 retains real failed states instead of masking them as loading", () =>
     initialWorkspace: null,
   }));
   assert.match(failed, /Application unavailable/u);
-  assert.match(unavailable, /الخدمة غير متاحة/u);
+  assert.match(unavailable, /نور غير متصل/u);assert.match(unavailable, /إعادة الاتصال/u);
   assert.doesNotMatch(failed, /noor-entry-logo/u);
   assert.doesNotMatch(unavailable, /noor-personal-initial-loading-r100/u);
 });
