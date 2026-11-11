@@ -2534,7 +2534,7 @@ function Dashboard({ view:providedView, workspace, busy, actionError, onCommand,
     </section>
     {/* NOOR_MINIMAL_DAY_STRIP_R111: date only; navigation stays in the weekly strip. */}
     
-    <NoorBeverageTrackerR294 rows={beverageRows} allNames={(workspace?.definitions??[]).filter(d=>d.kind==="Habit"&&d.state!=="Archived").map(d=>d.title)}
+    <NoorBeverageTrackerR294 rows={beverageRows} allNames={(workspace?.definitions??[]).filter(d=>d.kind==="Habit"&&!!d.beveragePlan&&d.state!=="Archived").map(d=>d.title)}
       localDate={view.localDate??""} busy={busy} onCommand={onCommand} historical={historyDate!==null}/>
 
     <div className="np-main-grid np-daily-only" data-history-page={historyDate?"historical":"current"}>
