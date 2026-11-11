@@ -81,13 +81,16 @@ export function NoorBeverageTrackerR294({rows,allNames=[],localDate,busy,onComma
  const adjust=async(row:BeverageRowR294,delta:1|-1,beverageTime?:string):Promise<boolean>=>{
   if(busy||historical||saving)return false;
   const previous=uncertain.current;
-  if(previous&&(previous.executionId!==row.executionId||previous.delta!==delta||previous.time!==beverageTime)){
+  if(previous&&(previous.executionId!==row.executionId||previous.delta!==delta)){
    setError("لم يتأكد آخر تسجيل. أعد المحاولة نفسها أو حدّث الصفحة قبل تعديل عداد آخر.");return false;
   }
+  // Reuse the exact submitted wall-clock on retry; a minute rollover cannot
+  // forge a second event or break idempotent replay after an unknown response.
+  const recordedTime=previous?.time??beverageTime;
   const entryId=previous?.id??globalThis.crypto.randomUUID();
-  uncertain.current={id:entryId,executionId:row.executionId,delta,...(beverageTime?{time:beverageTime}:{})};
+  uncertain.current={id:entryId,executionId:row.executionId,delta,...(recordedTime?{time:recordedTime}:{})};
   const ok=await run({type:"adjust-beverage-serving",executionId:row.executionId,entryId,delta,
-    ...(delta===1&&beverageTime?{beverageTime}:{})},
+    ...(delta===1&&recordedTime?{beverageTime:recordedTime}:{})},
     "لم يتأكد تسجيل الحصة؛ أعد المحاولة نفسها دون تكرار العدد.");
   if(ok)uncertain.current=null;
   return ok;
