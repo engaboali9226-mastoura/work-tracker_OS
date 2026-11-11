@@ -960,6 +960,40 @@ const PAGE_STYLES = `
 .np-page .np-habit-help-r288[open]{flex-basis:100%}
 .np-page .np-habit-help-r288-content{padding:8px 10px;border:1px solid var(--border);border-radius:9px;background:var(--panel-soft);color:var(--text);line-height:1.7}
 .np-page .np-habit-help-r288-content p{margin:3px 0;overflow-wrap:anywhere}
+/* NOOR R295 CAFFEINE ADVISORY CARD */
+.np-page .np-caffeine-summary-r295{display:grid;gap:10px}
+.np-page .np-caffeine-tally-r295{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+.np-page .np-caffeine-tally-r295>div{display:flex;flex-direction:column;gap:3px;align-items:center;justify-content:center;min-width:0;padding:11px 6px;border:1px solid var(--border);background:var(--panel-soft);border-radius:12px}
+.np-page .np-caffeine-tally-r295 span{font-size:11px;color:var(--muted);text-align:center}
+.np-page .np-caffeine-tally-r295 strong{font-size:23px;font-variant-numeric:tabular-nums}
+.np-page .np-caffeine-signal-r295{display:flex;gap:7px 10px;align-items:center;flex-wrap:wrap;border-radius:12px;padding:10px 12px;border:1px solid var(--border)}
+.np-page .np-caffeine-signal-r295 strong{font-size:13px}
+.np-page .np-caffeine-signal-r295 span:last-child{font-size:12px;line-height:1.6}
+.np-page .np-caffeine-led-r295{width:11px;height:11px;border-radius:50%;display:block;flex:0 0 11px}
+.np-page .np-caffeine-green{background:#e9f5ee;color:#205b42;border-color:#b9dfc9}
+.np-page .np-caffeine-green .np-caffeine-led-r295{background:#21965d}
+.np-page .np-caffeine-yellow{background:#fff5df;color:#835c15;border-color:#ecd69b}
+.np-page .np-caffeine-yellow .np-caffeine-led-r295{background:#d8a12f}
+.np-page .np-caffeine-red{background:#fff0ee;color:#8e3437;border-color:#e5b4b0}
+.np-page .np-caffeine-red .np-caffeine-led-r295{background:#db525a}
+.np-page .np-caffeine-controls-r295,.np-page .np-caffeine-quick-r295,.np-page .np-caffeine-picker-actions-r295{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.np-page .np-caffeine-controls-r295{padding:8px 0;justify-content:space-between}
+.np-page .np-caffeine-quick-r295>button{font-weight:700}
+.np-page .np-caffeine-bedtime-r295{display:flex;gap:8px;align-items:center;font-size:12px}
+.np-page .np-caffeine-bedtime-r295 input{width:115px}
+.np-page .np-caffeine-time-picker-r295{padding:13px;border:1px solid var(--border-strong);border-radius:13px;background:var(--panel-soft);display:grid;gap:10px}
+.np-page .np-caffeine-time-options-r295{display:flex;gap:6px;flex-wrap:wrap}
+.np-page .np-caffeine-time-options-r295 button{min-height:38px;font-size:12px}
+.np-page .np-caffeine-time-options-r295 button[aria-pressed=true]{background:var(--text);border-color:var(--text);color:var(--panel)}
+.np-page .np-caffeine-time-picker-r295 label{display:flex;gap:7px;align-items:center}
+.np-page .np-caffeine-time-picker-r295 label input{width:130px}
+.np-page .np-caffeine-picker-actions-r295>button:first-child{background:var(--text);color:var(--panel);font-weight:700}
+.np-page .np-caffeine-history-r295{display:grid;gap:7px}
+.np-page .np-caffeine-history-r295>strong{font-size:12px}
+.np-page .np-caffeine-history-r295 ol{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:7px}
+.np-page .np-caffeine-history-r295 li{padding:5px 9px;border:1px solid var(--border);border-radius:9px;background:var(--panel-soft);font-size:11px;display:flex;align-items:center;gap:8px}
+.np-page .np-caffeine-history-r295 time{font-variant-numeric:tabular-nums;font-weight:700}
+@media(max-width:600px){.np-page .np-caffeine-controls-r295{align-items:stretch}.np-page .np-caffeine-tally-r295 strong{font-size:19px}.np-page .np-caffeine-bedtime-r295{justify-content:space-between}.np-page .np-caffeine-bedtime-r295 input{width:125px}}
 /* NOOR R294 BEVERAGE TRACKER */
 .np-page .np-beverages-r294{display:grid;gap:12px;padding:16px;border:1px solid var(--border);border-radius:16px;margin-top:10px}
 .np-page .np-beverages-head-r294{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
@@ -969,7 +1003,7 @@ const PAGE_STYLES = `
 .np-page .np-beverages-r294 button:disabled{opacity:.5;cursor:default}
 .np-page .np-beverages-form-r294,.np-page .np-beverage-edit-r294{display:flex;gap:9px;flex-wrap:wrap;align-items:end;background:var(--panel-soft);padding:11px;border-radius:11px}
 .np-page .np-beverages-form-r294 label,.np-page .np-beverage-edit-r294 label{display:grid;gap:5px;flex:1 1 140px;font-size:12px}
-.np-page .np-beverages-r294 input{width:100%;box-sizing:border-box;min-height:40px;border:1px solid var(--border-strong);background:var(--panel);color:var(--text);border-radius:8px;padding:7px;font:inherit;min-width:0}
+.np-page .np-beverages-r294 input,.np-page .np-beverages-r294 select{width:100%;box-sizing:border-box;min-height:40px;border:1px solid var(--border-strong);background:var(--panel);color:var(--text);border-radius:8px;padding:7px;font:inherit;min-width:0}
 .np-page .np-beverages-suggest-r294{display:flex;flex-wrap:wrap;gap:6px;width:100%}
 .np-page .np-beverages-list-r294{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:9px}
 .np-page .np-beverage-row-r294{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;background:var(--panel-soft);padding:11px;border:1px solid var(--border);border-radius:11px;min-width:0}
