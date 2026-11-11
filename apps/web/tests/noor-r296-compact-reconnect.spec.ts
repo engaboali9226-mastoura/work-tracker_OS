@@ -1,6 +1,9 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import {createElement} from "react";
+import {act,createElement} from "react";
+import {createRoot} from "react-dom/client";
+import {JSDOM} from "jsdom";
+import {NoorPersonalApplicationView} from "../src/noor-personal-application-view.js";
 import {renderToStaticMarkup} from "react-dom/server";
 import {readFileSync} from "node:fs";
 import {NoorBeverageTrackerR294} from "../src/noor-beverage-tracker-r294.js";
@@ -57,4 +60,44 @@ test("R296: recover an asleep server from the current page without navigation or
  assert.match(src,/title="نور غير متصل" onRetry=/);
  assert.match(src,/onReconnect=\{\(\)=>\{void reconnect\(\);\}\}/);
  assert.equal((src.match(/window.location.replace\("\/"\)/g)??[]).length,1); // logout only
+});
+
+test("R296: clicking recovery after a sleeping service retries live reads without navigating or losing the mounted app",async()=>{
+ const dom=new JSDOM('<!doctype html><html><body><div id="root"></div></body></html>',{url:"https://noor.test/noor-personal"});
+ const globals:Record<string,unknown>={
+  window:dom.window,document:dom.window.document,navigator:dom.window.navigator,
+  Node:dom.window.Node,Element:dom.window.Element,HTMLElement:dom.window.HTMLElement,
+  MutationObserver:dom.window.MutationObserver,
+  getComputedStyle:dom.window.getComputedStyle.bind(dom.window),IS_REACT_ACT_ENVIRONMENT:true
+ };
+ let attempts=0;
+ globals.fetch=async(input:unknown)=>{
+  if(String(input).startsWith("/api/noor/personal/")){attempts++;return new Response("waking up",{status:503,headers:{"content-type":"text/plain"}});}
+  return new Response("{}",{status:200,headers:{"content-type":"application/json"}});
+ };
+ const originals=new Map<string,PropertyDescriptor|undefined>();
+ for(const [key,value] of Object.entries(globals)){
+  originals.set(key,Object.getOwnPropertyDescriptor(globalThis,key));
+  Object.defineProperty(globalThis,key,{value,configurable:true,writable:true});
+ }
+ const root=createRoot(dom.window.document.getElementById("root")!);
+ try{
+  await act(async()=>{
+   root.render(createElement(NoorPersonalApplicationView,{
+    initialResult:{kind:"unavailable"},initialWorkspace:{kind:"unavailable"}
+   }));
+  });
+  const button=dom.window.document.querySelector('[data-testid="r296-reconnect-state"]') as HTMLButtonElement;
+  assert.ok(button);
+  const oldHref=dom.window.location.href;
+  await act(async()=>{button.click();});
+  assert.ok(attempts>=2,"reconnection must make new authenticated Today and Workspace calls");
+  assert.equal(dom.window.location.href,oldHref,"retry must not reload the app");
+  assert.ok(dom.window.document.querySelector('[data-testid="r296-reconnect-state"]'));
+  assert.equal((dom.window.document.querySelector('[data-testid="r296-reconnect-state"]') as HTMLButtonElement).disabled,false);
+ }finally{
+  await act(async()=>root.unmount());
+  for(const [key,desc] of originals){if(desc)Object.defineProperty(globalThis,key,desc);else Reflect.deleteProperty(globalThis,key);}
+  dom.window.close();
+ }
 });
