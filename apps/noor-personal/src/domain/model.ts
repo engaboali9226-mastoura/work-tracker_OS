@@ -179,10 +179,18 @@ export interface QuranHabitPlan {
     readonly repeatOccurrences: number; // 1..30 scheduled executions per quarter
 }
 
+/** R294: a drink counter is an ordinary daily Habit with independent counted servings.
+ * Quantities are never inferred from a habit name or used as medical advice. */
+export interface BeverageHabitPlan {
+    readonly targetServings: number; // 1..30 daily servings
+    readonly servingMl?: number; // optional size 1..2000 ml, informational
+}
+
 export interface ExecutionDefinition {
     readonly displayOrder?: number;
     readonly timeOfDay?: string;
     readonly quranPlan?: QuranHabitPlan;
+    readonly beveragePlan?: BeverageHabitPlan;
     readonly measurement?: ProgressMeasurement;
     readonly activityLog?: readonly ActivityEntry[];
     readonly sessionPlan?: TaskSessionPlan;
