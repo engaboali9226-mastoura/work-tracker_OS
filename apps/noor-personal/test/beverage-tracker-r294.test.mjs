@@ -72,6 +72,22 @@ test("R294: coffee 2 servings and tea 1 serving persist independently with exact
  assert.equal(f.drink().activityLog.length,6,"cannot subtract below zero");
 });
 
+test("R294: editing daily serving target reconciles only today's completion without rewriting events",async()=>{
+ const f=fixture();
+ await f.service.execute("owner",parsePersonalCommand(cmd("one")));
+ await f.service.execute("owner",parsePersonalCommand(cmd("two")));
+ assert.equal(f.item().status,"Completed");
+ const update=(plan)=>({...template,type:"update-definition",definitionId:base.id,
+  expectedRevisionId:f.drink().revisionId,title:"قهوة",beveragePlan:plan});
+ await f.service.execute("owner",parsePersonalCommand(update({targetServings:3,servingMl:180})));
+ assert.equal(f.item().status,"Pending");
+ assert.equal(f.drink().activityLog.length,2);
+ await f.service.execute("owner",parsePersonalCommand(update({targetServings:1,servingMl:180})));
+ assert.equal(f.item().status,"Completed");
+ assert.equal(f.drink().activityLog.length,2);
+ assert.equal(f.drink().activityLog[0].localDate,date);
+});
+
 test("R294: cannot tick beverage completion by hand, forge activity amounts or backdate another day",async()=>{
  const f=fixture();
  await assert.rejects(()=>f.service.execute("owner",{type:"set-execution-completed",executionId:execution.id,completed:true}),/BEVERAGE_COMPLETION_FROM_SERVINGS_ONLY/);
