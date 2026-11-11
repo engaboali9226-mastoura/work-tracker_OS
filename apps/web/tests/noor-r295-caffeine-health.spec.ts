@@ -48,7 +48,7 @@ test("R295: legacy event without wall-clock falls back to timestamp in account t
 test("R295: card renders exact counts, status, quick choices, owner bedtime and historical-only mode",()=>{
  const coffee=row("coffee","coffee",["08:00","22:15"]),tea=row("tea","tea",["11:00"]);
  const html=renderToStaticMarkup(createElement(NoorBeverageTrackerR294,{rows:[coffee,tea],allNames:["قهوة","شاي"],localDate:date,timeZone:zone,busy:false,onCommand:async()=>true}));
- assert.match(html,/المشروبات المنبّهة اليوم/);
+ assert.match(html,/القهوة والشاي/);
  assert.match(html,/data-testid="r295-health-indicator"/);
  assert.match(html,/data-level="red"/);
  assert.match(html,/>القهوة</);
