@@ -50,6 +50,34 @@ const futurePrayerAt=new Date(Date.now()+3_600_000).toISOString();
 const today={kind:"success" as const,today:{personalDay:{id:"day",userId:"user",state:"Open",boundary:{localDate:"2026-10-24",timeZone:"Asia/Riyadh"}},islamicContext:{hijriDate:{day:13,month:5,year:1448},prayerTimes:{fajr:"2026-10-25T01:37:00.000Z",nextFajr:"2026-10-26T01:38:00.000Z",sunrise:"2026-10-25T02:54:00.000Z",dhuhr:"2026-10-25T08:38:00.000Z",asr:"2026-10-25T11:52:00.000Z",maghrib:"2026-10-25T14:20:00.000Z",isha:"2026-10-25T15:50:00.000Z"}},nextPrayer:{name:"Fajr",at:futurePrayerAt,secondsRemaining:3600},tasks:[{id:"e1",definitionId:"d1",kind:"Task",title:"تمرين",status:"Planned"}],habits:[{id:"e2",definitionId:"d2",kind:"Habit",title:"المشي",status:"Pending"}],automationPending:0}};
 const workspace={kind:"success" as const,workspace:{definitions:[{id:"d1",kind:"Task",title:"تمرين",state:"Active",category:"الصحة والرياضة",schedule:{kind:"Weekdays",weekdays:[0,2,4]},effectiveFromDate:"2026-10-25",importance:"Important"},{id:"d2",kind:"Habit",title:"المشي",state:"Active",category:"الصحة والرياضة",schedule:{kind:"Daily"},effectiveFromDate:"2026-10-25",importance:"Supporting"}],insights:{currentStreakDays:2,bestStreakDays:4,periods:{week:{windowDays:7,scheduled:2,completed:0,completionRate:0,successfulDays:0},month:{windowDays:30,scheduled:2,completed:0,completionRate:0,successfulDays:0},quarter:{windowDays:90,scheduled:2,completed:0,completionRate:0,successfulDays:0},year:{windowDays:365,scheduled:2,completed:0,completionRate:0,successfulDays:0}}}}};
 
+
+test("R287 regression: Personal renders a task with scheduled reading sessions without crashing the entire app",async()=>{
+ const t=installDom();
+ const root=createRoot(t.container);
+ const readingTask={
+  ...workspace.workspace.definitions[0]!,
+  title:"قراءة كتاب",revisionId:"revision-reading",measurement:{target:12,unit:"صفحة"},
+  sessionPlan:{distribution:"custom",sessions:[{
+   id:"reading-session-one",title:"الجلسة الأولى",objective:"قراءة 12 صفحة",
+   target:12,rangeStart:1,rangeEnd:12,scheduledDate:"2026-10-24",
+   order:1,note:"",revision:0,createdAt:"2026-10-24T00:00:00Z",
+   updatedAt:"2026-10-24T00:00:00Z",completedAt:null,
+  }]},
+ };
+ const input={...workspace,workspace:{...workspace.workspace,definitions:[readingTask,workspace.workspace.definitions[1]!]}};
+ try{
+  await act(async()=>{root.render(createElement(NoorPersonalApplicationView,{initialResult:today,initialWorkspace:input}));});
+  assert.ok(t.container.querySelector('[data-testid="today-summary"]'),"Personal view should remain mounted");
+  assert.ok(t.container.querySelector('[data-testid="task-sessions-r254"]'),"Scheduled reading session should be rendered");
+  assert.ok(t.container.querySelector('[data-testid="r285-session-complete-reading-session-one"]'),"Session completion checkbox should be visible");
+  assert.equal(t.container.querySelector('[data-testid="r285-session-complete-reading-session-one"]')?.hasAttribute("disabled"),false,
+   "Today-owned scheduled session must remain actionable");
+ } finally{
+  await act(async()=>{root.unmount();});
+  t.restore();t.dom.window.close();
+ }
+});
+
 test("civil header uses Latin 0-9 digits and no year grouping",()=>{const labels=civilDateLabels(Date.parse("2026-10-25T12:00:00.000Z"),"Asia/Riyadh");assert.match(labels.hijri,/1448/);assert.doesNotMatch(labels.hijri,/1,448/);assert.match(labels.gregorian,/2026/);assert.doesNotMatch(`${labels.gregorian} ${labels.hijri}`,/[٠-٩]/);});
 test("prayer countdown derives continuously from prayer instant rather than stored secondsRemaining",()=>{const at="2026-10-25T12:00:10.000Z";assert.equal(remainingPrayerSeconds(at,Date.parse("2026-10-25T12:00:00.000Z")),10);assert.equal(remainingPrayerSeconds(at,Date.parse("2026-10-25T12:00:03.000Z")),7);});
 test("night milestones are the midpoint and start of the final third between maghrib and the following fajr",()=>{const milestones=nightMilestones([{key:"fajr",label:"الفجر",at:"2026-10-25T01:00:00.000Z"},{key:"maghrib",label:"المغرب",at:"2026-10-25T15:00:00.000Z"}],"2026-10-26T01:00:00.000Z");assert.ok(milestones);assert.equal(milestones.midnight,"2026-10-25T20:00:00.000Z");assert.equal(milestones.lastThird,"2026-10-25T21:40:00.000Z");});
