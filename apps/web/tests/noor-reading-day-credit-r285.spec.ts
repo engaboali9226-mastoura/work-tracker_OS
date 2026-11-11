@@ -31,7 +31,7 @@ test("R285 reading session remaining target and checkbox quantity never double c
  assert.match(html,/data-testid="r285-session-complete-reading-1"/u);
  assert.match(html,/type="checkbox"/u);
  assert.match(html,/جلسة القراءة \(10 صفحة\)/u);
- assert.match(html,/كل تقدم يدخل في إنجاز يوم تسجيله/u);
+ assert.match(html,/كل تقدم يدخل في إنجاز تاريخ تسجيله/u);
 });
 test("R285 week and history agree on frozen partial share instead of all-or-nothing",()=>{
  const rows=[row({credit:0.25}),row({id:"pray",kind:"Habit",status:"Completed",weight:20,credit:1})];
