@@ -187,6 +187,8 @@ export interface ExecutionDefinition {
     readonly activityLog?: readonly ActivityEntry[];
     readonly sessionPlan?: TaskSessionPlan;
     readonly taskGeneralNote?: string;
+    /** Optional owner-authored description displayed in the '?' details. */
+    readonly description?: string;
     readonly id: string;
     readonly userId: string;
     readonly kind: DefinitionKind;
