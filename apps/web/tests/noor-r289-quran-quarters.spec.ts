@@ -38,5 +38,5 @@ test("R289: reject malformed plans and invalid civil dates, no guessing",()=>{
 test("R289: habit form offers a separate owner-specific quarter selector and preview",()=>{
  const html=renderToStaticMarkup(createElement(DefinitionForm,{busy:false,onCommand:async()=>true,defaultStartDate:"2026-11-11",defaultKind:"Habit",categories:["العبادات"]}));
  assert.match(html,/data-testid="r289-quran-plan-editor"/);
- assert.match(html,/ربط هذه العادة بأرباع الحزب/);
+ assert.match(html,/ورد قرآني متتابع: ربع حزب كل يوم استحقاق/);
 });
