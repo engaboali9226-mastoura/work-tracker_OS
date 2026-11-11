@@ -50,12 +50,12 @@ export function hoursBeforeSleepR295(drink:string,bed:string):number|null{
 export function classifyCaffeineR295(rows:readonly DrinkRowR295[],timeZone:string,sleepTime?:string){
  const bedtime=validClockR295(sleepTime)?sleepTime:DEFAULT_SLEEP_R295;
  let coffee=0,tea=0,other=0,closest=Number.POSITIVE_INFINITY;
- const recent:Array<Readonly<{kind:CaffeineKindR295;title:string;time:string|null;id:string}>>=[];
+ const recent:Array<Readonly<{kind:CaffeineKindR295;title:string;time:string|null;id:string;recordedAt:string}>>=[];
  for(const row of rows){
   const kind=kindForDrinkR295(row),events=activeServingsR295(row.log,row.executionId,timeZone);
   if(kind==="coffee")coffee+=events.length;else if(kind==="tea")tea+=events.length;else other+=events.length;
   for(const e of events){
-   recent.push({kind,title:row.title,time:e.time,id:e.id});
+   recent.push({kind,title:row.title,time:e.time,id:e.id,recordedAt:e.recordedAt});
    if(kind!=="other"&&e.time!==null){
     const delay=hoursBeforeSleepR295(e.time,bedtime);
     if(delay!==null)closest=Math.min(closest,delay);
@@ -70,5 +70,5 @@ export function classifyCaffeineR295(rows:readonly DrinkRowR295[],timeZone:strin
   :level==="yellow"
   ?closest<=6?"هناك مشروب منبّه قبل النوم بنحو 4–6 ساعات.":"وصل عدد القهوة أو الشاي إلى 3 أكواب."
   :"لا توجد تنبيهات حسب قواعد العدد وموعد النوم المختارين.";
- return {coffee,tea,other,total,level,reason,bedtime,recent:recent.slice(-8).reverse()};
+ return {coffee,tea,other,total,level,reason,bedtime,recent:recent.sort((a,b)=>Date.parse(b.recordedAt)-Date.parse(a.recordedAt)).slice(0,8)};
 }
