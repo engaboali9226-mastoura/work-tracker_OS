@@ -1,3 +1,4 @@
+import {quranQuarterR289,quranQuarterForDateR289,validQuranPlanR289,type QuranHabitPlanR289} from "./noor-quran-quarters-r289.js";
 import {TaskSessionPlannerR254,TaskSessionListR254,sessionFinishedR254,TASK_SESSION_STYLES_R254,type StoredTaskSessionPlanR254,type StoredTaskSessionR254} from "./noor-task-sessions-r254.js";
 import {shouldRefreshNoorOnResume} from "./noor-resume-sync-r259.js";
 import {revokeNoorBrowserSessionR269} from "./noor-session-logout-client-r269.js";
@@ -68,6 +69,7 @@ type DefinitionItem = Readonly<{
   weight:number;
   displayOrder?:number;
   timeOfDay?:string;
+  quranPlan?:QuranHabitPlanR289;
   revisionId:string;
   measurement?: {target:number;unit:string};
   activityLog: readonly ActivityEntry[];
@@ -924,6 +926,15 @@ const PAGE_STYLES = `
 }
 /* NOOR_COMPACT_ALIGNED_CARDS_R106_END */
 
+/* NOOR_R289_QURAN_QUARTER_FORM_AND_PREVIEW */
+.np-page .np-quran-plan-r289{grid-column:1/-1;border:1px solid var(--border);padding:12px;border-radius:12px;background:var(--panel-soft);display:grid;gap:10px}
+.np-page .np-quran-plan-r289>label{display:flex;align-items:center;gap:8px;cursor:pointer}
+.np-page .np-quran-plan-fields-r289{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:10px}
+.np-page .np-quran-plan-fields-r289 label{display:grid;gap:5px}
+.np-page .np-quran-plan-fields-r289 :is(input,select){min-width:0;width:100%;min-height:42px;border:1px solid var(--border-strong);border-radius:9px;padding:8px;background:var(--panel);color:var(--text);font:inherit}
+.np-page .np-quran-plan-fields-r289 p{grid-column:1/-1;margin:0;color:var(--muted);font-size:12px;line-height:1.8}
+.np-page .np-quran-habit-detail-r289{padding:5px 0;border-top:1px solid var(--border);margin-top:7px}
+.np-page .np-quran-habit-detail-r289 a{color:var(--text);text-decoration:underline}
 /* NOOR_CONTEXTUAL_HABIT_DETAILS_R288 */
 .np-page .np-habit-title-with-help-r288{display:flex;align-items:flex-start;gap:7px;min-width:0;flex-wrap:wrap}
 .np-page .np-habit-title-with-help-r288>.np-item-title{min-width:0;flex:1 1 130px}
@@ -1384,7 +1395,8 @@ function definitionItems(value: unknown): readonly DefinitionItem[] | null {
         ?sourcePlan.sessions as StoredTaskSessionR254[]:null:null;
     const sessionPlan:StoredTaskSessionPlanR254|undefined=parsedSessions&&isRecord(sourcePlan)&&(sourcePlan.distribution==="equal"||sourcePlan.distribution==="custom")?{distribution:sourcePlan.distribution,sessions:parsedSessions}:undefined;
     const taskGeneralNote=typeof item.taskGeneralNote==="string"&&item.taskGeneralNote.length<=10000?item.taskGeneralNote:undefined;
-    result.push({ weight:typeof item.weight==="number"&&item.weight>0?item.weight:1,...(typeof item.displayOrder==='number'&&Number.isSafeInteger(item.displayOrder)?{displayOrder:item.displayOrder}:{}),...(typeof item.timeOfDay==='string'?{timeOfDay:item.timeOfDay}:{}),id, revisionId:stringValue(item.revisionId)??"", title, state, kind, category, scheduleKind, weekdays, startDate, endDate, importance, ...(measurement?{measurement}:{}), ...(sessionPlan?{sessionPlan}:{}), ...(taskGeneralNote!==undefined?{taskGeneralNote}:{}), activityLog });
+    const quranPlan=kind==="Habit"&&validQuranPlanR289(item.quranPlan)?item.quranPlan:undefined;
+    result.push({ weight:typeof item.weight==="number"&&item.weight>0?item.weight:1,...(typeof item.displayOrder==='number'&&Number.isSafeInteger(item.displayOrder)?{displayOrder:item.displayOrder}:{}),...(typeof item.timeOfDay==='string'?{timeOfDay:item.timeOfDay}:{}),...(quranPlan?{quranPlan}:{}),id, revisionId:stringValue(item.revisionId)??"", title, state, kind, category, scheduleKind, weekdays, startDate, endDate, importance, ...(measurement?{measurement}:{}), ...(sessionPlan?{sessionPlan}:{}), ...(taskGeneralNote!==undefined?{taskGeneralNote}:{}), activityLog });
   }
   return result;
 }
@@ -1676,6 +1688,9 @@ export function DefinitionForm({busy,onCommand,onSavingChange,defaultStartDate,d
  const [sessionEnabled,setSessionEnabled]=useState(!!initial?.sessionPlan);
  const [sessionDistribution,setSessionDistribution]=useState<"equal"|"custom">(initial?.sessionPlan?.distribution??"custom");
  const [sessionDrafts,setSessionDrafts]=useState<NoorTaskSessionDraft[]>(()=>initial?.sessionPlan?.sessions.map(s=>({id:s.id,title:s.title,objective:s.objective,target:s.target,rangeStart:s.rangeStart,rangeEnd:s.rangeEnd,scheduledDate:s.scheduledDate??null}))??[]);
+ const [quranEnabled,setQuranEnabled]=useState(!!initial?.quranPlan);
+ const [quranFirstQuarter,setQuranFirstQuarter]=useState(initial?.quranPlan?.firstQuarter??1);
+ const [quranRepeatOccurrences,setQuranRepeatOccurrences]=useState(initial?.quranPlan?.repeatOccurrences??1);
  const [taskTarget,setTaskTarget]=useState(initial?.measurement?.target?.toString()??"");
  const [taskUnit,setTaskUnit]=useState(initial?.measurement?.unit??"صفحة");
  const [selectedKind,setSelectedKind]=useState(initial?.kind??defaultKind);
@@ -1711,7 +1726,7 @@ export function DefinitionForm({busy,onCommand,onSavingChange,defaultStartDate,d
   if(!noorExistingCategory(selectedCategory,categoryChoices)){setError("اختر تصنيفًا مسجلًا أو أضف تصنيفًا جديدًا أولًا.");return;}
   if(showCategoryAdd){setError("أكمل إضافة التصنيف أو ألغِ إضافة التصنيف قبل حفظ العنصر.");return;}
   const endDate=selectedKind==="Habit"&&duration==="continuous"?null:text("endDate")||null;
-  const fields={weight:Number(text("weight")||initial?.weight||1),...(selectedKind==="Habit"&&text("timeOfDay")?{timeOfDay:text("timeOfDay")}:{}),kind:selectedKind,title:text("title"),category:selectedCategory,startDate:text("startDate"),endDate,scheduleKind,weekdays:scheduleKind==="Weekdays"?days:[],importance:text("importance") as "Essential"|"Important"|"Supporting"|"Optional",...(selectedKind==="Task"&&text("progressTarget")?{measurement:{target:Number(text("progressTarget")),unit:text("progressUnit")}}:{}),...(selectedKind==="Task"&&(sessionEnabled||initial?.sessionPlan)?{sessionPlan:sessionEnabled?{distribution:sessionDistribution,sessions:sessionDrafts}:null}:{})};
+  const fields={weight:Number(text("weight")||initial?.weight||1),...(selectedKind==="Habit"&&text("timeOfDay")?{timeOfDay:text("timeOfDay")}:{}),...(selectedKind==="Habit"&&(quranEnabled||initial?.quranPlan)?{quranPlan:quranEnabled?{firstQuarter:quranFirstQuarter,repeatOccurrences:quranRepeatOccurrences}:null}:{}),kind:selectedKind,title:text("title"),category:selectedCategory,startDate:text("startDate"),endDate,scheduleKind,weekdays:scheduleKind==="Weekdays"?days:[],importance:text("importance") as "Essential"|"Important"|"Supporting"|"Optional",...(selectedKind==="Task"&&text("progressTarget")?{measurement:{target:Number(text("progressTarget")),unit:text("progressUnit")}}:{}),...(selectedKind==="Task"&&(sessionEnabled||initial?.sessionPlan)?{sessionPlan:sessionEnabled?{distribution:sessionDistribution,sessions:sessionDrafts}:null}:{})};
   setError("");definitionSaveLock.current=true;onSavingChange?.(true);
   let ok=false;
   try{ok=await onCommand(initial?{...fields,type:"update-definition",definitionId:initial.id,expectedRevisionId:initial.revisionId}:{...fields,type:"create-definition"});}
@@ -1724,6 +1739,14 @@ export function DefinitionForm({busy,onCommand,onSavingChange,defaultStartDate,d
   <div className="np-field"><label className="np-label" htmlFor="definition-title">الاسم *</label><input className="np-input" id="definition-title" name="title" maxLength={120} required defaultValue={initial?.title}/></div>
   <div className="np-field" data-testid="definition-category-guard-r163"><label className="np-label" htmlFor="definition-category">التصنيف *</label><select className="np-select" id="definition-category" name="category" required disabled={busy} value={selectedCategory} onChange={event=>{setSelectedCategory(event.currentTarget.value);setError("");}}><option value="" disabled>اختر تصنيفًا موجودًا</option>{categoryChoices.map(category=><option value={category} key={category}>{category}</option>)}</select><button className="np-category-add-trigger-r163" type="button" aria-expanded={showCategoryAdd} disabled={busy} onClick={()=>{setShowCategoryAdd(value=>!value);setNewCategory("");setCategoryError("");setError("");}}>+ التصنيف غير موجود؟ أضف تصنيفًا جديدًا</button>{showCategoryAdd?<div className="np-category-proposal-r163"><label className="np-label" htmlFor="definition-new-category">اسم التصنيف الجديد</label><input id="definition-new-category" className="np-input" maxLength={60} value={newCategory} onInput={event=>{setNewCategory(event.currentTarget.value);setCategoryError("");}} onChange={event=>{setNewCategory(event.currentTarget.value);setCategoryError("");}} placeholder="مثال: تنمية المهارات"/><div className="np-category-proposal-actions-r163"><button type="button" disabled={busy} onClick={()=>{void addCategory();}}>إضافة وتحديد التصنيف</button><button type="button" disabled={busy} onClick={()=>{setShowCategoryAdd(false);setCategoryError("");}}>إلغاء</button></div>{categoryError?<p role="alert" className="np-action-error">{categoryError}</p>:null}</div>:null}</div>
   {selectedKind==='Habit'?<div className="np-field"><label className="np-label" htmlFor="definition-time">موعد تنفيذ العادة (اختياري)</label><input className="np-input" id="definition-time" name="timeOfDay" type="time" defaultValue={initial?.timeOfDay}/><small>مناسب للأدوية والمكملات. موعد للعرض والتنظيم؛ لا يرسل تنبيهًا حاليًا.</small></div>:null}
+  {selectedKind==="Habit"?<div className="np-field full np-quran-plan-r289" data-testid="r289-quran-plan-editor">
+    <label><input type="checkbox" checked={quranEnabled} disabled={busy} onChange={e=>setQuranEnabled(e.currentTarget.checked)}/> ربط هذه العادة بأرباع الحزب من القرآن (اختياري)</label>
+    {quranEnabled?<div className="np-quran-plan-fields-r289">
+      <label>أول ربع في الورد<select disabled={busy} value={quranFirstQuarter} onChange={e=>setQuranFirstQuarter(Number(e.currentTarget.value))} data-testid="r289-first-quarter">{Array.from({length:240},(_,i)=>i+1).map(n=><option value={n} key={n}>{n}. {quranQuarterR289(n)?.surahName}، آية {quranQuarterR289(n)?.ayah}</option>)}</select></label>
+      <label>عدد مرات تكرار الربع قبل الانتقال للتالي<input type="number" disabled={busy} min="1" max="30" step="1" value={quranRepeatOccurrences} onChange={e=>setQuranRepeatOccurrences(Number(e.currentTarget.value))} data-testid="r289-repeat-quarter"/></label>
+      <p>بداية الربع: {quranQuarterR289(quranFirstQuarter)?.opening??"غير متاحة"}. تُحتسب الأيام المستحقة لهذه العادة فقط؛ ويمكن تخصيص خطة مستقلة لكل ورد أو حفظ أو مراجعة.</p>
+    </div>:null}
+   </div>:null}
   <div className="np-field"><label className="np-label" htmlFor="definition-importance">الأهمية *</label><select className="np-select" id="definition-importance" name="importance" defaultValue={initial?.importance??"Supporting"}><option value="Essential">أساسي</option><option value="Important">مهم</option><option value="Supporting">داعم</option><option value="Optional">اختياري</option></select></div>
   {selectedKind==="Habit"?<div className="np-field full"><label className="np-label" htmlFor="definition-duration">مدة العادة</label><select className="np-select" id="definition-duration" value={duration} onChange={e=>{setDuration(e.currentTarget.value);if(e.currentTarget.value==="continuous"&&scheduleKind==="OneTime")setScheduleKind("Daily");}}><option value="continuous">مستمرة — بدون نهاية</option><option value="limited">محددة — بداية ونهاية</option></select><small className="np-cc-help">العادة المستمرة تتكرر وفق جدولها، ويُسجّل إتمامها وملاحظاتها لكل يوم على حدة.</small></div>:null}
   <GregorianDateInput id="definition-start" name="startDate" label="تاريخ البداية الميلادي" required defaultValue={initial?.startDate??defaultStartDate} onValueChange={setPlannerStartDate}/>
@@ -2052,6 +2075,7 @@ function ActivityCard({item,definition,busy,pending=false,historicalDate=null,to
  const parentTargetDone=!definition?.sessionPlan||!definition.measurement||total>=definition.measurement.target;
  const task=item.kind==="Task";
  const displayTitle=definition?.title??item.title;
+ const quranQuarter=definition?.quranPlan?quranQuarterForDateR289(definition.quranPlan,definition.startDate,historicalDate??todayDate??"",definition.scheduleKind,definition.weekdays):null;
  const ended=definition?.state==="Stopped";
  const canRecord=historicalDate ? !!definition && ["Completed","Pending","Planned","InProgress","Missed"].includes(item.status) : item.status!=="Suppressed" && definition?.state==="Active";
  const disabled=busy || !canRecord;
@@ -2082,7 +2106,7 @@ function ActivityCard({item,definition,busy,pending=false,historicalDate=null,to
   else setError("تعذر تأكيد الحفظ. بياناتك ما زالت هنا؛ يمكنك إعادة المحاولة.");
  };
  return <div className={`np-item np-activity-item${task?"":" np-habit-row"}${completed?" is-completed":""}`} data-testid={`activity-card-${item.id}`}>
-  <div className="np-item-main">{task?<p className="np-item-title">{displayTitle}</p>:<div className="np-habit-title-with-help-r288"><p className="np-item-title">{displayTitle}</p>{definition?<details className="np-habit-help-r288" data-testid={`r288-habit-help-${definition.id}`}><summary aria-label={`تفاصيل عادة ${displayTitle}`} title="تفاصيل العادة">؟</summary><div className="np-habit-help-r288-content"><strong>بيانات العادة المسجلة</strong><p>التصنيف: {definition.category}</p><p>التكرار: {scheduleLabel(definition)}</p><p>الأهمية: {({Essential:"أساسي",Important:"مهم",Supporting:"داعم",Optional:"اختياري"} as Record<string,string>)[definition.importance]??definition.importance} · وزن الإنجاز: {definition.weight}</p>{definition.timeOfDay?<p>موعد التنفيذ: {definition.timeOfDay}</p>:null}</div></details>:null}</div>}{definition?.timeOfDay?<time className="np-habit-time" dateTime={definition.timeOfDay}>◷ {definition.timeOfDay}</time>:null}{task?<div className="np-item-meta"><span className="np-kind-badge">مهمة</span><span>{ended && latest?.endReason ? END_REASON_LABELS[latest.endReason] : STATUS_LABELS[item.status] ?? item.status}</span></div>:null}
+  <div className="np-item-main">{task?<p className="np-item-title">{displayTitle}</p>:<div className="np-habit-title-with-help-r288"><p className="np-item-title">{displayTitle}</p>{definition?<details className="np-habit-help-r288" data-testid={`r288-habit-help-${definition.id}`}><summary aria-label={`تفاصيل عادة ${displayTitle}`} title="تفاصيل العادة">؟</summary><div className="np-habit-help-r288-content"><strong>بيانات العادة المسجلة</strong><p>التصنيف: {definition.category}</p><p>التكرار: {scheduleLabel(definition)}</p><p>الأهمية: {({Essential:"أساسي",Important:"مهم",Supporting:"داعم",Optional:"اختياري"} as Record<string,string>)[definition.importance]??definition.importance} · وزن الإنجاز: {definition.weight}</p>{definition.timeOfDay?<p>موعد التنفيذ: {definition.timeOfDay}</p>:null}{definition.quranPlan?<div className="np-quran-habit-detail-r289" data-testid="r289-quran-habit-today">{quranQuarter?<><p><strong>ورد اليوم: ربع الحزب {quranQuarter.number} من 240</strong></p><p>سورة {quranQuarter.surahName} · الآية {quranQuarter.ayah}</p><p>بداية أول آية: <span dir="rtl">{quranQuarter.opening}</span></p><a target="_blank" rel="noopener noreferrer" href={`https://quran.com/${quranQuarter.surah}/${quranQuarter.ayah}`}>عرض الآية في المصحف</a></>:<p>لا يوجد ربع مستحق في هذا التاريخ؛ تحقق من موعد العادة.</p>}</div>:null}</div></details>:null}</div>}{definition?.timeOfDay?<time className="np-habit-time" dateTime={definition.timeOfDay}>◷ {definition.timeOfDay}</time>:null}{task?<div className="np-item-meta"><span className="np-kind-badge">مهمة</span><span>{ended && latest?.endReason ? END_REASON_LABELS[latest.endReason] : STATUS_LABELS[item.status] ?? item.status}</span></div>:null}
   {definition?.measurement ? <div className="np-progress-copy"><span>{arabicNumber(total)} / {arabicNumber(definition.measurement.target)} {definition.measurement.unit}</span><progress aria-label={`تقدم ${displayTitle}`} max={definition.measurement.target} value={total}/></div> : null}
   {latestNote?.note ? <p className="np-activity-note">{latestNote.note}</p> : null}</div>
   <div className="np-activity-actions"><button aria-label={`تسجيل ملاحظة${task?" أو تقدم":""}: ${displayTitle}`} title="تسجيل ملاحظة" className="np-btn secondary np-pencil" onClick={()=>open("note")} type="button"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="m15 5 4 4M4 20l4-1 12-12a2.8 2.8 0 0 0-4-4L4 15l-1 6Z" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"/></svg></button>
