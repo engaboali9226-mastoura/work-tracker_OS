@@ -1353,3 +1353,40 @@
 .np-r284-friday-virtue span:first-child{font-size:clamp(17px,1.7vw,22px);line-height:1.2}
 .np-r284-friday-source{margin:4px 0 0;font-size:11px;line-height:1.6;color:var(--np-muted,#617781);text-align:right}
 @media(max-width:600px){.np-r284-friday-virtue{flex-direction:column;gap:2px;font-size:10px}.np-r284-friday-source{font-size:10px}}
+
+
+/* R288: restore real, trusted whole-duration labels beside live countdowns.
+   Hide-on-R248 was a presentation choice, not missing timing data. Keep
+   compact 3-column cards and allow responsive wrap on narrow screens. */
+.np-r248-reference-strip :is(.tone-day,.tone-night) .np-r234-duration {
+  position:static !important;
+  display:block !important;
+  width:auto !important;
+  height:auto !important;
+  overflow:visible !important;
+  clip-path:none !important;
+  white-space:nowrap !important;
+  margin:0 !important;
+  padding:0 !important;
+  border:0 !important;
+  color:var(--r248-accent);
+  font-size:10px;
+  font-weight:650;
+  text-align:center;
+}
+.np-r232-section .np-r248-reference-strip :is(.tone-day,.tone-night) .np-r234-card-bottom {
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  align-items:center;
+  gap:4px 8px;
+}
+.np-r232-section .np-r248-reference-strip :is(.tone-day,.tone-night) .np-r247-timer {
+  flex:1 1 95px;
+  min-width:0;
+  max-width:210px;
+}
+@media(max-width:700px) {
+  .np-r248-reference-strip :is(.tone-day,.tone-night) .np-r234-duration{font-size:9px}
+  .np-r232-section .np-r248-reference-strip :is(.tone-day,.tone-night) .np-r247-timer{flex-basis:100%}
+}
