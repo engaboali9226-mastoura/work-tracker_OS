@@ -1695,13 +1695,19 @@ function PermanentDeleteDialog({title,busy,onClose,onDelete}:{title:string;busy:
 }
 
 
+/** Explicit Quran habit names get a plan proposal, never mutate existing owner data without Save. */
+export function isQuarterHabitR293(title:string):boolean{
+ const clean=title.normalize("NFKC").replace(/[\u064b-\u065f\u0670\u0640]/g,"").trim();
+ return /^(?:الورد اليومي|ورد يومي|الورد|ورد|التسميع|تسميع|المراجعة|مراجعة)$/u.test(clean);
+}
 export function DefinitionForm({busy,onCommand,onSavingChange,defaultStartDate,defaultKind="Habit",initial,categories=COMMON_CATEGORIES}:{busy:boolean;onCommand:(command:NoorPersonalCommandInput)=>Promise<boolean>;onSavingChange?:(saving:boolean)=>void;defaultStartDate:string;defaultKind?:"Habit"|"Task";initial?:DefinitionItem;categories?:readonly string[]}):ReactElement {
  const [scheduleKind,setScheduleKind]=useState<"OneTime"|"Daily"|"Weekdays">(initial?.scheduleKind??"Daily");
  const [plannerStartDate,setPlannerStartDate]=useState(initial?.startDate??defaultStartDate),[plannerEndDate,setPlannerEndDate]=useState(initial?.endDate??"");
  const [sessionEnabled,setSessionEnabled]=useState(!!initial?.sessionPlan);
  const [sessionDistribution,setSessionDistribution]=useState<"equal"|"custom">(initial?.sessionPlan?.distribution??"custom");
  const [sessionDrafts,setSessionDrafts]=useState<NoorTaskSessionDraft[]>(()=>initial?.sessionPlan?.sessions.map(s=>({id:s.id,title:s.title,objective:s.objective,target:s.target,rangeStart:s.rangeStart,rangeEnd:s.rangeEnd,scheduledDate:s.scheduledDate??null}))??[]);
- const [quranEnabled,setQuranEnabled]=useState(!!initial?.quranPlan||!!(initial?.kind==="Habit"&&/^(?:الورد|ورد|التسميع|تسميع|المراجعة|مراجعة)(?:\s|$)/u.test(initial.title.trim())));
+ const [quranEnabled,setQuranEnabled]=useState(!!initial?.quranPlan||!!(initial?.kind==="Habit"&&isQuarterHabitR293(initial.title)));
+ const quranOptInTouched=useRef(false);
  const [quranAnchorDate,setQuranAnchorDate]=useState(initial?.quranPlan?.anchorDate??initial?.startDate??defaultStartDate);
  const [quranFirstQuarter,setQuranFirstQuarter]=useState(initial?.quranPlan?.firstQuarter??1);
  const [quranRepeatOccurrences,setQuranRepeatOccurrences]=useState(initial?.quranPlan?.repeatOccurrences??1);
@@ -1750,12 +1756,12 @@ export function DefinitionForm({busy,onCommand,onSavingChange,defaultStartDate,d
  };
  return <form id="np-definition-edit-form" className="np-form" onSubmit={e=>{void submit(e);}}>
   <div className="np-field"><label className="np-label" htmlFor="definition-kind">النوع *</label><select className="np-select" id="definition-kind" name="kind" disabled={!!initial||busy} value={selectedKind} onChange={e=>setSelectedKind(e.currentTarget.value as "Habit"|"Task")}><option value="Habit">عادة</option><option value="Task">مهمة</option></select></div>
-  <div className="np-field"><label className="np-label" htmlFor="definition-title">الاسم *</label><input className="np-input" id="definition-title" name="title" maxLength={120} required defaultValue={initial?.title}/></div>
+  <div className="np-field"><label className="np-label" htmlFor="definition-title">الاسم *</label><input className="np-input" id="definition-title" name="title" maxLength={120} required defaultValue={initial?.title} onChange={e=>{if(!quranOptInTouched.current&&selectedKind==="Habit"&&isQuarterHabitR293(e.currentTarget.value))setQuranEnabled(true);}}/></div>
   <div className="np-field full"><label className="np-label" htmlFor="definition-description-r293">الوصف (اختياري) — يظهر عند علامة الاستفهام</label><textarea dir="rtl" id="definition-description-r293" name="description" className="np-input" rows={3} maxLength={2000} defaultValue={initial?.description??""} placeholder="أضف تعليمات تنفيذ العادة أو تفاصيل المهمة…"/></div>
   <div className="np-field" data-testid="definition-category-guard-r163"><label className="np-label" htmlFor="definition-category">التصنيف *</label><select className="np-select" id="definition-category" name="category" required disabled={busy} value={selectedCategory} onChange={event=>{setSelectedCategory(event.currentTarget.value);setError("");}}><option value="" disabled>اختر تصنيفًا موجودًا</option>{categoryChoices.map(category=><option value={category} key={category}>{category}</option>)}</select><button className="np-category-add-trigger-r163" type="button" aria-expanded={showCategoryAdd} disabled={busy} onClick={()=>{setShowCategoryAdd(value=>!value);setNewCategory("");setCategoryError("");setError("");}}>+ التصنيف غير موجود؟ أضف تصنيفًا جديدًا</button>{showCategoryAdd?<div className="np-category-proposal-r163"><label className="np-label" htmlFor="definition-new-category">اسم التصنيف الجديد</label><input id="definition-new-category" className="np-input" maxLength={60} value={newCategory} onInput={event=>{setNewCategory(event.currentTarget.value);setCategoryError("");}} onChange={event=>{setNewCategory(event.currentTarget.value);setCategoryError("");}} placeholder="مثال: تنمية المهارات"/><div className="np-category-proposal-actions-r163"><button type="button" disabled={busy} onClick={()=>{void addCategory();}}>إضافة وتحديد التصنيف</button><button type="button" disabled={busy} onClick={()=>{setShowCategoryAdd(false);setCategoryError("");}}>إلغاء</button></div>{categoryError?<p role="alert" className="np-action-error">{categoryError}</p>:null}</div>:null}</div>
   {selectedKind==='Habit'?<div className="np-field"><label className="np-label" htmlFor="definition-time">موعد تنفيذ العادة (اختياري)</label><input className="np-input" id="definition-time" name="timeOfDay" type="time" defaultValue={initial?.timeOfDay}/><small>مناسب للأدوية والمكملات. موعد للعرض والتنظيم؛ لا يرسل تنبيهًا حاليًا.</small></div>:null}
   {selectedKind==="Habit"?<div className="np-field full np-quran-plan-r289" data-testid="r289-quran-plan-editor">
-    <label><input type="checkbox" checked={quranEnabled} disabled={busy} onChange={e=>setQuranEnabled(e.currentTarget.checked)}/> ورد قرآني متتابع: ربع حزب كل يوم استحقاق (للورد والتسميع والمراجعة)</label>
+    <label><input type="checkbox" checked={quranEnabled} disabled={busy} onChange={e=>{quranOptInTouched.current=true;setQuranEnabled(e.currentTarget.checked);}}/> ورد قرآني متتابع: ربع حزب كل يوم استحقاق (للورد والتسميع والمراجعة)</label>
     {quranEnabled?<div className="np-quran-plan-fields-r289">
       <label>تاريخ أول ربع (يبدأ افتراضيًا من بداية استعمال العادة)<input type="date" required value={quranAnchorDate} onChange={e=>setQuranAnchorDate(e.currentTarget.value)} data-testid="r289-quran-anchor-date"/></label>
       <label>أول ربع في الورد<select disabled={busy} value={quranFirstQuarter} onChange={e=>setQuranFirstQuarter(Number(e.currentTarget.value))} data-testid="r289-first-quarter">{Array.from({length:240},(_,i)=>i+1).map(n=><option value={n} key={n}>{n}. {quranQuarterR289(n)?.surahName}، آية {quranQuarterR289(n)?.ayah}</option>)}</select></label>
