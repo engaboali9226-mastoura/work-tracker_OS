@@ -63,7 +63,7 @@ test("R102 real error states remain errors (no fake loading)", () => {
     initialResult: { kind: "unavailable" }, initialWorkspace: null,
   }));
   assert.match(failure, /Application unavailable/u);
-  assert.match(unavailable, /الخدمة غير متاحة/u);
+  assert.match(unavailable, /نور غير متصل/u);assert.match(unavailable, /إعادة الاتصال/u);
   assert.doesNotMatch(failure, /NOOR_R102_UNIFIED_LOADING_GEOMETRY_BEGIN/u);
   assert.doesNotMatch(unavailable, /class="np-page np-page-entry-loading"/u);
 });
