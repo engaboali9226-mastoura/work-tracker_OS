@@ -2329,7 +2329,7 @@ function Dashboard({ view:providedView, workspace, busy, actionError, onCommand,
 
   const beverageRows=useMemo<readonly BeverageRowR294[]>(()=>view.habits.flatMap(execution=>{
     const definition=definitionsById.get(execution.definitionId);
-    if(!definition?.beveragePlan||definition.state==="Archived")return [];
+    if(!definition?.beveragePlan||(definition.state==="Archived"&&historyDate===null))return [];
     return [{id:definition.id,executionId:execution.id,title:definition.title,category:definition.category,
       ...(definition.description!==undefined?{description:definition.description}:{}),
       revisionId:definition.revisionId,startDate:definition.startDate,endDate:definition.endDate,
