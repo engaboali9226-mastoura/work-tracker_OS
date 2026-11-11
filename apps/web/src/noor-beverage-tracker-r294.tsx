@@ -137,9 +137,8 @@ export function NoorBeverageTrackerR294({rows,allNames=[],localDate,busy,onComma
   if(!ok)setBedtime(validClockR295(ownerBedtime)?ownerBedtime:"00:00");
  };
  return <section className="np-card np-beverages-r294" data-testid="r294-beverage-tracker" aria-label="سجل المشروبات اليومي">
-  <header className="np-beverages-head-r294"><div><h2>{historical?"مشروبات اليوم المحدد":"المشروبات المنبّهة اليوم"}</h2>
-   <p>تسجيل كوب بوقته التقريبي، مع تنبيه بصري مرتبط بعدد القهوة والشاي ووقت نومك.</p></div>
-   {!historical?<button type="button" disabled={busy||saving} aria-expanded={adding} onClick={()=>{setAdding(x=>!x);setError("");}}>+ إضافة مشروب</button>:null}
+  <header className="np-beverages-head-r294"><div><h2>{historical?"مشروبات اليوم المحدد":"القهوة والشاي"}</h2></div>
+   {!historical?<button type="button" disabled={busy||saving} aria-label="إضافة مشروب" title="إضافة نوع مشروب" aria-expanded={adding} onClick={()=>{setAdding(x=>!x);setError("");}}>+ نوع</button>:null}
   </header>
   <div className="np-caffeine-summary-r295" data-testid="r295-health-indicator" data-level={summary.level}>
    <div className="np-caffeine-tally-r295">
@@ -147,24 +146,16 @@ export function NoorBeverageTrackerR294({rows,allNames=[],localDate,busy,onComma
     <div><span>الشاي</span><strong>{summary.tea}</strong></div>
     <div><span>إجمالي المنبّهات</span><strong>{summary.total}</strong></div>
    </div>
-   <div className={"np-caffeine-signal-r295 np-caffeine-"+summary.level} role="status">
+   <div className={"np-caffeine-signal-r295 np-caffeine-"+summary.level} role="status" title={summary.reason} aria-label={summary.reason}>
     <span className="np-caffeine-led-r295" aria-hidden="true"/>
     <strong>{summary.level==="green"?"ضمن الحدود المختارة":summary.level==="yellow"?"انتبه للتوقيت والكمية":"تنبيه مرتفع"}</strong>
-    <span>{summary.reason}</span>
+    <span className="np-caffeine-reason-r296">{summary.reason}</span>
    </div>
   </div>
-  {!historical?<div className="np-caffeine-controls-r295">
-   <div className="np-caffeine-quick-r295">
+  {!historical?<div className="np-caffeine-quick-r295" aria-label="تسجيل كوب">
     <button type="button" onClick={()=>quickCoffeeOrTea("coffee")} disabled={busy||saving}>+ قهوة</button>
     <button type="button" onClick={()=>quickCoffeeOrTea("tea")} disabled={busy||saving}>+ شاي</button>
-   </div>
-   <label className="np-caffeine-bedtime-r295">وقت نومك المعتاد
-    <input aria-label="وقت النوم المعتاد" type="time" value={bedtime} onChange={e=>setBedtime(e.currentTarget.value)}
-      onBlur={()=>{if(rows.length>0&&validClockR295(bedtime)&&bedtime!==rows[0]?.plan.sleepTime)void saveBedtime();}}/>
-   </label>
-   <button type="button" className="np-caffeine-bedtime-save-r295" onClick={()=>{void saveBedtime();}}
-    disabled={busy||saving||!rows.length||rows[0]?.plan.sleepTime===bedtime}>حفظ وقت النوم</button>
-  </div>:<small>وقت النوم المستخدم: {summary.bedtime}</small>}
+   </div>:null}
   {quickRow&&!historical?<div className="np-caffeine-time-picker-r295" data-testid="r295-time-picker">
    <strong>تسجيل {quickRow.title} — متى شربته؟</strong>
    <div className="np-caffeine-time-options-r295">{LABELS_R295.map(option=><button type="button"
@@ -190,6 +181,16 @@ export function NoorBeverageTrackerR294({rows,allNames=[],localDate,busy,onComma
    <label>حجم الحصة بالملليلتر (اختياري)<input type="number" inputMode="numeric" min="1" max="2000" value={newMl} onChange={e=>setNewMl(e.currentTarget.value)}/></label>
    <button type="submit" disabled={busy||saving}>إضافة العداد</button>
   </form>:null}
+  <details className="np-caffeine-details-r296" open={historical}>
+   <summary>التفاصيل والإعدادات</summary>
+   {!historical?<div className="np-caffeine-bedtime-settings-r296">
+    <label className="np-caffeine-bedtime-r295">وقت النوم المعتاد
+     <input aria-label="وقت النوم المعتاد" type="time" value={bedtime} onChange={e=>setBedtime(e.currentTarget.value)}
+      onBlur={()=>{if(rows.length>0&&validClockR295(bedtime)&&bedtime!==rows[0]?.plan.sleepTime)void saveBedtime();}}/>
+    </label>
+    <button type="button" className="np-caffeine-bedtime-save-r295" onClick={()=>{void saveBedtime();}}
+     disabled={busy||saving||!rows.length||rows[0]?.plan.sleepTime===bedtime}>حفظ وقت النوم</button>
+   </div>:<small>وقت النوم المستخدم: {summary.bedtime}</small>}
   {rows.length===0?<p className="np-beverages-empty-r294">لم تُضف مشروبات بعد. ابدأ بـ «+ قهوة» أو «+ شاي»، ثم سجّل وقت كل كوب.</p>:
    <div className="np-beverages-list-r294">{rows.map(row=>{
     const count=beverageCountR294(row.log,row.executionId),completed=count>=row.plan.targetServings;
@@ -227,8 +228,8 @@ export function NoorBeverageTrackerR294({rows,allNames=[],localDate,busy,onComma
    <ol>{summary.recent.map((e,index)=><li key={e.id+"-"+index}><span>{e.title} · {kindLabel(e.kind)}</span>
     <time dir="ltr">{e.time??"وقت غير متاح"}</time></li>)}</ol>
   </div>:null}
+  <small className="np-beverage-foot-r294">{historical?"عرض سجلات هذا اليوم دون تغييرها.":"يُحفظ التسجيل في حسابك؛ صحّح العدد بزر الناقص."}</small>
+  </details>
   {error?<p role="alert" className="np-beverage-error-r294">{error}</p>:null}
-  <small className="np-beverage-foot-r294">{historical?"عرض سجلات هذا اليوم دون تغييرها.":"يحفظ كل كوب ووقته في حسابك فور التأكيد. يمكنك تصحيح آخر كوب بزر الناقص."}
-   {" "}الألوان تقدير تنظيمي حسب عدد الأكواب وتوقيت النوم، وليست توصية طبية أو قياسًا للكافيين؛ يختلف تركيز المشروبات وحساسية الأشخاص.</small>
  </section>;
 }
