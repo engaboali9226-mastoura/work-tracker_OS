@@ -888,13 +888,32 @@ export class PersonalCommandService {
                     const nextQuranPlan=Object.hasOwn(command,"quranPlan")?command.quranPlan:definition.quranPlan;
                     const nextBeveragePlan=Object.hasOwn(command,"beveragePlan")?command.beveragePlan:definition.beveragePlan;
                     if(nextBeveragePlan&&(command.kind!=="Habit"||command.scheduleKind!=="Daily"||nextQuranPlan))throw new Error("BEVERAGE_PLAN_CONFLICT");
+                    if(definition.beveragePlan&&!nextBeveragePlan&&(definition.activityLog??[]).some(e=>e.amount!==0))throw new Error("BEVERAGE_HISTORY_PROTECTED");
                     const nextDescription=Object.hasOwn(command,"description")?command.description:definition.description;
                     const {effectiveUntilDate:_end,measurement:_measurement,timeOfDay:_timeOfDay,quranPlan:_previousQuranPlan,beveragePlan:_oldBeveragePlan,sessionPlan:_sessionPlan,description:_oldDescription,...preserved}=definition;
                     transaction.saveDefinition({...preserved,revisionId:this.dependencies.idGenerator.next("definition-revision"),title:command.title,category:command.category,schedule:commandSchedule(command),effectiveFromDate:command.startDate,...(command.endDate?{effectiveUntilDate:command.endDate}:{}),importance:command.importance,...(command.weight!==undefined?{weight:command.weight}:{}),...(command.measurement?{measurement:command.measurement}:{}),...(command.timeOfDay?{timeOfDay:command.timeOfDay}:{}),...(nextQuranPlan?{quranPlan:nextQuranPlan}:{}),...(nextBeveragePlan?{beveragePlan:nextBeveragePlan}:{}),...(nextPlan?{sessionPlan:nextPlan}:{}),...(nextDescription?{description:nextDescription}:{})});
                     if(command.weight!==undefined&&command.weight!==definition.weight){
                         const day=transaction.findOpenPersonalDayContaining(userId,now);
                         if(day)for(const item of transaction.listDailyExecution(day.id))if(item.definitionId===definition.id)transaction.saveDailyExecution({...item,eligibility:{...item.eligibility,weight:command.weight},version:item.version+1,updatedAt:now});
-                    }return;
+                    }
+                    // Reconcile today's checkbox when the owner edits the drink target.
+                    // Historic events and achievement statuses are never recalculated.
+                    if(nextBeveragePlan&&nextBeveragePlan.targetServings!==definition.beveragePlan?.targetServings){
+                        const day=transaction.findOpenPersonalDayContaining(userId,now);
+                        if(day&&new IntlTimeZoneAdapter().localDateForInstant(now,day.boundary.timeZone)===day.boundary.localDate){
+                            for(const item of transaction.listDailyExecution(day.id)){
+                                if(item.definitionId!==definition.id||!["Pending","Planned","InProgress","Completed"].includes(item.status))continue;
+                                const servings=(definition.activityLog??[]).filter(e=>e.executionId===item.id).reduce((n,e)=>n+e.amount,0);
+                                const nextStatus:ExecutionStatus=servings>=nextBeveragePlan.targetServings?"Completed":defaultOpenStatus(item);
+                                if(item.status!==nextStatus){
+                                    const updated={...item,status:nextStatus,version:item.version+1,updatedAt:now};
+                                    transaction.saveDailyExecution(updated);
+                                    enqueueExecutionStatusEvent({transaction,idGenerator:this.dependencies.idGenerator,now,instance:updated});
+                                }
+                            }
+                        }
+                    }
+                    return;
                 }
                 if(command.type==="adjust-beverage-serving"){
                     const parsed=parsePersonalCommand(command);
