@@ -17,8 +17,8 @@ test("R288 day and night total hours use trusted interval lengths, not a seconda
     nextFajrAt:"2026-11-07T02:33:00Z",
     preferences:NOOR_R232_DEFAULT,
   }));
-  assert.match(html,/data-testid="r288-day-total-hours">إجمالي ساعات النهار: 11 س 41 د/);
-  assert.match(html,/data-testid="r288-night-total-hours">إجمالي ساعات الليل: 12 س 21 د/);
+  assert.match(html,/data-testid="r288-day-total-hours">ساعات النهار: 11 س 41 د/);
+  assert.match(html,/data-testid="r288-night-total-hours">ساعات الليل: 12 س 21 د/);
   const dayAt=html.indexOf('data-testid="r288-day-total-hours"');
   const nightAt=html.indexOf('data-testid="r288-night-total-hours"');
   assert.ok(dayAt>0&&nightAt>dayAt);

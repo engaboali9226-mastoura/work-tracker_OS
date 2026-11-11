@@ -45,6 +45,21 @@ test("R286 server rejects attempts to tick tomorrow's session today without reco
  await f.service.execute("owner",progress("s1",4));
  assert.equal(f.get().activityLog.length,1,"repeated checkbox/network request must be idempotent");
 });
+test("R293: checking an entire dated session books achievement exactly once on its civil day",async()=>{
+ const f=fixture();await configure(f);
+ await f.service.execute("owner",progress("s1",10));
+ const result=f.get();
+ assert.equal(result.sessionPlan.sessions[0].completedAt,now,"completion instant stored on first finish");
+ assert.equal(result.activityLog.length,1);
+ assert.equal(result.activityLog[0].localDate,date,"activity is attributed to owner's civil day");
+ assert.equal(result.activityLog[0].taskSessionId,"s1");
+ assert.ok(Math.abs(sessions.sessionDayCredit(result.activityLog,date)-0.5)<1e-9,"10 of 20 pages earns half the parent weight on the scheduled day");
+ await f.service.execute("owner",progress("s1",10));
+ assert.equal(f.get().activityLog.length,1,"replayed checkbox has no duplicate achievement");
+ assert.equal(sessions.sessionDayCredit(f.get().activityLog,next),0);
+ await assert.rejects(()=>f.service.execute("owner",progress("s2",10)),/TASK_SESSION_NOT_SCHEDULED_TODAY/);
+ assert.equal(f.get().activityLog.length,1,"future day's session cannot be credited today");
+});
 test("R286 invalid or off-recurrence session dates fail closed on initial create/configure",async()=>{
  const f=fixture();
  const invalid=plan(date,"2026-02-30");

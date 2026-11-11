@@ -26,11 +26,27 @@ export function sessionProgressR254(log:readonly SessionEntryR254[],id:string):n
 export function sessionFinishedR254(s:StoredTaskSessionR254,log:readonly SessionEntryR254[]):boolean{
   return !!s.completedAt||s.target!==null&&sessionProgressR254(log,s.id)>=s.target;
 }
+/** Civil account day from the actual persisted completion event, never the UTC date of completedAt. */
+export function sessionCompletionDayR293(s:StoredTaskSessionR254,log:readonly SessionEntryR254[]):string|null{
+  if(!sessionFinishedR254(s,log))return null;
+  const events=log.filter(e=>e.taskSessionId===s.id).sort((a,b)=>a.at.localeCompare(b.at));
+  return (s.completedAt?events.find(e=>e.at===s.completedAt)?.localDate:undefined)??events.at(-1)?.localDate??null;
+}
 /** R285: exact remaining goal is committed by a single checkbox through existing
  * owner-authorized activity commands. This is not an additional achievement. */
 export function sessionRemainingR285(s:StoredTaskSessionR254,log:readonly SessionEntryR254[]):number|null{
   if(s.target===null)return null;
   return Math.max(0,round(s.target-sessionProgressR254(log,s.id)));
+}
+/** Keep optional dates truly optional without ever opening an empty native 1900-era picker. */
+function SessionDateFieldR293({value,onChange,suggestedDate,testId,busy}:{value:string|null|undefined;onChange:(value:string|null)=>void;suggestedDate:string;testId:string;busy:boolean}):ReactElement{
+  const now=new Date();
+  const today=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}-${String(now.getDate()).padStart(2,"0")}`;
+  const proposed=/^\d{4}-\d{2}-\d{2}$/.test(suggestedDate)&&suggestedDate>today?suggestedDate:today;
+  return <label>تاريخ الجلسة المجدول (اختياري)
+    {value?<span className="nts-date-picker-r293"><input type="date" data-testid={testId} value={value} disabled={busy} onChange={e=>onChange(e.currentTarget.value||null)}/><button type="button" disabled={busy} onClick={()=>onChange(null)}>بدون موعد</button></span>
+      :<button type="button" data-testid={testId+"-choose"} disabled={busy} onClick={()=>onChange(proposed)}>اختيار موعد — يبدأ من {proposed}</button>}
+  </label>;
 }
 function makeSession(i:number,target:number|null=null,start:number|null=null,end:number|null=null):NoorTaskSessionDraft{
   return {id:globalThis.crypto.randomUUID(),title:"الجلسة "+i,objective:"",target,rangeStart:start,rangeEnd:end,scheduledDate:null};
@@ -82,13 +98,13 @@ export function TaskSessionPlannerR254({enabled,setEnabled,distribution,setDistr
       {sessions.map((s,i)=><fieldset className="nts-editor" key={s.id}><legend>الجلسة {i+1}</legend>
         <label>العنوان<input maxLength={120} value={s.title} onChange={e=>edit(i,{title:e.currentTarget.value})}/></label>
         <label>هدف الجلسة<input maxLength={500} value={s.objective} onChange={e=>edit(i,{objective:e.currentTarget.value})}/></label>
-        <label>تاريخ الجلسة المجدول (اختياري)<input type="date" data-testid={"r286-session-date-"+s.id} value={s.scheduledDate??""} onChange={e=>edit(i,{scheduledDate:e.currentTarget.value||null})}/></label>
+        <SessionDateFieldR293 value={s.scheduledDate} suggestedDate={parentStartDate} testId={"r286-session-date-"+s.id} busy={busy} onChange={date=>edit(i,{scheduledDate:date})}/>
         <div className="nts-three"><label>المستهدف<input type="number" inputMode={isWholePageUnitR254(unit)?"numeric":"decimal"} step={isWholePageUnitR254(unit)?"1":"0.000001"} min={isWholePageUnitR254(unit)?"1":"0.000001"} value={s.target??""} onChange={e=>edit(i,{target:e.currentTarget.value===""?null:Number(e.currentTarget.value)})}/></label><label>من<input type="number" step="1" min="1" value={s.rangeStart??""} onChange={e=>edit(i,{rangeStart:e.currentTarget.value===""?null:Number(e.currentTarget.value)})}/></label><label>إلى<input type="number" step="1" min="1" value={s.rangeEnd??""} onChange={e=>edit(i,{rangeEnd:e.currentTarget.value===""?null:Number(e.currentTarget.value)})}/></label></div>
         <div className="nts-actions"><button type="button" disabled={busy||i===0} onClick={()=>{const v=[...sessions];[v[i-1],v[i]]=[v[i]!,v[i-1]!];setSessions(v);}}>↑</button><button type="button" disabled={busy||i===sessions.length-1} onClick={()=>{const v=[...sessions];[v[i],v[i+1]]=[v[i+1]!,v[i]!];setSessions(v);}}>↓</button><button type="button" disabled={busy} onClick={()=>setSessions(sessions.filter((_,j)=>j!==i))}>إزالة</button></div>
       </fieldset>)}
       <button type="button" disabled={busy||sessions.length>=200} onClick={()=>setSessions([...sessions,makeSession(sessions.length+1)])}>+ إضافة جلسة</button>
       {target!==null?<p className="nts-plan-total" data-testid="r285-session-target-total" role="status">مجموع المستهدفات المحددة: {round(sessions.reduce((sum,session)=>sum+(session.target??0),0))} من {target} {unit||"وحدة"}{sessions.some(s=>s.target===null)?" · توجد جلسات لم تحدد كميتها بعد":""}</p>:null}
-      <small>يمكنك تعديل الجلسات القادمة وإعادة ترتيبها. نطاقات الصفحات يجب أن تكون صحيحة وغير متداخلة وأن يساوي عدد صفحات كل نطاق مستهدفه.</small>
+      <small>لكل جلسة موعد مستقل، وعند تأكيد «تمت» في يومها يحفظ الخادم إنجازها في تاريخ ذلك اليوم مرة واحدة، ويحسب حصتها من وزن المهمة. لا يمكن تغيير موعد جلسة لها تقدم سابق. نطاقات الصفحات يجب أن تكون صحيحة وغير متداخلة.</small>
       {error?<p role="alert">{error}</p>:null}
     </div>:null}
   </section>;
@@ -96,6 +112,7 @@ export function TaskSessionPlannerR254({enabled,setEnabled,distribution,setDistr
 function OneSessionR254({session,log,definitionId,executionId,busy,onCommand,reading,pageUnit,unit,todayDate}:{session:StoredTaskSessionR254;log:readonly SessionEntryR254[];definitionId:string;executionId:string|null;busy:boolean;onCommand:(c:NoorPersonalCommandInput)=>Promise<boolean>;reading:boolean;pageUnit:boolean;unit:string;todayDate?:string|undefined}):ReactElement{
   const s=session,progress=sessionProgressR254(log,s.id),done=sessionFinishedR254(s,log),remainingTarget=sessionRemainingR285(s,log);
   const scheduledForAnotherDay=!!s.scheduledDate&&s.scheduledDate!==todayDate;
+  const completionDay=sessionCompletionDayR293(s,log);
   const [note,setNote]=useState(s.note),[amount,setAmount]=useState(""),[activityNote,setActivityNote]=useState(""),[error,setError]=useState("");
   const [noteBaseRevision,setNoteBaseRevision]=useState(s.revision);
   const savingCommand=useRef(false);
@@ -190,7 +207,7 @@ function OneSessionR254({session,log,definitionId,executionId,busy,onCommand,rea
       {scheduledForAnotherDay&&!done?<p className="nts-scheduled-info">تاريخ هذه الجلسة {s.scheduledDate}؛ لا يمكن تأكيدها في يوم آخر. يمكن تعديل الموعد من مركز التحكم قبل بدء تسجيل التقدم.</p>:null}
       {s.rangeStart!==null?<p>النطاق: {s.rangeStart}–{s.rangeEnd}</p>:null}
       {s.target!==null?<progress value={progress} max={s.target} aria-label={"تقدم "+s.title}/>:null}
-      {s.completedAt?<time dateTime={s.completedAt}>الإتمام: {s.completedAt.slice(0,10)}</time>:null}
+      {completionDay?<time data-testid={"r293-session-completion-date-"+s.id} dateTime={completionDay}>تاريخ الإنجاز المحتسب: {completionDay}</time>:null}
       {!done&&!scheduledForAnotherDay&&s.target!==null&&executionId?<div className="nts-stack"><label>الإنجاز الجديد<input type="number" inputMode={pageUnit?"numeric":"decimal"} step={pageUnit?"1":"0.000001"} min={pageUnit?"1":"0.000001"} max={round(s.target-progress)} value={amount} onInput={e=>setAmount(e.currentTarget.value)} onChange={e=>setAmount(e.currentTarget.value)}/></label><label>ملاحظة النشاط (اختيارية)<textarea dir="rtl" rows={2} maxLength={2000} value={activityNote} onInput={e=>setActivityNote(e.currentTarget.value)} onChange={e=>setActivityNote(e.currentTarget.value)}/></label><button type="button" disabled={busy||saving} onClick={()=>{void saveProgress();}}>حفظ التقدم</button></div>:null}
       {!done&&!scheduledForAnotherDay&&s.target===null&&executionId?<button type="button" disabled={busy||saving} onClick={()=>{void complete();}}>إكمال هذه الجلسة</button>:null}
       <div className="nts-stack"><label>ملاحظات الجلسة<textarea dir="rtl" rows={4} maxLength={10000} value={note} onInput={e=>updateNote(e.currentTarget.value)} onChange={e=>updateNote(e.currentTarget.value)} placeholder="تلخيص المعرفة والملاحظات والأسئلة…"/></label>
@@ -264,7 +281,7 @@ function TaskGeneralNoteR254({definitionId,revisionId,storedNote,busy,onCommand}
 export function TaskSessionListR254({plan,log,definitionId,executionId,busy,onCommand,title,revisionId,taskGeneralNote="",unit="",todayDate}:{plan:StoredTaskSessionPlanR254;log:readonly SessionEntryR254[];definitionId:string;executionId:string|null;busy:boolean;onCommand:(c:NoorPersonalCommandInput)=>Promise<boolean>;title:string;revisionId?:string;taskGeneralNote?:string;unit?:string;todayDate?:string}):ReactElement{
   const count=plan.sessions.filter(s=>sessionFinishedR254(s,log)).length;
   return <details className="nts-list" data-testid="task-sessions-r254">
-    <summary>الجلسات: {count} / {plan.sessions.length} مكتملة <small>{plan.sessions.some(s=>s.target!==null)?'حدد تم للجلسة المكتملة أو سجل مقدارًا جزئيًا؛ كل تقدم يدخل في إنجاز يوم تسجيله.':'اضغط تم بعد تنفيذ كل جلسة؛ تُحتسب مرة واحدة من وزن المهمة.'}</small></summary>
+    <summary>الجلسات: {count} / {plan.sessions.length} مكتملة <small>{plan.sessions.some(s=>s.target!==null)?'حدد تم للجلسة المكتملة أو سجل مقدارًا جزئيًا؛ كل تقدم يدخل في إنجاز تاريخ تسجيله، ويُعرض تاريخ الإتمام المحفوظ.':'اضغط تم بعد تنفيذ كل جلسة؛ تُحتسب مرة واحدة من وزن المهمة.'}</small></summary>
     <div className="nts-list-body">
       {plan.sessions.length?plan.sessions.map(s=><OneSessionR254 key={s.id} session={s} log={log} definitionId={definitionId} executionId={executionId} busy={busy} onCommand={onCommand} reading={/قراء|كتاب|reading|book/i.test(title)} pageUnit={isWholePageUnitR254(unit)} unit={unit} todayDate={todayDate}/>):<p>يمكنك إضافة جلسات لاحقًا من تعديل المهمة.</p>}
       <details className="nts-summary"><summary>الملاحظات والإنجازات</summary>
