@@ -9,6 +9,6 @@ test("R288 habit contextual help is an accessible disclosure, not a new journal 
   assert.match(src,/بيانات العادة المسجلة/);
   assert.match(src,/التكرار: {scheduleLabel\(definition\)}/);
   assert.match(src,/وزن الإنجاز: {definition.weight}/);
-  assert.ok(src.includes('data-testid={`r288-habit-help-\${definition.id}`}'));
+  assert.ok(src.includes('data-testid={`r288-habit-help-${definition.id}`}'));
   assert.ok(!src.includes('NOOR_R288_HABIT_AUTOSAVE'),"help alone must not save or fabricate details");
 });
