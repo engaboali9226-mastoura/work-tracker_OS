@@ -440,7 +440,7 @@ export function parsePersonalCommand(
                 (source.kind===undefined||["coffee","tea","other"].includes(String(source.kind)))&&
                 (source.sleepTime===undefined||typeof source.sleepTime==="string"&&/^([01]\d|2[0-3]):[0-5]\d$/.test(source.sleepTime)))
                 beveragePlan={targetServings:source.targetServings as number,...(source.servingMl!==undefined?{servingMl:source.servingMl as number}:{}),
-                    ...(typeof source.kind==="string"?{kind:source.kind as BeverageHabitPlan["kind"]}:{}),
+                    ...(typeof source.kind==="string"?{kind:source.kind as NonNullable<BeverageHabitPlan["kind"]>}:{}),
                     ...(typeof source.sleepTime==="string"?{sleepTime:source.sleepTime}:{})};
             else return null;
         }
