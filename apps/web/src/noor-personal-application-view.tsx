@@ -1018,6 +1018,35 @@ const PAGE_STYLES = `
 .np-page .np-beverage-edit-r294{flex-basis:100%}
 .np-page .np-beverage-error-r294{color:#a43f49;font-size:12px}
 @media(max-width:700px){.np-page .np-beverages-r294{padding:12px}.np-page .np-beverages-list-r294{grid-template-columns:minmax(0,1fr)}}
+/* NOOR R296: quiet, compact drinks card. More detail stays one tap away. */
+.np-page .np-beverages-r294{width:min(100%,550px);justify-self:start;padding:11px 13px;gap:8px;border-radius:18px;margin:8px 0 14px;background:linear-gradient(135deg,var(--panel),var(--panel-soft));box-shadow:0 6px 20px rgba(21,37,48,.05)}
+.np-page .np-beverages-head-r294{flex-wrap:nowrap;gap:8px}
+.np-page .np-beverages-head-r294 h2{font-size:15px;font-weight:750}
+.np-page .np-beverages-head-r294 button{min-height:32px;padding:4px 11px;font-size:12px}
+.np-page .np-caffeine-summary-r295{display:flex;align-items:center;justify-content:space-between;gap:8px;min-width:0}
+.np-page .np-caffeine-tally-r295{display:flex;flex:1;align-items:center;gap:5px;min-width:0}
+.np-page .np-caffeine-tally-r295>div{flex:1;min-width:0;border:0;border-inline-end:1px solid var(--border);border-radius:0;background:transparent;padding:3px;gap:2px}
+.np-page .np-caffeine-tally-r295>div:last-child{border:0}
+.np-page .np-caffeine-tally-r295 span{font-size:10px;white-space:nowrap}
+.np-page .np-caffeine-tally-r295 strong{font-size:19px}
+.np-page .np-caffeine-signal-r295{flex:0 0 auto;padding:7px 8px;border-radius:24px;gap:5px;max-width:126px}
+.np-page .np-caffeine-signal-r295 strong{font-size:11px;line-height:1.3}
+.np-page .np-caffeine-led-r295{width:8px;height:8px;flex-basis:8px}
+.np-page .np-caffeine-reason-r296{position:absolute;width:1px;height:1px;clip:rect(0,0,0,0);overflow:hidden;white-space:nowrap}
+.np-page .np-caffeine-quick-r295{display:flex;gap:7px}
+.np-page .np-caffeine-quick-r295 button{flex:1;min-height:34px;padding:5px 8px;font-weight:650;font-size:12px;background:var(--panel-soft)}
+.np-page .np-caffeine-details-r296{border-top:1px solid var(--border);padding-top:7px;min-width:0}
+.np-page .np-caffeine-details-r296>summary{cursor:pointer;color:var(--muted);font-size:11px;line-height:1.6;list-style-position:inside}
+.np-page .np-caffeine-details-r296[open]{display:grid;gap:10px}
+.np-page .np-caffeine-details-r296[open]>summary{margin-bottom:3px}
+.np-page .np-caffeine-bedtime-settings-r296{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.np-page .np-caffeine-bedtime-settings-r296 button{min-height:33px;font-size:11px}
+.np-page .np-caffeine-history-r295 ol{max-height:120px;overflow:auto}
+.np-page .np-beverages-empty-r294{margin:2px 0}
+.np-page .np-reconnect-notice-r296{display:flex;gap:8px;align-items:center;flex-wrap:wrap;color:var(--muted);font-size:12px}
+.np-page .np-reconnect-notice-r296 button,.np-page .np-reconnect-state-r296{border:1px solid var(--border-strong);background:var(--panel);border-radius:10px;padding:8px 10px;color:var(--text);cursor:pointer}
+.np-page .np-reconnect-notice-r296 button:disabled{opacity:.5}
+@media(max-width:600px){.np-page .np-beverages-r294{width:100%;padding:10px 11px}.np-page .np-caffeine-tally-r295 strong{font-size:17px}.np-page .np-caffeine-tally-r295 span{font-size:10px}.np-page .np-caffeine-signal-r295 strong{font-size:10px}.np-page .np-caffeine-signal-r295{max-width:112px}}
 .np-page .np-definition-description-r293{white-space:pre-wrap;overflow-wrap:anywhere;unicode-bidi:plaintext;line-height:1.8}
 /* NOOR_COLLAPSIBLE_HABIT_CARDS_R107_BEGIN */
 /* Replace masonry with stable aligned rows for compact CLOSED categories. */
@@ -2960,9 +2989,12 @@ export function NoorPersonalApplicationView({ initialResult, initialWorkspace }:
   .np-page .np-cc-header .np-cc-header-logo .np-platform-logo{display:block;width:100%;height:100%;object-fit:contain;object-position:center;border-radius:50%;margin:0}
   .np-page .np-cc-header-actions{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:8px;margin-inline-start:auto}
   .np-page .np-topbar .np-top-actions{gap:7px}
-  .np-page .np-topbar .np-signout-icon-r269{width:44px;height:44px;border-radius:13px;box-shadow:none;color:var(--text)}
-  .np-page .np-topbar .np-signout-icon-r269 svg{width:20px;height:20px}
-  @media(max-width:700px){.np-page .np-cc-header{flex-wrap:wrap}.np-page .np-cc-header .np-cc-header-logo{width:48px;height:48px;flex-basis:48px}.np-page .np-cc-header-actions{width:100%;justify-content:flex-start}.np-page .np-topbar .np-top-actions{gap:5px}.np-page .np-topbar .np-signout-icon-r269{width:38px;height:38px}}
+  .np-page .np-topbar .np-refresh-icon-r296{width:42px;height:42px;border-radius:13px;box-shadow:none;color:var(--text)}
+  .np-page .np-topbar .np-refresh-icon-r296 svg{width:20px;height:20px}
+  .np-page .np-refresh-spin-r296{animation:np-r296-spin 1.1s linear infinite}
+  @keyframes np-r296-spin{to{transform:rotate(360deg)}}
+  @media(prefers-reduced-motion:reduce){.np-page .np-refresh-spin-r296{animation:none}}
+  @media(max-width:700px){.np-page .np-cc-header{flex-wrap:wrap}.np-page .np-cc-header .np-cc-header-logo{width:48px;height:48px;flex-basis:48px}.np-page .np-cc-header-actions{width:100%;justify-content:flex-start}.np-page .np-topbar .np-top-actions{gap:5px}.np-page .np-topbar .np-refresh-icon-r296{width:38px;height:38px}}
   `}</style><section className={`np-page${!result ? " np-page-entry-loading" : result.kind === "success" ? " np-page-entry-ready" : ""}`} data-appearance={appearance} data-design-version="r62-visible-layout-fix" dir="rtl"><div className="np-wrap"><div className="np-save-notices" data-save-feedback="classic-achievement-r95">{orderError?<p className="np-failed-save" role="alert">{orderError}</p>:null}{failedChanges.map((change,i)=><div className="np-failed-save" role="alert" key={fastFailureKey(change)}><span>لم يتأكد الحفظ: {change.title}. تم إرجاع العرض لآخر بيانات مؤكدة.</span>{change.command.type==='edit-activity-note'?<p>{change.command.note??'حذف الملاحظة'}</p>:null}{change.command.type==='record-activity'||change.command.type==='record-historical-progress'?<p>{change.command.note}{change.command.amount>0?` · الكمية: ${change.command.amount}`:''}</p>:null}<button type="button" disabled={fastChanges.some(c=>c.executionId===change.executionId)} onClick={()=>{setFailedChanges(previous=>previous.filter((_,j)=>j!==i));void fastCommand(change.command);}}>إعادة المحاولة</button><button type="button" onClick={()=>setFailedChanges(previous=>previous.filter((_,j)=>j!==i))}>تجاهل التغيير غير المحفوظ</button></div>)}</div>{content}</div></section></>;
 }
 
