@@ -1,7 +1,4 @@
 import {quranQuarterR289,quranQuarterForDateR289,validQuranPlanR289,type QuranHabitPlanR289} from "./noor-quran-quarters-r289.js";
-import {groupNoorActivitiesR304,type NoorActivityViewR304} from "./noor-activity-grouping-r304.js";
-import {NOOR_R305_VISUAL_STYLES} from "./noor-personal-visual-r305.js";
-import {NOOR_R306_ACTION_STYLES} from "./noor-personal-action-r306.js";
 import {TaskSessionPlannerR254,TaskSessionListR254,sessionFinishedR254,TASK_SESSION_STYLES_R254,type StoredTaskSessionPlanR254,type StoredTaskSessionR254} from "./noor-task-sessions-r254.js";
 import {NoorBeverageTrackerR294,type BeverageRowR294} from "./noor-beverage-tracker-r294.js";
 import type {NoorBeveragePlanR294,NoorCountdownPlanR301} from "./noor-personal-today-client.js";
@@ -1777,29 +1774,7 @@ const PAGE_STYLES = `
  .np-cc-modal-backdrop .np-cc-modal-footer{padding-block:5px}
  .np-activity-backdrop,.nf-backdrop,.np-delete-backdrop,.np-page .np-history-overlay{align-items:flex-start;overflow-y:auto}
 }
-/* NOOR_R304_UNIFIED_ACTIVITY_VIEW_STYLES */
-.np-page .np-activity-switch-r304{display:flex;flex-wrap:wrap;gap:7px;align-items:center;margin:16px 0 12px;padding:8px 10px;border-radius:16px;border:1px solid var(--border);background:var(--panel)}
-.np-page .np-activity-switch-r304>strong{font-size:13px;color:var(--text);margin-inline-end:4px;white-space:nowrap}
-.np-page .np-activity-switch-options-r304{display:flex;gap:6px;overflow-x:auto;max-width:100%;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
-.np-page .np-activity-switch-options-r304 button{min-height:42px;min-width:max-content;border:1px solid var(--border-strong);border-radius:12px;padding:7px 13px;background:var(--panel-soft);color:var(--text);cursor:pointer;font:inherit;font-size:12px;font-weight:650}
-.np-page .np-activity-switch-options-r304 button[aria-pressed=true]{background:var(--text);color:var(--panel);border-color:var(--text)}
-.np-page .np-unified-groups-r304{display:grid;gap:12px;min-width:0}
-.np-page .np-unified-group-r304{border-radius:22px;min-width:0;overflow:hidden}
-.np-page .np-unified-group-r304>.np-category-head{display:flex;align-items:center;gap:9px;padding:14px;border-bottom:1px solid var(--border)}
-.np-page .np-unified-group-r304>.np-category-head .np-category-heading{min-width:0;flex:1}
-.np-page .np-unified-group-r304 .np-list{display:grid;gap:8px;padding:12px;min-width:0}
-.np-page .np-unified-group-r304 .np-item{min-width:0}
-.np-page .np-unified-empty-r304{padding:20px;border:1px dashed var(--border-strong);border-radius:16px;background:var(--panel-soft);color:var(--muted)}
-@media(max-width:600px){
- .np-page .np-activity-switch-r304{padding:9px;display:grid;gap:8px}
- .np-page .np-activity-switch-options-r304{width:100%;overflow-x:auto;padding-bottom:2px}
- .np-page .np-activity-switch-options-r304 button{min-height:44px}
- .np-page .np-unified-group-r304 .np-list{padding:9px}
-}
-/* NOOR_R304_UNIFIED_ACTIVITY_VIEW_STYLES_END */
 /* NOOR_R163_MOBILE_DIALOGS_AND_TABS_END */
-${NOOR_R305_VISUAL_STYLES}
-${NOOR_R306_ACTION_STYLES}
 
 
 `;
@@ -2824,19 +2799,6 @@ function Dashboard({ view:providedView, workspace, busy, actionError, onCommand,
       weight:definition.weight,importance:definition.importance as BeverageRowR294["importance"],status:execution.status,
       plan:definition.beveragePlan,log:definition.activityLog}];
   }),[view.habits,workspace]);
-  // R304: presentation-only. Actions retain their original execution IDs.
-  // R306: filter is a pure presentation projection; history, commands and weights are untouched.
-  const [activityFilter,setActivityFilter]=useState<"all"|"remaining"|"completed">("all");
-  const visibleForFilter=(item:ExecutionItem)=>activityFilter==="all"||(
-    activityFilter==="completed"?item.status==="Completed":item.status!=="Completed"
-  );
-  const [activityView,setActivityView]=useState<NoorActivityViewR304>("separate");
-  // In-memory preference only: browser storage is restricted by the architecture contract.
-  const selectActivityView=(next:NoorActivityViewR304)=>setActivityView(next);
-  const unifiedGroups=useMemo(()=>
-    groupNoorActivitiesR304([...view.habits,...view.tasks],workspace?.definitions??[],
-      activityView==="separate"?"category":activityView,workspace?.categories??[]),
-    [view.habits,view.tasks,workspace,activityView]);
   const grouped = useMemo(() => {
     const map=new Map<string,{definition?:DefinitionItem;execution:ExecutionItem}[]>();
     for(const execution of view.habits){const definition=definitionsById.get(execution.definitionId);if(definition?.beveragePlan)continue;const category=(definition?.category??'عام').trim().replace(/\s+/g,' ');const rows=map.get(category)??[];rows.push({...(definition?{definition}:{}),execution});map.set(category,rows);}
@@ -2844,10 +2806,6 @@ function Dashboard({ view:providedView, workspace, busy, actionError, onCommand,
     const categories=(workspace?.categories??[]).map(c=>c.trim().replace(/\s+/g,' '));const rank=(c:string)=>{const i=categories.indexOf(c);return i<0?Number.MAX_SAFE_INTEGER:i;};
     return [...map.entries()].sort(([a],[b])=>rank(a)-rank(b)||a.localeCompare(b,'ar'));
   }, [view.habits, workspace]);
-  const filteredGrouped=grouped.map(([category,rows])=>[category,rows.filter(row=>visibleForFilter(row.execution))] as const)
-    .filter(([,rows])=>rows.length>0);
-  const filteredUnifiedGroups=unifiedGroups.map(group=>({...group,rows:group.rows.filter(row=>visibleForFilter(row.execution))}))
-    .filter(group=>group.rows.length>0);
   // NOOR_INPAGE_HISTORY_R110: a historical status correction can NEVER use today's command.
   const historicalCommand=async(cmd:NoorPersonalCommandInput):Promise<boolean>=>{
     const todayDate=providedView.localDate??workspace?.statistics.currentDate??"";
@@ -3011,72 +2969,6 @@ function Dashboard({ view:providedView, workspace, busy, actionError, onCommand,
     {actionError ? <p className="np-action-error" role="alert">{actionError}</p> : null}
     {connectionWarning ? <p className="np-reconnect-notice-r296" role="status">تعذر تحديث البيانات. <button type="button" disabled={reconnecting||busy} onClick={onReconnect}>{reconnecting?"جارٍ الاتصال…":"إعادة الاتصال ↻"}</button></p> : null}
 
-    <div id="noor-r305-activity-heading" className="np-activity-switch-r304" data-testid="r304-activity-view" role="group" aria-label="طريقة عرض العادات والمهام">
-      <div className="np-r306-toolbar-heading">
-        <div className="np-r306-workspace-title"><span className="np-r306-activity-label">مساحة التنفيذ</span><strong>العادات والمهام</strong></div>
-        <button className="np-r306-add-button" type="button" onClick={onOpenControl} disabled={busy} data-testid="r306-open-activity-editor">إضافة وإدارة +</button>
-      </div>
-      <div className="np-r306-tool-row">
-        <div className="np-r306-focus-controls" role="group" aria-label="تصفية الأنشطة حسب الإنجاز">
-          {([["all","الكل"],["remaining","المتبقي"],["completed","المكتمل"]] as const).map(([mode,label])=>
-            <button type="button" key={mode} data-testid={`r306-filter-${mode}`} aria-pressed={activityFilter===mode} onClick={()=>setActivityFilter(mode)}>{label}</button>)}
-        </div>
-        <div className="np-activity-switch-options-r304">
-          {([["category","حسب المجال"],["time","حسب الوقت"],["importance","حسب الأهمية"],["status","حسب الحالة"],["separate","العرض المنفصل"]] as const).map(([mode,label])=>
-            <button key={mode} type="button" aria-pressed={activityView===mode} onClick={()=>selectActivityView(mode)}>{label}</button>)}
-        </div>
-      </div>
-    </div>
-    <div className="np-main-grid np-daily-only" data-history-page={historyDate?"historical":"current"}>
-      <div className="np-execution-stack">
-        {activityView==="separate"?<>
-        <section aria-label="عادات اليوم" className="np-habits-section np-history-page">
-          <div className="np-section-heading"><h2>{historyDate?`عادات يوم ${weekDateLabel(historyDate)}`:"عادات اليوم"}</h2></div>
-          
-          <div className="np-category-grid" data-testid="habit-category-grid">
-            {filteredGrouped.length === 0
-              ? <section className="np-card np-category np-habits-empty"><div className="np-empty"><strong>مساحة لعاداتك</strong><span>{historyDate?"لا توجد عادات مسجلة لهذا اليوم.":"لا توجد عادات مجدولة اليوم. ستظهر أقسامها هنا حسب تصنيفاتك الحالية."}</span></div></section>
-              : filteredGrouped.map(([category,items]) => {
-                const due=items.flatMap(row=>row.execution&&row.execution.status!=='Suppressed'?[row.execution]:[]);
-                const displayCategory=habitCardDisplayTitle(category);
-                const done = completedCount(due);
-                const totalWeight=due.reduce((n,e)=>n+e.weight,0),completedWeight=due.filter(e=>e.status==="Completed").reduce((n,e)=>n+e.weight,0);
-                const rate=totalWeight?Math.round(completedWeight/totalWeight*100):0;
-                const circumference = 2 * Math.PI * 24;
-                return <details aria-label={`عادات ${displayCategory}`} className="np-card np-category np-habit-category" data-habit-layout="tracker-r76" data-testid="habit-category-card" key={category}>
-                  <summary className="np-category-head" aria-label={`عرض أو إخفاء عادات ${displayCategory}، المنجز ${done} من ${due.length}`}>
-                    <div className="np-category-heading"><NoorCategoryIcon category={category}/><h3 className="np-category-title">{displayCategory}</h3><span className="np-category-count">{arabicNumber(done)} من {arabicNumber(due.length)} مستحقة اليوم · {arabicNumber(items.length)} عادات</span></div>
-                    <div aria-label={`إنجاز قسم ${displayCategory}`} aria-valuemin={0} aria-valuemax={100} aria-valuenow={rate} aria-valuetext={`${arabicNumber(done)} من ${arabicNumber(due.length)} مستحقة اليوم، ${arabicNumber(rate)}%`} className={`np-category-progress${rate === 100 ? " is-complete" : ""}`} role="progressbar">
-                      <svg aria-hidden="true" viewBox="0 0 60 60"><circle className="np-ring-track" cx="30" cy="30" r="24"/><circle className="np-ring-value" cx="30" cy="30" r="24" strokeDasharray={circumference} strokeDashoffset={circumference * (1 - rate / 100)}/></svg>
-                      <span aria-hidden="true">{arabicNumber(rate)}<small>%</small></span>
-                    </div>
-                  </summary>
-                  <div className="np-list">{items.map(({execution:item,definition})=><ActivityCard key={item.id} item={item} definition={definition} busy={busy||lockedIds.includes(item.id)} pending={pendingIds.includes(item.id)} onCommand={historyDate?historicalCommand:onCommand} historicalDate={historyDate} todayDate={view.localDate??undefined}/>)}</div>
-                </details>;
-              })}
-          </div>
-        </section>
-        {view.tasks.filter(visibleForFilter).length > 0 ? <section aria-label="مهام اليوم" className="np-card np-category np-tasks-card"><div className="np-category-head"><h2 className="np-category-title">{historyDate?`مهام يوم ${weekDateLabel(historyDate)}`:"مهام اليوم"}</h2><span className="np-category-count">{arabicNumber(view.tasks.filter(visibleForFilter).length)} مهام</span></div><div className="np-list">{view.tasks.filter(visibleForFilter).sort((a,b)=>(definitionsById.get(a.definitionId)?.displayOrder??Number.MAX_SAFE_INTEGER)-(definitionsById.get(b.definitionId)?.displayOrder??Number.MAX_SAFE_INTEGER)).map(item => { return <ActivityCard key={item.id} item={item} definition={definitionsById.get(item.definitionId)} busy={busy||lockedIds.includes(item.id)} pending={pendingIds.includes(item.id)} onCommand={historyDate?historicalCommand:onCommand} historicalDate={historyDate} todayDate={view.localDate??undefined}/>; })}</div></section> : null}
-
-        </>:<section className="np-unified-groups-r304" data-testid="r304-unified-groups" aria-label="العادات والمهام مجمعة حسب طريقة العرض">
-          {filteredUnifiedGroups.length===0?<p className="np-unified-empty-r304">لا توجد عادات أو مهام مجدولة لهذا اليوم.</p>
-            :filteredUnifiedGroups.map(group=><section key={group.key} className="np-card np-category np-unified-group-r304" data-testid="r304-unified-group" aria-label={group.label}>
-              <div className="np-category-head">
-                <div className="np-category-heading">
-                  {activityView==="category"?<NoorCategoryIcon category={group.key}/>:<span className="np-category-symbol" aria-hidden="true">●</span>}
-                  <h3 className="np-category-title">{activityView==="category"?habitCardDisplayTitle(group.label):group.label}</h3>
-                  <span className="np-category-count">{arabicNumber(group.rows.filter(r=>r.execution.kind==="Habit").length)} عادات · {arabicNumber(group.rows.filter(r=>r.execution.kind==="Task").length)} مهام · {arabicNumber(group.rows.filter(r=>r.execution.status==="Completed").length)} مكتملة</span>
-                </div>
-              </div>
-              <div className="np-list">{group.rows.map(({execution:item,definition})=><ActivityCard key={item.id} item={item} definition={definition} busy={busy||lockedIds.includes(item.id)} pending={pendingIds.includes(item.id)} onCommand={historyDate?historicalCommand:onCommand} historicalDate={historyDate} todayDate={view.localDate??undefined}/>)}</div>
-            </section>)}
-        </section>}
-      </div>
-
-
-    </div>
-
-
     <section className={`np-card np-day-achievement${totalToday>0&&completedToday===totalToday?" is-complete":""}`} data-testid="today-summary" data-today-design="whole-day-r93" data-week-achievement="r94" data-achievement-style="classic-r95" data-weighted-progress="r91" aria-label="إنجاز اليوم كاملًا">
       <div className="np-day-ring" role="progressbar" aria-label="الإنجاز الموزون لليوم كاملًا" aria-valuemin={0} aria-valuemax={100} aria-valuenow={completionRate} aria-valuetext={totalToday?`${completionRate}%، ${completedToday} من ${totalToday} عناصر`:"لا توجد عناصر مستحقة اليوم"}>
         <svg viewBox="0 0 100 100" aria-hidden="true"><circle className="np-day-ring-track" cx="50" cy="50" r="42"/><circle className="np-day-ring-fill" cx="50" cy="50" r="42" strokeDasharray={263.894} strokeDashoffset={263.894*(1-completionRate/100)}/></svg><strong data-testid="today-completion-rate">{arabicNumber(completionRate)}%</strong>
@@ -3086,7 +2978,7 @@ function Dashboard({ view:providedView, workspace, busy, actionError, onCommand,
       {showRemaining?createPortal(<div className="np-r286-remaining-backdrop" onMouseDown={event=>{if(event.target===event.currentTarget)setShowRemaining(false);}}><section role="dialog" aria-modal="true" aria-labelledby="r286-remaining-heading" className="np-r286-remaining-dialog" onKeyDown={event=>{if(event.key==="Escape")setShowRemaining(false);}}><header><h2 id="r286-remaining-heading">{historyDate?"المتبقي في اليوم المحدد":"المتبقي اليوم"}</h2><button type="button" className="np-cc-button" ref={remainingCloseRef} onClick={()=>setShowRemaining(false)}>إغلاق ×</button></header>{(achievementItems.filter(x=>x.status!=="Completed"&&x.status!=="Suppressed")).length?<ul>{achievementItems.filter(x=>x.status!=="Completed"&&x.status!=="Suppressed").map(x=><li key={x.id}><span><strong>{x.title}</strong><small>{x.kind==="Habit"?"عادة":"مهمة"} · {STATUS_LABELS[x.status]??x.status}</small></span><span>وزن {arabicNumber(x.weight)}</span></li>)}</ul>:<p role="status">اكتملت جميع المهام والعادات المستحقة لهذا اليوم.</p>}</section></div>,document.body):null}
       <div className="np-day-context">
         <section className={`np-yesterday${yesterday?.missed.length?" has-missed":""}`} aria-label="فائت أمس" data-testid="yesterday-achievement"><div className="np-yesterday-heading"><span>فائت أمس</span>{yesterday?<time dateTime={yesterday.date}>{weekDateLabel(yesterday.date)}</time>:null}</div><div className="np-yesterday-score"><strong>{arabicNumber(yesterday?.missed.length??0)}</strong><span>عادات ومهام غير مكتملة</span></div>{yesterday?.scheduled?<p>{yesterday.missed.length?"عناصر غير مكتملة" :"اكتملت كل استحقاقات أمس"} · إنجاز أمس {arabicNumber(yesterday.rate??0)}%</p>:<p>لا توجد استحقاقات مسجلة لأمس.</p>}{yesterday?.missed.length?<details className="np-yesterday-details"><summary>عرض الفائت</summary><ul>{yesterday.missed.map(row=><li key={row.id}><span>{row.title}<small>{row.kind==="Habit"?"عادة":"مهمة"} · {STATUS_LABELS[row.status]??row.status}{row.amount>0?` · ${arabicNumber(row.amount)} ${row.unit}`:""}</small></span><strong>{arabicNumber(row.weight)}<small> وزن</small></strong></li>)}</ul></details>:null}</section>
-        <section id="noor-r305-weekly" className="np-week-achievement" aria-label="إنجاز أيام الأسبوع كاملًا" data-week-navigation="r109">
+        <section className="np-week-achievement" aria-label="إنجاز أيام الأسبوع كاملًا" data-week-navigation="r109">
           <div className="np-week-heading"><h3>{weekShift===0?"هذا الأسبوع":"الأسبوع المحدد"}</h3>
             <div className="np-week-navigation" aria-label="التنقل بين الأسابيع">
               <button type="button" data-testid="week-history-previous" disabled={!canGoOlder} aria-label="الأسبوع السابق" onClick={()=>setWeekShift(value=>value-1)}>‹</button>
@@ -3108,6 +3000,40 @@ function Dashboard({ view:providedView, workspace, busy, actionError, onCommand,
     
     <NoorBeverageTrackerR294 rows={beverageRows} allNames={(workspace?.definitions??[]).filter(d=>d.kind==="Habit"&&!!d.beveragePlan&&d.state!=="Archived").map(d=>d.title)}
       localDate={view.localDate??""} timeZone={view.timeZone} busy={busy} onCommand={onCommand} historical={historyDate!==null}/>
+
+    <div className="np-main-grid np-daily-only" data-history-page={historyDate?"historical":"current"}>
+      <div className="np-execution-stack">
+        <section aria-label="عادات اليوم" className="np-habits-section np-history-page">
+          <div className="np-section-heading"><h2>{historyDate?`عادات يوم ${weekDateLabel(historyDate)}`:"عادات اليوم"}</h2></div>
+          
+          <div className="np-category-grid" data-testid="habit-category-grid">
+            {grouped.length === 0
+              ? <section className="np-card np-category np-habits-empty"><div className="np-empty"><strong>مساحة لعاداتك</strong><span>{historyDate?"لا توجد عادات مسجلة لهذا اليوم.":"لا توجد عادات مجدولة اليوم. ستظهر أقسامها هنا حسب تصنيفاتك الحالية."}</span></div></section>
+              : grouped.map(([category,items]) => {
+                const due=items.flatMap(row=>row.execution&&row.execution.status!=='Suppressed'?[row.execution]:[]);
+                const displayCategory=habitCardDisplayTitle(category);
+                const done = completedCount(due);
+                const totalWeight=due.reduce((n,e)=>n+e.weight,0),completedWeight=due.filter(e=>e.status==="Completed").reduce((n,e)=>n+e.weight,0);
+                const rate=totalWeight?Math.round(completedWeight/totalWeight*100):0;
+                const circumference = 2 * Math.PI * 24;
+                return <details aria-label={`عادات ${displayCategory}`} className="np-card np-category np-habit-category" data-habit-layout="tracker-r76" data-testid="habit-category-card" key={category}>
+                  <summary className="np-category-head" aria-label={`عرض أو إخفاء عادات ${displayCategory}، المنجز ${done} من ${due.length}`}>
+                    <div className="np-category-heading"><NoorCategoryIcon category={category}/><h3 className="np-category-title">{displayCategory}</h3><span className="np-category-count">{arabicNumber(done)} من {arabicNumber(due.length)} مستحقة اليوم · {arabicNumber(items.length)} عادات</span></div>
+                    <div aria-label={`إنجاز قسم ${displayCategory}`} aria-valuemin={0} aria-valuemax={100} aria-valuenow={rate} aria-valuetext={`${arabicNumber(done)} من ${arabicNumber(due.length)} مستحقة اليوم، ${arabicNumber(rate)}%`} className={`np-category-progress${rate === 100 ? " is-complete" : ""}`} role="progressbar">
+                      <svg aria-hidden="true" viewBox="0 0 60 60"><circle className="np-ring-track" cx="30" cy="30" r="24"/><circle className="np-ring-value" cx="30" cy="30" r="24" strokeDasharray={circumference} strokeDashoffset={circumference * (1 - rate / 100)}/></svg>
+                      <span aria-hidden="true">{arabicNumber(rate)}<small>%</small></span>
+                    </div>
+                  </summary>
+                  <div className="np-list">{items.map(({execution:item,definition})=><ActivityCard key={item.id} item={item} definition={definition} busy={busy||lockedIds.includes(item.id)} pending={pendingIds.includes(item.id)} onCommand={historyDate?historicalCommand:onCommand} historicalDate={historyDate} todayDate={view.localDate??undefined}/>)}</div>
+                </details>;
+              })}
+          </div>
+        </section>
+        {view.tasks.length > 0 ? <section aria-label="مهام اليوم" className="np-card np-category np-tasks-card"><div className="np-category-head"><h2 className="np-category-title">{historyDate?`مهام يوم ${weekDateLabel(historyDate)}`:"مهام اليوم"}</h2><span className="np-category-count">{arabicNumber(view.tasks.length)} مهام</span></div><div className="np-list">{[...view.tasks].sort((a,b)=>(definitionsById.get(a.definitionId)?.displayOrder??Number.MAX_SAFE_INTEGER)-(definitionsById.get(b.definitionId)?.displayOrder??Number.MAX_SAFE_INTEGER)).map(item => { return <ActivityCard key={item.id} item={item} definition={definitionsById.get(item.definitionId)} busy={busy||lockedIds.includes(item.id)} pending={pendingIds.includes(item.id)} onCommand={historyDate?historicalCommand:onCommand} historicalDate={historyDate} todayDate={view.localDate??undefined}/>; })}</div></section> : null}
+      </div>
+
+
+    </div>
 
 
   </>;

@@ -6,7 +6,7 @@ const home=s.slice(s.indexOf('function Dashboard('));
 test('R139: main page has no extra category selector; existing category cards remain',()=>{
  assert.ok(home.startsWith('function Dashboard('));
  assert.doesNotMatch(home,/habit-category-filter-r130|np-category-filter-r130|activeCategory|visibleGroups/);
- assert.match(home,/filteredGrouped\.map\(\(\[category,items\]\)/);
+ assert.match(home,/grouped\.map\(\(\[category,items\]\)/);
  assert.match(home,/data-testid="habit-category-card"/);
  assert.match(s,/data-testid="control-category-filter-r135"/);
  assert.match(s,/data-testid="control-habit-cards-r135"/);
