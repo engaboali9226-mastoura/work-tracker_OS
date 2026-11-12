@@ -1635,7 +1635,7 @@ function definitionItems(value: unknown): readonly DefinitionItem[] | null {
     const countdownPlan:NoorCountdownPlanR301|undefined=kind==="Task"&&isRecord(rawCountdown)&&
       ["task","event","appointment"].includes(String(rawCountdown.kind))&&
       validStatisticDate(rawCountdown.date)&&typeof rawCountdown.time==="string"&&
-      /^([01]\\d|2[0-3]):[0-5]\\d$/.test(rawCountdown.time)
+      /^([01]\d|2[0-3]):[0-5]\d$/.test(rawCountdown.time)
       ?{kind:rawCountdown.kind as NoorCountdownPlanR301["kind"],date:rawCountdown.date,time:rawCountdown.time}:undefined;
     result.push({ weight:typeof item.weight==="number"&&item.weight>0?item.weight:1,...(typeof item.displayOrder==='number'&&Number.isSafeInteger(item.displayOrder)?{displayOrder:item.displayOrder}:{}),...(typeof item.timeOfDay==='string'?{timeOfDay:item.timeOfDay}:{}),...(quranPlan?{quranPlan}:{}),...(beveragePlan?{beveragePlan}:{}),...(countdownPlan?{countdownPlan}:{}),id, revisionId:stringValue(item.revisionId)??"", title, state, kind, category, scheduleKind, weekdays, startDate, endDate, importance, ...(measurement?{measurement}:{}), ...(sessionPlan?{sessionPlan}:{}), ...(taskGeneralNote!==undefined?{taskGeneralNote}:{}), ...(description!==undefined?{description}:{}), activityLog });
   }
@@ -1979,7 +1979,7 @@ export function DefinitionForm({busy,onCommand,onSavingChange,defaultStartDate,d
   event.preventDefault();if(busy||definitionSaveLock.current)return;const data=new FormData(event.currentTarget),text=(key:string)=>String(data.get(key)??"").trim();
   if(!isCountdownEvent&&scheduleKind==="Weekdays"&&!days.length){setError("اختر يومًا واحدًا على الأقل.");return;}
   if(selectedKind==="Task"&&countdownKind!=="none"&&
-    (!validStatisticDate(countdownDate)||!/^([01]\\d|2[0-3]):[0-5]\\d$/.test(countdownTime))){
+    (!validStatisticDate(countdownDate)||!/^([01]\d|2[0-3]):[0-5]\d$/.test(countdownTime))){
     setError("اختر تاريخًا ووقتًا صحيحين للعد التنازلي.");return;
   }
   if(isCountdownEvent&&initial&&(initial.activityLog.length>0||initial.measurement||initial.sessionPlan)){
