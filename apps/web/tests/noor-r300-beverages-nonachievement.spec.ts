@@ -19,7 +19,7 @@ test("R300: decreasing coffee counter never affects daily, weekly, missed or str
   assert.equal(summarizeProgress(list).scheduled,1);
   assert.equal(statisticInsights(list,date).perfect,1);
   assert.equal(statisticCalendar(list,"2026-11",date).days.find(day=>day.date===date)?.rate,100);
-  assert.equal(wholeWeekAchievement(list,date)[4]?.rate,100);
+  assert.equal(wholeWeekAchievement(list,date).find(day=>day.date===date)?.rate,100);
  }
  const yesterday="2026-11-13";
  assert.equal(yesterdayAchievement(low,yesterday)?.missed.length,0);
