@@ -2826,7 +2826,7 @@ function Dashboard({ view:providedView, workspace, busy, actionError, onCommand,
       const saved=globalThis.localStorage?.getItem("noor-personal-activity-view-r304");
       if(saved==="category"||saved==="time"||saved==="importance"||saved==="status"||saved==="separate")return saved;
     }catch{/* Preference only. */}
-    return "category";
+    return "separate";
   });
   const selectActivityView=(next:NoorActivityViewR304)=>{
     setActivityView(next);
