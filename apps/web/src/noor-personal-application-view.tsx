@@ -1082,6 +1082,90 @@ const PAGE_STYLES = `
  .np-page .np-caffeine-time-picker-r295{padding:10px}
  .np-page .np-beverages-r294 input,.np-page .np-beverages-r294 select{font-size:16px}
 }
+/* R299: approved compact, whole-card status tint (iPhone-first). */
+.np-page .np-caffeine-card-green-r299{--np-drink-accent:#208657;--np-drink-soft:#e4f4e9}
+.np-page .np-caffeine-card-yellow-r299{--np-drink-accent:#ae780f;--np-drink-soft:#fff2d4}
+.np-page .np-caffeine-card-red-r299{--np-drink-accent:#bd3542;--np-drink-soft:#fde7e6}
+.np-page .np-beverages-r294.np-caffeine-card-r299{
+  width:min(100%,550px);max-width:100%;min-width:0;box-sizing:border-box;
+  display:grid;gap:8px;padding:12px 13px;border-radius:18px;
+  background:var(--np-drink-soft);background:color-mix(in srgb,var(--panel) 78%,var(--np-drink-accent) 22%);
+  border:1px solid color-mix(in srgb,var(--np-drink-accent) 28%,var(--border));
+  box-shadow:0 5px 16px rgba(24,32,38,.06);
+}
+.np-page .np-caffeine-card-r299 .np-beverages-head-r294{display:flex;align-items:center;justify-content:space-between;flex-wrap:nowrap;gap:8px}
+.np-page .np-caffeine-card-heading-r299{display:flex;align-items:center;gap:8px;min-width:0}
+.np-page .np-caffeine-card-heading-r299 h2{font-size:15px;line-height:1.4;margin:0;color:var(--text)}
+.np-page .np-caffeine-card-dot-r299{
+ display:block;flex:0 0 11px;width:11px;height:11px;border-radius:50%;
+ background:var(--np-drink-accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--np-drink-accent) 17%,transparent);
+}
+.np-page .np-caffeine-card-r299 .np-beverages-head-r294>button{min-height:38px;min-width:48px;padding:6px 10px;border-radius:10px;background:color-mix(in srgb,var(--panel) 88%,transparent)}
+.np-page .np-caffeine-card-content-r299{display:flex;align-items:center;gap:10px;min-width:0}
+.np-page .np-caffeine-card-r299 .np-caffeine-summary-r295{
+ display:grid;grid-template-columns:minmax(0,1fr);gap:6px;min-width:0;flex:1;
+}
+.np-page .np-caffeine-card-r299 .np-caffeine-tally-r295{
+ display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;min-width:0;width:100%;
+}
+.np-page .np-caffeine-card-r299 .np-caffeine-tally-r295>div{
+ display:flex;flex-direction:row;align-items:center;justify-content:center;gap:4px;
+ flex-wrap:nowrap;min-width:0;min-height:32px;padding:5px 4px;
+ border:1px solid color-mix(in srgb,var(--np-drink-accent) 12%,var(--border));
+ border-radius:10px;background:color-mix(in srgb,var(--panel) 72%,transparent);
+}
+.np-page .np-caffeine-card-r299 .np-caffeine-tally-r295 span{
+ color:var(--text);opacity:.78;font-size:11px;line-height:1.3;
+ overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.np-page .np-caffeine-card-r299 .np-caffeine-tally-r295 strong{
+ font-size:17px;line-height:1;flex:none;font-weight:750;
+ font-variant-numeric:tabular-nums;color:var(--text);
+}
+.np-page .np-caffeine-card-r299 .np-caffeine-signal-r295{
+ display:grid;grid-template-columns:minmax(0,1fr);gap:2px;max-width:none;width:100%;min-width:0;
+ flex:initial;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none;color:var(--text);
+}
+.np-page .np-caffeine-card-r299 .np-caffeine-signal-r295 strong{
+ font-size:13px;line-height:1.35;font-weight:780;color:var(--np-drink-accent);
+}
+.np-page .np-caffeine-card-r299 .np-caffeine-signal-r295 .np-caffeine-reason-r296{
+ display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;
+ position:static;width:auto;height:auto;clip:auto;overflow:hidden;white-space:normal;
+ color:var(--text);opacity:.8;font-size:11px;line-height:1.45;
+ overflow-wrap:anywhere;
+}
+.np-page .np-caffeine-cup-r299{
+ display:grid;place-items:center;flex:0 0 53px;width:53px;height:64px;
+ color:var(--np-drink-accent);border-radius:13px;
+ background:color-mix(in srgb,var(--panel) 58%,transparent);
+ border:1px solid color-mix(in srgb,var(--np-drink-accent) 9%,var(--border));
+}
+.np-page .np-caffeine-cup-r299 svg{display:block;width:43px;height:43px;max-width:100%}
+.np-page .np-caffeine-card-r299 .np-caffeine-quick-r295{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.np-page .np-caffeine-card-r299 .np-caffeine-quick-r295 button{
+ min-height:44px;font-size:13px;border-radius:11px;
+ background:color-mix(in srgb,var(--panel) 78%,transparent);
+}
+.np-page .np-caffeine-card-r299 .np-caffeine-details-r296{
+ padding-top:6px;border-top:1px solid color-mix(in srgb,var(--np-drink-accent) 16%,var(--border));
+}
+.np-page .np-caffeine-card-r299 .np-caffeine-details-r296>summary{color:var(--text);opacity:.8}
+@media(max-width:600px){
+ .np-page .np-beverages-r294.np-caffeine-card-r299{width:100%;padding:10px 11px;gap:7px;margin-block:7px 12px}
+ .np-page .np-caffeine-card-r299 .np-caffeine-tally-r295 strong{font-size:16px}
+ .np-page .np-caffeine-card-r299 .np-caffeine-tally-r295 span{font-size:10px}
+ .np-page .np-caffeine-card-r299 .np-caffeine-cup-r299{flex-basis:45px;width:45px;height:57px}
+ .np-page .np-caffeine-card-r299 .np-caffeine-cup-r299 svg{width:37px;height:37px}
+ .np-page .np-caffeine-card-r299 .np-caffeine-signal-r295 strong{font-size:12px}
+ .np-page .np-caffeine-card-r299 .np-caffeine-signal-r295 .np-caffeine-reason-r296{font-size:10.5px}
+}
+@media(max-width:350px){
+ .np-page .np-caffeine-card-content-r299{gap:6px}
+ .np-page .np-caffeine-card-r299 .np-caffeine-cup-r299{flex-basis:36px;width:36px;height:50px}
+ .np-page .np-caffeine-card-r299 .np-caffeine-cup-r299 svg{width:31px;height:31px}
+ .np-page .np-caffeine-card-r299 .np-caffeine-tally-r295>div{gap:2px;padding-inline:2px}
+}
 .np-page .np-definition-description-r293{white-space:pre-wrap;overflow-wrap:anywhere;unicode-bidi:plaintext;line-height:1.8}
 /* NOOR_COLLAPSIBLE_HABIT_CARDS_R107_BEGIN */
 /* Replace masonry with stable aligned rows for compact CLOSED categories. */
