@@ -1,5 +1,6 @@
 import {quranQuarterR289,quranQuarterForDateR289,validQuranPlanR289,type QuranHabitPlanR289} from "./noor-quran-quarters-r289.js";
 import {groupNoorActivitiesR304,type NoorActivityViewR304} from "./noor-activity-grouping-r304.js";
+import {NOOR_R305_VISUAL_STYLES} from "./noor-personal-visual-r305.js";
 import {TaskSessionPlannerR254,TaskSessionListR254,sessionFinishedR254,TASK_SESSION_STYLES_R254,type StoredTaskSessionPlanR254,type StoredTaskSessionR254} from "./noor-task-sessions-r254.js";
 import {NoorBeverageTrackerR294,type BeverageRowR294} from "./noor-beverage-tracker-r294.js";
 import type {NoorBeveragePlanR294,NoorCountdownPlanR301} from "./noor-personal-today-client.js";
@@ -1796,6 +1797,7 @@ const PAGE_STYLES = `
 }
 /* NOOR_R304_UNIFIED_ACTIVITY_VIEW_STYLES_END */
 /* NOOR_R163_MOBILE_DIALOGS_AND_TABS_END */
+${NOOR_R305_VISUAL_STYLES}
 
 
 `;
@@ -2957,6 +2959,23 @@ function Dashboard({ view:providedView, workspace, busy, actionError, onCommand,
       </div>
     </div>
 
+    {/* R305: a genuine first-screen visual hierarchy; counters are read-only projections. */}
+    <section className="np-r305-intro" data-testid="r305-daily-intro" aria-label={historyDate?"ملخص اليوم المحدد":"ملخص اليوم"}>
+      <div className="np-r305-intro-copy">
+        <span className="np-r305-kicker">نور بيرسونال · مساحة اليوم</span>
+        <h2>{historyDate?"تفاصيل يومك السابق":totalToday===0?"مساحة جديدة ليومك":totalToday===completedToday?"يوم اكتمل على خير":"ابدأ بخطوة، ثم واصل"}</h2>
+        <p>{historyDate?"استعرض إنجازات هذا اليوم وما تبقى منه دون تغيير سجلات الأيام الأخرى.":totalToday===0?"لا توجد أنشطة مستحقة الآن. يمكنك إضافة ما تريد من مركز التحكم.":totalToday===completedToday?"أنجزت ما كان مستحقًا اليوم؛ يمكنك استعراض تقدمك خلال الأسبوع.":"أنشطتك مرتبة في مكان واحد. اختر ما يناسب وقتك، وسيظهر تقدمك حسب أهميته."}</p>
+        <nav className="np-r305-intro-links" aria-label="اختصارات اليوم">
+          <a href="#noor-r305-activity-heading">العادات والمهام <span aria-hidden="true">←</span></a>
+          <a href="#noor-r305-weekly">ملخص الأسبوع</a>
+        </nav>
+      </div>
+      <div className="np-r305-intro-metrics" role="list" aria-label="أعداد الأنشطة المستحقة">
+        <div className="np-r305-intro-metric" role="listitem"><strong>{arabicNumber(completedToday)}</strong><span>مكتملة اليوم</span></div>
+        <div className="np-r305-intro-metric" role="listitem"><strong>{arabicNumber(view.habits.filter(e=>e.status!=="Suppressed"&&!definitionsById.get(e.definitionId)?.beveragePlan).length)}</strong><span>عادات اليوم</span></div>
+        <div className="np-r305-intro-metric" role="listitem"><strong>{arabicNumber(view.tasks.filter(e=>e.status!=="Suppressed"&&!["event","appointment"].includes(definitionsById.get(e.definitionId)?.countdownPlan?.kind??"")).length)}</strong><span>مهام اليوم</span></div>
+      </div>
+    </section>
     <section aria-label="الصلوات" className="np-card np-prayer-card" data-header-layout="padding-only-132" data-prayer-layout="compact-1x8-until-600-92" data-testid="prayer-card">
       <div className="np-prayer-card-head">
         <span className="np-prayer-card-icon" aria-hidden="true">
@@ -3007,7 +3026,7 @@ function Dashboard({ view:providedView, workspace, busy, actionError, onCommand,
       {showRemaining?createPortal(<div className="np-r286-remaining-backdrop" onMouseDown={event=>{if(event.target===event.currentTarget)setShowRemaining(false);}}><section role="dialog" aria-modal="true" aria-labelledby="r286-remaining-heading" className="np-r286-remaining-dialog" onKeyDown={event=>{if(event.key==="Escape")setShowRemaining(false);}}><header><h2 id="r286-remaining-heading">{historyDate?"المتبقي في اليوم المحدد":"المتبقي اليوم"}</h2><button type="button" className="np-cc-button" ref={remainingCloseRef} onClick={()=>setShowRemaining(false)}>إغلاق ×</button></header>{(achievementItems.filter(x=>x.status!=="Completed"&&x.status!=="Suppressed")).length?<ul>{achievementItems.filter(x=>x.status!=="Completed"&&x.status!=="Suppressed").map(x=><li key={x.id}><span><strong>{x.title}</strong><small>{x.kind==="Habit"?"عادة":"مهمة"} · {STATUS_LABELS[x.status]??x.status}</small></span><span>وزن {arabicNumber(x.weight)}</span></li>)}</ul>:<p role="status">اكتملت جميع المهام والعادات المستحقة لهذا اليوم.</p>}</section></div>,document.body):null}
       <div className="np-day-context">
         <section className={`np-yesterday${yesterday?.missed.length?" has-missed":""}`} aria-label="فائت أمس" data-testid="yesterday-achievement"><div className="np-yesterday-heading"><span>فائت أمس</span>{yesterday?<time dateTime={yesterday.date}>{weekDateLabel(yesterday.date)}</time>:null}</div><div className="np-yesterday-score"><strong>{arabicNumber(yesterday?.missed.length??0)}</strong><span>عادات ومهام غير مكتملة</span></div>{yesterday?.scheduled?<p>{yesterday.missed.length?"عناصر غير مكتملة" :"اكتملت كل استحقاقات أمس"} · إنجاز أمس {arabicNumber(yesterday.rate??0)}%</p>:<p>لا توجد استحقاقات مسجلة لأمس.</p>}{yesterday?.missed.length?<details className="np-yesterday-details"><summary>عرض الفائت</summary><ul>{yesterday.missed.map(row=><li key={row.id}><span>{row.title}<small>{row.kind==="Habit"?"عادة":"مهمة"} · {STATUS_LABELS[row.status]??row.status}{row.amount>0?` · ${arabicNumber(row.amount)} ${row.unit}`:""}</small></span><strong>{arabicNumber(row.weight)}<small> وزن</small></strong></li>)}</ul></details>:null}</section>
-        <section className="np-week-achievement" aria-label="إنجاز أيام الأسبوع كاملًا" data-week-navigation="r109">
+        <section id="noor-r305-weekly" className="np-week-achievement" aria-label="إنجاز أيام الأسبوع كاملًا" data-week-navigation="r109">
           <div className="np-week-heading"><h3>{weekShift===0?"هذا الأسبوع":"الأسبوع المحدد"}</h3>
             <div className="np-week-navigation" aria-label="التنقل بين الأسابيع">
               <button type="button" data-testid="week-history-previous" disabled={!canGoOlder} aria-label="الأسبوع السابق" onClick={()=>setWeekShift(value=>value-1)}>‹</button>
@@ -3030,7 +3049,7 @@ function Dashboard({ view:providedView, workspace, busy, actionError, onCommand,
     <NoorBeverageTrackerR294 rows={beverageRows} allNames={(workspace?.definitions??[]).filter(d=>d.kind==="Habit"&&!!d.beveragePlan&&d.state!=="Archived").map(d=>d.title)}
       localDate={view.localDate??""} timeZone={view.timeZone} busy={busy} onCommand={onCommand} historical={historyDate!==null}/>
 
-    <div className="np-activity-switch-r304" data-testid="r304-activity-view" role="group" aria-label="طريقة عرض العادات والمهام">
+    <div id="noor-r305-activity-heading" className="np-activity-switch-r304" data-testid="r304-activity-view" role="group" aria-label="طريقة عرض العادات والمهام">
       <strong>عرض العادات والمهام</strong>
       <div className="np-activity-switch-options-r304">
         {([["category","حسب المجال"],["time","حسب الوقت"],["importance","حسب الأهمية"],["status","حسب الحالة"],["separate","العرض المنفصل"]] as const).map(([mode,label])=>
