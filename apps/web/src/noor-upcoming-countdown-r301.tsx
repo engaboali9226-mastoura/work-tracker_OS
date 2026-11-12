@@ -41,20 +41,26 @@ function displayCountdown(item:CountdownStateR301):string{
  if(item.phase==="begun")return "حان الموعد";
  return "انتهى الموعد";
 }
-export function UpcomingCountdownR301({definitions,nowMs,timeZone}:{definitions:readonly UpcomingDefinitionR301[];nowMs:number;timeZone:string}):ReactElement|null{
+export function UpcomingCountdownR301({definitions,nowMs,timeZone,onAdd}:{definitions:readonly UpcomingDefinitionR301[];nowMs:number;timeZone:string;onAdd?:()=>void}):ReactElement{
  const upcoming=definitions.flatMap(definition=>{
   if(!definition.countdownPlan||definition.state!=="Active")return [];
   const countdown=countdownStateR301(definition.countdownPlan.date,definition.countdownPlan.time,nowMs,timeZone);
   if(!countdown||countdown.phase==="past")return [];
   return [{id:definition.id,title:definition.title,plan:definition.countdownPlan,countdown}];
  }).sort((a,b)=>a.plan.date.localeCompare(b.plan.date)||a.plan.time.localeCompare(b.plan.time)).slice(0,5);
- if(!upcoming.length)return null;
- return <section className="np-card np-upcoming-r301" aria-label="العد التنازلي للمواعيد والأحداث" data-testid="r301-upcoming-countdowns">
+ return <section className="np-card np-upcoming-r301" aria-label="العد التنازلي للمواعيد والأحداث" data-testid="r301-upcoming-countdowns" data-countdown-empty={!upcoming.length}>
    <header className="np-upcoming-head-r301">
     <span className="np-upcoming-icon-r301" aria-hidden="true">◷</span>
-    <div><h2>العد التنازلي</h2><small>مهام ومواعيد وأحداث مرتقبة</small></div>
+    <div><h2>المواعيد المرتقبة</h2><small>عدّ تنازلي للمهام والأحداث والمواعيد</small></div>
+    {onAdd?<button type="button" className="np-upcoming-add-r302" data-testid="r302-add-countdown"
+       aria-label="إضافة موعد للعد التنازلي" onClick={onAdd}>+ موعد</button>:null}
    </header>
-   <div className="np-upcoming-list-r301">
+   {!upcoming.length?<div className="np-upcoming-empty-r302" data-testid="r302-countdown-empty" role="status">
+     <span className="np-upcoming-empty-icon-r302" aria-hidden="true">◷</span>
+     <div><strong>لا توجد مواعيد مرتقبة بعد</strong><small>أضف موعدًا أو حدثًا أو مهمة بوقت محدد ليظهر هنا العد التنازلي.</small></div>
+     {onAdd?<button type="button" className="np-upcoming-empty-add-r302" data-testid="r302-add-first-countdown"
+       onClick={onAdd}>إضافة أول موعد</button>:null}
+    </div>:<div className="np-upcoming-list-r301">
     {upcoming.map(item=><div key={item.id} className={"np-upcoming-item-r301 np-upcoming-"+item.countdown.phase+"-r301"} data-countdown-phase={item.countdown.phase} data-testid={"r301-countdown-"+item.id}>
       <div className="np-upcoming-copy-r301"><strong>{item.title}</strong>
        <small>{item.plan.kind==="appointment"?"موعد":item.plan.kind==="event"?"حدث مرتقب":"موعد إنجاز مهمة"} · <time dateTime={item.plan.date}>{item.plan.date}</time> · <time>{item.plan.time}</time></small>
@@ -65,7 +71,7 @@ export function UpcomingCountdownR301({definitions,nowMs,timeZone}:{definitions:
       </div>
       {item.countdown.phase==="today"||item.countdown.phase==="begun"?<span className="np-upcoming-today-indicator-r301" aria-label="تنبيه: الموعد اليوم">●</span>:null}
      </div>)}
-   </div>
-   <small className="np-upcoming-foot-r301">يُحدّث العداد أثناء فتح نور، ويعتمد على المنطقة الزمنية لحسابك. التنبيه ظاهر داخل التطبيق فقط.</small>
+   </div>}
+   {upcoming.length?<small className="np-upcoming-foot-r301">يُحدّث العداد أثناء فتح نور، ويعتمد على المنطقة الزمنية لحسابك. التنبيه ظاهر داخل التطبيق فقط.</small>:null}
   </section>;
 }
