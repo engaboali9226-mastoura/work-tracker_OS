@@ -30,8 +30,8 @@ export function countdownStateR301(targetDate:string,time:string,nowMs:number,ti
  if(deltaDays>0)return {phase:"days",days:deltaDays,hours:0,minutes:0,seconds:0};
  if(deltaDays<0)return {phase:"past",days:0,hours:0,minutes:0,seconds:0};
  const seconds=Number(time.slice(0,2))*3600+Number(time.slice(3))*60-local.seconds;
+ if(seconds<=0&&seconds>=-3600)return {phase:"begun",days:0,hours:0,minutes:0,seconds:0};
  if(seconds<0)return {phase:"past",days:0,hours:0,minutes:0,seconds:0};
- if(seconds===0)return {phase:"begun",days:0,hours:0,minutes:0,seconds:0};
  return {phase:"today",days:0,hours:Math.floor(seconds/3600),minutes:Math.floor(seconds%3600/60),seconds:seconds%60};
 }
 const number=(n:number)=>new Intl.NumberFormat("ar-SA-u-nu-latn").format(n);
