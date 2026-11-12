@@ -19,7 +19,7 @@ test('R130 habit edit modal has fixed accessible submit footer and scrollable co
 });
 test('R139 home shows all grouped habit cards; category filtering lives in Control Center',()=>{
  assert.doesNotMatch(s,/data-testid="habit-category-filter-r130"/);
- assert.match(s,/grouped\.map\(\(\[category,items\]\)/);
+ assert.match(s,/filteredGrouped\.map\(\(\[category,items\]\)/);
  assert.match(s,/data-testid="habit-category-card"/);
  assert.match(s,/data-testid="control-category-filter-r135"/);
  assert.match(s,/data-testid="control-habit-cards-r135"/);
