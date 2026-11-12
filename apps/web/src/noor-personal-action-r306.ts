@@ -181,5 +181,123 @@ export const NOOR_R306_ACTION_STYLES = String.raw`
  .np-page .np-r306-add-button,
  .np-page .np-activity-switch-options-r304 button{transition:none}
 }
+/* NOOR_R306_COMPACT_NO_GROWTH_BEGIN
+ * Compact by default. No fixed height/max-height on user-generated content:
+ * long Arabic names, notes and reading controls must remain fully operable.
+ * All interactive controls preserve >= 44px tap targets on phones.
+ */
+.np-page .np-prayer-card{
+  padding:7px 4px 5px;margin-bottom:9px;border-radius:18px;
+}
+.np-page .np-prayer-card-head{margin-bottom:5px;padding-inline:7px}
+.np-page .np-prayer-card-title{font-size:18px;line-height:1.22}
+.np-page .np-prayer-times .np-prayer{
+  grid-template-rows:18px minmax(24px,auto) minmax(25px,auto) 20px;
+  min-height:103px;gap:2px;padding:4px 0;border-radius:9px;
+}
+.np-page .np-prayer-symbol{width:20px;height:18px}
+.np-page .np-prayer-symbol svg{width:15px;height:15px}
+.np-page .np-prayer-label{font-size:11px;line-height:1.25}
+.np-page .np-prayer .np-countdown{min-height:20px;padding:1px 0}
+.np-page .np-r232-section{padding-block:9px;padding-inline:12px;margin-bottom:10px}
+.np-page .np-r232-section .np-r232-heading{margin-bottom:7px}
+.np-page .np-r232-section .np-r234-window{
+  min-height:0;padding-block:7px;padding-inline:10px;
+}
+.np-page .np-r232-section .np-r234-card-title{margin-bottom:3px}
+.np-page .np-r232-section .np-r248-subtitle{margin-block:3px}
+.np-page .np-r232-section .np-r234-times{margin-block:5px}
+.np-page .np-r232-section .np-r234-card-bottom{margin-top:5px}
+.np-page .np-r232-section .np-r232-note{margin-block:4px}
+.np-page .np-activity-switch-r304{margin-top:12px;padding-bottom:7px;gap:7px}
+.np-page .np-r306-toolbar-heading{gap:6px}
+.np-page .np-r306-workspace-title>strong{font-size:21px;line-height:1.3}
+.np-page .np-r306-activity-label{font-size:10px}
+.np-page .np-r306-tool-row{gap:5px}
+.np-page .np-execution-stack{gap:10px}
+.np-page .np-category-grid,.np-page .np-unified-groups-r304{gap:9px}
+.np-page .np-tasks-card,
+.np-page .np-habit-category,
+.np-page .np-unified-group-r304{border-radius:15px}
+.np-page .np-tasks-card>.np-category-head,
+.np-page .np-habit-category>.np-category-head,
+.np-page .np-unified-group-r304>.np-category-head{
+  padding:9px 12px;min-height:0;
+}
+.np-page .np-habit-category .np-category-title,
+.np-page .np-tasks-card .np-category-title,
+.np-page .np-unified-group-r304 .np-category-title{font-size:15px}
+.np-page .np-habit-category .np-category-progress{
+  width:44px;height:44px;flex:0 0 44px;
+}
+.np-page .np-habit-category .np-category-heading{gap:2px 8px}
+.np-page .np-habit-category .np-list,
+.np-page .np-tasks-card .np-list,
+.np-page .np-unified-group-r304 .np-list{padding:5px 8px 8px;gap:3px}
+.np-page .np-execution-stack .np-item{min-height:48px;padding:5px 8px}
+.np-page .np-habit-category .np-habit-row{min-height:48px;padding-block:2px}
+.np-page .np-execution-stack .np-item-title{line-height:1.4}
+.np-page .np-habit-row .np-item-meta{margin-top:1px;line-height:1.35}
+.np-page .np-section-heading{padding:0 2px 3px}
+.np-page .np-section-heading h2{font-size:18px}
+.np-page .np-day-achievement{
+  padding:10px 12px;gap:10px;
+  grid-template-columns:55px minmax(0,1fr) auto;
+  margin:10px 0 12px;border-radius:15px;
+}
+.np-page .np-day-ring{width:55px;height:55px}
+.np-page .np-day-ring strong{font-size:16px}
+.np-page .np-day-achievement-copy h2{font-size:16px;margin-bottom:2px}
+.np-page .np-day-achievement-copy p{font-size:11px;line-height:1.55}
+.np-page button.np-day-remaining{min-height:47px;padding:5px 10px;border-radius:11px}
+.np-page .np-day-remaining strong{font-size:20px}
+.np-page .np-day-context{gap:9px;padding-top:9px}
+.np-page .np-yesterday{padding:7px 9px}
+.np-page .np-week-day{min-height:57px;padding:5px 2px}
+.np-page .np-week-heading{margin-bottom:5px}
+.np-page .np-week-value{height:19px}
+.np-page .np-week-value strong{font-size:12px}
+.np-page .np-r306-add-button,
+.np-page .np-r306-focus-controls button,
+.np-page .np-activity-switch-options-r304 button{min-height:44px}
+@media(max-width:700px){
+  .np-page .np-prayer-card{padding:6px 2px 4px;margin-bottom:7px}
+  .np-page .np-prayer-times .np-prayer{
+    grid-template-rows:18px minmax(23px,auto) minmax(24px,auto) 20px;
+    min-height:100px;gap:2px;padding-block:4px;
+  }
+  .np-page .np-r232-section{padding-block:7px;padding-inline:7px;margin-bottom:8px}
+  .np-page .np-r232-section .np-r234-window{padding:6px 7px}
+  .np-page .np-r306-workspace-title>strong{font-size:20px}
+  .np-page .np-activity-switch-r304{margin:10px 0 8px;gap:6px}
+  .np-page .np-r306-workspace-title{gap:0}
+  .np-page .np-r306-toolbar-heading{gap:6px}
+  .np-page .np-tasks-card>.np-category-head,
+  .np-page .np-habit-category>.np-category-head,
+  .np-page .np-unified-group-r304>.np-category-head{padding:8px 10px}
+  .np-page .np-habit-category .np-list,
+  .np-page .np-tasks-card .np-list,
+  .np-page .np-unified-group-r304 .np-list{padding:3px 7px 6px}
+  .np-page .np-habit-category .np-habit-row{min-height:48px}
+  .np-page .np-day-achievement{
+    grid-template-columns:51px minmax(0,1fr) auto;
+    padding:8px;gap:7px;border-radius:14px;margin:9px 0;
+  }
+  .np-page .np-day-ring{width:51px;height:51px}
+  .np-page .np-day-ring strong{font-size:14px}
+  .np-page .np-day-achievement-copy h2{font-size:15px}
+  .np-page .np-day-achievement-copy p{font-size:10px}
+  .np-page button.np-day-remaining{min-height:44px;padding:4px 6px}
+  .np-page .np-day-context{padding-top:7px;gap:7px}
+  .np-page .np-week-day{min-height:55px;padding:4px 1px}
+}
+@media(max-width:390px){
+  .np-page .np-day-achievement{grid-template-columns:51px minmax(0,1fr)}
+  .np-page button.np-day-remaining{
+    min-height:44px;grid-column:1/-1;display:flex;justify-content:center;
+    align-items:center;gap:5px;padding:5px;
+  }
+}
+/* NOOR_R306_COMPACT_NO_GROWTH_END */
 /* NOOR_R306_ACTION_FIRST_END */
 `;
