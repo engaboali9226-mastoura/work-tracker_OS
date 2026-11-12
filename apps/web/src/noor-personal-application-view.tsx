@@ -3022,7 +3022,7 @@ function Dashboard({ view:providedView, workspace, busy, actionError, onCommand,
             <button type="button" key={mode} data-testid={`r306-filter-${mode}`} aria-pressed={activityFilter===mode} onClick={()=>setActivityFilter(mode)}>{label}</button>)}
         </div>
         <div className="np-activity-switch-options-r304">
-          {([["category","حسب المجال"],["time","حسب الوقت"],["importance","حسب الأهمية"],["status","حسب الحالة"],["separate","عرض منفصل"]] as const).map(([mode,label])=>
+          {([["category","حسب المجال"],["time","حسب الوقت"],["importance","حسب الأهمية"],["status","حسب الحالة"],["separate","العرض المنفصل"]] as const).map(([mode,label])=>
             <button key={mode} type="button" aria-pressed={activityView===mode} onClick={()=>selectActivityView(mode)}>{label}</button>)}
         </div>
       </div>
