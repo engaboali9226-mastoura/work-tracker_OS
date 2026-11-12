@@ -2569,7 +2569,7 @@ function Dashboard({ view:providedView, workspace, busy, actionError, onCommand,
   const [temperature,setTemperature] = useState<number | null>(null);
   // Informational drink counters are not actionable habits or outstanding work.
   // Preserve their own card/history, but remove their weight from every achievement view.
-  const achievementItems=[...view.tasks,...view.habits].filter(e=>
+  const achievementItems=[...view.habits,...view.tasks].filter(e=>
     e.status!=="Cancelled"&&!definitionsById.get(e.definitionId)?.beveragePlan&&
     !["event","appointment"].includes(definitionsById.get(e.definitionId)?.countdownPlan?.kind??"task"));
   const taskCompleted = completedCount(achievementItems.filter(e=>e.kind==="Task"));
