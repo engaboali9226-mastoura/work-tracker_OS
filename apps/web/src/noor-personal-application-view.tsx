@@ -1,6 +1,5 @@
 import {quranQuarterR289,quranQuarterForDateR289,validQuranPlanR289,type QuranHabitPlanR289} from "./noor-quran-quarters-r289.js";
 import {groupNoorActivitiesR304,type NoorActivityViewR304} from "./noor-activity-grouping-r304.js";
-import {readNoorActivityViewR304,saveNoorActivityViewR304} from "./noor-activity-view-preference-r304.js";
 import {TaskSessionPlannerR254,TaskSessionListR254,sessionFinishedR254,TASK_SESSION_STYLES_R254,type StoredTaskSessionPlanR254,type StoredTaskSessionR254} from "./noor-task-sessions-r254.js";
 import {NoorBeverageTrackerR294,type BeverageRowR294} from "./noor-beverage-tracker-r294.js";
 import type {NoorBeveragePlanR294,NoorCountdownPlanR301} from "./noor-personal-today-client.js";
@@ -2822,11 +2821,9 @@ function Dashboard({ view:providedView, workspace, busy, actionError, onCommand,
       plan:definition.beveragePlan,log:definition.activityLog}];
   }),[view.habits,workspace]);
   // R304: presentation-only. Actions retain their original execution IDs.
-  const [activityView,setActivityView]=useState<NoorActivityViewR304>(readNoorActivityViewR304);
-  const selectActivityView=(next:NoorActivityViewR304)=>{
-    setActivityView(next);
-    saveNoorActivityViewR304(next);
-  };
+  const [activityView,setActivityView]=useState<NoorActivityViewR304>("separate");
+  // In-memory preference only: browser storage is restricted by the architecture contract.
+  const selectActivityView=(next:NoorActivityViewR304)=>setActivityView(next);
   const unifiedGroups=useMemo(()=>
     groupNoorActivitiesR304([...view.habits,...view.tasks],workspace?.definitions??[],
       activityView==="separate"?"category":activityView,workspace?.categories??[]),
