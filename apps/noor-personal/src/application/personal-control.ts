@@ -11,6 +11,7 @@ import type {
     ImportanceLevel,
     QuranHabitPlan,
     BeverageHabitPlan,
+    CountdownPlan,
     LocalDate,
     PersonalDay,
     Schedule,
@@ -44,7 +45,7 @@ export type PersonalCommand =
     | Readonly<{type:"rebalance-habit-weights";changes:readonly Readonly<{definitionId:string;expectedRevisionId:string;weight:number}>[]}>
     | Readonly<{type:"reorder-display";scope:"Habit"|"Task"|"categories";expected:readonly string[];order:readonly string[]}>
     | Readonly<{type:"manage-category"; action:"add"|"rename"; name:string; previousName:string|null}>
-    | Readonly<{type:"update-definition";weight?:number;definitionId:string;expectedRevisionId:string;kind:DefinitionKind;title:string;category:string;description?:string;startDate:LocalDate;endDate:LocalDate|null;scheduleKind:Schedule["kind"];weekdays:readonly number[];importance:ImportanceLevel;timeOfDay?:string;quranPlan?:QuranHabitPlan|null;beveragePlan?:BeverageHabitPlan|null;measurement?:{readonly target:number;readonly unit:string};sessionPlan?:TaskSessionPlanDraft|null}>
+    | Readonly<{type:"update-definition";weight?:number;definitionId:string;expectedRevisionId:string;kind:DefinitionKind;title:string;category:string;description?:string;startDate:LocalDate;endDate:LocalDate|null;scheduleKind:Schedule["kind"];weekdays:readonly number[];importance:ImportanceLevel;timeOfDay?:string;quranPlan?:QuranHabitPlan|null;beveragePlan?:BeverageHabitPlan|null;countdownPlan?:CountdownPlan|null;measurement?:{readonly target:number;readonly unit:string};sessionPlan?:TaskSessionPlanDraft|null}>
     | Readonly<{type:"finance";operation:FinanceOperation}>
     | Readonly<{ type: "record-activity"; executionId: string; entryId: string; note: string; amount: number; endReason: "achieved" | "expired" | "cancelled" | null }>
     | Readonly<{ readonly type: "delete-definition"; readonly definitionId: string; readonly confirm: true }>
@@ -54,6 +55,7 @@ export type PersonalCommand =
         readonly timeOfDay?: string;
         readonly quranPlan?: QuranHabitPlan | null;
         readonly beveragePlan?: BeverageHabitPlan | null;
+        readonly countdownPlan?: CountdownPlan | null;
         readonly measurement?: { readonly target: number; readonly unit: string };
         readonly sessionPlan?: TaskSessionPlanDraft | null;
         readonly kind: DefinitionKind;
@@ -417,6 +419,7 @@ export function parsePersonalCommand(
                     ...(Object.hasOwn(value,"timeOfDay") ? ["timeOfDay"] : []),
                     ...(Object.hasOwn(value,"quranPlan") ? ["quranPlan"] : []),
                     ...(Object.hasOwn(value,"beveragePlan") ? ["beveragePlan"] : []),
+                    ...(Object.hasOwn(value,"countdownPlan") ? ["countdownPlan"] : []),
                     ...(Object.hasOwn(value,"description") ? ["description"] : []),
                 ],
             )
@@ -454,6 +457,19 @@ export function parsePersonalCommand(
            (value.kind!=="Habit"||value.scheduleKind!=="Daily"||Boolean(value.quranPlan)||Boolean(value.measurement)||Boolean(value.sessionPlan)))return null;
         if(beveragePlan&&value.kind==="Habit"&&Object.hasOwn(value,"quranPlan")&&quranPlan)return null;
         if(Object.hasOwn(value,'quranPlan')&&(value.kind!=='Habit'||quranPlan===undefined))return null;
+        let countdownPlan:CountdownPlan|null|undefined;
+        if(Object.hasOwn(value,"countdownPlan")){
+            const plan=value.countdownPlan;
+            if(plan===null)countdownPlan=null;
+            else if(isRecord(plan)&&exactKeys(plan,["kind","date","time"])&&
+                ["task","event","appointment"].includes(String(plan.kind))&&
+                typeof plan.time==="string"&&/^([01]\\d|2[0-3]):[0-5]\\d$/.test(plan.time)){
+                const date=localDate(plan.date);
+                if(!date)return null;
+                countdownPlan={kind:plan.kind as CountdownPlan["kind"],date,time:plan.time};
+            }else return null;
+        }
+        if(Object.hasOwn(value,"countdownPlan")&&value.kind!=="Task")return null;
         let measurement: {target:number;unit:string} | undefined;
         if (Object.hasOwn(value,"measurement")) {
             const m=value.measurement;
@@ -501,6 +517,12 @@ export function parsePersonalCommand(
             return null;
         }
 
+        if(countdownPlan){
+            if(countdownPlan.date<startDate||(endDate!==null&&countdownPlan.date>endDate))return null;
+            if(countdownPlan.kind!=="task"&&(value.scheduleKind!=="OneTime"||
+                countdownPlan.date!==startDate||value.measurement!==undefined||
+                value.sessionPlan!==undefined))return null;
+        }
         return Object.freeze({
             type: "create-definition" as const,
             ...(typeof value.weight==="number"?{weight:value.weight}:{}),
@@ -510,6 +532,7 @@ export function parsePersonalCommand(
             ...(typeof value.timeOfDay==='string'?{timeOfDay:value.timeOfDay}:{}),
             ...(Object.hasOwn(value,'quranPlan')?{quranPlan:quranPlan!}:{}),
             ...(Object.hasOwn(value,"beveragePlan")?{beveragePlan:beveragePlan!}:{}),
+            ...(Object.hasOwn(value,"countdownPlan")?{countdownPlan:countdownPlan!}:{}),
             title,
             category,
             ...(typeof value.description==="string"?{description:value.description.trim()}:{}),
@@ -901,11 +924,19 @@ export class PersonalCommandService {
                     if(definition.measurement && (!command.measurement || command.measurement.unit!==definition.measurement.unit || command.measurement.target<total))throw new Error("EDIT_PROGRESS_CONFLICT");
                     const nextQuranPlan=Object.hasOwn(command,"quranPlan")?command.quranPlan:definition.quranPlan;
                     const nextBeveragePlan=Object.hasOwn(command,"beveragePlan")?command.beveragePlan:definition.beveragePlan;
+                    const nextCountdownPlan=Object.hasOwn(command,"countdownPlan")?command.countdownPlan:definition.countdownPlan;
+                    if(nextCountdownPlan&&nextCountdownPlan.kind!=="task"&&(command.kind!=="Task"||
+                      command.scheduleKind!=="OneTime"||nextCountdownPlan.date!==command.startDate||
+                      Boolean(command.measurement)||Boolean(nextPlan)))
+                        throw new Error("COUNTDOWN_EVENT_INVALID");
+                    if(nextCountdownPlan&&(nextCountdownPlan.date<command.startDate||
+                      command.endDate!==null&&nextCountdownPlan.date>command.endDate))
+                        throw new Error("COUNTDOWN_DATE_OUTSIDE_TASK");
                     if(nextBeveragePlan&&(command.kind!=="Habit"||command.scheduleKind!=="Daily"||nextQuranPlan))throw new Error("BEVERAGE_PLAN_CONFLICT");
                     if(definition.beveragePlan&&!nextBeveragePlan&&(definition.activityLog??[]).some(e=>e.amount!==0))throw new Error("BEVERAGE_HISTORY_PROTECTED");
                     const nextDescription=Object.hasOwn(command,"description")?command.description:definition.description;
-                    const {effectiveUntilDate:_end,measurement:_measurement,timeOfDay:_timeOfDay,quranPlan:_previousQuranPlan,beveragePlan:_oldBeveragePlan,sessionPlan:_sessionPlan,description:_oldDescription,...preserved}=definition;
-                    transaction.saveDefinition({...preserved,revisionId:this.dependencies.idGenerator.next("definition-revision"),title:command.title,category:command.category,schedule:commandSchedule(command),effectiveFromDate:command.startDate,...(command.endDate?{effectiveUntilDate:command.endDate}:{}),importance:command.importance,...(command.weight!==undefined?{weight:command.weight}:{}),...(command.measurement?{measurement:command.measurement}:{}),...(command.timeOfDay?{timeOfDay:command.timeOfDay}:{}),...(nextQuranPlan?{quranPlan:nextQuranPlan}:{}),...(nextBeveragePlan?{beveragePlan:nextBeveragePlan}:{}),...(nextPlan?{sessionPlan:nextPlan}:{}),...(nextDescription?{description:nextDescription}:{})});
+                    const {effectiveUntilDate:_end,measurement:_measurement,timeOfDay:_timeOfDay,quranPlan:_previousQuranPlan,beveragePlan:_oldBeveragePlan,sessionPlan:_sessionPlan,description:_oldDescription,countdownPlan:_oldCountdownPlan,...preserved}=definition;
+                    transaction.saveDefinition({...preserved,revisionId:this.dependencies.idGenerator.next("definition-revision"),title:command.title,category:command.category,schedule:commandSchedule(command),effectiveFromDate:command.startDate,...(command.endDate?{effectiveUntilDate:command.endDate}:{}),importance:command.importance,...(command.weight!==undefined?{weight:command.weight}:{}),...(command.measurement?{measurement:command.measurement}:{}),...(command.timeOfDay?{timeOfDay:command.timeOfDay}:{}),...(nextQuranPlan?{quranPlan:nextQuranPlan}:{}),...(nextBeveragePlan?{beveragePlan:nextBeveragePlan}:{}),...(nextCountdownPlan?{countdownPlan:nextCountdownPlan}:{}),...(nextPlan?{sessionPlan:nextPlan}:{}),...(nextDescription?{description:nextDescription}:{})});
                     if(command.weight!==undefined&&command.weight!==definition.weight){
                         const day=transaction.findOpenPersonalDayContaining(userId,now);
                         if(day)for(const item of transaction.listDailyExecution(day.id))if(item.definitionId===definition.id)transaction.saveDailyExecution({...item,eligibility:{...item.eligibility,weight:command.weight},version:item.version+1,updatedAt:now});
@@ -1136,6 +1167,7 @@ export class PersonalCommandService {
                         ...(command.timeOfDay?{timeOfDay:command.timeOfDay}:{}),
                         ...(command.quranPlan?{quranPlan:command.quranPlan}:{}),
                         ...(command.beveragePlan?{beveragePlan:command.beveragePlan}:{}),
+                        ...(command.countdownPlan?{countdownPlan:command.countdownPlan}:{}),
                         ...(command.description?{description:command.description}:{}),
                     };
 
@@ -1307,6 +1339,7 @@ function periodInsight(
         instance =>
             countsTowardCompletion(instance.status)
             && !definitions.get(instance.definitionId)?.beveragePlan
+            && !["event","appointment"].includes(definitions.get(instance.definitionId)?.countdownPlan?.kind??"task")
             && instance.scheduleOccurrenceKey >= start
             && instance.scheduleOccurrenceKey <= currentLocalDate,
     );
@@ -1372,7 +1405,8 @@ function streaks(
 
     for (const instance of execution) {
         if (!countsTowardCompletion(instance.status)
-            || definitions.get(instance.definitionId)?.beveragePlan) {
+            || definitions.get(instance.definitionId)?.beveragePlan
+            || ["event","appointment"].includes(definitions.get(instance.definitionId)?.countdownPlan?.kind??"task")) {
             continue;
         }
 
@@ -1478,7 +1512,7 @@ export function buildPersonalWorkspace(
 
     const days=new Map(personalDays.map(d=>[d.id,d.boundary.localDate])),defs=new Map(definitions.map(d=>[d.id,d]));
     const streak = streaks(execution,currentLocalDate,defs);
-    const rows:PersonalStatisticRow[]=execution.flatMap(e=>{const date=days.get(e.personalDayId)??e.scheduleOccurrenceKey;if(!/^\d{4}-\d{2}-\d{2}$/.test(date)||!currentLocalDate||date>currentLocalDate)return [];const d=defs.get(e.definitionId);if(d?.sessionPlan?.sessions.length&&!sessionScheduledOnDateR286(d.sessionPlan,date)&&e.status!=="Completed")return [];return [{id:e.id,definitionId:e.definitionId,title:d?.title??e.title,kind:e.kind,date,weight:Number.isFinite(e.eligibility.weight)&&e.eligibility.weight>0?e.eligibility.weight:1,status:e.status,amount:(d?.activityLog??[]).filter(a=>a.executionId===e.id).reduce((n,a)=>n+a.amount,0),unit:d?.measurement?.unit??"",...(d?.beveragePlan?{nonAchievement:true}:{}),credit:d?.sessionPlan
+    const rows:PersonalStatisticRow[]=execution.flatMap(e=>{const date=days.get(e.personalDayId)??e.scheduleOccurrenceKey;if(!/^\d{4}-\d{2}-\d{2}$/.test(date)||!currentLocalDate||date>currentLocalDate)return [];const d=defs.get(e.definitionId);if(d?.sessionPlan?.sessions.length&&!sessionScheduledOnDateR286(d.sessionPlan,date)&&e.status!=="Completed")return [];return [{id:e.id,definitionId:e.definitionId,title:d?.title??e.title,kind:e.kind,date,weight:Number.isFinite(e.eligibility.weight)&&e.eligibility.weight>0?e.eligibility.weight:1,status:e.status,amount:(d?.activityLog??[]).filter(a=>a.executionId===e.id).reduce((n,a)=>n+a.amount,0),unit:d?.measurement?.unit??"",...(d?.beveragePlan||["event","appointment"].includes(d?.countdownPlan?.kind??"task")?{nonAchievement:true}:{}),credit:d?.sessionPlan
         ?sessionDayCredit(d.activityLog??[],date)
         :(e.status==="Completed"?1:0)}];});
     return Object.freeze({
