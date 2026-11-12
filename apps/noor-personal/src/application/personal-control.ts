@@ -101,7 +101,7 @@ export interface PersonalInsights {
     }>;
 }
 
-export interface PersonalStatisticRow {readonly id:string;readonly definitionId:string;readonly title:string;readonly kind:DefinitionKind;readonly date:string;readonly weight:number;readonly status:ExecutionStatus;readonly amount:number;readonly unit:string;readonly credit?:number;}
+export interface PersonalStatisticRow {readonly id:string;readonly definitionId:string;readonly title:string;readonly kind:DefinitionKind;readonly date:string;readonly weight:number;readonly status:ExecutionStatus;readonly amount:number;readonly unit:string;readonly credit?:number;readonly nonAchievement?:boolean;}
 export interface PersonalWorkspace {
     readonly statistics:Readonly<{currentDate:string|null;rows:readonly PersonalStatisticRow[]}>;
     readonly categories: readonly string[];
@@ -1306,6 +1306,7 @@ function periodInsight(
     const inWindow = execution.filter(
         instance =>
             countsTowardCompletion(instance.status)
+            && !definitions.get(instance.definitionId)?.beveragePlan
             && instance.scheduleOccurrenceKey >= start
             && instance.scheduleOccurrenceKey <= currentLocalDate,
     );
@@ -1355,6 +1356,7 @@ function periodInsight(
 function streaks(
     execution: readonly DailyExecutionInstance[],
     currentLocalDate: LocalDate | null,
+    definitions: ReadonlyMap<string, ExecutionDefinition>,
 ): Readonly<{
     current: number;
     best: number;
@@ -1369,7 +1371,8 @@ function streaks(
     const byDay = new Map<LocalDate, DailyExecutionInstance[]>();
 
     for (const instance of execution) {
-        if (!countsTowardCompletion(instance.status)) {
+        if (!countsTowardCompletion(instance.status)
+            || definitions.get(instance.definitionId)?.beveragePlan) {
             continue;
         }
 
@@ -1473,13 +1476,9 @@ export function buildPersonalWorkspace(
             .at(-1)
         ?? null;
 
-    const streak = streaks(
-        execution,
-        currentLocalDate,
-    );
-
     const days=new Map(personalDays.map(d=>[d.id,d.boundary.localDate])),defs=new Map(definitions.map(d=>[d.id,d]));
-    const rows:PersonalStatisticRow[]=execution.flatMap(e=>{const date=days.get(e.personalDayId)??e.scheduleOccurrenceKey;if(!/^\d{4}-\d{2}-\d{2}$/.test(date)||!currentLocalDate||date>currentLocalDate)return [];const d=defs.get(e.definitionId);if(d?.sessionPlan?.sessions.length&&!sessionScheduledOnDateR286(d.sessionPlan,date)&&e.status!=="Completed")return [];return [{id:e.id,definitionId:e.definitionId,title:d?.title??e.title,kind:e.kind,date,weight:Number.isFinite(e.eligibility.weight)&&e.eligibility.weight>0?e.eligibility.weight:1,status:e.status,amount:(d?.activityLog??[]).filter(a=>a.executionId===e.id).reduce((n,a)=>n+a.amount,0),unit:d?.measurement?.unit??"",credit:d?.sessionPlan
+    const streak = streaks(execution,currentLocalDate,defs);
+    const rows:PersonalStatisticRow[]=execution.flatMap(e=>{const date=days.get(e.personalDayId)??e.scheduleOccurrenceKey;if(!/^\d{4}-\d{2}-\d{2}$/.test(date)||!currentLocalDate||date>currentLocalDate)return [];const d=defs.get(e.definitionId);if(d?.sessionPlan?.sessions.length&&!sessionScheduledOnDateR286(d.sessionPlan,date)&&e.status!=="Completed")return [];return [{id:e.id,definitionId:e.definitionId,title:d?.title??e.title,kind:e.kind,date,weight:Number.isFinite(e.eligibility.weight)&&e.eligibility.weight>0?e.eligibility.weight:1,status:e.status,amount:(d?.activityLog??[]).filter(a=>a.executionId===e.id).reduce((n,a)=>n+a.amount,0),unit:d?.measurement?.unit??"",...(d?.beveragePlan?{nonAchievement:true}:{}),credit:d?.sessionPlan
         ?sessionDayCredit(d.activityLog??[],date)
         :(e.status==="Completed"?1:0)}];});
     return Object.freeze({
