@@ -41,6 +41,17 @@ function displayCountdown(item:CountdownStateR301):string{
  if(item.phase==="begun")return "حان الموعد";
  return "انتهى الموعد";
 }
+/** R303: concise mobile-first presentation. The first event is the hero;
+ * no more than two following rows appear until the owner expands the list. */
+const kindLabelR303=(kind:NoorCountdownPlanR301["kind"])=>
+ kind==="appointment"?"موعد":kind==="event"?"حدث مرتقب":"موعد إنجاز مهمة";
+const kindIconR303=(kind:NoorCountdownPlanR301["kind"])=>
+ kind==="appointment"?"◷":kind==="event"?"✦":"✓";
+const shortDateR303=(date:string)=>{
+ try{return new Intl.DateTimeFormat("ar-SA-u-ca-gregory-nu-latn",{timeZone:"UTC",weekday:"long",day:"numeric",month:"short"}).format(new Date(date+"T00:00:00Z"));}
+ catch{return date;}
+};
+const paddedR303=(value:number)=>String(value).padStart(2,"0");
 export function UpcomingCountdownR301({definitions,nowMs,timeZone,onAdd}:{definitions:readonly UpcomingDefinitionR301[];nowMs:number;timeZone:string;onAdd?:()=>void}):ReactElement{
  const upcoming=definitions.flatMap(definition=>{
   if(!definition.countdownPlan||definition.state!=="Active")return [];
@@ -48,30 +59,70 @@ export function UpcomingCountdownR301({definitions,nowMs,timeZone,onAdd}:{defini
   if(!countdown||countdown.phase==="past")return [];
   return [{id:definition.id,title:definition.title,plan:definition.countdownPlan,countdown}];
  }).sort((a,b)=>a.plan.date.localeCompare(b.plan.date)||a.plan.time.localeCompare(b.plan.time)).slice(0,5);
- return <section className="np-card np-upcoming-r301" aria-label="العد التنازلي للمواعيد والأحداث" data-testid="r301-upcoming-countdowns" data-countdown-empty={!upcoming.length}>
+ const featured=upcoming[0];
+ const additional=upcoming.slice(1,3);
+ const hidden=upcoming.slice(3);
+ return <section className="np-card np-upcoming-r301 np-upcoming-r303" aria-label="العد التنازلي للمواعيد والأحداث"
+   data-testid="r301-upcoming-countdowns" data-countdown-empty={!upcoming.length} data-layout="compact-mobile-r303">
    <header className="np-upcoming-head-r301">
-    <span className="np-upcoming-icon-r301" aria-hidden="true">◷</span>
-    <div><h2>المواعيد المرتقبة</h2><small>العد التنازلي للمهام والأحداث والمواعيد</small></div>
+    <span className="np-upcoming-icon-r301" aria-hidden="true">
+     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" focusable="false"><rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M7.5 3v5M16.5 3v5M3.5 10h17M8 14h3M8 17h6"/></svg>
+    </span>
+    <div><h2>المواعيد المرتقبة</h2><small>تنبيهاتك القادمة في مكان واحد · العد التنازلي</small></div>
     {onAdd?<button type="button" className="np-upcoming-add-r302" data-testid="r302-add-countdown"
-       aria-label="إضافة موعد للعد التنازلي" onClick={onAdd}>+ موعد</button>:null}
+       aria-label="إضافة موعد للعد التنازلي" onClick={onAdd}>+ إضافة</button>:null}
    </header>
-   {!upcoming.length?<div className="np-upcoming-empty-r302" data-testid="r302-countdown-empty" role="status">
-     <span className="np-upcoming-empty-icon-r302" aria-hidden="true">◷</span>
-     <div><strong>لا توجد مواعيد مرتقبة بعد</strong><small>أضف موعدًا أو حدثًا أو مهمة بوقت محدد ليظهر هنا العد التنازلي.</small></div>
+   {!featured?<div className="np-upcoming-empty-r302 np-upcoming-empty-r303" data-testid="r302-countdown-empty" role="status">
+     <span className="np-upcoming-empty-icon-r302" aria-hidden="true">
+      <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" focusable="false">
+       <rect x="12" y="13" width="39" height="39" rx="9"/><path d="M22 8v11M41 8v11M12 24h39M23 33h7M23 40h14"/><circle cx="48" cy="47" r="11" fill="var(--panel)"/><path d="M48 40v7l5 3"/>
+      </svg>
+     </span>
+     <div><strong>لا توجد مواعيد مرتقبة بعد</strong><small>أضف موعدًا أو حدثًا ليظهر هنا عدّ تنازلي.</small></div>
      {onAdd?<button type="button" className="np-upcoming-empty-add-r302" data-testid="r302-add-first-countdown"
-       onClick={onAdd}>إضافة أول موعد</button>:null}
-    </div>:<div className="np-upcoming-list-r301">
-    {upcoming.map(item=><div key={item.id} className={"np-upcoming-item-r301 np-upcoming-"+item.countdown.phase+"-r301"} data-countdown-phase={item.countdown.phase} data-testid={"r301-countdown-"+item.id}>
-      <div className="np-upcoming-copy-r301"><strong>{item.title}</strong>
-       <small>{item.plan.kind==="appointment"?"موعد":item.plan.kind==="event"?"حدث مرتقب":"موعد إنجاز مهمة"} · <time dateTime={item.plan.date}>{item.plan.date}</time> · <time>{item.plan.time}</time></small>
+       onClick={onAdd}>+ إضافة موعد مرتقب</button>:null}
+    </div>:<div className="np-upcoming-list-r301 np-upcoming-list-r303">
+    <article className={"np-upcoming-feature-r303 np-upcoming-feature-"+featured.countdown.phase+"-r303"}
+      data-countdown-phase={featured.countdown.phase} data-testid={"r301-countdown-"+featured.id}>
+      <div className="np-upcoming-feature-main-r303">
+       <span className="np-upcoming-feature-icon-r303" aria-hidden="true">{kindIconR303(featured.plan.kind)}</span>
+       <div className="np-upcoming-feature-copy-r303">
+        <strong title={featured.title}>{featured.title}</strong>
+        <span className="np-upcoming-meta-r303">
+         <span className="np-upcoming-type-r303">{kindLabelR303(featured.plan.kind)}</span>
+         {(featured.countdown.phase==="today"||featured.countdown.phase==="begun")?
+          <span className="np-upcoming-today-badge-r303" aria-label="تنبيه: الموعد اليوم">اليوم</span>:null}
+        </span>
+        <small><time dateTime={featured.plan.date}>{shortDateR303(featured.plan.date)}</time> · <time>{featured.plan.time}</time></small>
+       </div>
       </div>
-      <div className="np-upcoming-value-r301" role="timer" aria-live="off">
-       <span>{item.countdown.phase==="today"||item.countdown.phase==="begun"?"اليوم": "متبقٍ"}</span>
-       <strong>{displayCountdown(item.countdown)}</strong>
+      <div className="np-upcoming-countdown-strip-r303" role="timer" aria-live="off" aria-label={"الوقت المتبقي: "+displayCountdown(featured.countdown)}>
+       <span className="np-upcoming-countdown-lead-r303">{featured.countdown.phase==="begun"?"حان":"متبقٍ على الموعد"}</span>
+       {featured.countdown.phase==="days"?
+         <span className="np-upcoming-counter-r303 np-upcoming-counter-days-r303">
+          <strong>{number(featured.countdown.days)}</strong><small>أيام</small>
+         </span>:featured.countdown.phase==="begun"?
+         <span className="np-upcoming-counter-r303 np-upcoming-due-r303"><strong>حان الموعد</strong></span>:
+         <div className="np-upcoming-clock-r303">
+          {([{value:featured.countdown.hours,label:"ساعة"},{value:featured.countdown.minutes,label:"دقيقة"},{value:featured.countdown.seconds,label:"ثانية"}] as const).map(part=>
+           <span className="np-upcoming-counter-r303" key={part.label}><strong>{paddedR303(part.value)}</strong><small>{part.label}</small></span>)}
+         </div>}
       </div>
-      {item.countdown.phase==="today"||item.countdown.phase==="begun"?<span className="np-upcoming-today-indicator-r301" aria-label="تنبيه: الموعد اليوم">●</span>:null}
-     </div>)}
+    </article>
+    {additional.length?<div className="np-upcoming-following-r303">
+      {additional.map(item=><div key={item.id} className="np-upcoming-following-item-r303"
+        data-countdown-phase={item.countdown.phase} data-testid={"r301-countdown-"+item.id}>
+        <span className="np-upcoming-following-icon-r303" aria-hidden="true">{kindIconR303(item.plan.kind)}</span>
+        <div><strong title={item.title}>{item.title}</strong>
+         <small>{kindLabelR303(item.plan.kind)} · {shortDateR303(item.plan.date)}</small></div>
+        <span className="np-upcoming-following-time-r303">{item.countdown.phase==="days"?"بعد "+number(item.countdown.days)+" أيام":
+          item.countdown.phase==="begun"?"حان الآن":"اليوم"}</span>
+       </div>)}
+    </div>:null}
+    {hidden.length?<details className="np-upcoming-more-r303"><summary>عرض {number(hidden.length)} مواعيد أخرى</summary>
+      {hidden.map(item=><div key={item.id} data-testid={"r301-countdown-"+item.id}>
+       <strong>{item.title}</strong><small>{shortDateR303(item.plan.date)} · {item.plan.time}</small></div>)}
+    </details>:null}
    </div>}
-   {upcoming.length?<small className="np-upcoming-foot-r301">يُحدّث العداد أثناء فتح نور، ويعتمد على المنطقة الزمنية لحسابك. التنبيه ظاهر داخل التطبيق فقط.</small>:null}
   </section>;
 }
