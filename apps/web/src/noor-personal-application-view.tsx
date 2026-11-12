@@ -1,6 +1,7 @@
 import {quranQuarterR289,quranQuarterForDateR289,validQuranPlanR289,type QuranHabitPlanR289} from "./noor-quran-quarters-r289.js";
 import {groupNoorActivitiesR304,type NoorActivityViewR304} from "./noor-activity-grouping-r304.js";
 import {NOOR_R305_VISUAL_STYLES} from "./noor-personal-visual-r305.js";
+import {NOOR_R306_ACTION_STYLES} from "./noor-personal-action-r306.js";
 import {TaskSessionPlannerR254,TaskSessionListR254,sessionFinishedR254,TASK_SESSION_STYLES_R254,type StoredTaskSessionPlanR254,type StoredTaskSessionR254} from "./noor-task-sessions-r254.js";
 import {NoorBeverageTrackerR294,type BeverageRowR294} from "./noor-beverage-tracker-r294.js";
 import type {NoorBeveragePlanR294,NoorCountdownPlanR301} from "./noor-personal-today-client.js";
@@ -1798,6 +1799,7 @@ const PAGE_STYLES = `
 /* NOOR_R304_UNIFIED_ACTIVITY_VIEW_STYLES_END */
 /* NOOR_R163_MOBILE_DIALOGS_AND_TABS_END */
 ${NOOR_R305_VISUAL_STYLES}
+${NOOR_R306_ACTION_STYLES}
 
 
 `;
