@@ -167,9 +167,13 @@ export function NoorBeverageTrackerR294({rows,allNames=[],localDate,busy,onComma
     <div><span>الشاي</span><strong>{summary.tea}</strong></div>
     <div><span>إجمالي المنبّهات</span><strong>{summary.total}</strong></div>
    </div>
-   <div className={"np-caffeine-signal-r295 np-caffeine-"+summary.level} role="status" title={summary.reason} aria-label={summary.reason}>
-    <span className="np-caffeine-led-r295" aria-hidden="true"/>
-    <strong>{summary.level==="green"?"ضمن الحدود المختارة":summary.level==="yellow"?"انتبه للتوقيت والكمية":"تنبيه مرتفع"}</strong>
+   <div className={"np-caffeine-signal-r295 np-caffeine-"+summary.level} role="status"
+     title={summary.reason} aria-label={"حالة المنبهات: "+(summary.level==="green"?"أخضر":summary.level==="yellow"?"أصفر":"أحمر")+" — "+summary.reason}>
+    <div className="np-caffeine-signal-heading-r298">
+      <span className="np-caffeine-led-r295" aria-hidden="true"/>
+      <strong>{summary.level==="green"?"ضمن الحدود المختارة":summary.level==="yellow"?"انتبه للتوقيت والكمية":"تنبيه مرتفع"}</strong>
+      <span className="np-caffeine-status-tag-r298">{summary.level==="green"?"أخضر":summary.level==="yellow"?"أصفر":"أحمر"}</span>
+    </div>
     <span className="np-caffeine-reason-r296">{summary.reason}</span>
    </div>
   </div>

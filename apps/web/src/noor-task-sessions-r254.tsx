@@ -1,6 +1,6 @@
 import {useEffect,useRef,useState,type ReactElement} from "react";
 import type {NoorPersonalCommandInput,NoorTaskSessionDraft} from "./noor-personal-today-client.js";
-import {spreadTaskSessionsR288,type SessionCadenceR288} from "./noor-session-calendar-r288.js";
+import {spreadTaskSessionsR288,weeklyTaskSessionDatesR298,type SessionCadenceR288} from "./noor-session-calendar-r288.js";
 
 export interface StoredTaskSessionR254 extends NoorTaskSessionDraft {
   order:number; note:string; revision:number; createdAt:string; updatedAt:string; completedAt:string|null;
@@ -52,9 +52,59 @@ function makeSession(i:number,target:number|null=null,start:number|null=null,end
   return {id:globalThis.crypto.randomUUID(),title:"الجلسة "+i,objective:"",target,rangeStart:start,rangeEnd:end,scheduledDate:null};
 }
 export function TaskSessionPlannerR254({enabled,setEnabled,distribution,setDistribution,sessions,setSessions,target,unit,busy,parentStartDate="",parentEndDate=null,parentScheduleKind="Daily",parentWeekdays=[]}:{enabled:boolean;setEnabled:(v:boolean)=>void;distribution:"equal"|"custom";setDistribution:(v:"equal"|"custom")=>void;sessions:readonly NoorTaskSessionDraft[];setSessions:(v:NoorTaskSessionDraft[])=>void;target:number|null;unit:string;busy:boolean;parentStartDate?:string;parentEndDate?:string|null;parentScheduleKind?:"OneTime"|"Daily"|"Weekdays";parentWeekdays?:readonly number[]}):ReactElement{
-  const [count,setCount]=useState(5),[error,setError]=useState("");
+  const [count,setCount]=useState(sessions.length||5),[error,setError]=useState("");
+  const [weeklyFirstDate,setWeeklyFirstDate]=useState(parentStartDate);
+  const [weeklyEndDate,setWeeklyEndDate]=useState(parentEndDate??"");
+  const [weeklyDays,setWeeklyDays]=useState<readonly number[]>(parentScheduleKind==="Weekdays"?[...parentWeekdays]:[0,1,2,3,4,5,6]);
+  const [replaceScheduled,setReplaceScheduled]=useState(false);
+  const parentWeekdaysKey=parentWeekdays.join(",");
+  useEffect(()=>{setWeeklyFirstDate(parentStartDate);},[parentStartDate]);
+  useEffect(()=>{setWeeklyEndDate(parentEndDate??"");},[parentEndDate]);
+  useEffect(()=>{if(parentScheduleKind==="Weekdays")setWeeklyDays([...parentWeekdays]);},
+    [parentScheduleKind,parentWeekdaysKey]);
   const [calendarDays,setCalendarDays]=useState(5),[calendarCadence,setCalendarCadence]=useState<SessionCadenceR288>("daily"),[calendarFirstDate,setCalendarFirstDate]=useState(parentStartDate);
   useEffect(()=>{setCalendarFirstDate(parentStartDate);},[parentStartDate]);
+  const applyWeekly=()=>{
+    try{
+      if(sessions.some(session=>session.scheduledDate)&&!replaceScheduled)
+        throw Error("SESSION_CALENDAR_REPLACE_CONFIRM");
+      const total=sessions.length||count;
+      const dates=weeklyTaskSessionDatesR298({
+        firstDate:weeklyFirstDate,endDate:weeklyEndDate||null,sessionCount:total,
+        weekdays:weeklyDays,
+        parent:{kind:parentScheduleKind,startDate:parentStartDate,endDate:parentEndDate,weekdays:parentWeekdays}
+      });
+      let drafts:NoorTaskSessionDraft[];
+      if(sessions.length)drafts=[...sessions];
+      else if(target!==null){
+        const isPages=isWholePageUnitR254(unit);
+        const portions=equalSessionTargetsR254(target,total,isPages);
+        let nextPage=1;
+        drafts=portions.map((amount,i)=>{
+          const first=isPages?nextPage:null, last=isPages?nextPage+amount-1:null;
+          if(isPages)nextPage=last!+1;
+          return makeSession(i+1,amount,first,last);
+        });
+      }else if(distribution==="equal")throw Error("TARGET_REQUIRED");
+      else drafts=Array.from({length:total},(_,i)=>makeSession(i+1));
+      setSessions(drafts.map((session,i)=>({...session,scheduledDate:dates[i]!})));
+      setReplaceScheduled(false);setError("");
+    }catch(err){
+      const code=err instanceof Error?err.message:"";
+      const messages:Record<string,string>={
+        SESSION_CALENDAR_COUNT_INVALID:"أدخل عدد جلسات صحيحًا من 1 إلى 200.",
+        SESSION_CALENDAR_WEEKDAYS_INVALID:"اختر يومًا واحدًا على الأقل من أيام الأسبوع.",
+        SESSION_CALENDAR_INVALID_DATE:"راجع تاريخ البداية والنهاية؛ يلزم تاريخ ميلادي صحيح.",
+        SESSION_CALENDAR_OUTSIDE_RANGE:"تاريخ الجلسات خارج نطاق المهمة. يجب أن يبدأ بعد بداية المهمة ولا يتجاوز نهايتها.",
+        SESSION_CALENDAR_PARENT_MISMATCH:"أيام الجلسات لا تتوافق مع أيام تكرار المهمة. عدّل أيام المهمة أولًا أو اختر أيامًا متاحة فقط. المهمة ذات اليوم الواحد تقبل جلسة مجدولة واحدة.",
+        SESSION_CALENDAR_INSUFFICIENT_DAYS:"الأيام المتاحة لا تكفي لعدد الجلسات خلال المدة المحددة. قلّل الجلسات أو زد الأيام أو مدّد النهاية.",
+        SESSION_CALENDAR_SPAN_TOO_LONG:"المدة طويلة جدًا؛ اختر نطاقًا أقصر.",
+        SESSION_CALENDAR_REPLACE_CONFIRM:"هذه الجلسات لها مواعيد سابقة؛ فعّل تأكيد إعادة الجدولة لحماية مواعيدك.",
+        TARGET_REQUIRED:"حدد مستهدف المهمة أولًا للتوزيع المتساوي، أو اختر توزيعًا مخصصًا.",
+      };
+      setError(messages[code]??"تعذر توزيع الجلسات. تحقق من العدد والمستهدف ووحدة الإنجاز.");
+    }
+  };
   const applyCalendar=()=>{
     try{
       const updated=spreadTaskSessionsR288(sessions,{firstDate:calendarFirstDate,days:calendarDays,cadence:calendarCadence,parent:{kind:parentScheduleKind,startDate:parentStartDate,endDate:parentEndDate,weekdays:parentWeekdays}});
@@ -83,6 +133,49 @@ export function TaskSessionPlannerR254({enabled,setEnabled,distribution,setDistr
     <label className="nts-toggle"><input type="checkbox" disabled={busy} checked={enabled} onChange={e=>setEnabled(e.currentTarget.checked)}/> تقسيم المهمة إلى جلسات (اختياري)</label>
     {enabled?<div className="nts-planner-body">
       <label>التوزيع<select disabled={busy} value={distribution} onChange={e=>setDistribution(e.currentTarget.value as "equal"|"custom")}><option value="equal">متساوٍ</option><option value="custom">مخصص</option></select></label>
+      <section className="nts-weekly-r298" data-testid="r298-weekly-planner" aria-label="جدولة الجلسات حسب أيام الأسبوع">
+        <div className="nts-weekly-heading-r298"><strong>جدولة الجلسات تلقائيًا</strong>
+          <small>حدّد البداية وعدد الجلسات وأيام الأسبوع. مع تاريخ نهاية تُوزَّع الجلسات على كامل الفترة، وبدونه تبدأ من أول يوم متاح.</small>
+        </div>
+        <div className="nts-weekly-fields-r298">
+          <label>تاريخ البداية<input type="date" data-testid="r298-weekly-start" value={weeklyFirstDate}
+            min={parentStartDate||undefined} max={parentEndDate??undefined} disabled={busy}
+            onChange={e=>setWeeklyFirstDate(e.currentTarget.value)}/></label>
+          <label>عدد الجلسات<input type="number" inputMode="numeric" data-testid="r298-weekly-count"
+            min="1" max="200" value={sessions.length||count} disabled={busy||sessions.length>0}
+            onChange={e=>setCount(Number(e.currentTarget.value))}/></label>
+          <label>تاريخ النهاية (اختياري)<input type="date" data-testid="r298-weekly-end"
+            min={weeklyFirstDate||parentStartDate||undefined} max={parentEndDate??undefined}
+            value={weeklyEndDate} disabled={busy} onChange={e=>setWeeklyEndDate(e.currentTarget.value)}/></label>
+        </div>
+        <fieldset className="nts-weekly-days-r298"><legend>أيام الجلسات خلال الأسبوع · {weeklyDays.length} من 7</legend>
+          <div className="nts-weekday-buttons-r298">
+            {([{day:6,label:"السبت"},{day:0,label:"الأحد"},{day:1,label:"الإثنين"},
+              {day:2,label:"الثلاثاء"},{day:3,label:"الأربعاء"},{day:4,label:"الخميس"},
+              {day:5,label:"الجمعة"}] as const).map(item=>
+              <button key={item.day} type="button" disabled={busy} aria-pressed={weeklyDays.includes(item.day)}
+                onClick={()=>setWeeklyDays(current=>current.includes(item.day)?current.filter(d=>d!==item.day):[...current,item.day])}>{item.label}</button>)}
+          </div>
+        </fieldset>
+        {parentScheduleKind==="Weekdays"?<small className="nts-weekly-note-r298">اختَر أيامًا ضمن أيام تكرار المهمة المحددة أعلاه، وإلا فلن يقبل الخادم الجدولة.</small>:null}
+        {sessions.length>0?<small className="nts-weekly-note-r298">الجلسات الموجودة: {sessions.length}؛ لا تُعاد إنشاؤها أو تغيير أهدافها. لتغيير العدد استخدم إضافة أو إزالة جلسة أدناه.</small>:null}
+        {sessions.some(session=>session.scheduledDate)?<label className="nts-weekly-replace-r298">
+          <input type="checkbox" checked={replaceScheduled} disabled={busy} onChange={e=>setReplaceScheduled(e.currentTarget.checked)}/>
+          أوافق على إعادة توزيع مواعيد الجلسات الموجودة (لا يغيّر الإنجاز السابق)</label>:null}
+        <button type="button" className="nts-weekly-apply-r298" data-testid="r298-weekly-apply"
+          disabled={busy||!weeklyDays.length} onClick={applyWeekly}>
+          {sessions.length?"توزيع مواعيد الجلسات الحالية":"إنشاء الجلسات وتوزيع مواعيدها"}
+        </button>
+        {sessions.some(session=>session.scheduledDate)?<div className="nts-weekly-preview-r298" role="status">
+          <strong>مواعيد الجلسات:</strong>
+          <div>{sessions.filter(session=>session.scheduledDate).slice(0,8).map((session,i)=>
+            <span key={session.id}>{i+1} · <time dateTime={session.scheduledDate!}>{session.scheduledDate}</time></span>)}
+            {sessions.filter(session=>session.scheduledDate).length>8?<small>والمزيد حسب ترتيب الجلسات أدناه…</small>:null}
+          </div>
+        </div>:null}
+        <small className="nts-weekly-note-r298">التوزيع مقترح فقط حتى تضغط حفظ المهمة. الخادم يحمي الجلسات ذات الإنجاز المسجل ولا يسمح بنقلها إلى يوم آخر.</small>
+      </section>
+      <details className="nts-legacy-calendar-r298"><summary>خيارات التوزيع الأخرى (يدوي / أسبوعي / شهري)</summary>
       {distribution==="equal"?<div className="nts-split"><label>عدد الجلسات<input type="number" min="1" max="200" value={count} onChange={e=>setCount(Number(e.currentTarget.value))}/></label><button type="button" disabled={busy||sessions.length>0} onClick={split}>إنشاء جلسات متساوية</button><small>لا تُستبدل الجلسات الموجودة تلقائيًا حفاظًا على أي سجل سابق.</small></div>:null}
       <div className="nts-calendar-r288" data-testid="r288-calendar-planner" aria-label="توزيع الجلسات على التواريخ">
         <strong>جدولة الجلسات على أيام محددة</strong>
@@ -95,6 +188,7 @@ export function TaskSessionPlannerR254({enabled,setEnabled,distribution,setDistr
         <button type="button" data-testid="r288-calendar-apply" disabled={busy||sessions.length===0} onClick={applyCalendar}>توزيع مواعيد الجلسات</button>
         <small>التواريخ يجب أن توافق تكرار المهمة ونطاقها؛ التقدم السابق للجلسات محمي عند الحفظ.</small>
       </div>
+      </details>
       {sessions.map((s,i)=><fieldset className="nts-editor" key={s.id}><legend>الجلسة {i+1}</legend>
         <label>العنوان<input maxLength={120} value={s.title} onChange={e=>edit(i,{title:e.currentTarget.value})}/></label>
         <label>هدف الجلسة<input maxLength={500} value={s.objective} onChange={e=>edit(i,{objective:e.currentTarget.value})}/></label>
@@ -292,4 +386,4 @@ export function TaskSessionListR254({plan,log,definitionId,executionId,busy,onCo
   </details>;
 }
 
-export const TASK_SESSION_STYLES_R254 = "\n.np-page .nts-scheduled-info{margin:0;font-size:12px;line-height:1.7;color:var(--muted)}\n.np-page .nts-plan-total{font-size:12px;color:var(--muted);margin:0;line-height:1.6}\n.np-page .nts-check-session{display:flex;align-items:center;gap:6px;min-height:32px;cursor:pointer;font-size:11px;font-weight:650;white-space:nowrap;flex-basis:100%;justify-content:flex-end}\n.np-page .nts-check-session input{width:20px;height:20px;accent-color:var(--gold);flex:none}\n.np-page .nts-check-session:has(input:disabled){opacity:.7;cursor:default}\n.np-page .np-activity-item:has(.nts-list){flex-wrap:wrap}\n.np-page .nts-list{flex-basis:100%;width:100%;min-width:0;border-top:1px solid var(--border);margin-top:5px;padding:3px}\n.np-page .nts-list>summary{cursor:pointer;display:flex;justify-content:space-between;gap:8px;font-size:12px;padding:9px;font-weight:650;color:var(--text)}\n.np-page .nts-list-body{display:grid;gap:9px;max-height:65dvh;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding:5px 2px calc(12px + env(safe-area-inset-bottom,0px))}\n.np-page .nts-session{border:1px solid var(--border);border-radius:12px;background:var(--panel-soft);min-width:0}\n.np-page .nts-session>summary{display:flex;align-items:flex-start;flex-wrap:wrap;justify-content:space-between;gap:7px;cursor:pointer;padding:10px;font-size:12px}\n.np-page .nts-session>summary span:first-child{display:grid;gap:3px;min-width:0;flex:1}\n.np-page .nts-session>summary small{color:var(--muted);overflow-wrap:anywhere}\n.np-page .nts-session-body{display:grid;gap:9px;padding:12px;border-top:1px solid var(--border)}\n.np-page .nts-stack,.np-page .nts-planner-body{display:grid;gap:9px;min-width:0}\n.np-page .nts-session-body progress{width:100%;accent-color:var(--gold)}\n.np-page .nts-session-body label,.np-page .nts-plan label{display:grid;gap:5px;font-size:12px;min-width:0}\n.np-page .nts-session-body :is(input,textarea),.np-page .nts-plan :is(input:not([type=checkbox]),select){width:100%;min-width:0;border:1px solid var(--border-strong);background:var(--panel);color:var(--text);border-radius:9px;padding:9px;font:inherit}\n.np-page .nts-calendar-r288{display:grid;gap:9px;padding:12px;border:1px solid var(--border-strong);border-radius:11px;background:var(--panel-soft)}\n.np-page .nts-calendar-r288 p{margin:0;font-size:12px;color:var(--muted);line-height:1.7}\n.np-page .nts-calendar-fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,150px),1fr));gap:8px}\n.np-page .nts-calendar-r288 small{font-size:11px;color:var(--muted)}\n.np-page .nts-plan{display:grid;grid-column:1/-1;gap:10px;border:1px solid var(--border);border-radius:13px;padding:12px}\n.np-page .nts-plan .nts-toggle{display:flex;align-items:center;gap:8px}\n.np-page .nts-plan .nts-toggle input{width:auto}\n.np-page .nts-editor{min-width:0;display:grid;gap:8px;border:1px solid var(--border);border-radius:10px;padding:12px}\n.np-page .nts-three{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}\n.np-page .nts-actions,.np-page .nts-split{display:flex;align-items:end;gap:7px;flex-wrap:wrap}\n.np-page .nts-split small{flex-basis:100%}\n.np-page .nts-session-body button,.np-page .nts-plan button{border:1px solid var(--border-strong);background:var(--panel);color:var(--text);border-radius:9px;padding:9px 12px;font:inherit;min-height:44px;cursor:pointer}\n.np-page .nts-session-body button:disabled,.np-page .nts-plan button:disabled{opacity:.55;cursor:default}\n.np-page .nts-error{color:#a43f49}\n.np-page .nts-summary{border-top:1px solid var(--border);padding:10px}\n.np-page .nts-summary p{white-space:pre-wrap;overflow-wrap:anywhere}\n.np-page .nts-summary div{border-bottom:1px solid var(--border);padding:8px}\n.np-page .nts-summary time{display:block;color:var(--muted)}\n.np-page .nts-general-note{display:grid;gap:8px;padding:8px 0}\n.np-page .nts-general-note label{display:grid;gap:6px}\n.np-page .nts-general-note textarea{width:100%;min-width:0;resize:vertical;min-height:104px;padding:9px;border-radius:9px;border:1px solid var(--border-strong);background:var(--panel);color:var(--text);font:inherit}\n.np-page .nts-general-note button{min-height:44px;padding:9px;border-radius:9px;background:var(--panel);border:1px solid var(--border-strong);color:var(--text);cursor:pointer}\n.np-page .nts-conflict{display:grid;gap:7px;min-width:0;padding:10px;border:1px solid var(--border-strong);border-radius:11px;background:var(--panel-soft)}\n.np-page .nts-conflict strong{font-size:12px}\n.np-page .nts-conflict p{margin:0;overflow-wrap:anywhere;white-space:pre-wrap}\n.np-page .nts-server-note{max-height:140px;overflow:auto;padding:9px;border-radius:8px;background:var(--panel)}\n.np-page .nts-conflict-actions{display:flex;gap:8px;flex-wrap:wrap}\n.np-page .nts-conflict-actions button{min-height:44px;flex:1 1 140px}\n@media(max-width:700px){.np-page .nts-list-body{max-height:62dvh}.np-page .nts-three input{padding:8px 4px!important}}\n";
+export const TASK_SESSION_STYLES_R254 = "\n.np-page .nts-scheduled-info{margin:0;font-size:12px;line-height:1.7;color:var(--muted)}\n.np-page .nts-plan-total{font-size:12px;color:var(--muted);margin:0;line-height:1.6}\n.np-page .nts-check-session{display:flex;align-items:center;gap:6px;min-height:32px;cursor:pointer;font-size:11px;font-weight:650;white-space:nowrap;flex-basis:100%;justify-content:flex-end}\n.np-page .nts-check-session input{width:20px;height:20px;accent-color:var(--gold);flex:none}\n.np-page .nts-check-session:has(input:disabled){opacity:.7;cursor:default}\n.np-page .np-activity-item:has(.nts-list){flex-wrap:wrap}\n.np-page .nts-list{flex-basis:100%;width:100%;min-width:0;border-top:1px solid var(--border);margin-top:5px;padding:3px}\n.np-page .nts-list>summary{cursor:pointer;display:flex;justify-content:space-between;gap:8px;font-size:12px;padding:9px;font-weight:650;color:var(--text)}\n.np-page .nts-list-body{display:grid;gap:9px;max-height:65dvh;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding:5px 2px calc(12px + env(safe-area-inset-bottom,0px))}\n.np-page .nts-session{border:1px solid var(--border);border-radius:12px;background:var(--panel-soft);min-width:0}\n.np-page .nts-session>summary{display:flex;align-items:flex-start;flex-wrap:wrap;justify-content:space-between;gap:7px;cursor:pointer;padding:10px;font-size:12px}\n.np-page .nts-session>summary span:first-child{display:grid;gap:3px;min-width:0;flex:1}\n.np-page .nts-session>summary small{color:var(--muted);overflow-wrap:anywhere}\n.np-page .nts-session-body{display:grid;gap:9px;padding:12px;border-top:1px solid var(--border)}\n.np-page .nts-stack,.np-page .nts-planner-body{display:grid;gap:9px;min-width:0}\n.np-page .nts-session-body progress{width:100%;accent-color:var(--gold)}\n.np-page .nts-session-body label,.np-page .nts-plan label{display:grid;gap:5px;font-size:12px;min-width:0}\n.np-page .nts-session-body :is(input,textarea),.np-page .nts-plan :is(input:not([type=checkbox]),select){width:100%;min-width:0;border:1px solid var(--border-strong);background:var(--panel);color:var(--text);border-radius:9px;padding:9px;font:inherit}\n.np-page .nts-calendar-r288{display:grid;gap:9px;padding:12px;border:1px solid var(--border-strong);border-radius:11px;background:var(--panel-soft)}\n.np-page .nts-calendar-r288 p{margin:0;font-size:12px;color:var(--muted);line-height:1.7}\n.np-page .nts-calendar-fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,150px),1fr));gap:8px}\n.np-page .nts-calendar-r288 small{font-size:11px;color:var(--muted)}\n.np-page .nts-plan{display:grid;grid-column:1/-1;gap:10px;border:1px solid var(--border);border-radius:13px;padding:12px}\n.np-page .nts-plan .nts-toggle{display:flex;align-items:center;gap:8px}\n.np-page .nts-plan .nts-toggle input{width:auto}\n.np-page .nts-editor{min-width:0;display:grid;gap:8px;border:1px solid var(--border);border-radius:10px;padding:12px}\n.np-page .nts-three{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}\n.np-page .nts-actions,.np-page .nts-split{display:flex;align-items:end;gap:7px;flex-wrap:wrap}\n.np-page .nts-split small{flex-basis:100%}\n.np-page .nts-session-body button,.np-page .nts-plan button{border:1px solid var(--border-strong);background:var(--panel);color:var(--text);border-radius:9px;padding:9px 12px;font:inherit;min-height:44px;cursor:pointer}\n.np-page .nts-session-body button:disabled,.np-page .nts-plan button:disabled{opacity:.55;cursor:default}\n.np-page .nts-error{color:#a43f49}\n.np-page .nts-summary{border-top:1px solid var(--border);padding:10px}\n.np-page .nts-summary p{white-space:pre-wrap;overflow-wrap:anywhere}\n.np-page .nts-summary div{border-bottom:1px solid var(--border);padding:8px}\n.np-page .nts-summary time{display:block;color:var(--muted)}\n.np-page .nts-general-note{display:grid;gap:8px;padding:8px 0}\n.np-page .nts-general-note label{display:grid;gap:6px}\n.np-page .nts-general-note textarea{width:100%;min-width:0;resize:vertical;min-height:104px;padding:9px;border-radius:9px;border:1px solid var(--border-strong);background:var(--panel);color:var(--text);font:inherit}\n.np-page .nts-general-note button{min-height:44px;padding:9px;border-radius:9px;background:var(--panel);border:1px solid var(--border-strong);color:var(--text);cursor:pointer}\n.np-page .nts-conflict{display:grid;gap:7px;min-width:0;padding:10px;border:1px solid var(--border-strong);border-radius:11px;background:var(--panel-soft)}\n.np-page .nts-conflict strong{font-size:12px}\n.np-page .nts-conflict p{margin:0;overflow-wrap:anywhere;white-space:pre-wrap}\n.np-page .nts-server-note{max-height:140px;overflow:auto;padding:9px;border-radius:8px;background:var(--panel)}\n.np-page .nts-conflict-actions{display:flex;gap:8px;flex-wrap:wrap}\n.np-page .nts-conflict-actions button{min-height:44px;flex:1 1 140px}\n@media(max-width:700px){.np-page .nts-list-body{max-height:62dvh}.np-page .nts-three input{padding:8px 4px!important}}/* R298 mobile-first weekly session planner */\n.np-page .nts-weekly-r298{display:grid;gap:12px;min-width:0;background:var(--panel-soft);border:1px solid var(--border-strong);border-radius:16px;padding:14px}\n.np-page .nts-weekly-heading-r298{display:grid;gap:5px}\n.np-page .nts-weekly-heading-r298 strong{font-size:14px;color:var(--text)}\n.np-page .nts-weekly-heading-r298 small,.np-page .nts-weekly-note-r298{font-size:12px;color:var(--muted);line-height:1.75}\n.np-page .nts-weekly-fields-r298{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}\n.np-page .nts-weekly-fields-r298 label{min-width:0}\n.np-page .nts-weekly-fields-r298 input{width:100%;min-width:0;max-width:100%;font-size:16px;min-height:46px;box-sizing:border-box}\n.np-page .nts-weekly-days-r298{min-width:0;margin:0;padding:10px;border:1px solid var(--border);border-radius:11px}\n.np-page .nts-weekly-days-r298 legend{font-size:12px;font-weight:700;padding:0 5px}\n.np-page .nts-weekday-buttons-r298{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px}\n.np-page .nts-weekday-buttons-r298 button{min-height:44px;min-width:0;padding:8px 3px;font-size:11px;border-radius:11px}\n.np-page .nts-weekday-buttons-r298 button[aria-pressed=true]{background:var(--text);color:var(--panel);border-color:var(--text);font-weight:750}\n.np-page .nts-weekday-buttons-r298 button:focus-visible,.np-page .nts-weekly-apply-r298:focus-visible{outline:3px solid var(--gold);outline-offset:2px}\n.np-page .nts-plan .nts-weekly-apply-r298{background:var(--text);color:var(--panel);border-color:var(--text);font-size:13px;font-weight:750;min-height:48px}\n.np-page .nts-weekly-replace-r298{display:flex!important;align-items:center;gap:9px;line-height:1.7}\n.np-page .nts-weekly-replace-r298 input{width:20px;height:20px;flex:none;accent-color:var(--text)}\n.np-page .nts-weekly-preview-r298{border:1px solid var(--border);border-radius:10px;padding:10px;background:var(--panel);display:grid;gap:8px;font-size:12px}\n.np-page .nts-weekly-preview-r298>div{display:flex;gap:6px;flex-wrap:wrap}\n.np-page .nts-weekly-preview-r298 span{display:inline-flex;gap:4px;background:var(--panel-soft);padding:5px 8px;border-radius:8px;font-variant-numeric:tabular-nums}\n.np-page .nts-legacy-calendar-r298{border:1px solid var(--border);border-radius:12px;padding:9px;min-width:0}\n.np-page .nts-legacy-calendar-r298>summary{cursor:pointer;font-size:12px;color:var(--muted);font-weight:600}\n.np-page .nts-legacy-calendar-r298[open]{display:grid;gap:9px}\n@media(max-width:640px){\n .np-page .nts-weekly-r298{padding:11px;gap:10px}\n .np-page .nts-weekly-fields-r298{grid-template-columns:repeat(2,minmax(0,1fr))}\n .np-page .nts-weekly-fields-r298 label:last-child{grid-column:1/-1}\n .np-page .nts-weekday-buttons-r298{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}\n .np-page .nts-weekday-buttons-r298 button{font-size:13px}\n .np-page .nts-weekly-apply-r298{width:100%}\n .np-page .nts-weekly-preview-r298 span{font-size:11px}\n .np-page .nts-plan{padding:10px}\n}\n@media(min-width:400px) and (max-width:640px){.np-page .nts-weekday-buttons-r298{grid-template-columns:repeat(4,minmax(0,1fr))}}\n";

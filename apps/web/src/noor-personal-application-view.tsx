@@ -1053,6 +1053,35 @@ const PAGE_STYLES = `
 .np-page .np-reconnect-notice-r296 button,.np-page .np-reconnect-state-r296{border:1px solid var(--border-strong);background:var(--panel);border-radius:10px;padding:8px 10px;color:var(--text);cursor:pointer}
 .np-page .np-reconnect-notice-r296 button:disabled{opacity:.5}
 @media(max-width:600px){.np-page .np-beverages-r294{width:100%;padding:10px 11px}.np-page .np-caffeine-tally-r295 strong{font-size:17px}.np-page .np-caffeine-tally-r295 span{font-size:10px}.np-page .np-caffeine-signal-r295 strong{font-size:10px}.np-page .np-caffeine-signal-r295{max-width:112px}}
+/* R298 mobile-first full-width green / amber / red advisory */
+.np-page .np-caffeine-summary-r295{display:grid;grid-template-columns:minmax(0,1fr);gap:9px}
+.np-page .np-caffeine-tally-r295{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0;width:100%}
+.np-page .np-caffeine-tally-r295>div{min-width:0;align-items:center}
+.np-page .np-caffeine-green{--np-caffeine-accent:#21885a}
+.np-page .np-caffeine-yellow{--np-caffeine-accent:#bb881a}
+.np-page .np-caffeine-red{--np-caffeine-accent:#ca3d49}
+.np-page .np-caffeine-signal-r295{display:grid;grid-template-columns:minmax(0,1fr);min-width:0;width:100%;max-width:none;gap:6px;padding:11px 13px;border-radius:12px;color:var(--text);background:color-mix(in srgb,var(--np-caffeine-accent) 9%,var(--panel));border:1px solid color-mix(in srgb,var(--np-caffeine-accent) 35%,var(--border));border-inline-start:4px solid var(--np-caffeine-accent);box-shadow:0 2px 10px rgba(0,0,0,.025)}
+.np-page .np-caffeine-signal-heading-r298{display:flex;align-items:center;flex-wrap:wrap;gap:8px;min-width:0}
+.np-page .np-caffeine-signal-r295 .np-caffeine-led-r295{display:block;flex:0 0 10px;width:10px;height:10px;background:var(--np-caffeine-accent);border-radius:50%;box-shadow:0 0 0 3px color-mix(in srgb,var(--np-caffeine-accent) 18%,transparent)}
+.np-page .np-caffeine-signal-r295 strong{font-size:13px;line-height:1.5;color:var(--text)}
+.np-page .np-caffeine-status-tag-r298{margin-inline-start:auto;padding:3px 9px;border-radius:100px;background:color-mix(in srgb,var(--np-caffeine-accent) 17%,var(--panel));border:1px solid color-mix(in srgb,var(--np-caffeine-accent) 30%,transparent);color:var(--text);font-size:11px;font-weight:750}
+.np-page .np-caffeine-signal-r295 .np-caffeine-reason-r296{display:block;position:static;width:auto;height:auto;clip:auto;overflow:visible;white-space:normal;overflow-wrap:anywhere;font-size:12px;line-height:1.65;color:var(--text);opacity:.85}
+.np-page .np-caffeine-quick-r295 button{min-height:44px;border-radius:12px;font-size:13px}
+.np-page .np-caffeine-time-options-r295 button{min-height:44px;font-size:13px}
+.np-page .np-caffeine-picker-actions-r295 button{min-height:44px}
+@media(max-width:600px){
+ .np-page .np-beverages-r294{width:100%;min-width:0;gap:11px;padding:12px;max-width:100%}
+ .np-page .np-caffeine-summary-r295{gap:9px}
+ .np-page .np-caffeine-signal-r295{max-width:none;padding:10px 12px;border-radius:12px}
+ .np-page .np-caffeine-signal-r295 strong{font-size:13px}
+ .np-page .np-caffeine-status-tag-r298{font-size:11px}
+ .np-page .np-caffeine-tally-r295 span{font-size:11px;white-space:normal;line-height:1.3}
+ .np-page .np-caffeine-tally-r295 strong{font-size:20px}
+ .np-page .np-caffeine-time-options-r295{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+ .np-page .np-caffeine-time-options-r295 button{width:100%;white-space:normal;font-size:12px}
+ .np-page .np-caffeine-time-picker-r295{padding:10px}
+ .np-page .np-beverages-r294 input,.np-page .np-beverages-r294 select{font-size:16px}
+}
 .np-page .np-definition-description-r293{white-space:pre-wrap;overflow-wrap:anywhere;unicode-bidi:plaintext;line-height:1.8}
 /* NOOR_COLLAPSIBLE_HABIT_CARDS_R107_BEGIN */
 /* Replace masonry with stable aligned rows for compact CLOSED categories. */
