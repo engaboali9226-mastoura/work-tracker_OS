@@ -5,7 +5,7 @@
  * change activity states, or alter the achievement formula.
  * Scoped to .np-page, preserving NOOR Work, auth and administrative screens.
  */
-export const NOOR_R305_VISUAL_STYLES = String.raw\`
+export const NOOR_R305_VISUAL_STYLES = String.raw`
 /* NOOR_R305_VISUAL_REDESIGN_BEGIN */
 .np-page{
   --r305-navy:#18364b;
@@ -206,4 +206,4 @@ export const NOOR_R305_VISUAL_STYLES = String.raw\`
  .np-page .np-icon-btn,.np-page .np-r305-intro-links a,.np-page .np-prayer,.np-page .np-week-day,.np-page .np-execution-stack .np-item{transition:none}
 }
 /* NOOR_R305_VISUAL_REDESIGN_END */
-\`;
+`;
