@@ -2481,19 +2481,24 @@ function Dashboard({ view:providedView, workspace, busy, actionError, onCommand,
   const dates = civilDateLabels(nowMs, view.timeZone);
   const location = view.location ?? headerLocationForTimeZone(view.timeZone);
   const [temperature,setTemperature] = useState<number | null>(null);
-  const taskCompleted = completedCount(view.tasks);
-  const habitCompleted = completedCount(view.habits);
-  const totalToday = [...view.tasks,...view.habits].filter(e=>e.status!=="Cancelled").length;
+  // Informational drink counters are not actionable habits or outstanding work.
+  // Preserve their own card/history, but remove their weight from every achievement view.
+  const achievementItems=[...view.tasks,...view.habits].filter(e=>
+    e.status!=="Cancelled"&&!definitionsById.get(e.definitionId)?.beveragePlan);
+  const taskCompleted = completedCount(achievementItems.filter(e=>e.kind==="Task"));
+  const habitCompleted = completedCount(achievementItems.filter(e=>e.kind==="Habit"));
+  const totalToday = achievementItems.length;
   const completedToday = taskCompleted + habitCompleted;
-  const todayWeight=[...view.tasks,...view.habits].filter(e=>e.status!=="Cancelled").reduce((n,e)=>n+e.weight,0),doneWeight=[...view.tasks,...view.habits].filter(e=>e.status==="Completed").reduce((n,e)=>n+e.weight,0);
-  const dayWeighted=[...view.tasks,...view.habits].filter(e=>e.status!=="Cancelled").reduce((n,e)=>{
+  const todayWeight=achievementItems.reduce((n,e)=>n+e.weight,0),
+    doneWeight=achievementItems.filter(e=>e.status==="Completed").reduce((n,e)=>n+e.weight,0);
+  const dayWeighted=achievementItems.reduce((n,e)=>{
     const definition=definitionsById.get(e.definitionId);
     const fraction=definition?.sessionPlan?Math.min(1,definition.activityLog.filter(a=>a.taskSessionId&&a.localDate===view.localDate).reduce((sum,a)=>sum+(a.sessionDayCredit??0),0)):(e.status==="Completed"?1:0);
     return n+e.weight*fraction;
   },0);
   const completionRate=todayWeight?Math.round(dayWeighted/todayWeight*100):0;
   const achievementDate=providedView.localDate??workspace?.statistics.currentDate??civilLocalDate(nowMs,view.timeZone);
-  const todayRows:StatisticRow[]=[...providedView.tasks,...providedView.habits].filter(item=>item.status!=="Suppressed"&&sessionDueOnDate(item,achievementDate)).map(item=>{
+  const todayRows:StatisticRow[]=[...providedView.tasks,...providedView.habits].filter(item=>item.status!=="Suppressed"&&!definitionsById.get(item.definitionId)?.beveragePlan&&sessionDueOnDate(item,achievementDate)).map(item=>{
     const def=definitionsById.get(item.definitionId);
     const credit=def?.sessionPlan?Math.min(1,Math.max(0,def.activityLog
       .filter(entry=>entry.taskSessionId&&entry.localDate===achievementDate)
@@ -2697,7 +2702,7 @@ function Dashboard({ view:providedView, workspace, busy, actionError, onCommand,
       </div>
       <div className="np-day-achievement-copy"><div className="np-day-achievement-text"><h2>{historyDate?`إنجاز يوم ${weekDateLabel(historyDate)}`:"إنجاز اليوم"} <small>موزون</small></h2><p>{!totalToday?"لا توجد عادات أو مهام مستحقة اليوم.":completedToday===totalToday?"اكتملت كل عادات ومهام اليوم. أحسنت الاستمرار.":`${arabicNumber(completedToday)} من ${arabicNumber(totalToday)} عادات ومهام مكتملة اليوم`}</p></div>{!historyDate?<><NoorThreeSpacesR171 personalDate={view.localDate??undefined} /><NoorWellbeingLabR165 personalDate={view.localDate??undefined} /></>:null}</div>
       {totalToday?<button type="button" className="np-day-remaining" data-testid="r286-remaining-trigger" aria-haspopup="dialog" aria-expanded={showRemaining} onClick={()=>setShowRemaining(true)}><strong>{arabicNumber(Math.max(0,totalToday-completedToday))}</strong><span>{completedToday===totalToday?"يوم مكتمل":historyDate?"متبقية في اليوم":"متبقية اليوم"}</span></button>:null}
-      {showRemaining?createPortal(<div className="np-r286-remaining-backdrop" onMouseDown={event=>{if(event.target===event.currentTarget)setShowRemaining(false);}}><section role="dialog" aria-modal="true" aria-labelledby="r286-remaining-heading" className="np-r286-remaining-dialog" onKeyDown={event=>{if(event.key==="Escape")setShowRemaining(false);}}><header><h2 id="r286-remaining-heading">{historyDate?"المتبقي في اليوم المحدد":"المتبقي اليوم"}</h2><button type="button" className="np-cc-button" ref={remainingCloseRef} onClick={()=>setShowRemaining(false)}>إغلاق ×</button></header>{([...view.habits,...view.tasks].filter(x=>x.status!=="Completed"&&x.status!=="Cancelled"&&x.status!=="Suppressed")).length?<ul>{[...view.habits,...view.tasks].filter(x=>x.status!=="Completed"&&x.status!=="Cancelled"&&x.status!=="Suppressed").map(x=><li key={x.id}><span><strong>{x.title}</strong><small>{x.kind==="Habit"?"عادة":"مهمة"} · {STATUS_LABELS[x.status]??x.status}</small></span><span>وزن {arabicNumber(x.weight)}</span></li>)}</ul>:<p role="status">اكتملت جميع المهام والعادات المستحقة لهذا اليوم.</p>}</section></div>,document.body):null}
+      {showRemaining?createPortal(<div className="np-r286-remaining-backdrop" onMouseDown={event=>{if(event.target===event.currentTarget)setShowRemaining(false);}}><section role="dialog" aria-modal="true" aria-labelledby="r286-remaining-heading" className="np-r286-remaining-dialog" onKeyDown={event=>{if(event.key==="Escape")setShowRemaining(false);}}><header><h2 id="r286-remaining-heading">{historyDate?"المتبقي في اليوم المحدد":"المتبقي اليوم"}</h2><button type="button" className="np-cc-button" ref={remainingCloseRef} onClick={()=>setShowRemaining(false)}>إغلاق ×</button></header>{(achievementItems.filter(x=>x.status!=="Completed"&&x.status!=="Suppressed")).length?<ul>{achievementItems.filter(x=>x.status!=="Completed"&&x.status!=="Suppressed").map(x=><li key={x.id}><span><strong>{x.title}</strong><small>{x.kind==="Habit"?"عادة":"مهمة"} · {STATUS_LABELS[x.status]??x.status}</small></span><span>وزن {arabicNumber(x.weight)}</span></li>)}</ul>:<p role="status">اكتملت جميع المهام والعادات المستحقة لهذا اليوم.</p>}</section></div>,document.body):null}
       <div className="np-day-context">
         <section className={`np-yesterday${yesterday?.missed.length?" has-missed":""}`} aria-label="فائت أمس" data-testid="yesterday-achievement"><div className="np-yesterday-heading"><span>فائت أمس</span>{yesterday?<time dateTime={yesterday.date}>{weekDateLabel(yesterday.date)}</time>:null}</div><div className="np-yesterday-score"><strong>{arabicNumber(yesterday?.missed.length??0)}</strong><span>عادات ومهام غير مكتملة</span></div>{yesterday?.scheduled?<p>{yesterday.missed.length?"عناصر غير مكتملة" :"اكتملت كل استحقاقات أمس"} · إنجاز أمس {arabicNumber(yesterday.rate??0)}%</p>:<p>لا توجد استحقاقات مسجلة لأمس.</p>}{yesterday?.missed.length?<details className="np-yesterday-details"><summary>عرض الفائت</summary><ul>{yesterday.missed.map(row=><li key={row.id}><span>{row.title}<small>{row.kind==="Habit"?"عادة":"مهمة"} · {STATUS_LABELS[row.status]??row.status}{row.amount>0?` · ${arabicNumber(row.amount)} ${row.unit}`:""}</small></span><strong>{arabicNumber(row.weight)}<small> وزن</small></strong></li>)}</ul></details>:null}</section>
         <section className="np-week-achievement" aria-label="إنجاز أيام الأسبوع كاملًا" data-week-navigation="r109">
