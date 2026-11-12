@@ -3065,7 +3065,7 @@ function Dashboard({ view:providedView, workspace, busy, actionError, onCommand,
                 <div className="np-category-heading">
                   {activityView==="category"?<NoorCategoryIcon category={group.key}/>:<span className="np-category-symbol" aria-hidden="true">●</span>}
                   <h3 className="np-category-title">{activityView==="category"?habitCardDisplayTitle(group.label):group.label}</h3>
-                  <span className="np-category-count">{ {arabicNumber(group.rows.filter(r=>r.execution.kind==="Habit").length)} عادات · {arabicNumber(group.rows.filter(r=>r.execution.kind==="Task").length)} مهام · {arabicNumber(group.rows.filter(r=>r.execution.status==="Completed").length)} مكتملة</span>
+                  <span className="np-category-count">{arabicNumber(group.rows.filter(r=>r.execution.kind==="Habit").length)} عادات · {arabicNumber(group.rows.filter(r=>r.execution.kind==="Task").length)} مهام · {arabicNumber(group.rows.filter(r=>r.execution.status==="Completed").length)} مكتملة</span>
                 </div>
               </div>
               <div className="np-list">{group.rows.map(({execution:item,definition})=><ActivityCard key={item.id} item={item} definition={definition} busy={busy||lockedIds.includes(item.id)} pending={pendingIds.includes(item.id)} onCommand={historyDate?historicalCommand:onCommand} historicalDate={historyDate} todayDate={view.localDate??undefined}/>)}</div>
