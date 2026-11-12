@@ -1,4 +1,5 @@
 import {quranQuarterR289,quranQuarterForDateR289,validQuranPlanR289,type QuranHabitPlanR289} from "./noor-quran-quarters-r289.js";
+import {groupNoorActivitiesR304,type NoorActivityViewR304} from "./noor-activity-grouping-r304.js";
 import {TaskSessionPlannerR254,TaskSessionListR254,sessionFinishedR254,TASK_SESSION_STYLES_R254,type StoredTaskSessionPlanR254,type StoredTaskSessionR254} from "./noor-task-sessions-r254.js";
 import {NoorBeverageTrackerR294,type BeverageRowR294} from "./noor-beverage-tracker-r294.js";
 import type {NoorBeveragePlanR294,NoorCountdownPlanR301} from "./noor-personal-today-client.js";
@@ -1774,6 +1775,26 @@ const PAGE_STYLES = `
  .np-cc-modal-backdrop .np-cc-modal-footer{padding-block:5px}
  .np-activity-backdrop,.nf-backdrop,.np-delete-backdrop,.np-page .np-history-overlay{align-items:flex-start;overflow-y:auto}
 }
+/* NOOR_R304_UNIFIED_ACTIVITY_VIEW_STYLES */
+.np-page .np-activity-switch-r304{display:flex;flex-wrap:wrap;gap:7px;align-items:center;margin:16px 0 12px;padding:8px 10px;border-radius:16px;border:1px solid var(--border);background:var(--panel)}
+.np-page .np-activity-switch-r304>strong{font-size:13px;color:var(--text);margin-inline-end:4px;white-space:nowrap}
+.np-page .np-activity-switch-options-r304{display:flex;gap:6px;overflow-x:auto;max-width:100%;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
+.np-page .np-activity-switch-options-r304 button{min-height:42px;min-width:max-content;border:1px solid var(--border-strong);border-radius:12px;padding:7px 13px;background:var(--panel-soft);color:var(--text);cursor:pointer;font:inherit;font-size:12px;font-weight:650}
+.np-page .np-activity-switch-options-r304 button[aria-pressed=true]{background:var(--text);color:var(--panel);border-color:var(--text)}
+.np-page .np-unified-groups-r304{display:grid;gap:12px;min-width:0}
+.np-page .np-unified-group-r304{border-radius:22px;min-width:0;overflow:hidden}
+.np-page .np-unified-group-r304>.np-category-head{display:flex;align-items:center;gap:9px;padding:14px;border-bottom:1px solid var(--border)}
+.np-page .np-unified-group-r304>.np-category-head .np-category-heading{min-width:0;flex:1}
+.np-page .np-unified-group-r304 .np-list{display:grid;gap:8px;padding:12px;min-width:0}
+.np-page .np-unified-group-r304 .np-item{min-width:0}
+.np-page .np-unified-empty-r304{padding:20px;border:1px dashed var(--border-strong);border-radius:16px;background:var(--panel-soft);color:var(--muted)}
+@media(max-width:600px){
+ .np-page .np-activity-switch-r304{padding:9px;display:grid;gap:8px}
+ .np-page .np-activity-switch-options-r304{width:100%;overflow-x:auto;padding-bottom:2px}
+ .np-page .np-activity-switch-options-r304 button{min-height:44px}
+ .np-page .np-unified-group-r304 .np-list{padding:9px}
+}
+/* NOOR_R304_UNIFIED_ACTIVITY_VIEW_STYLES_END */
 /* NOOR_R163_MOBILE_DIALOGS_AND_TABS_END */
 
 
@@ -2799,6 +2820,14 @@ function Dashboard({ view:providedView, workspace, busy, actionError, onCommand,
       weight:definition.weight,importance:definition.importance as BeverageRowR294["importance"],status:execution.status,
       plan:definition.beveragePlan,log:definition.activityLog}];
   }),[view.habits,workspace]);
+  // R304: presentation-only. Actions retain their original execution IDs.
+  const [activityView,setActivityView]=useState<NoorActivityViewR304>("separate");
+  // In-memory preference only: browser storage is restricted by the architecture contract.
+  const selectActivityView=(next:NoorActivityViewR304)=>setActivityView(next);
+  const unifiedGroups=useMemo(()=>
+    groupNoorActivitiesR304([...view.habits,...view.tasks],workspace?.definitions??[],
+      activityView==="separate"?"category":activityView,workspace?.categories??[]),
+    [view.habits,view.tasks,workspace,activityView]);
   const grouped = useMemo(() => {
     const map=new Map<string,{definition?:DefinitionItem;execution:ExecutionItem}[]>();
     for(const execution of view.habits){const definition=definitionsById.get(execution.definitionId);if(definition?.beveragePlan)continue;const category=(definition?.category??'عام').trim().replace(/\s+/g,' ');const rows=map.get(category)??[];rows.push({...(definition?{definition}:{}),execution});map.set(category,rows);}
@@ -3001,8 +3030,16 @@ function Dashboard({ view:providedView, workspace, busy, actionError, onCommand,
     <NoorBeverageTrackerR294 rows={beverageRows} allNames={(workspace?.definitions??[]).filter(d=>d.kind==="Habit"&&!!d.beveragePlan&&d.state!=="Archived").map(d=>d.title)}
       localDate={view.localDate??""} timeZone={view.timeZone} busy={busy} onCommand={onCommand} historical={historyDate!==null}/>
 
+    <div className="np-activity-switch-r304" data-testid="r304-activity-view" role="group" aria-label="طريقة عرض العادات والمهام">
+      <strong>عرض العادات والمهام</strong>
+      <div className="np-activity-switch-options-r304">
+        {([["category","حسب المجال"],["time","حسب الوقت"],["importance","حسب الأهمية"],["status","حسب الحالة"],["separate","العرض المنفصل"]] as const).map(([mode,label])=>
+          <button key={mode} type="button" aria-pressed={activityView===mode} onClick={()=>selectActivityView(mode)}>{label}</button>)}
+      </div>
+    </div>
     <div className="np-main-grid np-daily-only" data-history-page={historyDate?"historical":"current"}>
       <div className="np-execution-stack">
+        {activityView==="separate"?<>
         <section aria-label="عادات اليوم" className="np-habits-section np-history-page">
           <div className="np-section-heading"><h2>{historyDate?`عادات يوم ${weekDateLabel(historyDate)}`:"عادات اليوم"}</h2></div>
           
@@ -3030,6 +3067,20 @@ function Dashboard({ view:providedView, workspace, busy, actionError, onCommand,
           </div>
         </section>
         {view.tasks.length > 0 ? <section aria-label="مهام اليوم" className="np-card np-category np-tasks-card"><div className="np-category-head"><h2 className="np-category-title">{historyDate?`مهام يوم ${weekDateLabel(historyDate)}`:"مهام اليوم"}</h2><span className="np-category-count">{arabicNumber(view.tasks.length)} مهام</span></div><div className="np-list">{[...view.tasks].sort((a,b)=>(definitionsById.get(a.definitionId)?.displayOrder??Number.MAX_SAFE_INTEGER)-(definitionsById.get(b.definitionId)?.displayOrder??Number.MAX_SAFE_INTEGER)).map(item => { return <ActivityCard key={item.id} item={item} definition={definitionsById.get(item.definitionId)} busy={busy||lockedIds.includes(item.id)} pending={pendingIds.includes(item.id)} onCommand={historyDate?historicalCommand:onCommand} historicalDate={historyDate} todayDate={view.localDate??undefined}/>; })}</div></section> : null}
+
+        </>:<section className="np-unified-groups-r304" data-testid="r304-unified-groups" aria-label="العادات والمهام مجمعة حسب طريقة العرض">
+          {unifiedGroups.length===0?<p className="np-unified-empty-r304">لا توجد عادات أو مهام مجدولة لهذا اليوم.</p>
+            :unifiedGroups.map(group=><section key={group.key} className="np-card np-category np-unified-group-r304" data-testid="r304-unified-group" aria-label={group.label}>
+              <div className="np-category-head">
+                <div className="np-category-heading">
+                  {activityView==="category"?<NoorCategoryIcon category={group.key}/>:<span className="np-category-symbol" aria-hidden="true">●</span>}
+                  <h3 className="np-category-title">{activityView==="category"?habitCardDisplayTitle(group.label):group.label}</h3>
+                  <span className="np-category-count">{arabicNumber(group.habits)} عادات · {arabicNumber(group.tasks)} مهام · {arabicNumber(group.completed)} مكتملة</span>
+                </div>
+              </div>
+              <div className="np-list">{group.rows.map(({execution:item,definition})=><ActivityCard key={item.id} item={item} definition={definition} busy={busy||lockedIds.includes(item.id)} pending={pendingIds.includes(item.id)} onCommand={historyDate?historicalCommand:onCommand} historicalDate={historyDate} todayDate={view.localDate??undefined}/>)}</div>
+            </section>)}
+        </section>}
       </div>
 
 
