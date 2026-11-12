@@ -25,7 +25,7 @@ test("R300: decreasing coffee counter never affects daily, weekly, missed or str
  assert.equal(yesterdayAchievement(low,yesterday)?.missed.length,0);
 });
 test("R300: reject malformed forged marker, and ensure remaining list filters drink plans",()=>{
- assert.equal(parseStatisticRows([row("x","Pending","not-boolean" as unknown as boolean)]).length,0);
+ assert.equal(parseStatisticRows([{...row("x","Pending"),nonAchievement:"not-boolean"}]).length,0);
  const source=readFileSync(new URL("../src/noor-personal-application-view.tsx",import.meta.url),"utf8");
  assert.match(source,/const achievementItems=\[\.\.\.view\.habits,\.\.\.view\.tasks\]\.filter/);
  assert.match(source,/!\s*definitionsById\.get\(e\.definitionId\)\?\.beveragePlan/);
