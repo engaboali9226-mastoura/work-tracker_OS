@@ -1,6 +1,6 @@
 import {useEffect,useRef,useState,type ReactElement} from "react";
 import type {NoorPersonalCommandInput,NoorTaskSessionDraft} from "./noor-personal-today-client.js";
-import {spreadTaskSessionsR288,type SessionCadenceR288} from "./noor-session-calendar-r288.js";
+import {spreadTaskSessionsR288,weeklyTaskSessionDatesR298,type SessionCadenceR288} from "./noor-session-calendar-r288.js";
 
 export interface StoredTaskSessionR254 extends NoorTaskSessionDraft {
   order:number; note:string; revision:number; createdAt:string; updatedAt:string; completedAt:string|null;
@@ -52,9 +52,59 @@ function makeSession(i:number,target:number|null=null,start:number|null=null,end
   return {id:globalThis.crypto.randomUUID(),title:"الجلسة "+i,objective:"",target,rangeStart:start,rangeEnd:end,scheduledDate:null};
 }
 export function TaskSessionPlannerR254({enabled,setEnabled,distribution,setDistribution,sessions,setSessions,target,unit,busy,parentStartDate="",parentEndDate=null,parentScheduleKind="Daily",parentWeekdays=[]}:{enabled:boolean;setEnabled:(v:boolean)=>void;distribution:"equal"|"custom";setDistribution:(v:"equal"|"custom")=>void;sessions:readonly NoorTaskSessionDraft[];setSessions:(v:NoorTaskSessionDraft[])=>void;target:number|null;unit:string;busy:boolean;parentStartDate?:string;parentEndDate?:string|null;parentScheduleKind?:"OneTime"|"Daily"|"Weekdays";parentWeekdays?:readonly number[]}):ReactElement{
-  const [count,setCount]=useState(5),[error,setError]=useState("");
+  const [count,setCount]=useState(sessions.length||5),[error,setError]=useState("");
+  const [weeklyFirstDate,setWeeklyFirstDate]=useState(parentStartDate);
+  const [weeklyEndDate,setWeeklyEndDate]=useState(parentEndDate??"");
+  const [weeklyDays,setWeeklyDays]=useState<readonly number[]>(parentScheduleKind==="Weekdays"?[...parentWeekdays]:[0,1,2,3,4,5,6]);
+  const [replaceScheduled,setReplaceScheduled]=useState(false);
+  const parentWeekdaysKey=parentWeekdays.join(",");
+  useEffect(()=>{setWeeklyFirstDate(parentStartDate);},[parentStartDate]);
+  useEffect(()=>{setWeeklyEndDate(parentEndDate??"");},[parentEndDate]);
+  useEffect(()=>{if(parentScheduleKind==="Weekdays")setWeeklyDays([...parentWeekdays]);},
+    [parentScheduleKind,parentWeekdaysKey]);
   const [calendarDays,setCalendarDays]=useState(5),[calendarCadence,setCalendarCadence]=useState<SessionCadenceR288>("daily"),[calendarFirstDate,setCalendarFirstDate]=useState(parentStartDate);
   useEffect(()=>{setCalendarFirstDate(parentStartDate);},[parentStartDate]);
+  const applyWeekly=()=>{
+    try{
+      if(sessions.some(session=>session.scheduledDate)&&!replaceScheduled)
+        throw Error("SESSION_CALENDAR_REPLACE_CONFIRM");
+      const total=sessions.length||count;
+      const dates=weeklyTaskSessionDatesR298({
+        firstDate:weeklyFirstDate,endDate:weeklyEndDate||null,sessionCount:total,
+        weekdays:weeklyDays,
+        parent:{kind:parentScheduleKind,startDate:parentStartDate,endDate:parentEndDate,weekdays:parentWeekdays}
+      });
+      let drafts:NoorTaskSessionDraft[];
+      if(sessions.length)drafts=[...sessions];
+      else if(target!==null){
+        const isPages=isWholePageUnitR254(unit);
+        const portions=equalSessionTargetsR254(target,total,isPages);
+        let nextPage=1;
+        drafts=portions.map((amount,i)=>{
+          const first=isPages?nextPage:null, last=isPages?nextPage+amount-1:null;
+          if(isPages)nextPage=last!+1;
+          return makeSession(i+1,amount,first,last);
+        });
+      }else if(distribution==="equal")throw Error("TARGET_REQUIRED");
+      else drafts=Array.from({length:total},(_,i)=>makeSession(i+1));
+      setSessions(drafts.map((session,i)=>({...session,scheduledDate:dates[i]!})));
+      setReplaceScheduled(false);setError("");
+    }catch(err){
+      const code=err instanceof Error?err.message:"";
+      const messages:Record<string,string>={
+        SESSION_CALENDAR_COUNT_INVALID:"أدخل عدد جلسات صحيحًا من 1 إلى 200.",
+        SESSION_CALENDAR_WEEKDAYS_INVALID:"اختر يومًا واحدًا على الأقل من أيام الأسبوع.",
+        SESSION_CALENDAR_INVALID_DATE:"راجع تاريخ البداية والنهاية؛ يلزم تاريخ ميلادي صحيح.",
+        SESSION_CALENDAR_OUTSIDE_RANGE:"تاريخ الجلسات خارج نطاق المهمة. يجب أن يبدأ بعد بداية المهمة ولا يتجاوز نهايتها.",
+        SESSION_CALENDAR_PARENT_MISMATCH:"أيام الجلسات لا تتوافق مع أيام تكرار المهمة. عدّل أيام المهمة أولًا أو اختر أيامًا متاحة فقط. المهمة ذات اليوم الواحد تقبل جلسة مجدولة واحدة.",
+        SESSION_CALENDAR_INSUFFICIENT_DAYS:"الأيام المتاحة لا تكفي لعدد الجلسات خلال المدة المحددة. قلّل الجلسات أو زد الأيام أو مدّد النهاية.",
+        SESSION_CALENDAR_SPAN_TOO_LONG:"المدة طويلة جدًا؛ اختر نطاقًا أقصر.",
+        SESSION_CALENDAR_REPLACE_CONFIRM:"هذه الجلسات لها مواعيد سابقة؛ فعّل تأكيد إعادة الجدولة لحماية مواعيدك.",
+        TARGET_REQUIRED:"حدد مستهدف المهمة أولًا للتوزيع المتساوي، أو اختر توزيعًا مخصصًا.",
+      };
+      setError(messages[code]??"تعذر توزيع الجلسات. تحقق من العدد والمستهدف ووحدة الإنجاز.");
+    }
+  };
   const applyCalendar=()=>{
     try{
       const updated=spreadTaskSessionsR288(sessions,{firstDate:calendarFirstDate,days:calendarDays,cadence:calendarCadence,parent:{kind:parentScheduleKind,startDate:parentStartDate,endDate:parentEndDate,weekdays:parentWeekdays}});
@@ -83,6 +133,49 @@ export function TaskSessionPlannerR254({enabled,setEnabled,distribution,setDistr
     <label className="nts-toggle"><input type="checkbox" disabled={busy} checked={enabled} onChange={e=>setEnabled(e.currentTarget.checked)}/> تقسيم المهمة إلى جلسات (اختياري)</label>
     {enabled?<div className="nts-planner-body">
       <label>التوزيع<select disabled={busy} value={distribution} onChange={e=>setDistribution(e.currentTarget.value as "equal"|"custom")}><option value="equal">متساوٍ</option><option value="custom">مخصص</option></select></label>
+      <section className="nts-weekly-r298" data-testid="r298-weekly-planner" aria-label="جدولة الجلسات حسب أيام الأسبوع">
+        <div className="nts-weekly-heading-r298"><strong>جدولة الجلسات تلقائيًا</strong>
+          <small>حدّد البداية وعدد الجلسات وأيام الأسبوع. مع تاريخ نهاية تُوزَّع الجلسات على كامل الفترة، وبدونه تبدأ من أول يوم متاح.</small>
+        </div>
+        <div className="nts-weekly-fields-r298">
+          <label>تاريخ البداية<input type="date" data-testid="r298-weekly-start" value={weeklyFirstDate}
+            min={parentStartDate||undefined} max={parentEndDate??undefined} disabled={busy}
+            onChange={e=>setWeeklyFirstDate(e.currentTarget.value)}/></label>
+          <label>عدد الجلسات<input type="number" inputMode="numeric" data-testid="r298-weekly-count"
+            min="1" max="200" value={sessions.length||count} disabled={busy||sessions.length>0}
+            onChange={e=>setCount(Number(e.currentTarget.value))}/></label>
+          <label>تاريخ النهاية (اختياري)<input type="date" data-testid="r298-weekly-end"
+            min={weeklyFirstDate||parentStartDate||undefined} max={parentEndDate??undefined}
+            value={weeklyEndDate} disabled={busy} onChange={e=>setWeeklyEndDate(e.currentTarget.value)}/></label>
+        </div>
+        <fieldset className="nts-weekly-days-r298"><legend>أيام الجلسات خلال الأسبوع · {weeklyDays.length} من 7</legend>
+          <div className="nts-weekday-buttons-r298">
+            {([{day:6,label:"السبت"},{day:0,label:"الأحد"},{day:1,label:"الإثنين"},
+              {day:2,label:"الثلاثاء"},{day:3,label:"الأربعاء"},{day:4,label:"الخميس"},
+              {day:5,label:"الجمعة"}] as const).map(item=>
+              <button key={item.day} type="button" disabled={busy} aria-pressed={weeklyDays.includes(item.day)}
+                onClick={()=>setWeeklyDays(current=>current.includes(item.day)?current.filter(d=>d!==item.day):[...current,item.day])}>{item.label}</button>)}
+          </div>
+        </fieldset>
+        {parentScheduleKind==="Weekdays"?<small className="nts-weekly-note-r298">اختَر أيامًا ضمن أيام تكرار المهمة المحددة أعلاه، وإلا فلن يقبل الخادم الجدولة.</small>:null}
+        {sessions.length>0?<small className="nts-weekly-note-r298">الجلسات الموجودة: {sessions.length}؛ لا تُعاد إنشاؤها أو تغيير أهدافها. لتغيير العدد استخدم إضافة أو إزالة جلسة أدناه.</small>:null}
+        {sessions.some(session=>session.scheduledDate)?<label className="nts-weekly-replace-r298">
+          <input type="checkbox" checked={replaceScheduled} disabled={busy} onChange={e=>setReplaceScheduled(e.currentTarget.checked)}/>
+          أوافق على إعادة توزيع مواعيد الجلسات الموجودة (لا يغيّر الإنجاز السابق)</label>:null}
+        <button type="button" className="nts-weekly-apply-r298" data-testid="r298-weekly-apply"
+          disabled={busy||!weeklyDays.length} onClick={applyWeekly}>
+          {sessions.length?"توزيع مواعيد الجلسات الحالية":"إنشاء الجلسات وتوزيع مواعيدها"}
+        </button>
+        {sessions.some(session=>session.scheduledDate)?<div className="nts-weekly-preview-r298" role="status">
+          <strong>مواعيد الجلسات:</strong>
+          <div>{sessions.filter(session=>session.scheduledDate).slice(0,8).map((session,i)=>
+            <span key={session.id}>{i+1} · <time dateTime={session.scheduledDate!}>{session.scheduledDate}</time></span>)}
+            {sessions.filter(session=>session.scheduledDate).length>8?<small>والمزيد حسب ترتيب الجلسات أدناه…</small>:null}
+          </div>
+        </div>:null}
+        <small className="nts-weekly-note-r298">التوزيع مقترح فقط حتى تضغط حفظ المهمة. الخادم يحمي الجلسات ذات الإنجاز المسجل ولا يسمح بنقلها إلى يوم آخر.</small>
+      </section>
+      <details className="nts-legacy-calendar-r298"><summary>خيارات التوزيع الأخرى (يدوي / أسبوعي / شهري)</summary>
       {distribution==="equal"?<div className="nts-split"><label>عدد الجلسات<input type="number" min="1" max="200" value={count} onChange={e=>setCount(Number(e.currentTarget.value))}/></label><button type="button" disabled={busy||sessions.length>0} onClick={split}>إنشاء جلسات متساوية</button><small>لا تُستبدل الجلسات الموجودة تلقائيًا حفاظًا على أي سجل سابق.</small></div>:null}
       <div className="nts-calendar-r288" data-testid="r288-calendar-planner" aria-label="توزيع الجلسات على التواريخ">
         <strong>جدولة الجلسات على أيام محددة</strong>
@@ -95,6 +188,7 @@ export function TaskSessionPlannerR254({enabled,setEnabled,distribution,setDistr
         <button type="button" data-testid="r288-calendar-apply" disabled={busy||sessions.length===0} onClick={applyCalendar}>توزيع مواعيد الجلسات</button>
         <small>التواريخ يجب أن توافق تكرار المهمة ونطاقها؛ التقدم السابق للجلسات محمي عند الحفظ.</small>
       </div>
+      </details>
       {sessions.map((s,i)=><fieldset className="nts-editor" key={s.id}><legend>الجلسة {i+1}</legend>
         <label>العنوان<input maxLength={120} value={s.title} onChange={e=>edit(i,{title:e.currentTarget.value})}/></label>
         <label>هدف الجلسة<input maxLength={500} value={s.objective} onChange={e=>edit(i,{objective:e.currentTarget.value})}/></label>
