@@ -47,7 +47,7 @@ test("R304: dashboard keeps legacy view and mounts existing ActivityCard for eac
  assert.match(source,/groupNoorActivitiesR304/);
  assert.match(source,/data-testid="r304-activity-view"/);
  assert.match(source,/activityView==="separate"/);
- assert.match(source,/return "separate";/);
+ assert.match(source,/readNoorActivityViewR304/);
  assert.match(source,/data-testid="r304-unified-groups"/);
  assert.match(source,/data-testid="r304-unified-group"/);
  assert.match(source,/group.rows.map\(\(\{execution:item,definition\}\)=><ActivityCard/);
