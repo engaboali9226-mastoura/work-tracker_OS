@@ -32,7 +32,7 @@ test("R306 compact preference: card paddings, minimum heights and footprint stri
  assert.match(compact,/\.np-habit-category>\.np-category-head,[\s\S]*?padding:9px 12px/);
  assert.match(compact,/\.np-habit-category \.np-list,[\s\S]*?padding:5px 8px 8px/);
  assert.doesNotMatch(compact,/\bmax-height\s*:/,"Do not hide long Arabic names, notes or session controls");
- assert.doesNotMatch(compact,/\bheight\s*:\s*(?:10[0-9]|12[0-9]|15[0-9])px/,"No fixed 100px+ card height");
+ assert.doesNotMatch(compact,/(?:^|[;{])\s*height\s*:\s*(?:10[0-9]|12[0-9]|15[0-9])px/m,"No fixed 100px+ card height");
 });
 
 test("R306 compact preference: desktop and mobile keep accessible controls and the same action source",()=>{
