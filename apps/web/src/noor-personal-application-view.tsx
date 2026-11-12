@@ -1,7 +1,8 @@
 import {quranQuarterR289,quranQuarterForDateR289,validQuranPlanR289,type QuranHabitPlanR289} from "./noor-quran-quarters-r289.js";
 import {TaskSessionPlannerR254,TaskSessionListR254,sessionFinishedR254,TASK_SESSION_STYLES_R254,type StoredTaskSessionPlanR254,type StoredTaskSessionR254} from "./noor-task-sessions-r254.js";
 import {NoorBeverageTrackerR294,type BeverageRowR294} from "./noor-beverage-tracker-r294.js";
-import type {NoorBeveragePlanR294} from "./noor-personal-today-client.js";
+import type {NoorBeveragePlanR294,NoorCountdownPlanR301} from "./noor-personal-today-client.js";
+import {UpcomingCountdownR301} from "./noor-upcoming-countdown-r301.js";
 import {shouldRefreshNoorOnResume} from "./noor-resume-sync-r259.js";
 import {revokeNoorBrowserSessionR269} from "./noor-session-logout-client-r269.js";
 import type {NoorTaskSessionDraft} from "./noor-personal-today-client.js";
@@ -73,6 +74,7 @@ type DefinitionItem = Readonly<{
   timeOfDay?:string;
   quranPlan?:QuranHabitPlanR289;
   beveragePlan?:NoorBeveragePlanR294;
+  countdownPlan?:NoorCountdownPlanR301;
   revisionId:string;
   measurement?: {target:number;unit:string};
   activityLog: readonly ActivityEntry[];
@@ -1628,7 +1630,14 @@ function definitionItems(value: unknown): readonly DefinitionItem[] | null {
       ?{targetServings:sourceDrink.targetServings as number,...(sourceDrink.servingMl!==undefined?{servingMl:sourceDrink.servingMl as number}:{}),
        ...(typeof sourceDrink.kind==="string"?{kind:sourceDrink.kind as NoorBeveragePlanR294["kind"]}:{}),
        ...(typeof sourceDrink.sleepTime==="string"?{sleepTime:sourceDrink.sleepTime}:{})}:undefined;
-    result.push({ weight:typeof item.weight==="number"&&item.weight>0?item.weight:1,...(typeof item.displayOrder==='number'&&Number.isSafeInteger(item.displayOrder)?{displayOrder:item.displayOrder}:{}),...(typeof item.timeOfDay==='string'?{timeOfDay:item.timeOfDay}:{}),...(quranPlan?{quranPlan}:{}),...(beveragePlan?{beveragePlan}:{}),id, revisionId:stringValue(item.revisionId)??"", title, state, kind, category, scheduleKind, weekdays, startDate, endDate, importance, ...(measurement?{measurement}:{}), ...(sessionPlan?{sessionPlan}:{}), ...(taskGeneralNote!==undefined?{taskGeneralNote}:{}), ...(description!==undefined?{description}:{}), activityLog });
+
+    const rawCountdown=item.countdownPlan;
+    const countdownPlan:NoorCountdownPlanR301|undefined=kind==="Task"&&isRecord(rawCountdown)&&
+      ["task","event","appointment"].includes(String(rawCountdown.kind))&&
+      validStatisticDate(rawCountdown.date)&&typeof rawCountdown.time==="string"&&
+      /^([01]\\d|2[0-3]):[0-5]\\d$/.test(rawCountdown.time)
+      ?{kind:rawCountdown.kind as NoorCountdownPlanR301["kind"],date:rawCountdown.date,time:rawCountdown.time}:undefined;
+    result.push({ weight:typeof item.weight==="number"&&item.weight>0?item.weight:1,...(typeof item.displayOrder==='number'&&Number.isSafeInteger(item.displayOrder)?{displayOrder:item.displayOrder}:{}),...(typeof item.timeOfDay==='string'?{timeOfDay:item.timeOfDay}:{}),...(quranPlan?{quranPlan}:{}),...(beveragePlan?{beveragePlan}:{}),...(countdownPlan?{countdownPlan}:{}),id, revisionId:stringValue(item.revisionId)??"", title, state, kind, category, scheduleKind, weekdays, startDate, endDate, importance, ...(measurement?{measurement}:{}), ...(sessionPlan?{sessionPlan}:{}), ...(taskGeneralNote!==undefined?{taskGeneralNote}:{}), ...(description!==undefined?{description}:{}), activityLog });
   }
   return result;
 }
@@ -1936,6 +1945,10 @@ export function DefinitionForm({busy,onCommand,onSavingChange,defaultStartDate,d
  const [taskTarget,setTaskTarget]=useState(initial?.measurement?.target?.toString()??"");
  const [taskUnit,setTaskUnit]=useState(initial?.measurement?.unit??"صفحة");
  const [selectedKind,setSelectedKind]=useState(initial?.kind??defaultKind);
+ const [countdownKind,setCountdownKind]=useState<"none"|"task"|"event"|"appointment">(initial?.countdownPlan?.kind??"none");
+ const [countdownDate,setCountdownDate]=useState(initial?.countdownPlan?.date??initial?.endDate??initial?.startDate??defaultStartDate);
+ const [countdownTime,setCountdownTime]=useState(initial?.countdownPlan?.time??"09:00");
+ const isCountdownEvent=selectedKind==="Task"&&(countdownKind==="event"||countdownKind==="appointment");
  const [duration,setDuration]=useState(initial?.endDate||initial?.scheduleKind==="OneTime"?"limited":"continuous");
  const [days,setDays]=useState<readonly number[]>(initial?.weekdays??[]);
  const [error,setError]=useState("");
@@ -1964,11 +1977,22 @@ export function DefinitionForm({busy,onCommand,onSavingChange,defaultStartDate,d
  };
  const submit=async(event:FormEvent<HTMLFormElement>)=>{
   event.preventDefault();if(busy||definitionSaveLock.current)return;const data=new FormData(event.currentTarget),text=(key:string)=>String(data.get(key)??"").trim();
-  if(scheduleKind==="Weekdays"&&!days.length){setError("اختر يومًا واحدًا على الأقل.");return;}
+  if(!isCountdownEvent&&scheduleKind==="Weekdays"&&!days.length){setError("اختر يومًا واحدًا على الأقل.");return;}
+  if(selectedKind==="Task"&&countdownKind!=="none"&&
+    (!validStatisticDate(countdownDate)||!/^([01]\\d|2[0-3]):[0-5]\\d$/.test(countdownTime))){
+    setError("اختر تاريخًا ووقتًا صحيحين للعد التنازلي.");return;
+  }
+  if(isCountdownEvent&&initial&&(initial.activityLog.length>0||initial.measurement||initial.sessionPlan)){
+    setError("لا يمكن تحويل مهمة لها تقدم أو جلسات إلى موعد معلوماتي. أنشئ موعدًا جديدًا للحفاظ على الإنجازات.");return;
+  }
   if(!noorExistingCategory(selectedCategory,categoryChoices)){setError("اختر تصنيفًا مسجلًا أو أضف تصنيفًا جديدًا أولًا.");return;}
   if(showCategoryAdd){setError("أكمل إضافة التصنيف أو ألغِ إضافة التصنيف قبل حفظ العنصر.");return;}
-  const endDate=selectedKind==="Habit"&&duration==="continuous"?null:text("endDate")||null;
-  const fields={weight:Number(text("weight")||initial?.weight||1),...(selectedKind==="Habit"&&text("timeOfDay")?{timeOfDay:text("timeOfDay")}:{}),...(selectedKind==="Habit"&&(quranEnabled||initial?.quranPlan)?{quranPlan:quranEnabled?{anchorDate:quranAnchorDate,firstQuarter:quranFirstQuarter,repeatOccurrences:quranRepeatOccurrences}:null}:{}),kind:selectedKind,title:text("title"),category:selectedCategory,description:text("description"),...(initial?.beveragePlan&&selectedKind==="Habit"?{beveragePlan:{targetServings:Number(beverageTarget),...(beverageMl?{servingMl:Number(beverageMl)}:{}),...(initial.beveragePlan.kind?{kind:initial.beveragePlan.kind}:{}),...(initial.beveragePlan.sleepTime?{sleepTime:initial.beveragePlan.sleepTime}:{})}}:{}),startDate:text("startDate"),endDate,scheduleKind,weekdays:scheduleKind==="Weekdays"?days:[],importance:text("importance") as "Essential"|"Important"|"Supporting"|"Optional",...(selectedKind==="Task"&&text("progressTarget")?{measurement:{target:Number(text("progressTarget")),unit:text("progressUnit")}}:{}),...(selectedKind==="Task"&&(sessionEnabled||initial?.sessionPlan)?{sessionPlan:sessionEnabled?{distribution:sessionDistribution,sessions:sessionDrafts}:null}:{})};
+  const endDate=isCountdownEvent?null:selectedKind==="Habit"&&duration==="continuous"?null:text("endDate")||null;
+  const eventScheduleKind=isCountdownEvent?"OneTime":scheduleKind;
+  const startDate=isCountdownEvent?countdownDate:text("startDate");
+  const countdownPlan=selectedKind==="Task"&&countdownKind!=="none"?
+    {kind:countdownKind,date:countdownDate,time:countdownTime}:null;
+  const fields={weight:Number(text("weight")||initial?.weight||1),...(selectedKind==="Habit"&&text("timeOfDay")?{timeOfDay:text("timeOfDay")}:{}),...(selectedKind==="Habit"&&(quranEnabled||initial?.quranPlan)?{quranPlan:quranEnabled?{anchorDate:quranAnchorDate,firstQuarter:quranFirstQuarter,repeatOccurrences:quranRepeatOccurrences}:null}:{}),kind:selectedKind,title:text("title"),category:selectedCategory,description:text("description"),...(initial?.beveragePlan&&selectedKind==="Habit"?{beveragePlan:{targetServings:Number(beverageTarget),...(beverageMl?{servingMl:Number(beverageMl)}:{}),...(initial.beveragePlan.kind?{kind:initial.beveragePlan.kind}:{}),...(initial.beveragePlan.sleepTime?{sleepTime:initial.beveragePlan.sleepTime}:{})}}:{}),startDate,endDate,scheduleKind:eventScheduleKind,weekdays:isCountdownEvent?[]:scheduleKind==="Weekdays"?days:[],...(selectedKind==="Task"&&(countdownPlan||initial?.countdownPlan)?{countdownPlan}:{}),importance:text("importance") as "Essential"|"Important"|"Supporting"|"Optional",...(selectedKind==="Task"&&!isCountdownEvent&&text("progressTarget")?{measurement:{target:Number(text("progressTarget")),unit:text("progressUnit")}}:{}),...(selectedKind==="Task"&&!isCountdownEvent&&(sessionEnabled||initial?.sessionPlan)?{sessionPlan:sessionEnabled?{distribution:sessionDistribution,sessions:sessionDrafts}:null}:{})};
   setError("");definitionSaveLock.current=true;onSavingChange?.(true);
   let ok=false;
   try{ok=await onCommand(initial?{...fields,type:"update-definition",definitionId:initial.id,expectedRevisionId:initial.revisionId}:{...fields,type:"create-definition"});}
@@ -1981,6 +2005,27 @@ export function DefinitionForm({busy,onCommand,onSavingChange,defaultStartDate,d
   <div className="np-field"><label className="np-label" htmlFor="definition-title">الاسم *</label><input className="np-input" id="definition-title" name="title" maxLength={120} required defaultValue={initial?.title} onChange={e=>{if(!quranOptInTouched.current&&selectedKind==="Habit"&&isQuarterHabitR293(e.currentTarget.value))setQuranEnabled(true);}}/></div>
   <div className="np-field full"><label className="np-label" htmlFor="definition-description-r293">الوصف (اختياري) — يظهر عند علامة الاستفهام</label><textarea dir="rtl" id="definition-description-r293" name="description" className="np-input" rows={3} maxLength={2000} defaultValue={initial?.description??""} placeholder="أضف تعليمات تنفيذ العادة أو تفاصيل المهمة…"/></div>
   <div className="np-field" data-testid="definition-category-guard-r163"><label className="np-label" htmlFor="definition-category">التصنيف *</label><select className="np-select" id="definition-category" name="category" required disabled={busy} value={selectedCategory} onChange={event=>{setSelectedCategory(event.currentTarget.value);setError("");}}><option value="" disabled>اختر تصنيفًا موجودًا</option>{categoryChoices.map(category=><option value={category} key={category}>{category}</option>)}</select><button className="np-category-add-trigger-r163" type="button" aria-expanded={showCategoryAdd} disabled={busy} onClick={()=>{setShowCategoryAdd(value=>!value);setNewCategory("");setCategoryError("");setError("");}}>+ التصنيف غير موجود؟ أضف تصنيفًا جديدًا</button>{showCategoryAdd?<div className="np-category-proposal-r163"><label className="np-label" htmlFor="definition-new-category">اسم التصنيف الجديد</label><input id="definition-new-category" className="np-input" maxLength={60} value={newCategory} onInput={event=>{setNewCategory(event.currentTarget.value);setCategoryError("");}} onChange={event=>{setNewCategory(event.currentTarget.value);setCategoryError("");}} placeholder="مثال: تنمية المهارات"/><div className="np-category-proposal-actions-r163"><button type="button" disabled={busy} onClick={()=>{void addCategory();}}>إضافة وتحديد التصنيف</button><button type="button" disabled={busy} onClick={()=>{setShowCategoryAdd(false);setCategoryError("");}}>إلغاء</button></div>{categoryError?<p role="alert" className="np-action-error">{categoryError}</p>:null}</div>:null}</div>
+  {selectedKind==="Task"?<div className="np-countdown-form-r301 np-field full" data-testid="r301-countdown-editor">
+    <label className="np-label" htmlFor="r301-countdown-kind">العد التنازلي / نوع الموعد</label>
+    <select id="r301-countdown-kind" className="np-select" data-testid="r301-countdown-kind"
+      value={countdownKind} disabled={busy} onChange={e=>{
+        const kind=e.currentTarget.value as typeof countdownKind;
+        setCountdownKind(kind);
+        if(kind==="event"||kind==="appointment"){setCountdownDate(plannerEndDate||plannerStartDate);setSessionEnabled(false);}
+      }}>
+      <option value="none">مهمة بدون عد تنازلي</option>
+      <option value="task">مهمة بموعد إنجاز محدد</option>
+      <option value="event">حدث مرتقب (معلوماتي)</option>
+      <option value="appointment">موعد مرتقب (معلوماتي)</option>
+    </select>
+    {countdownKind!=="none"?<div className="np-countdown-fields-r301">
+      <label>تاريخ {isCountdownEvent?"الموعد / الحدث":"الموعد المستهدف"}
+        <input type="date" data-testid="r301-countdown-date" value={countdownDate} required disabled={busy} onChange={e=>setCountdownDate(e.currentTarget.value)}/></label>
+      <label>الساعة
+        <input type="time" data-testid="r301-countdown-time" value={countdownTime} required disabled={busy} onChange={e=>setCountdownTime(e.currentTarget.value)}/></label>
+    </div>:null}
+    <small>{isCountdownEvent?"يظهر الموعد في العد التنازلي دون احتسابه كعادة أو مهمة غير مكتملة.":"تظل المهمة محسوبة ضمن الإنجاز، ويظهر موعدها المرتقب على لوحة اليوم."} تنبيه داخل نور فقط دون إشعارات خارجية.</small>
+   </div>:null}
   {selectedKind==='Habit'?<div className="np-field"><label className="np-label" htmlFor="definition-time">موعد تنفيذ العادة (اختياري)</label><input className="np-input" id="definition-time" name="timeOfDay" type="time" defaultValue={initial?.timeOfDay}/><small>مناسب للأدوية والمكملات. موعد للعرض والتنظيم؛ لا يرسل تنبيهًا حاليًا.</small></div>:null}
   {initial?.beveragePlan&&selectedKind==="Habit"?<div className="np-field full" data-testid="r294-definition-drink-settings"><strong>عداد المشروب اليومي</strong><p>يُسجل كل كوب في تاريخ يومه، ويكتمل المستهدف تلقائيًا.</p><label>عدد المرات اليومي<input type="number" min="1" max="30" required value={beverageTarget} onChange={e=>setBeverageTarget(e.currentTarget.value)}/></label><label>حجم الحصة بالملليلتر (اختياري)<input type="number" min="1" max="2000" value={beverageMl} onChange={e=>setBeverageMl(e.currentTarget.value)}/></label></div>:null}
   {selectedKind==="Habit"&&!initial?.beveragePlan?<div className="np-field full np-quran-plan-r289" data-testid="r289-quran-plan-editor">
@@ -1994,12 +2039,12 @@ export function DefinitionForm({busy,onCommand,onSavingChange,defaultStartDate,d
    </div>:null}
   <div className="np-field"><label className="np-label" htmlFor="definition-importance">الأهمية *</label><select className="np-select" id="definition-importance" name="importance" defaultValue={initial?.importance??"Supporting"}><option value="Essential">أساسي</option><option value="Important">مهم</option><option value="Supporting">داعم</option><option value="Optional">اختياري</option></select></div>
   {selectedKind==="Habit"?<div className="np-field full"><label className="np-label" htmlFor="definition-duration">مدة العادة</label><select className="np-select" id="definition-duration" value={duration} onChange={e=>{setDuration(e.currentTarget.value);if(e.currentTarget.value==="continuous"&&scheduleKind==="OneTime")setScheduleKind("Daily");}}><option value="continuous">مستمرة — بدون نهاية</option><option value="limited">محددة — بداية ونهاية</option></select><small className="np-cc-help">العادة المستمرة تتكرر وفق جدولها، ويُسجّل إتمامها وملاحظاتها لكل يوم على حدة.</small></div>:null}
-  <GregorianDateInput id="definition-start" name="startDate" label="تاريخ البداية الميلادي" required defaultValue={initial?.startDate??defaultStartDate} onValueChange={date=>{setPlannerStartDate(date);if(!quranAnchorTouched.current&&date)setQuranAnchorDate(date);}}/>
-  {selectedKind==="Task"||duration==="limited"?<GregorianDateInput id="definition-end" name="endDate" label="تاريخ النهاية الميلادي" required={selectedKind==="Habit"} defaultValue={initial?.endDate??""} onValueChange={setPlannerEndDate}/>:<div className="np-field"><span className="np-label">النهاية</span><p className="np-cc-help">مستمرة حتى توقفها أو تغيّر مدتها.</p></div>}
-  <div className="np-field full"><label className="np-label" htmlFor="definition-repeat">التكرار *</label><select className="np-select" id="definition-repeat" name="scheduleKind" disabled={!!initial?.beveragePlan} value={scheduleKind} onChange={e=>setScheduleKind(e.currentTarget.value as typeof scheduleKind)}><option value="Daily">يوميًا — 7 أيام في الأسبوع</option><option value="Weekdays">أيام محددة من الأسبوع</option><option value="OneTime" disabled={selectedKind==="Habit"&&duration==="continuous"}>مرة واحدة</option></select></div>
-  {scheduleKind==="Weekdays"?<div className="np-field full"><span className="np-label">أيام التكرار: {days.length} من 7 *</span><div className="np-weekdays">{WEEKDAYS.map(([value,label])=><label className="np-weekday" key={value}><input type="checkbox" name="weekday" value={value} checked={days.includes(value)} onChange={e=>setDays(e.currentTarget.checked?[...days,value].sort():days.filter(d=>d!==value))}/>{label}</label>)}</div></div>:null}
-  {selectedKind==="Task"?<><div className="np-field"><label className="np-label" htmlFor="progress-target">الكمية المستهدفة (اختياري)</label><input className="np-input" id="progress-target" name="progressTarget" type="number" min="0.000001" max="1000000000" step="0.000001" value={taskTarget} onChange={e=>setTaskTarget(e.currentTarget.value)}/></div><div className="np-field"><label className="np-label" htmlFor="progress-unit">وحدة الإنجاز</label><input className="np-input" id="progress-unit" name="progressUnit" maxLength={30} value={taskUnit} onChange={e=>setTaskUnit(e.currentTarget.value)}/></div><TaskSessionPlannerR254 enabled={sessionEnabled} setEnabled={setSessionEnabled} distribution={sessionDistribution} setDistribution={setSessionDistribution} sessions={sessionDrafts} setSessions={setSessionDrafts} target={taskTarget?Number(taskTarget):null} unit={taskUnit} busy={busy} parentStartDate={plannerStartDate} parentEndDate={plannerEndDate||null} parentScheduleKind={scheduleKind} parentWeekdays={days}/></>:null}
-  <div className="np-field full"><label className="np-label" htmlFor="definition-weight">وزن الإنجاز *</label><input className="np-input" id="definition-weight" name="weight" type="number" min="1" max="100" step="1" required defaultValue={initial?.weight??1}/><small>من 1 إلى 100. مثلًا: وزن 10 يساوي تأثير عشر عادات وزن كل منها 1. التعديل يطبّق على اليوم وما بعده، ويحافظ على أوزان الأيام السابقة.</small></div>
+  {!isCountdownEvent?<GregorianDateInput id="definition-start" name="startDate" label="تاريخ البداية الميلادي" required defaultValue={initial?.startDate??defaultStartDate} onValueChange={date=>{setPlannerStartDate(date);if(!quranAnchorTouched.current&&date)setQuranAnchorDate(date);}}/>:<div className="np-field"><span className="np-label">تاريخ الحدث</span><p className="np-cc-help">يُستخدم التاريخ المختار أعلاه، دون إنشاء مهمة يومية.</p></div>}
+  {!isCountdownEvent&&(selectedKind==="Task"||duration==="limited")?<GregorianDateInput id="definition-end" name="endDate" label="تاريخ النهاية الميلادي" required={selectedKind==="Habit"} defaultValue={initial?.endDate??""} onValueChange={setPlannerEndDate}/>:<div className="np-field"><span className="np-label">النهاية</span><p className="np-cc-help">مستمرة حتى توقفها أو تغيّر مدتها.</p></div>}
+  {!isCountdownEvent?<div className="np-field full"><label className="np-label" htmlFor="definition-repeat">التكرار *</label><select className="np-select" id="definition-repeat" name="scheduleKind" disabled={!!initial?.beveragePlan} value={scheduleKind} onChange={e=>setScheduleKind(e.currentTarget.value as typeof scheduleKind)}><option value="Daily">يوميًا — 7 أيام في الأسبوع</option><option value="Weekdays">أيام محددة من الأسبوع</option><option value="OneTime" disabled={selectedKind==="Habit"&&duration==="continuous"}>مرة واحدة</option></select></div>:null}
+  {!isCountdownEvent&&scheduleKind==="Weekdays"?<div className="np-field full"><span className="np-label">أيام التكرار: {days.length} من 7 *</span><div className="np-weekdays">{WEEKDAYS.map(([value,label])=><label className="np-weekday" key={value}><input type="checkbox" name="weekday" value={value} checked={days.includes(value)} onChange={e=>setDays(e.currentTarget.checked?[...days,value].sort():days.filter(d=>d!==value))}/>{label}</label>)}</div></div>:null}
+  {selectedKind==="Task"&&!isCountdownEvent?<><div className="np-field"><label className="np-label" htmlFor="progress-target">الكمية المستهدفة (اختياري)</label><input className="np-input" id="progress-target" name="progressTarget" type="number" min="0.000001" max="1000000000" step="0.000001" value={taskTarget} onChange={e=>setTaskTarget(e.currentTarget.value)}/></div><div className="np-field"><label className="np-label" htmlFor="progress-unit">وحدة الإنجاز</label><input className="np-input" id="progress-unit" name="progressUnit" maxLength={30} value={taskUnit} onChange={e=>setTaskUnit(e.currentTarget.value)}/></div><TaskSessionPlannerR254 enabled={sessionEnabled} setEnabled={setSessionEnabled} distribution={sessionDistribution} setDistribution={setSessionDistribution} sessions={sessionDrafts} setSessions={setSessionDrafts} target={taskTarget?Number(taskTarget):null} unit={taskUnit} busy={busy} parentStartDate={plannerStartDate} parentEndDate={plannerEndDate||null} parentScheduleKind={scheduleKind} parentWeekdays={days}/></>:null}
+  {!isCountdownEvent?<div className="np-field full"><label className="np-label" htmlFor="definition-weight">وزن الإنجاز *</label><input className="np-input" id="definition-weight" name="weight" type="number" min="1" max="100" step="1" required defaultValue={initial?.weight??1}/><small>من 1 إلى 100. مثلًا: وزن 10 يساوي تأثير عشر عادات وزن كل منها 1. التعديل يطبّق على اليوم وما بعده، ويحافظ على أوزان الأيام السابقة.</small></div>:<p className="np-cc-help np-field full">المواعيد والأحداث المرتقبة معلوماتية؛ لا تدخل ضمن إنجاز المهام والعادات.</p>}
   {initial?<p className="np-cc-help np-field full">التعديل يؤثر على الجدول الحالي والقادم. سجل الإنجاز والملاحظات السابق محفوظ. لا يمكن خفض الهدف عن الإنجاز المسجل أو تغيير وحدته بعد بدء القياس.</p>:null}
   {error?<p role="alert" className="np-action-error np-field full">{error}</p>:null}
   <div className="np-field full np-definition-save-hint"><small>يمكنك الحفظ من الشريط الثابت أسفل النافذة.</small></div>
