@@ -13,7 +13,7 @@ test("R306 compact preference: no oversized hero; work before summaries and inde
  assert.ok(position('data-testid="r304-activity-view"')<position('data-testid="today-summary"'));
  assert.ok(position('data-testid="today-summary"')<position('<NoorBeverageTrackerR294'));
  assert.match(source,/data-testid="r306-open-activity-editor"/);
- assert.match(source,/data-testid={`r306-filter-${mode}`}/);
+ assert.ok(source.includes('data-testid={`r306-filter-${mode}`}'));
  assert.match(source,/view\.tasks\.filter\(visibleForFilter\)/);
  assert.match(source,/filteredGrouped\.map/);
  assert.match(source,/filteredUnifiedGroups\.map/);
