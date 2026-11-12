@@ -51,7 +51,7 @@ export function UpcomingCountdownR301({definitions,nowMs,timeZone,onAdd}:{defini
  return <section className="np-card np-upcoming-r301" aria-label="العد التنازلي للمواعيد والأحداث" data-testid="r301-upcoming-countdowns" data-countdown-empty={!upcoming.length}>
    <header className="np-upcoming-head-r301">
     <span className="np-upcoming-icon-r301" aria-hidden="true">◷</span>
-    <div><h2>المواعيد المرتقبة</h2><small>عدّ تنازلي للمهام والأحداث والمواعيد</small></div>
+    <div><h2>المواعيد المرتقبة</h2><small>العد التنازلي للمهام والأحداث والمواعيد</small></div>
     {onAdd?<button type="button" className="np-upcoming-add-r302" data-testid="r302-add-countdown"
        aria-label="إضافة موعد للعد التنازلي" onClick={onAdd}>+ موعد</button>:null}
    </header>
