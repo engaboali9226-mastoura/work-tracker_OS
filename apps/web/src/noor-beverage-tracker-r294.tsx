@@ -169,8 +169,8 @@ export function NoorBeverageTrackerR294({rows,allNames=[],localDate,busy,onComma
   <div className="np-caffeine-card-content-r299">
    <div className="np-caffeine-summary-r295" data-testid="r295-health-indicator" data-level={summary.level}>
     <div className="np-caffeine-tally-r295">
-     <div><span>قهوة</span><strong>{summary.coffee}</strong></div>
-     <div><span>شاي</span><strong>{summary.tea}</strong></div>
+     <div><span>القهوة</span><strong>{summary.coffee}</strong></div>
+     <div><span>الشاي</span><strong>{summary.tea}</strong></div>
      <div><span aria-label="إجمالي المنبّهات">الإجمالي</span><strong>{summary.total}</strong></div>
     </div>
     <div className={"np-caffeine-signal-r295 np-caffeine-"+summary.level} role="status"
