@@ -192,7 +192,7 @@ export const NOOR_R306_ACTION_STYLES = String.raw`
 .np-page .np-prayer-card-head{margin-bottom:5px;padding-inline:7px}
 .np-page .np-prayer-card-title{font-size:18px;line-height:1.22}
 .np-page .np-prayer-times .np-prayer{
-  grid-template-rows:18px 24px 25px 20px;
+  grid-template-rows:18px minmax(24px,auto) minmax(25px,auto) 20px;
   min-height:103px;gap:2px;padding:4px 0;border-radius:9px;
 }
 .np-page .np-prayer-symbol{width:20px;height:18px}
@@ -263,7 +263,7 @@ export const NOOR_R306_ACTION_STYLES = String.raw`
 @media(max-width:700px){
   .np-page .np-prayer-card{padding:6px 2px 4px;margin-bottom:7px}
   .np-page .np-prayer-times .np-prayer{
-    grid-template-rows:18px 23px 24px 20px;
+    grid-template-rows:18px minmax(23px,auto) minmax(24px,auto) 20px;
     min-height:100px;gap:2px;padding-block:4px;
   }
   .np-page .np-r232-section{padding-block:7px;padding-inline:7px;margin-bottom:8px}
