@@ -1084,6 +1084,43 @@ const PAGE_STYLES = `
  .np-page .np-caffeine-time-picker-r295{padding:10px}
  .np-page .np-beverages-r294 input,.np-page .np-beverages-r294 select{font-size:16px}
 }
+/* R301 upcoming timers — inline, touch-friendly and civil-time aware */
+.np-page .np-upcoming-r301{display:grid;gap:10px;padding:12px 14px;border-radius:18px;margin:8px 0 12px;min-width:0;background:linear-gradient(135deg,var(--panel),var(--panel-soft));border:1px solid var(--border);box-shadow:0 5px 18px rgba(18,35,48,.045)}
+.np-page .np-upcoming-head-r301{display:flex;gap:10px;align-items:center}
+.np-page .np-upcoming-head-r301 h2{font-size:15px;margin:0;line-height:1.4}
+.np-page .np-upcoming-head-r301 small{color:var(--muted);font-size:11px}
+.np-page .np-upcoming-icon-r301{width:32px;height:32px;display:grid;place-items:center;border-radius:11px;background:var(--panel-soft);border:1px solid var(--border);color:var(--text);font-size:23px}
+.np-page .np-upcoming-list-r301{display:grid;gap:7px}
+.np-page .np-upcoming-item-r301{display:flex;align-items:center;gap:9px;padding:9px 11px;border:1px solid var(--border);border-radius:12px;background:var(--panel-soft);min-width:0}
+.np-page .np-upcoming-copy-r301{display:grid;gap:3px;flex:1;min-width:0}
+.np-page .np-upcoming-copy-r301 strong{font-size:12px;color:var(--text);overflow-wrap:anywhere}
+.np-page .np-upcoming-copy-r301 small{font-size:10.5px;color:var(--muted);line-height:1.5}
+.np-page .np-upcoming-value-r301{display:grid;gap:3px;text-align:center;min-width:94px;padding:6px 9px;border-radius:10px;background:var(--panel);border:1px solid var(--border);font-variant-numeric:tabular-nums}
+.np-page .np-upcoming-value-r301 span{font-size:10px;color:var(--muted)}
+.np-page .np-upcoming-value-r301 strong{font-size:13px;font-weight:800;color:var(--text);white-space:nowrap}
+.np-page .np-upcoming-today-r301,.np-page .np-upcoming-begun-r301{border-color:color-mix(in srgb,#bd8218 37%,var(--border));background:color-mix(in srgb,#edb950 12%,var(--panel))}
+.np-page .np-upcoming-today-r301 .np-upcoming-value-r301,.np-page .np-upcoming-begun-r301 .np-upcoming-value-r301{background:color-mix(in srgb,#edb950 18%,var(--panel));border-color:color-mix(in srgb,#bd8218 28%,var(--border))}
+.np-page .np-upcoming-today-r301 .np-upcoming-value-r301 strong,.np-page .np-upcoming-begun-r301 .np-upcoming-value-r301 strong{color:var(--text)}
+.np-page .np-upcoming-today-indicator-r301{font-size:10px;color:#ad7514}
+.np-page .np-upcoming-foot-r301{font-size:10px;color:var(--muted);line-height:1.6}
+.np-page .np-countdown-form-r301{display:grid;gap:9px;border:1px solid var(--border);padding:12px;border-radius:12px;background:var(--panel-soft)}
+.np-page .np-countdown-form-r301>small{font-size:11px;color:var(--muted);line-height:1.7}
+.np-page .np-countdown-fields-r301{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.np-page .np-countdown-fields-r301 label{display:grid;gap:5px;min-width:0;font-size:12px;color:var(--text)}
+.np-page .np-countdown-fields-r301 input{min-width:0;box-sizing:border-box;width:100%;min-height:46px;border:1px solid var(--border-strong);border-radius:9px;background:var(--panel);color:var(--text);font-size:16px;padding:8px}
+@media(max-width:600px){
+ .np-page .np-upcoming-r301{padding:10px 11px;gap:8px}
+ .np-page .np-upcoming-item-r301{padding:9px 8px;gap:6px}
+ .np-page .np-upcoming-value-r301{min-width:84px;padding:6px}
+ .np-page .np-upcoming-value-r301 strong{font-size:12px}
+ .np-page .np-upcoming-copy-r301 small{font-size:10px}
+ .np-page .np-countdown-fields-r301{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+}
+@media(max-width:360px){
+ .np-page .np-upcoming-item-r301{flex-wrap:wrap}
+ .np-page .np-upcoming-value-r301{min-width:100px}
+ .np-page .np-countdown-fields-r301{grid-template-columns:minmax(0,1fr)}
+}
 /* R299: approved compact, whole-card status tint (iPhone-first). */
 .np-page .np-caffeine-card-green-r299{--np-drink-accent:#208657;--np-drink-soft:#e4f4e9}
 .np-page .np-caffeine-card-yellow-r299{--np-drink-accent:#ae780f;--np-drink-soft:#fff2d4}
@@ -2514,7 +2551,7 @@ function Dashboard({ view:providedView, workspace, busy, actionError, onCommand,
     return plan.sessions.some(s=>!s.scheduledDate||s.scheduledDate===date);
   };
   const view=useMemo(()=>{
-    const visible=(item:ExecutionItem)=>{const d=definitionsById.get(item.definitionId);return item.status!=="Suppressed" && (historyDate!==null || (d?.state!=="Archived"&&d?.state!=="Paused"&&(d?.state!=="Stopped"||["Completed","Missed","Cancelled"].includes(item.status))&&sessionDueOnDate(item,providedView.localDate??"")));};
+    const visible=(item:ExecutionItem)=>{const d=definitionsById.get(item.definitionId);if(item.kind==="Task"&&["event","appointment"].includes(d?.countdownPlan?.kind??"task"))return false;return item.status!=="Suppressed" && (historyDate!==null || (d?.state!=="Archived"&&d?.state!=="Paused"&&(d?.state!=="Stopped"||["Completed","Missed","Cancelled"].includes(item.status))&&sessionDueOnDate(item,providedView.localDate??"")));};
     if(historyDate){
       // Only persisted execution rows, never current schedule definitions, become history cards.
       const rows=workspace?.statistics.rows?.filter(row=>row.date===historyDate)??[];
@@ -2529,7 +2566,8 @@ function Dashboard({ view:providedView, workspace, busy, actionError, onCommand,
   // Informational drink counters are not actionable habits or outstanding work.
   // Preserve their own card/history, but remove their weight from every achievement view.
   const achievementItems=[...view.tasks,...view.habits].filter(e=>
-    e.status!=="Cancelled"&&!definitionsById.get(e.definitionId)?.beveragePlan);
+    e.status!=="Cancelled"&&!definitionsById.get(e.definitionId)?.beveragePlan&&
+    !["event","appointment"].includes(definitionsById.get(e.definitionId)?.countdownPlan?.kind??"task"));
   const taskCompleted = completedCount(achievementItems.filter(e=>e.kind==="Task"));
   const habitCompleted = completedCount(achievementItems.filter(e=>e.kind==="Habit"));
   const totalToday = achievementItems.length;
@@ -2543,7 +2581,8 @@ function Dashboard({ view:providedView, workspace, busy, actionError, onCommand,
   },0);
   const completionRate=todayWeight?Math.round(dayWeighted/todayWeight*100):0;
   const achievementDate=providedView.localDate??workspace?.statistics.currentDate??civilLocalDate(nowMs,view.timeZone);
-  const todayRows:StatisticRow[]=[...providedView.tasks,...providedView.habits].filter(item=>item.status!=="Suppressed"&&!definitionsById.get(item.definitionId)?.beveragePlan&&sessionDueOnDate(item,achievementDate)).map(item=>{
+  const todayRows:StatisticRow[]=[...providedView.tasks,...providedView.habits].filter(item=>item.status!=="Suppressed"&&!definitionsById.get(item.definitionId)?.beveragePlan&&
+    !["event","appointment"].includes(definitionsById.get(item.definitionId)?.countdownPlan?.kind??"task")&&sessionDueOnDate(item,achievementDate)).map(item=>{
     const def=definitionsById.get(item.definitionId);
     const credit=def?.sessionPlan?Math.min(1,Math.max(0,def.activityLog
       .filter(entry=>entry.taskSessionId&&entry.localDate===achievementDate)
@@ -2737,6 +2776,7 @@ function Dashboard({ view:providedView, workspace, busy, actionError, onCommand,
     </section>
 
     <NoorR232TimeWindows prayers={view.prayerTimes} nowMs={nowMs} timeZone={view.timeZone} preferences={timePreferences} onPreferencesChange={onTimePreferencesChange} nextFajrAt={view.nextFajrAt??undefined} precedingNight={view.precedingNight}/>
+    {!historyDate?<UpcomingCountdownR301 definitions={workspace?.definitions??[]} nowMs={nowMs} timeZone={view.timeZone}/>:null}
 
     {actionError ? <p className="np-action-error" role="alert">{actionError}</p> : null}
     {connectionWarning ? <p className="np-reconnect-notice-r296" role="status">تعذر تحديث البيانات. <button type="button" disabled={reconnecting||busy} onClick={onReconnect}>{reconnecting?"جارٍ الاتصال…":"إعادة الاتصال ↻"}</button></p> : null}
