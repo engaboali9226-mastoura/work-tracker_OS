@@ -47,11 +47,12 @@ test("R304: dashboard keeps legacy view and mounts existing ActivityCard for eac
  assert.match(source,/groupNoorActivitiesR304/);
  assert.match(source,/data-testid="r304-activity-view"/);
  assert.match(source,/activityView==="separate"/);
+ assert.match(source,/return "separate";/);
  assert.match(source,/data-testid="r304-unified-groups"/);
  assert.match(source,/data-testid="r304-unified-group"/);
  assert.match(source,/group.rows.map\(\(\{execution:item,definition\}\)=><ActivityCard/);
  assert.match(source,/onCommand=\{historyDate\?historicalCommand:onCommand\}/);
  assert.match(source,/todayDate=\{view.localDate\?\?undefined\}/);
  assert.match(source,/data-testid="habit-category-grid"/);
- assert.match(source,/data-testid="r285-session-complete-/);
+ assert.match(source,/<TaskSessionListR254/);
 });
