@@ -74,3 +74,60 @@ export function spreadTaskSessionsR288<T extends {readonly scheduledDate?:string
   }
   return sessions.map((session,i)=>({...session,scheduledDate:dates[Math.floor(i*days/sessions.length)]!}));
 }
+
+
+/** R298: Calendar-day allocation for a selected set of weekdays.
+ * For a bounded interval, distribute sessions across the whole eligible range;
+ * without an end date, use successive eligible days from the starting date.
+ * Pure proposal only: saving remains an explicit owner-authenticated action.
+ */
+export interface WeeklySessionCalendarR298 {
+  firstDate:string;
+  endDate:string|null;
+  sessionCount:number;
+  weekdays:readonly number[];
+  parent:ParentSessionScheduleR288;
+}
+export function weeklyTaskSessionDatesR298(options:WeeklySessionCalendarR298):string[]{
+  const {firstDate,endDate,sessionCount,weekdays,parent}=options;
+  if(!Number.isInteger(sessionCount)||sessionCount<1||sessionCount>200)
+    throw Error("SESSION_CALENDAR_COUNT_INVALID");
+  if(!Array.isArray(weekdays)||!weekdays.length||new Set(weekdays).size!==weekdays.length||
+     weekdays.some(day=>!Number.isInteger(day)||day<0||day>6))
+    throw Error("SESSION_CALENDAR_WEEKDAYS_INVALID");
+  if(!validDate(firstDate)||!validDate(parent.startDate)||
+     endDate!==null&&!validDate(endDate)||
+     parent.endDate!==null&&!validDate(parent.endDate))
+    throw Error("SESSION_CALENDAR_INVALID_DATE");
+  if(firstDate<parent.startDate||(endDate!==null&&endDate<firstDate)||
+     parent.endDate!==null&&(firstDate>parent.endDate||endDate!==null&&endDate>parent.endDate))
+    throw Error("SESSION_CALENDAR_OUTSIDE_RANGE");
+  if(parent.kind==="OneTime"&&sessionCount!==1)
+    throw Error("SESSION_CALENDAR_PARENT_MISMATCH");
+  if(parent.kind==="Weekdays"&&weekdays.some(day=>!parent.weekdays.includes(day)))
+    throw Error("SESSION_CALENDAR_PARENT_MISMATCH");
+  const last=endDate??parent.endDate;
+  const startMs=Date.parse(firstDate+"T00:00:00.000Z");
+  const maxMs=Date.parse("9999-12-31T00:00:00.000Z");
+  const stopMs=last===null?maxMs:Date.parse(last+"T00:00:00.000Z");
+  const eligibleDates:string[]=[];
+  let reachedEnd=false;
+  for(let offset=0;offset<15000;offset++){
+    const ms=startMs+offset*DAY_MS;
+    if(ms>stopMs){reachedEnd=true;break;}
+    const weekday=new Date(ms).getUTCDay();
+    const date=asDate(ms);
+    if(weekdays.includes(weekday)&&eligible(date,parent)){
+      eligibleDates.push(date);
+      if(last===null&&eligibleDates.length===sessionCount)break;
+    }
+  }
+  if(last!==null&&!reachedEnd && (startMs+15000*DAY_MS)<=stopMs)
+    throw Error("SESSION_CALENDAR_SPAN_TOO_LONG");
+  if(eligibleDates.length<sessionCount)
+    throw Error("SESSION_CALENDAR_INSUFFICIENT_DAYS");
+  if(last===null||sessionCount===1)return eligibleDates.slice(0,sessionCount);
+  // Including both ends makes short plans and long, bounded projects predictable.
+  return Array.from({length:sessionCount},(_,i)=>
+    eligibleDates[Math.round(i*(eligibleDates.length-1)/(sessionCount-1))]!);
+}
