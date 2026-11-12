@@ -463,7 +463,7 @@ export function parsePersonalCommand(
             if(plan===null)countdownPlan=null;
             else if(isRecord(plan)&&exactKeys(plan,["kind","date","time"])&&
                 ["task","event","appointment"].includes(String(plan.kind))&&
-                typeof plan.time==="string"&&/^([01]\\d|2[0-3]):[0-5]\\d$/.test(plan.time)){
+                typeof plan.time==="string"&&/^([01]\d|2[0-3]):[0-5]\d$/.test(plan.time)){
                 const date=localDate(plan.date);
                 if(!date)return null;
                 countdownPlan={kind:plan.kind as CountdownPlan["kind"],date,time:plan.time};
