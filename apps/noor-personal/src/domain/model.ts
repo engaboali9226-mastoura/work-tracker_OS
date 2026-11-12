@@ -189,11 +189,18 @@ export interface BeverageHabitPlan {
     readonly sleepTime?: string; // owner-selected HH:MM, default 00:00
 }
 
+/** R301: an owner-saved, local civil timestamp for upcoming tasks, events or appointments. */
+export interface CountdownPlan {
+    readonly kind: "task" | "event" | "appointment";
+    readonly date: LocalDate;
+    readonly time: string; // HH:MM in the owner's IANA account timezone
+}
 export interface ExecutionDefinition {
     readonly displayOrder?: number;
     readonly timeOfDay?: string;
     readonly quranPlan?: QuranHabitPlan;
     readonly beveragePlan?: BeverageHabitPlan;
+    readonly countdownPlan?: CountdownPlan;
     readonly measurement?: ProgressMeasurement;
     readonly activityLog?: readonly ActivityEntry[];
     readonly sessionPlan?: TaskSessionPlan;

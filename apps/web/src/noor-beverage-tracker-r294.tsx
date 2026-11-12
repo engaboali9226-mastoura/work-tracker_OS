@@ -157,24 +157,34 @@ export function NoorBeverageTrackerR294({rows,allNames=[],localDate,busy,onComma
     "تعذر حفظ وقت النوم. حاول مجددًا، وستظل القيمة السابقة معتمدة حتى نجاح الحفظ.");
   if(!ok)setBedtime(validClockR295(ownerBedtime)?ownerBedtime:"00:00");
  };
- return <section className="np-card np-beverages-r294" data-testid="r294-beverage-tracker" aria-label="سجل المشروبات اليومي">
-  <header className="np-beverages-head-r294"><div><h2>{historical?"مشروبات اليوم المحدد":"القهوة والشاي"}</h2></div>
+ return <section className={"np-card np-beverages-r294 np-caffeine-card-r299 np-caffeine-card-"+summary.level+"-r299"}
+  data-testid="r294-beverage-tracker" data-status={summary.level} aria-label="سجل المشروبات اليومي">
+  <header className="np-beverages-head-r294">
+   <div className="np-caffeine-card-heading-r299">
+    <span className="np-caffeine-card-dot-r299" aria-hidden="true"/>
+    <h2>{historical?"مشروبات اليوم المحدد":"القهوة والشاي"}</h2>
+   </div>
    {!historical?<button type="button" disabled={busy||saving} aria-label="إضافة مشروب" title="إضافة نوع مشروب" aria-expanded={adding} onClick={()=>{setAdding(x=>!x);setError("");}}>+ نوع</button>:null}
   </header>
-  <div className="np-caffeine-summary-r295" data-testid="r295-health-indicator" data-level={summary.level}>
-   <div className="np-caffeine-tally-r295">
-    <div><span>القهوة</span><strong>{summary.coffee}</strong></div>
-    <div><span>الشاي</span><strong>{summary.tea}</strong></div>
-    <div><span>إجمالي المنبّهات</span><strong>{summary.total}</strong></div>
-   </div>
-   <div className={"np-caffeine-signal-r295 np-caffeine-"+summary.level} role="status"
-     title={summary.reason} aria-label={"حالة المنبهات: "+(summary.level==="green"?"أخضر":summary.level==="yellow"?"أصفر":"أحمر")+" — "+summary.reason}>
-    <div className="np-caffeine-signal-heading-r298">
-      <span className="np-caffeine-led-r295" aria-hidden="true"/>
-      <strong>{summary.level==="green"?"ضمن الحدود المختارة":summary.level==="yellow"?"انتبه للتوقيت والكمية":"تنبيه مرتفع"}</strong>
-      <span className="np-caffeine-status-tag-r298">{summary.level==="green"?"أخضر":summary.level==="yellow"?"أصفر":"أحمر"}</span>
+  <div className="np-caffeine-card-content-r299">
+   <div className="np-caffeine-summary-r295" data-testid="r295-health-indicator" data-level={summary.level}>
+    <div className="np-caffeine-tally-r295">
+     <div><span>القهوة</span><strong>{summary.coffee}</strong></div>
+     <div><span>الشاي</span><strong>{summary.tea}</strong></div>
+     <div><span aria-label="إجمالي المنبّهات">الإجمالي</span><strong>{summary.total}</strong></div>
     </div>
-    <span className="np-caffeine-reason-r296">{summary.reason}</span>
+    <div className={"np-caffeine-signal-r295 np-caffeine-"+summary.level} role="status"
+      aria-label={"حالة المنبهات: "+(summary.level==="green"?"أخضر":summary.level==="yellow"?"أصفر":"أحمر")+" — "+summary.reason}>
+     <strong>{summary.level==="green"?"ضمن الحدود المختارة":summary.level==="yellow"?"انتبه للتوقيت والكمية":"تنبيه مرتفع"}</strong>
+     <span className="np-caffeine-reason-r296">{summary.reason}</span>
+    </div>
+   </div>
+   <div className="np-caffeine-cup-r299" aria-hidden="true">
+    <svg viewBox="0 0 56 56" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" focusable="false">
+     <path d="M17 9c-5 5 4 7 0 12M28 9c-5 5 4 7 0 12M39 9c-5 5 4 7 0 12"/>
+     <path d="M12 27h30v7c0 10-5 15-15 15s-15-5-15-15v-7z"/>
+     <path d="M42 29h5c6 0 7 11-6 13M10 50h34"/>
+    </svg>
    </div>
   </div>
   {!historical?<div className="np-caffeine-quick-r295" aria-label="تسجيل كوب">

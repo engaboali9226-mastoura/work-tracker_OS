@@ -1,7 +1,8 @@
 import {quranQuarterR289,quranQuarterForDateR289,validQuranPlanR289,type QuranHabitPlanR289} from "./noor-quran-quarters-r289.js";
 import {TaskSessionPlannerR254,TaskSessionListR254,sessionFinishedR254,TASK_SESSION_STYLES_R254,type StoredTaskSessionPlanR254,type StoredTaskSessionR254} from "./noor-task-sessions-r254.js";
 import {NoorBeverageTrackerR294,type BeverageRowR294} from "./noor-beverage-tracker-r294.js";
-import type {NoorBeveragePlanR294} from "./noor-personal-today-client.js";
+import type {NoorBeveragePlanR294,NoorCountdownPlanR301} from "./noor-personal-today-client.js";
+import {UpcomingCountdownR301} from "./noor-upcoming-countdown-r301.js";
 import {shouldRefreshNoorOnResume} from "./noor-resume-sync-r259.js";
 import {revokeNoorBrowserSessionR269} from "./noor-session-logout-client-r269.js";
 import type {NoorTaskSessionDraft} from "./noor-personal-today-client.js";
@@ -73,6 +74,7 @@ type DefinitionItem = Readonly<{
   timeOfDay?:string;
   quranPlan?:QuranHabitPlanR289;
   beveragePlan?:NoorBeveragePlanR294;
+  countdownPlan?:NoorCountdownPlanR301;
   revisionId:string;
   measurement?: {target:number;unit:string};
   activityLog: readonly ActivityEntry[];
@@ -1082,6 +1084,127 @@ const PAGE_STYLES = `
  .np-page .np-caffeine-time-picker-r295{padding:10px}
  .np-page .np-beverages-r294 input,.np-page .np-beverages-r294 select{font-size:16px}
 }
+/* R301 upcoming timers — inline, touch-friendly and civil-time aware */
+.np-page .np-upcoming-r301{display:grid;gap:10px;padding:12px 14px;border-radius:18px;margin:8px 0 12px;min-width:0;background:linear-gradient(135deg,var(--panel),var(--panel-soft));border:1px solid var(--border);box-shadow:0 5px 18px rgba(18,35,48,.045)}
+.np-page .np-upcoming-head-r301{display:flex;gap:10px;align-items:center}
+.np-page .np-upcoming-head-r301 h2{font-size:15px;margin:0;line-height:1.4}
+.np-page .np-upcoming-head-r301 small{color:var(--muted);font-size:11px}
+.np-page .np-upcoming-icon-r301{width:32px;height:32px;display:grid;place-items:center;border-radius:11px;background:var(--panel-soft);border:1px solid var(--border);color:var(--text);font-size:23px}
+.np-page .np-upcoming-list-r301{display:grid;gap:7px}
+.np-page .np-upcoming-item-r301{display:flex;align-items:center;gap:9px;padding:9px 11px;border:1px solid var(--border);border-radius:12px;background:var(--panel-soft);min-width:0}
+.np-page .np-upcoming-copy-r301{display:grid;gap:3px;flex:1;min-width:0}
+.np-page .np-upcoming-copy-r301 strong{font-size:12px;color:var(--text);overflow-wrap:anywhere}
+.np-page .np-upcoming-copy-r301 small{font-size:10.5px;color:var(--muted);line-height:1.5}
+.np-page .np-upcoming-value-r301{display:grid;gap:3px;text-align:center;min-width:94px;padding:6px 9px;border-radius:10px;background:var(--panel);border:1px solid var(--border);font-variant-numeric:tabular-nums}
+.np-page .np-upcoming-value-r301 span{font-size:10px;color:var(--muted)}
+.np-page .np-upcoming-value-r301 strong{font-size:13px;font-weight:800;color:var(--text);white-space:nowrap}
+.np-page .np-upcoming-today-r301,.np-page .np-upcoming-begun-r301{border-color:color-mix(in srgb,#bd8218 37%,var(--border));background:color-mix(in srgb,#edb950 12%,var(--panel))}
+.np-page .np-upcoming-today-r301 .np-upcoming-value-r301,.np-page .np-upcoming-begun-r301 .np-upcoming-value-r301{background:color-mix(in srgb,#edb950 18%,var(--panel));border-color:color-mix(in srgb,#bd8218 28%,var(--border))}
+.np-page .np-upcoming-today-r301 .np-upcoming-value-r301 strong,.np-page .np-upcoming-begun-r301 .np-upcoming-value-r301 strong{color:var(--text)}
+.np-page .np-upcoming-today-indicator-r301{font-size:10px;color:#ad7514}
+.np-page .np-upcoming-foot-r301{font-size:10px;color:var(--muted);line-height:1.6}
+.np-page .np-countdown-form-r301{display:grid;gap:9px;border:1px solid var(--border);padding:12px;border-radius:12px;background:var(--panel-soft)}
+.np-page .np-countdown-form-r301>small{font-size:11px;color:var(--muted);line-height:1.7}
+.np-page .np-countdown-fields-r301{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.np-page .np-countdown-fields-r301 label{display:grid;gap:5px;min-width:0;font-size:12px;color:var(--text)}
+.np-page .np-countdown-fields-r301 input{min-width:0;box-sizing:border-box;width:100%;min-height:46px;border:1px solid var(--border-strong);border-radius:9px;background:var(--panel);color:var(--text);font-size:16px;padding:8px}
+@media(max-width:600px){
+ .np-page .np-upcoming-r301{padding:10px 11px;gap:8px}
+ .np-page .np-upcoming-item-r301{padding:9px 8px;gap:6px}
+ .np-page .np-upcoming-value-r301{min-width:84px;padding:6px}
+ .np-page .np-upcoming-value-r301 strong{font-size:12px}
+ .np-page .np-upcoming-copy-r301 small{font-size:10px}
+ .np-page .np-countdown-fields-r301{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+}
+@media(max-width:360px){
+ .np-page .np-upcoming-item-r301{flex-wrap:wrap}
+ .np-page .np-upcoming-value-r301{min-width:100px}
+ .np-page .np-countdown-fields-r301{grid-template-columns:minmax(0,1fr)}
+}
+/* R299: approved compact, whole-card status tint (iPhone-first). */
+.np-page .np-caffeine-card-green-r299{--np-drink-accent:#208657;--np-drink-soft:#e4f4e9}
+.np-page .np-caffeine-card-yellow-r299{--np-drink-accent:#ae780f;--np-drink-soft:#fff2d4}
+.np-page .np-caffeine-card-red-r299{--np-drink-accent:#bd3542;--np-drink-soft:#fde7e6}
+.np-page .np-beverages-r294.np-caffeine-card-r299{
+  width:min(100%,550px);max-width:100%;min-width:0;box-sizing:border-box;
+  display:grid;gap:8px;padding:12px 13px;border-radius:18px;
+  background:var(--np-drink-soft);background:color-mix(in srgb,var(--panel) 78%,var(--np-drink-accent) 22%);
+  border:1px solid color-mix(in srgb,var(--np-drink-accent) 28%,var(--border));
+  box-shadow:0 5px 16px rgba(24,32,38,.06);
+}
+.np-page .np-caffeine-card-r299 .np-beverages-head-r294{display:flex;align-items:center;justify-content:space-between;flex-wrap:nowrap;gap:8px}
+.np-page .np-caffeine-card-heading-r299{display:flex;align-items:center;gap:8px;min-width:0}
+.np-page .np-caffeine-card-heading-r299 h2{font-size:15px;line-height:1.4;margin:0;color:var(--text)}
+.np-page .np-caffeine-card-dot-r299{
+ display:block;flex:0 0 11px;width:11px;height:11px;border-radius:50%;
+ background:var(--np-drink-accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--np-drink-accent) 17%,transparent);
+}
+.np-page .np-caffeine-card-r299 .np-beverages-head-r294>button{min-height:38px;min-width:48px;padding:6px 10px;border-radius:10px;background:color-mix(in srgb,var(--panel) 88%,transparent)}
+.np-page .np-caffeine-card-content-r299{display:flex;align-items:center;gap:10px;min-width:0}
+.np-page .np-caffeine-card-r299 .np-caffeine-summary-r295{
+ display:grid;grid-template-columns:minmax(0,1fr);gap:6px;min-width:0;flex:1;
+}
+.np-page .np-caffeine-card-r299 .np-caffeine-tally-r295{
+ display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;min-width:0;width:100%;
+}
+.np-page .np-caffeine-card-r299 .np-caffeine-tally-r295>div{
+ display:flex;flex-direction:row;align-items:center;justify-content:center;gap:4px;
+ flex-wrap:nowrap;min-width:0;min-height:32px;padding:5px 4px;
+ border:1px solid color-mix(in srgb,var(--np-drink-accent) 12%,var(--border));
+ border-radius:10px;background:color-mix(in srgb,var(--panel) 72%,transparent);
+}
+.np-page .np-caffeine-card-r299 .np-caffeine-tally-r295 span{
+ color:var(--text);opacity:.78;font-size:11px;line-height:1.3;
+ overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.np-page .np-caffeine-card-r299 .np-caffeine-tally-r295 strong{
+ font-size:17px;line-height:1;flex:none;font-weight:750;
+ font-variant-numeric:tabular-nums;color:var(--text);
+}
+.np-page .np-caffeine-card-r299 .np-caffeine-signal-r295{
+ display:grid;grid-template-columns:minmax(0,1fr);gap:2px;max-width:none;width:100%;min-width:0;
+ flex:initial;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none;color:var(--text);
+}
+.np-page .np-caffeine-card-r299 .np-caffeine-signal-r295 strong{
+ font-size:13px;line-height:1.35;font-weight:780;color:var(--np-drink-accent);
+}
+.np-page .np-caffeine-card-r299 .np-caffeine-signal-r295 .np-caffeine-reason-r296{
+ display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;
+ position:static;width:auto;height:auto;clip:auto;overflow:hidden;white-space:normal;
+ color:var(--text);opacity:.8;font-size:11px;line-height:1.45;
+ overflow-wrap:anywhere;
+}
+.np-page .np-caffeine-cup-r299{
+ display:grid;place-items:center;flex:0 0 53px;width:53px;height:64px;
+ color:var(--np-drink-accent);border-radius:13px;
+ background:color-mix(in srgb,var(--panel) 58%,transparent);
+ border:1px solid color-mix(in srgb,var(--np-drink-accent) 9%,var(--border));
+}
+.np-page .np-caffeine-cup-r299 svg{display:block;width:43px;height:43px;max-width:100%}
+.np-page .np-caffeine-card-r299 .np-caffeine-quick-r295{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.np-page .np-caffeine-card-r299 .np-caffeine-quick-r295 button{
+ min-height:44px;font-size:13px;border-radius:11px;
+ background:color-mix(in srgb,var(--panel) 78%,transparent);
+}
+.np-page .np-caffeine-card-r299 .np-caffeine-details-r296{
+ padding-top:6px;border-top:1px solid color-mix(in srgb,var(--np-drink-accent) 16%,var(--border));
+}
+.np-page .np-caffeine-card-r299 .np-caffeine-details-r296>summary{color:var(--text);opacity:.8}
+@media(max-width:600px){
+ .np-page .np-beverages-r294.np-caffeine-card-r299{width:100%;padding:10px 11px;gap:7px;margin-block:7px 12px}
+ .np-page .np-caffeine-card-r299 .np-caffeine-tally-r295 strong{font-size:16px}
+ .np-page .np-caffeine-card-r299 .np-caffeine-tally-r295 span{font-size:10px}
+ .np-page .np-caffeine-card-r299 .np-caffeine-cup-r299{flex-basis:45px;width:45px;height:57px}
+ .np-page .np-caffeine-card-r299 .np-caffeine-cup-r299 svg{width:37px;height:37px}
+ .np-page .np-caffeine-card-r299 .np-caffeine-signal-r295 strong{font-size:12px}
+ .np-page .np-caffeine-card-r299 .np-caffeine-signal-r295 .np-caffeine-reason-r296{font-size:10.5px}
+}
+@media(max-width:350px){
+ .np-page .np-caffeine-card-content-r299{gap:6px}
+ .np-page .np-caffeine-card-r299 .np-caffeine-cup-r299{flex-basis:36px;width:36px;height:50px}
+ .np-page .np-caffeine-card-r299 .np-caffeine-cup-r299 svg{width:31px;height:31px}
+ .np-page .np-caffeine-card-r299 .np-caffeine-tally-r295>div{gap:2px;padding-inline:2px}
+}
 .np-page .np-definition-description-r293{white-space:pre-wrap;overflow-wrap:anywhere;unicode-bidi:plaintext;line-height:1.8}
 /* NOOR_COLLAPSIBLE_HABIT_CARDS_R107_BEGIN */
 /* Replace masonry with stable aligned rows for compact CLOSED categories. */
@@ -1544,7 +1667,14 @@ function definitionItems(value: unknown): readonly DefinitionItem[] | null {
       ?{targetServings:sourceDrink.targetServings as number,...(sourceDrink.servingMl!==undefined?{servingMl:sourceDrink.servingMl as number}:{}),
        ...(typeof sourceDrink.kind==="string"?{kind:sourceDrink.kind as NoorBeveragePlanR294["kind"]}:{}),
        ...(typeof sourceDrink.sleepTime==="string"?{sleepTime:sourceDrink.sleepTime}:{})}:undefined;
-    result.push({ weight:typeof item.weight==="number"&&item.weight>0?item.weight:1,...(typeof item.displayOrder==='number'&&Number.isSafeInteger(item.displayOrder)?{displayOrder:item.displayOrder}:{}),...(typeof item.timeOfDay==='string'?{timeOfDay:item.timeOfDay}:{}),...(quranPlan?{quranPlan}:{}),...(beveragePlan?{beveragePlan}:{}),id, revisionId:stringValue(item.revisionId)??"", title, state, kind, category, scheduleKind, weekdays, startDate, endDate, importance, ...(measurement?{measurement}:{}), ...(sessionPlan?{sessionPlan}:{}), ...(taskGeneralNote!==undefined?{taskGeneralNote}:{}), ...(description!==undefined?{description}:{}), activityLog });
+
+    const rawCountdown=item.countdownPlan;
+    const countdownPlan:NoorCountdownPlanR301|undefined=kind==="Task"&&isRecord(rawCountdown)&&
+      ["task","event","appointment"].includes(String(rawCountdown.kind))&&
+      validStatisticDate(rawCountdown.date)&&typeof rawCountdown.time==="string"&&
+      /^([01]\d|2[0-3]):[0-5]\d$/.test(rawCountdown.time)
+      ?{kind:rawCountdown.kind as NoorCountdownPlanR301["kind"],date:rawCountdown.date,time:rawCountdown.time}:undefined;
+    result.push({ weight:typeof item.weight==="number"&&item.weight>0?item.weight:1,...(typeof item.displayOrder==='number'&&Number.isSafeInteger(item.displayOrder)?{displayOrder:item.displayOrder}:{}),...(typeof item.timeOfDay==='string'?{timeOfDay:item.timeOfDay}:{}),...(quranPlan?{quranPlan}:{}),...(beveragePlan?{beveragePlan}:{}),...(countdownPlan?{countdownPlan}:{}),id, revisionId:stringValue(item.revisionId)??"", title, state, kind, category, scheduleKind, weekdays, startDate, endDate, importance, ...(measurement?{measurement}:{}), ...(sessionPlan?{sessionPlan}:{}), ...(taskGeneralNote!==undefined?{taskGeneralNote}:{}), ...(description!==undefined?{description}:{}), activityLog });
   }
   return result;
 }
@@ -1852,6 +1982,10 @@ export function DefinitionForm({busy,onCommand,onSavingChange,defaultStartDate,d
  const [taskTarget,setTaskTarget]=useState(initial?.measurement?.target?.toString()??"");
  const [taskUnit,setTaskUnit]=useState(initial?.measurement?.unit??"صفحة");
  const [selectedKind,setSelectedKind]=useState(initial?.kind??defaultKind);
+ const [countdownKind,setCountdownKind]=useState<"none"|"task"|"event"|"appointment">(initial?.countdownPlan?.kind??"none");
+ const [countdownDate,setCountdownDate]=useState(initial?.countdownPlan?.date??initial?.endDate??initial?.startDate??defaultStartDate);
+ const [countdownTime,setCountdownTime]=useState(initial?.countdownPlan?.time??"09:00");
+ const isCountdownEvent=selectedKind==="Task"&&(countdownKind==="event"||countdownKind==="appointment");
  const [duration,setDuration]=useState(initial?.endDate||initial?.scheduleKind==="OneTime"?"limited":"continuous");
  const [days,setDays]=useState<readonly number[]>(initial?.weekdays??[]);
  const [error,setError]=useState("");
@@ -1880,11 +2014,26 @@ export function DefinitionForm({busy,onCommand,onSavingChange,defaultStartDate,d
  };
  const submit=async(event:FormEvent<HTMLFormElement>)=>{
   event.preventDefault();if(busy||definitionSaveLock.current)return;const data=new FormData(event.currentTarget),text=(key:string)=>String(data.get(key)??"").trim();
-  if(scheduleKind==="Weekdays"&&!days.length){setError("اختر يومًا واحدًا على الأقل.");return;}
+  if(!isCountdownEvent&&scheduleKind==="Weekdays"&&!days.length){setError("اختر يومًا واحدًا على الأقل.");return;}
+  if(selectedKind==="Task"&&countdownKind!=="none"&&
+    (!validStatisticDate(countdownDate)||!/^([01]\d|2[0-3]):[0-5]\d$/.test(countdownTime))){
+    setError("اختر تاريخًا ووقتًا صحيحين للعد التنازلي.");return;
+  }
+  if(selectedKind==="Task"&&countdownKind==="task"&&
+    (countdownDate<text("startDate")||(text("endDate")&&countdownDate>text("endDate")))){
+    setError("موعد إنجاز المهمة يجب أن يكون داخل تاريخ بداية المهمة ونهايتها.");return;
+  }
+  if(isCountdownEvent&&initial&&(initial.activityLog.length>0||initial.measurement||initial.sessionPlan)){
+    setError("لا يمكن تحويل مهمة لها تقدم أو جلسات إلى موعد معلوماتي. أنشئ موعدًا جديدًا للحفاظ على الإنجازات.");return;
+  }
   if(!noorExistingCategory(selectedCategory,categoryChoices)){setError("اختر تصنيفًا مسجلًا أو أضف تصنيفًا جديدًا أولًا.");return;}
   if(showCategoryAdd){setError("أكمل إضافة التصنيف أو ألغِ إضافة التصنيف قبل حفظ العنصر.");return;}
-  const endDate=selectedKind==="Habit"&&duration==="continuous"?null:text("endDate")||null;
-  const fields={weight:Number(text("weight")||initial?.weight||1),...(selectedKind==="Habit"&&text("timeOfDay")?{timeOfDay:text("timeOfDay")}:{}),...(selectedKind==="Habit"&&(quranEnabled||initial?.quranPlan)?{quranPlan:quranEnabled?{anchorDate:quranAnchorDate,firstQuarter:quranFirstQuarter,repeatOccurrences:quranRepeatOccurrences}:null}:{}),kind:selectedKind,title:text("title"),category:selectedCategory,description:text("description"),...(initial?.beveragePlan&&selectedKind==="Habit"?{beveragePlan:{targetServings:Number(beverageTarget),...(beverageMl?{servingMl:Number(beverageMl)}:{}),...(initial.beveragePlan.kind?{kind:initial.beveragePlan.kind}:{}),...(initial.beveragePlan.sleepTime?{sleepTime:initial.beveragePlan.sleepTime}:{})}}:{}),startDate:text("startDate"),endDate,scheduleKind,weekdays:scheduleKind==="Weekdays"?days:[],importance:text("importance") as "Essential"|"Important"|"Supporting"|"Optional",...(selectedKind==="Task"&&text("progressTarget")?{measurement:{target:Number(text("progressTarget")),unit:text("progressUnit")}}:{}),...(selectedKind==="Task"&&(sessionEnabled||initial?.sessionPlan)?{sessionPlan:sessionEnabled?{distribution:sessionDistribution,sessions:sessionDrafts}:null}:{})};
+  const endDate=isCountdownEvent?null:selectedKind==="Habit"&&duration==="continuous"?null:text("endDate")||null;
+  const eventScheduleKind=isCountdownEvent?"OneTime":scheduleKind;
+  const startDate=isCountdownEvent?countdownDate:text("startDate");
+  const countdownPlan=selectedKind==="Task"&&countdownKind!=="none"?
+    {kind:countdownKind,date:countdownDate,time:countdownTime}:null;
+  const fields={weight:Number(text("weight")||initial?.weight||1),...(selectedKind==="Habit"&&text("timeOfDay")?{timeOfDay:text("timeOfDay")}:{}),...(selectedKind==="Habit"&&(quranEnabled||initial?.quranPlan)?{quranPlan:quranEnabled?{anchorDate:quranAnchorDate,firstQuarter:quranFirstQuarter,repeatOccurrences:quranRepeatOccurrences}:null}:{}),kind:selectedKind,title:text("title"),category:selectedCategory,description:text("description"),...(initial?.beveragePlan&&selectedKind==="Habit"?{beveragePlan:{targetServings:Number(beverageTarget),...(beverageMl?{servingMl:Number(beverageMl)}:{}),...(initial.beveragePlan.kind?{kind:initial.beveragePlan.kind}:{}),...(initial.beveragePlan.sleepTime?{sleepTime:initial.beveragePlan.sleepTime}:{})}}:{}),startDate,endDate,scheduleKind:eventScheduleKind,weekdays:isCountdownEvent?[]:scheduleKind==="Weekdays"?days:[],...(selectedKind==="Task"&&(countdownPlan||initial?.countdownPlan)?{countdownPlan}:{}),importance:text("importance") as "Essential"|"Important"|"Supporting"|"Optional",...(selectedKind==="Task"&&!isCountdownEvent&&text("progressTarget")?{measurement:{target:Number(text("progressTarget")),unit:text("progressUnit")}}:{}),...(selectedKind==="Task"&&!isCountdownEvent&&(sessionEnabled||initial?.sessionPlan)?{sessionPlan:sessionEnabled?{distribution:sessionDistribution,sessions:sessionDrafts}:null}:{})};
   setError("");definitionSaveLock.current=true;onSavingChange?.(true);
   let ok=false;
   try{ok=await onCommand(initial?{...fields,type:"update-definition",definitionId:initial.id,expectedRevisionId:initial.revisionId}:{...fields,type:"create-definition"});}
@@ -1897,6 +2046,27 @@ export function DefinitionForm({busy,onCommand,onSavingChange,defaultStartDate,d
   <div className="np-field"><label className="np-label" htmlFor="definition-title">الاسم *</label><input className="np-input" id="definition-title" name="title" maxLength={120} required defaultValue={initial?.title} onChange={e=>{if(!quranOptInTouched.current&&selectedKind==="Habit"&&isQuarterHabitR293(e.currentTarget.value))setQuranEnabled(true);}}/></div>
   <div className="np-field full"><label className="np-label" htmlFor="definition-description-r293">الوصف (اختياري) — يظهر عند علامة الاستفهام</label><textarea dir="rtl" id="definition-description-r293" name="description" className="np-input" rows={3} maxLength={2000} defaultValue={initial?.description??""} placeholder="أضف تعليمات تنفيذ العادة أو تفاصيل المهمة…"/></div>
   <div className="np-field" data-testid="definition-category-guard-r163"><label className="np-label" htmlFor="definition-category">التصنيف *</label><select className="np-select" id="definition-category" name="category" required disabled={busy} value={selectedCategory} onChange={event=>{setSelectedCategory(event.currentTarget.value);setError("");}}><option value="" disabled>اختر تصنيفًا موجودًا</option>{categoryChoices.map(category=><option value={category} key={category}>{category}</option>)}</select><button className="np-category-add-trigger-r163" type="button" aria-expanded={showCategoryAdd} disabled={busy} onClick={()=>{setShowCategoryAdd(value=>!value);setNewCategory("");setCategoryError("");setError("");}}>+ التصنيف غير موجود؟ أضف تصنيفًا جديدًا</button>{showCategoryAdd?<div className="np-category-proposal-r163"><label className="np-label" htmlFor="definition-new-category">اسم التصنيف الجديد</label><input id="definition-new-category" className="np-input" maxLength={60} value={newCategory} onInput={event=>{setNewCategory(event.currentTarget.value);setCategoryError("");}} onChange={event=>{setNewCategory(event.currentTarget.value);setCategoryError("");}} placeholder="مثال: تنمية المهارات"/><div className="np-category-proposal-actions-r163"><button type="button" disabled={busy} onClick={()=>{void addCategory();}}>إضافة وتحديد التصنيف</button><button type="button" disabled={busy} onClick={()=>{setShowCategoryAdd(false);setCategoryError("");}}>إلغاء</button></div>{categoryError?<p role="alert" className="np-action-error">{categoryError}</p>:null}</div>:null}</div>
+  {selectedKind==="Task"?<div className="np-countdown-form-r301 np-field full" data-testid="r301-countdown-editor">
+    <label className="np-label" htmlFor="r301-countdown-kind">العد التنازلي / نوع الموعد</label>
+    <select id="r301-countdown-kind" className="np-select" data-testid="r301-countdown-kind"
+      value={countdownKind} disabled={busy} onChange={e=>{
+        const kind=e.currentTarget.value as typeof countdownKind;
+        setCountdownKind(kind);
+        if(kind==="event"||kind==="appointment"){setCountdownDate(plannerEndDate||plannerStartDate);setSessionEnabled(false);}
+      }}>
+      <option value="none">مهمة بدون عد تنازلي</option>
+      <option value="task">مهمة بموعد إنجاز محدد</option>
+      <option value="event">حدث مرتقب (معلوماتي)</option>
+      <option value="appointment">موعد مرتقب (معلوماتي)</option>
+    </select>
+    {countdownKind!=="none"?<div className="np-countdown-fields-r301">
+      <label>تاريخ {isCountdownEvent?"الموعد / الحدث":"الموعد المستهدف"}
+        <input type="date" data-testid="r301-countdown-date" value={countdownDate} required disabled={busy} onChange={e=>setCountdownDate(e.currentTarget.value)}/></label>
+      <label>الساعة
+        <input type="time" data-testid="r301-countdown-time" value={countdownTime} required disabled={busy} onChange={e=>setCountdownTime(e.currentTarget.value)}/></label>
+    </div>:null}
+    <small>{isCountdownEvent?"يظهر الموعد في العد التنازلي دون احتسابه كعادة أو مهمة غير مكتملة.":"تظل المهمة محسوبة ضمن الإنجاز، ويظهر موعدها المرتقب على لوحة اليوم."} تنبيه داخل نور فقط دون إشعارات خارجية.</small>
+   </div>:null}
   {selectedKind==='Habit'?<div className="np-field"><label className="np-label" htmlFor="definition-time">موعد تنفيذ العادة (اختياري)</label><input className="np-input" id="definition-time" name="timeOfDay" type="time" defaultValue={initial?.timeOfDay}/><small>مناسب للأدوية والمكملات. موعد للعرض والتنظيم؛ لا يرسل تنبيهًا حاليًا.</small></div>:null}
   {initial?.beveragePlan&&selectedKind==="Habit"?<div className="np-field full" data-testid="r294-definition-drink-settings"><strong>عداد المشروب اليومي</strong><p>يُسجل كل كوب في تاريخ يومه، ويكتمل المستهدف تلقائيًا.</p><label>عدد المرات اليومي<input type="number" min="1" max="30" required value={beverageTarget} onChange={e=>setBeverageTarget(e.currentTarget.value)}/></label><label>حجم الحصة بالملليلتر (اختياري)<input type="number" min="1" max="2000" value={beverageMl} onChange={e=>setBeverageMl(e.currentTarget.value)}/></label></div>:null}
   {selectedKind==="Habit"&&!initial?.beveragePlan?<div className="np-field full np-quran-plan-r289" data-testid="r289-quran-plan-editor">
@@ -1910,12 +2080,12 @@ export function DefinitionForm({busy,onCommand,onSavingChange,defaultStartDate,d
    </div>:null}
   <div className="np-field"><label className="np-label" htmlFor="definition-importance">الأهمية *</label><select className="np-select" id="definition-importance" name="importance" defaultValue={initial?.importance??"Supporting"}><option value="Essential">أساسي</option><option value="Important">مهم</option><option value="Supporting">داعم</option><option value="Optional">اختياري</option></select></div>
   {selectedKind==="Habit"?<div className="np-field full"><label className="np-label" htmlFor="definition-duration">مدة العادة</label><select className="np-select" id="definition-duration" value={duration} onChange={e=>{setDuration(e.currentTarget.value);if(e.currentTarget.value==="continuous"&&scheduleKind==="OneTime")setScheduleKind("Daily");}}><option value="continuous">مستمرة — بدون نهاية</option><option value="limited">محددة — بداية ونهاية</option></select><small className="np-cc-help">العادة المستمرة تتكرر وفق جدولها، ويُسجّل إتمامها وملاحظاتها لكل يوم على حدة.</small></div>:null}
-  <GregorianDateInput id="definition-start" name="startDate" label="تاريخ البداية الميلادي" required defaultValue={initial?.startDate??defaultStartDate} onValueChange={date=>{setPlannerStartDate(date);if(!quranAnchorTouched.current&&date)setQuranAnchorDate(date);}}/>
-  {selectedKind==="Task"||duration==="limited"?<GregorianDateInput id="definition-end" name="endDate" label="تاريخ النهاية الميلادي" required={selectedKind==="Habit"} defaultValue={initial?.endDate??""} onValueChange={setPlannerEndDate}/>:<div className="np-field"><span className="np-label">النهاية</span><p className="np-cc-help">مستمرة حتى توقفها أو تغيّر مدتها.</p></div>}
-  <div className="np-field full"><label className="np-label" htmlFor="definition-repeat">التكرار *</label><select className="np-select" id="definition-repeat" name="scheduleKind" disabled={!!initial?.beveragePlan} value={scheduleKind} onChange={e=>setScheduleKind(e.currentTarget.value as typeof scheduleKind)}><option value="Daily">يوميًا — 7 أيام في الأسبوع</option><option value="Weekdays">أيام محددة من الأسبوع</option><option value="OneTime" disabled={selectedKind==="Habit"&&duration==="continuous"}>مرة واحدة</option></select></div>
-  {scheduleKind==="Weekdays"?<div className="np-field full"><span className="np-label">أيام التكرار: {days.length} من 7 *</span><div className="np-weekdays">{WEEKDAYS.map(([value,label])=><label className="np-weekday" key={value}><input type="checkbox" name="weekday" value={value} checked={days.includes(value)} onChange={e=>setDays(e.currentTarget.checked?[...days,value].sort():days.filter(d=>d!==value))}/>{label}</label>)}</div></div>:null}
-  {selectedKind==="Task"?<><div className="np-field"><label className="np-label" htmlFor="progress-target">الكمية المستهدفة (اختياري)</label><input className="np-input" id="progress-target" name="progressTarget" type="number" min="0.000001" max="1000000000" step="0.000001" value={taskTarget} onChange={e=>setTaskTarget(e.currentTarget.value)}/></div><div className="np-field"><label className="np-label" htmlFor="progress-unit">وحدة الإنجاز</label><input className="np-input" id="progress-unit" name="progressUnit" maxLength={30} value={taskUnit} onChange={e=>setTaskUnit(e.currentTarget.value)}/></div><TaskSessionPlannerR254 enabled={sessionEnabled} setEnabled={setSessionEnabled} distribution={sessionDistribution} setDistribution={setSessionDistribution} sessions={sessionDrafts} setSessions={setSessionDrafts} target={taskTarget?Number(taskTarget):null} unit={taskUnit} busy={busy} parentStartDate={plannerStartDate} parentEndDate={plannerEndDate||null} parentScheduleKind={scheduleKind} parentWeekdays={days}/></>:null}
-  <div className="np-field full"><label className="np-label" htmlFor="definition-weight">وزن الإنجاز *</label><input className="np-input" id="definition-weight" name="weight" type="number" min="1" max="100" step="1" required defaultValue={initial?.weight??1}/><small>من 1 إلى 100. مثلًا: وزن 10 يساوي تأثير عشر عادات وزن كل منها 1. التعديل يطبّق على اليوم وما بعده، ويحافظ على أوزان الأيام السابقة.</small></div>
+  {!isCountdownEvent?<GregorianDateInput id="definition-start" name="startDate" label="تاريخ البداية الميلادي" required defaultValue={initial?.startDate??defaultStartDate} onValueChange={date=>{setPlannerStartDate(date);if(!quranAnchorTouched.current&&date)setQuranAnchorDate(date);}}/>:<div className="np-field"><span className="np-label">تاريخ الحدث</span><p className="np-cc-help">يُستخدم التاريخ المختار أعلاه، دون إنشاء مهمة يومية.</p></div>}
+  {!isCountdownEvent&&(selectedKind==="Task"||duration==="limited")?<GregorianDateInput id="definition-end" name="endDate" label="تاريخ النهاية الميلادي" required={selectedKind==="Habit"} defaultValue={initial?.endDate??""} onValueChange={setPlannerEndDate}/>:<div className="np-field"><span className="np-label">النهاية</span><p className="np-cc-help">{isCountdownEvent?"موعد واحد في التاريخ والساعة المحددين.":"مستمرة حتى توقفها أو تغيّر مدتها."}</p></div>}
+  {!isCountdownEvent?<div className="np-field full"><label className="np-label" htmlFor="definition-repeat">التكرار *</label><select className="np-select" id="definition-repeat" name="scheduleKind" disabled={!!initial?.beveragePlan} value={scheduleKind} onChange={e=>setScheduleKind(e.currentTarget.value as typeof scheduleKind)}><option value="Daily">يوميًا — 7 أيام في الأسبوع</option><option value="Weekdays">أيام محددة من الأسبوع</option><option value="OneTime" disabled={selectedKind==="Habit"&&duration==="continuous"}>مرة واحدة</option></select></div>:null}
+  {!isCountdownEvent&&scheduleKind==="Weekdays"?<div className="np-field full"><span className="np-label">أيام التكرار: {days.length} من 7 *</span><div className="np-weekdays">{WEEKDAYS.map(([value,label])=><label className="np-weekday" key={value}><input type="checkbox" name="weekday" value={value} checked={days.includes(value)} onChange={e=>setDays(e.currentTarget.checked?[...days,value].sort():days.filter(d=>d!==value))}/>{label}</label>)}</div></div>:null}
+  {selectedKind==="Task"&&!isCountdownEvent?<><div className="np-field"><label className="np-label" htmlFor="progress-target">الكمية المستهدفة (اختياري)</label><input className="np-input" id="progress-target" name="progressTarget" type="number" min="0.000001" max="1000000000" step="0.000001" value={taskTarget} onChange={e=>setTaskTarget(e.currentTarget.value)}/></div><div className="np-field"><label className="np-label" htmlFor="progress-unit">وحدة الإنجاز</label><input className="np-input" id="progress-unit" name="progressUnit" maxLength={30} value={taskUnit} onChange={e=>setTaskUnit(e.currentTarget.value)}/></div><TaskSessionPlannerR254 enabled={sessionEnabled} setEnabled={setSessionEnabled} distribution={sessionDistribution} setDistribution={setSessionDistribution} sessions={sessionDrafts} setSessions={setSessionDrafts} target={taskTarget?Number(taskTarget):null} unit={taskUnit} busy={busy} parentStartDate={plannerStartDate} parentEndDate={plannerEndDate||null} parentScheduleKind={scheduleKind} parentWeekdays={days}/></>:null}
+  {!isCountdownEvent?<div className="np-field full"><label className="np-label" htmlFor="definition-weight">وزن الإنجاز *</label><input className="np-input" id="definition-weight" name="weight" type="number" min="1" max="100" step="1" required defaultValue={initial?.weight??1}/><small>من 1 إلى 100. مثلًا: وزن 10 يساوي تأثير عشر عادات وزن كل منها 1. التعديل يطبّق على اليوم وما بعده، ويحافظ على أوزان الأيام السابقة.</small></div>:<p className="np-cc-help np-field full">المواعيد والأحداث المرتقبة معلوماتية؛ لا تدخل ضمن إنجاز المهام والعادات.</p>}
   {initial?<p className="np-cc-help np-field full">التعديل يؤثر على الجدول الحالي والقادم. سجل الإنجاز والملاحظات السابق محفوظ. لا يمكن خفض الهدف عن الإنجاز المسجل أو تغيير وحدته بعد بدء القياس.</p>:null}
   {error?<p role="alert" className="np-action-error np-field full">{error}</p>:null}
   <div className="np-field full np-definition-save-hint"><small>يمكنك الحفظ من الشريط الثابت أسفل النافذة.</small></div>
@@ -2385,7 +2555,7 @@ function Dashboard({ view:providedView, workspace, busy, actionError, onCommand,
     return plan.sessions.some(s=>!s.scheduledDate||s.scheduledDate===date);
   };
   const view=useMemo(()=>{
-    const visible=(item:ExecutionItem)=>{const d=definitionsById.get(item.definitionId);return item.status!=="Suppressed" && (historyDate!==null || (d?.state!=="Archived"&&d?.state!=="Paused"&&(d?.state!=="Stopped"||["Completed","Missed","Cancelled"].includes(item.status))&&sessionDueOnDate(item,providedView.localDate??"")));};
+    const visible=(item:ExecutionItem)=>{const d=definitionsById.get(item.definitionId);if(item.kind==="Task"&&["event","appointment"].includes(d?.countdownPlan?.kind??"task"))return false;return item.status!=="Suppressed" && (historyDate!==null || (d?.state!=="Archived"&&d?.state!=="Paused"&&(d?.state!=="Stopped"||["Completed","Missed","Cancelled"].includes(item.status))&&sessionDueOnDate(item,providedView.localDate??"")));};
     if(historyDate){
       // Only persisted execution rows, never current schedule definitions, become history cards.
       const rows=workspace?.statistics.rows?.filter(row=>row.date===historyDate)??[];
@@ -2397,19 +2567,26 @@ function Dashboard({ view:providedView, workspace, busy, actionError, onCommand,
   const dates = civilDateLabels(nowMs, view.timeZone);
   const location = view.location ?? headerLocationForTimeZone(view.timeZone);
   const [temperature,setTemperature] = useState<number | null>(null);
-  const taskCompleted = completedCount(view.tasks);
-  const habitCompleted = completedCount(view.habits);
-  const totalToday = [...view.tasks,...view.habits].filter(e=>e.status!=="Cancelled").length;
+  // Informational drink counters are not actionable habits or outstanding work.
+  // Preserve their own card/history, but remove their weight from every achievement view.
+  const achievementItems=[...view.habits,...view.tasks].filter(e=>
+    e.status!=="Cancelled"&&!definitionsById.get(e.definitionId)?.beveragePlan&&
+    !["event","appointment"].includes(definitionsById.get(e.definitionId)?.countdownPlan?.kind??"task"));
+  const taskCompleted = completedCount(achievementItems.filter(e=>e.kind==="Task"));
+  const habitCompleted = completedCount(achievementItems.filter(e=>e.kind==="Habit"));
+  const totalToday = achievementItems.length;
   const completedToday = taskCompleted + habitCompleted;
-  const todayWeight=[...view.tasks,...view.habits].filter(e=>e.status!=="Cancelled").reduce((n,e)=>n+e.weight,0),doneWeight=[...view.tasks,...view.habits].filter(e=>e.status==="Completed").reduce((n,e)=>n+e.weight,0);
-  const dayWeighted=[...view.tasks,...view.habits].filter(e=>e.status!=="Cancelled").reduce((n,e)=>{
+  const todayWeight=achievementItems.reduce((n,e)=>n+e.weight,0),
+    doneWeight=achievementItems.filter(e=>e.status==="Completed").reduce((n,e)=>n+e.weight,0);
+  const dayWeighted=achievementItems.reduce((n,e)=>{
     const definition=definitionsById.get(e.definitionId);
     const fraction=definition?.sessionPlan?Math.min(1,definition.activityLog.filter(a=>a.taskSessionId&&a.localDate===view.localDate).reduce((sum,a)=>sum+(a.sessionDayCredit??0),0)):(e.status==="Completed"?1:0);
     return n+e.weight*fraction;
   },0);
   const completionRate=todayWeight?Math.round(dayWeighted/todayWeight*100):0;
   const achievementDate=providedView.localDate??workspace?.statistics.currentDate??civilLocalDate(nowMs,view.timeZone);
-  const todayRows:StatisticRow[]=[...providedView.tasks,...providedView.habits].filter(item=>item.status!=="Suppressed"&&sessionDueOnDate(item,achievementDate)).map(item=>{
+  const todayRows:StatisticRow[]=[...providedView.tasks,...providedView.habits].filter(item=>item.status!=="Suppressed"&&!definitionsById.get(item.definitionId)?.beveragePlan&&
+    !["event","appointment"].includes(definitionsById.get(item.definitionId)?.countdownPlan?.kind??"task")&&sessionDueOnDate(item,achievementDate)).map(item=>{
     const def=definitionsById.get(item.definitionId);
     const credit=def?.sessionPlan?Math.min(1,Math.max(0,def.activityLog
       .filter(entry=>entry.taskSessionId&&entry.localDate===achievementDate)
@@ -2603,6 +2780,7 @@ function Dashboard({ view:providedView, workspace, busy, actionError, onCommand,
     </section>
 
     <NoorR232TimeWindows prayers={view.prayerTimes} nowMs={nowMs} timeZone={view.timeZone} preferences={timePreferences} onPreferencesChange={onTimePreferencesChange} nextFajrAt={view.nextFajrAt??undefined} precedingNight={view.precedingNight}/>
+    {!historyDate?<UpcomingCountdownR301 definitions={workspace?.definitions??[]} nowMs={nowMs} timeZone={view.timeZone}/>:null}
 
     {actionError ? <p className="np-action-error" role="alert">{actionError}</p> : null}
     {connectionWarning ? <p className="np-reconnect-notice-r296" role="status">تعذر تحديث البيانات. <button type="button" disabled={reconnecting||busy} onClick={onReconnect}>{reconnecting?"جارٍ الاتصال…":"إعادة الاتصال ↻"}</button></p> : null}
@@ -2613,7 +2791,7 @@ function Dashboard({ view:providedView, workspace, busy, actionError, onCommand,
       </div>
       <div className="np-day-achievement-copy"><div className="np-day-achievement-text"><h2>{historyDate?`إنجاز يوم ${weekDateLabel(historyDate)}`:"إنجاز اليوم"} <small>موزون</small></h2><p>{!totalToday?"لا توجد عادات أو مهام مستحقة اليوم.":completedToday===totalToday?"اكتملت كل عادات ومهام اليوم. أحسنت الاستمرار.":`${arabicNumber(completedToday)} من ${arabicNumber(totalToday)} عادات ومهام مكتملة اليوم`}</p></div>{!historyDate?<><NoorThreeSpacesR171 personalDate={view.localDate??undefined} /><NoorWellbeingLabR165 personalDate={view.localDate??undefined} /></>:null}</div>
       {totalToday?<button type="button" className="np-day-remaining" data-testid="r286-remaining-trigger" aria-haspopup="dialog" aria-expanded={showRemaining} onClick={()=>setShowRemaining(true)}><strong>{arabicNumber(Math.max(0,totalToday-completedToday))}</strong><span>{completedToday===totalToday?"يوم مكتمل":historyDate?"متبقية في اليوم":"متبقية اليوم"}</span></button>:null}
-      {showRemaining?createPortal(<div className="np-r286-remaining-backdrop" onMouseDown={event=>{if(event.target===event.currentTarget)setShowRemaining(false);}}><section role="dialog" aria-modal="true" aria-labelledby="r286-remaining-heading" className="np-r286-remaining-dialog" onKeyDown={event=>{if(event.key==="Escape")setShowRemaining(false);}}><header><h2 id="r286-remaining-heading">{historyDate?"المتبقي في اليوم المحدد":"المتبقي اليوم"}</h2><button type="button" className="np-cc-button" ref={remainingCloseRef} onClick={()=>setShowRemaining(false)}>إغلاق ×</button></header>{([...view.habits,...view.tasks].filter(x=>x.status!=="Completed"&&x.status!=="Cancelled"&&x.status!=="Suppressed")).length?<ul>{[...view.habits,...view.tasks].filter(x=>x.status!=="Completed"&&x.status!=="Cancelled"&&x.status!=="Suppressed").map(x=><li key={x.id}><span><strong>{x.title}</strong><small>{x.kind==="Habit"?"عادة":"مهمة"} · {STATUS_LABELS[x.status]??x.status}</small></span><span>وزن {arabicNumber(x.weight)}</span></li>)}</ul>:<p role="status">اكتملت جميع المهام والعادات المستحقة لهذا اليوم.</p>}</section></div>,document.body):null}
+      {showRemaining?createPortal(<div className="np-r286-remaining-backdrop" onMouseDown={event=>{if(event.target===event.currentTarget)setShowRemaining(false);}}><section role="dialog" aria-modal="true" aria-labelledby="r286-remaining-heading" className="np-r286-remaining-dialog" onKeyDown={event=>{if(event.key==="Escape")setShowRemaining(false);}}><header><h2 id="r286-remaining-heading">{historyDate?"المتبقي في اليوم المحدد":"المتبقي اليوم"}</h2><button type="button" className="np-cc-button" ref={remainingCloseRef} onClick={()=>setShowRemaining(false)}>إغلاق ×</button></header>{(achievementItems.filter(x=>x.status!=="Completed"&&x.status!=="Suppressed")).length?<ul>{achievementItems.filter(x=>x.status!=="Completed"&&x.status!=="Suppressed").map(x=><li key={x.id}><span><strong>{x.title}</strong><small>{x.kind==="Habit"?"عادة":"مهمة"} · {STATUS_LABELS[x.status]??x.status}</small></span><span>وزن {arabicNumber(x.weight)}</span></li>)}</ul>:<p role="status">اكتملت جميع المهام والعادات المستحقة لهذا اليوم.</p>}</section></div>,document.body):null}
       <div className="np-day-context">
         <section className={`np-yesterday${yesterday?.missed.length?" has-missed":""}`} aria-label="فائت أمس" data-testid="yesterday-achievement"><div className="np-yesterday-heading"><span>فائت أمس</span>{yesterday?<time dateTime={yesterday.date}>{weekDateLabel(yesterday.date)}</time>:null}</div><div className="np-yesterday-score"><strong>{arabicNumber(yesterday?.missed.length??0)}</strong><span>عادات ومهام غير مكتملة</span></div>{yesterday?.scheduled?<p>{yesterday.missed.length?"عناصر غير مكتملة" :"اكتملت كل استحقاقات أمس"} · إنجاز أمس {arabicNumber(yesterday.rate??0)}%</p>:<p>لا توجد استحقاقات مسجلة لأمس.</p>}{yesterday?.missed.length?<details className="np-yesterday-details"><summary>عرض الفائت</summary><ul>{yesterday.missed.map(row=><li key={row.id}><span>{row.title}<small>{row.kind==="Habit"?"عادة":"مهمة"} · {STATUS_LABELS[row.status]??row.status}{row.amount>0?` · ${arabicNumber(row.amount)} ${row.unit}`:""}</small></span><strong>{arabicNumber(row.weight)}<small> وزن</small></strong></li>)}</ul></details>:null}</section>
         <section className="np-week-achievement" aria-label="إنجاز أيام الأسبوع كاملًا" data-week-navigation="r109">
