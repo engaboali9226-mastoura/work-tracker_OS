@@ -5,20 +5,20 @@ import {NOOR_R305_VISUAL_STYLES} from "../src/noor-personal-visual-r305.js";
 
 const source=readFileSync(new URL("../src/noor-personal-application-view.tsx",import.meta.url),"utf8");
 
-test("R305: first-screen overview and navigation are grounded in existing read-only activity projections",()=>{
-  assert.match(source,/data-testid="r305-daily-intro"/);
-  assert.match(source,/className="np-r305-intro-metrics"/);
-  assert.match(source,/arabicNumber\(completedToday\)/);
-  assert.match(source,/view\.habits\.filter\(e=>e\.status!=="Suppressed"/);
-  assert.match(source,/view\.tasks\.filter\(e=>e\.status!=="Suppressed"/);
-  assert.match(source,/href="#noor-r305-activity-heading"/);
-  assert.match(source,/href="#noor-r305-weekly"/);
-  assert.match(source,/id="noor-r305-activity-heading"/);
-  assert.match(source,/id="noor-r305-weekly"/);
-  assert.match(source,/NOOR_R305_VISUAL_STYLES/);
+test("R306: actionable tasks precede statistics and the redundant R305 information card is gone",()=>{
+  assert.doesNotMatch(source,/data-testid="r305-daily-intro"/);
+  assert.ok(source.indexOf('data-testid="r304-activity-view"')<source.indexOf('data-testid="today-summary"'),
+    "The active task workspace must precede the analytics summary");
+  assert.ok(source.indexOf('data-testid="today-summary"')<source.indexOf('<NoorBeverageTrackerR294'),
+    "The separate beverage counter stays below core work");
+  for(const marker of ['data-testid="r306-open-activity-editor"','r306-filter-','setActivityFilter(mode)',
+    'filteredGrouped','filteredUnifiedGroups','view.tasks.filter(visibleForFilter)',
+    'data-testid="r304-unified-groups"','id="noor-r305-weekly"']){
+    assert.ok(source.includes(marker),`R306 missing action control: ${marker}`);
+  }
 });
 
-test("R305: visual system substantially transforms cards, summaries, header and controls at all device sizes",()=>{
+test("R305 theme remains available as a foundation for R306 action-first workspace",()=>{
   const css=NOOR_R305_VISUAL_STYLES;
   assert.ok(css.length>8500,"A real system of responsive surfaces, not a one-line recolor");
   assert.ok(css.includes("NOOR_R305_VISUAL_REDESIGN_BEGIN"));
@@ -43,5 +43,5 @@ test("R305: existing actions, historical navigation, privacy and domain ownershi
     assert.ok(source.includes(marker),`missing legacy flow: ${marker}`);
   }
   assert.doesNotMatch(NOOR_R305_VISUAL_STYLES,/\b(?:localStorage|sessionStorage|fetch)\b/);
-  assert.doesNotMatch(source,/data-testid="r305-daily-intro"[\s\S]{0,350}type="submit"/);
+  assert.doesNotMatch(source,/data-testid="r305-daily-intro"/);
 });

@@ -44,6 +44,14 @@ test("R304: users can switch between category, time and legacy without duplicati
   assert.equal(container.querySelectorAll('[data-testid="activity-card-execution-task"]').length,1);
   assert.equal(container.querySelectorAll('[data-testid="activity-card-execution-habit"]').length,1);
   assert.equal(container.querySelectorAll('.np-habit-check').length,1);
+  // R306: visible activity filter must not create or mutate any occurrence.
+  await click("المكتمل");
+  assert.equal(container.querySelectorAll('[data-testid="r304-unified-group"]').length,0);
+  await click("المتبقي");
+  assert.equal(container.querySelectorAll('[data-testid="activity-card-execution-task"]').length,1);
+  assert.equal(container.querySelectorAll('[data-testid="activity-card-execution-habit"]').length,1);
+  await click("الكل");
+  assert.equal(container.querySelectorAll('[data-testid="r304-unified-group"]').length,1);
   assert.equal(container.querySelectorAll('[data-testid="habit-category-card"]').length,0,"legacy cards should unmount when unified");
   await click("حسب الوقت");
   assert.equal(container.querySelectorAll('[data-testid="r304-unified-group"]').length,2);
@@ -51,6 +59,11 @@ test("R304: users can switch between category, time and legacy without duplicati
   await click("العرض المنفصل");
   assert.equal(container.querySelectorAll('[data-testid="habit-category-card"]').length,1);
   assert.equal(container.querySelectorAll('.np-tasks-card .np-activity-item').length,1);
+  assert.equal(container.querySelectorAll('[data-testid="r305-daily-intro"]').length,0,"the redundant summary card is removed");
+  assert.ok(container.querySelector('[data-testid="r306-open-activity-editor"]'));
+  await click("إضافة وإدارة +");
+  assert.ok(container.querySelector('#definition-title'),"the existing Control Center creation form opens");
+
  }finally{
   await act(async()=>root.unmount());
   for(const [key,descriptor] of previous){if(descriptor)Object.defineProperty(globalThis,key,descriptor);else Reflect.deleteProperty(globalThis,key);}
