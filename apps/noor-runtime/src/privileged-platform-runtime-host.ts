@@ -1,3 +1,4 @@
+import {createNoorAdminAccountManagementR316,type NoorAdminDatabaseR316,type NoorAdminAccountManagementR316} from "./noor-admin-account-management-r316.js";
 import {
   CryptographicEntitlementIdGenerator,
   CryptographicSessionIdGenerator,
@@ -84,6 +85,7 @@ export interface PrivilegedPlatformRuntimeOperations {
     PersonalControlOperation;
 
   readonly teacherWork: NoorWorkTeacherOperationR264;
+  readonly adminAccounts?:NoorAdminAccountManagementR316;
 
   readonly trustedPrivateJournalR221?: NoorPrivateJournalOperationR185 | undefined;
 
@@ -117,6 +119,7 @@ implements PrivilegedPlatformRuntimeOperations {
     public readonly teacherWork: NoorWorkTeacherOperationR264,
 
     public readonly trustedPrivateJournalR221?: NoorPrivateJournalOperationR185,
+    public readonly adminAccounts?:NoorAdminAccountManagementR316,
   ) {}
 
   public execute(
@@ -177,6 +180,9 @@ implements PrivilegedPlatformRuntimeHost {
       SupabasePostgresAuthenticationAccountUserResolver,
 
     private readonly workClient: SupabaseClient<NoorWorkTeacherDatabaseR264>,
+    private readonly adminClient: SupabaseClient<NoorAdminDatabaseR316>,
+    private readonly adminExpectedIssuer:string,
+    private readonly adminExpectedAudience:string,
 
     private readonly journalStore?: SupabasePostgresPrivateJournalStoreR221,
     private readonly journalKeyRing?: JournalKeyRingR188,
@@ -427,6 +433,11 @@ implements PrivilegedPlatformRuntimeHost {
           personalControl,
           teacherWork,
           privateJournal,
+          createNoorAdminAccountManagementR316({
+            client:this.adminClient,expectedIssuer:this.adminExpectedIssuer,
+            expectedAudience:this.adminExpectedAudience,isRuntimeRunning,
+            enabled:process.env.NOOR_ADMIN_ACCOUNT_MANAGEMENT_R316==="enabled",
+          }),
         );
 
       this.activeOperation =
@@ -676,6 +687,8 @@ export function createPrivilegedPlatformRuntimeHost(
     personalPersistence,
     accountUserResolver,
     createNoorPrivilegedSupabaseClient<NoorWorkTeacherDatabaseR264>(configuration),
+    createNoorPrivilegedSupabaseClient<NoorAdminDatabaseR316>(configuration),
+    configuration.expectedIssuer,configuration.expectedAudience,
     journalStore,
     journalKeyRing,
   );
