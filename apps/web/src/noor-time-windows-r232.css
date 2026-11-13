@@ -1390,3 +1390,206 @@
   .np-r248-reference-strip :is(.tone-day,.tone-night) .np-r234-duration{font-size:9px}
   .np-r232-section .np-r248-reference-strip :is(.tone-day,.tone-night) .np-r247-timer{flex-basis:100%}
 }
+
+/* R308 — Friday visibility repair.
+ * Show all five calculated segments at once, including on iPhone.
+ * Scope strictly to Friday; preserve approved R248 three-period rhythm.
+ * Keep the information-rich explanations in an optional disclosure.
+ */
+.np-r232-section .np-r248-reference-strip > .np-r237-friday-inline {
+  display:block !important;
+  grid-column:1 / -1;
+  width:100%;
+  max-width:100%;
+  min-width:0;
+  padding-top:5px;
+  overflow:visible !important;
+}
+.np-r232-section .np-r248-reference-strip .np-r237-friday-inline > .np-r237-friday-hours {
+  display:grid !important;
+  grid-template-columns:repeat(5,minmax(0,1fr));
+  grid-template-rows:auto;
+  align-items:stretch;
+  gap:4px;
+  width:100%;
+  max-width:100%;
+  min-width:0;
+  overflow:visible !important;
+  padding:0;
+}
+.np-r232-section .np-r248-reference-strip .np-r237-friday-hours > .np-r232-window.np-r234-window {
+  box-sizing:border-box;
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:stretch;
+  justify-content:flex-start;
+  width:100% !important;
+  min-width:0 !important;
+  max-width:none;
+  height:auto !important;
+  min-height:73px !important;
+  margin:0;
+  padding:6px 3px;
+  gap:3px;
+  overflow:visible;
+  flex:none !important;
+  border:1px solid rgba(125,112,148,.20) !important;
+  border-radius:9px;
+  background:#faf8fc !important;
+  box-shadow:none !important;
+}
+.np-r232-section .np-r248-reference-strip .np-r237-friday-hours > .np-r232-window[data-phase="active"] {
+  background:#f2eaf8 !important;
+  border-color:#866eac !important;
+  box-shadow:inset 0 0 0 1px #866eac52 !important;
+}
+.np-r232-section .np-r248-reference-strip .np-r237-friday-hours > .np-r232-window[data-phase="finished"] {
+  opacity:.62;
+  background:#f8f8f7 !important;
+}
+.np-r248-reference-strip .np-r237-friday-hours .np-r234-card-title {
+  display:block;
+  min-width:0;
+  width:100%;
+  padding:0;
+  margin:0;
+  flex:none;
+}
+.np-r248-reference-strip .np-r237-friday-hours .np-r234-card-title h3 {
+  margin:0;
+  color:#5d477b;
+  line-height:1.3;
+  white-space:normal;
+  font-family:inherit;
+  font-size:clamp(10px,2.6vw,12px);
+  text-align:center;
+}
+.np-r248-reference-strip .np-r237-friday-hours .np-r234-symbol,
+.np-r248-reference-strip .np-r237-friday-hours .np-r248-subtitle,
+.np-r248-reference-strip .np-r237-friday-hours .np-r284-friday-virtue {
+  /* Full text remains readable from the disclosure; avoid 5 tall mini cards. */
+  display:none;
+}
+.np-r232-section .np-r248-reference-strip .np-r237-friday-hours .np-r234-card-bottom {
+  display:flex;
+  align-items:stretch;
+  justify-content:center;
+  min-width:0;
+  width:100%;
+  margin:auto 0 0;
+  padding:0;
+}
+.np-r232-section .np-r248-reference-strip .np-r237-friday-hours .np-r247-timer {
+  box-sizing:border-box;
+  display:flex;
+  min-width:0;
+  width:100%;
+  max-width:none;
+  min-height:33px;
+  padding:3px 1px;
+  margin:0;
+  gap:1px;
+  border:1px solid rgba(113,97,135,.1);
+  border-radius:6px;
+  background:#fff;
+}
+.np-r248-reference-strip .np-r237-friday-hours .np-r247-timer-caption{
+  font-size:9px;
+  line-height:1.1;
+}
+.np-r248-reference-strip .np-r237-friday-hours .np-r247-digits{
+  box-sizing:border-box;
+  width:100%;
+  font-size:clamp(9px,2.2vw,12px);
+  letter-spacing:-.065em;
+  line-height:1.15;
+  font-variant-numeric:tabular-nums;
+  white-space:nowrap;
+}
+.np-r248-reference-strip .np-r237-friday-hours .np-r247-inactive,
+.np-r248-reference-strip .np-r237-friday-hours .np-r247-finished{
+  font-size:clamp(9px,2.15vw,11px);
+  text-align:center;
+  line-height:1.25;
+  white-space:normal;
+}
+.np-r232-section .np-r248-reference-strip .np-r308-friday-details {
+  display:block;
+  width:100%;
+  max-width:100%;
+  margin-top:5px;
+  color:#536a70;
+  font-size:11px;
+  line-height:1.5;
+}
+.np-r232-section .np-r248-reference-strip .np-r308-friday-details summary {
+  display:list-item;
+  width:fit-content;
+  max-width:100%;
+  padding:4px 0;
+  cursor:pointer;
+  font-weight:650;
+  color:#516a78;
+  outline-offset:3px;
+}
+.np-r232-section .np-r248-reference-strip .np-r308-friday-details summary:focus-visible {
+  outline:2px solid #866eac;
+}
+.np-r232-section .np-r248-reference-strip .np-r308-friday-details ol {
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(min(190px,100%),1fr));
+  gap:5px;
+  list-style:decimal inside;
+  padding:6px 0;
+  margin:0;
+}
+.np-r232-section .np-r248-reference-strip .np-r308-friday-details li{
+  min-width:0;
+  display:grid;
+  gap:2px;
+  border:1px solid #dddde3;
+  border-radius:9px;
+  background:var(--panel,#fff);
+  padding:7px;
+}
+.np-r232-section .np-r248-reference-strip .np-r308-friday-details li strong{
+  font-size:11px;
+  color:#4c5f78;
+}
+@media(max-width:530px) {
+  .np-r232-section .np-r248-reference-strip .np-r237-friday-inline > .np-r237-friday-hours{
+    gap:3px;
+  }
+  .np-r232-section .np-r248-reference-strip .np-r237-friday-hours > .np-r232-window.np-r234-window {
+    min-height:68px !important;
+    padding:5px 2px;
+    border-radius:7px;
+  }
+  .np-r248-reference-strip .np-r237-friday-hours .np-r247-timer {
+    min-height:29px;
+    padding:2px 0;
+  }
+  .np-r248-reference-strip .np-r237-friday-hours .np-r247-digits {
+    font-size:clamp(8px,2.05vw,10px);
+  }
+}
+.np-page[data-appearance="dark"] .np-r248-reference-strip .np-r237-friday-hours > .np-r232-window.np-r234-window{
+  background:#302a3c !important;
+  color:#d9d0e6;
+  border-color:#615770 !important;
+}
+.np-page[data-appearance="dark"] .np-r248-reference-strip .np-r237-friday-hours > .np-r232-window[data-phase="active"]{
+  background:#423452 !important;
+  border-color:#b89ddd !important;
+}
+.np-page[data-appearance="dark"] .np-r248-reference-strip .np-r237-friday-hours .np-r234-card-title h3{
+  color:#e6d5f8;
+}
+.np-page[data-appearance="dark"] .np-r248-reference-strip .np-r237-friday-hours .np-r247-timer{
+  background:#252d3a;
+  border-color:#60637a;
+}
+.np-page[data-appearance="dark"] .np-r248-reference-strip .np-r308-friday-details,
+.np-page[data-appearance="dark"] .np-r248-reference-strip .np-r308-friday-details summary{
+  color:#d6dde8;
+}
