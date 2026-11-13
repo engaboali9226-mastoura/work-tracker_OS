@@ -51,6 +51,12 @@ export function NoorR232ControlLocation({serverZone,preferences,onChange,onCommi
      ?"تم تجهيز المنطقة الزمنية اليدوية للمدينة المختارة. لا تتغير الصلاة أو توقيت الحساب إلا بعد الضغط على «اعتماد المدينة والتوقيت للحساب» وتأكيد الخادم."
      :"تم تغيير ساعة المعاينة فقط. اختر مدينة أولًا إن أردت حفظ هذه المنطقة الزمنية لكل حساب نور.");
  };
+ const quickCities:readonly NoorR232City[]=[
+  {name:"الرياض",country:"السعودية",latitude:24.71,longitude:46.68,timeZone:"Asia/Riyadh"},
+  {name:"القاهرة",country:"مصر",latitude:30.04,longitude:31.24,timeZone:"Africa/Cairo"},
+  {name:"دبي",country:"الإمارات",latitude:25.20,longitude:55.27,timeZone:"Asia/Dubai"},
+  {name:"لندن",country:"بريطانيا",latitude:51.51,longitude:-0.13,timeZone:"Europe/London"},
+ ];
  const suggestedZones=["Asia/Riyadh","Africa/Cairo","Asia/Dubai",
    "Asia/Kuwait","Asia/Qatar","Asia/Bahrain","Europe/London",
    "Europe/Istanbul","America/New_York","UTC"];
@@ -159,6 +165,12 @@ export function NoorR232ControlLocation({serverZone,preferences,onChange,onCommi
  };
  return <section data-testid="noor-r232-location-settings" className="np-r232-control">
    <div className="np-cc-title"><div><h2>التوقيت والموقع</h2><p>اختيار المدينة ومعاينة توقيتها قبل اعتماد تغيير موقع الحساب؛ مواقيت الصلاة الحالية لا تتبدل بمعاينة ساعة أخرى.</p></div></div>
+   <section className="np-r312-time-quick" aria-label="مدن سريعة للاعتماد">
+    <h3>اختر مدينة بنقرة واحدة</h3><p>تظهر ساعة المدينة للمعاينة أولًا؛ الحفظ للحساب يتطلب الضغط على زر الاعتماد أدناه.</p>
+    <div className="np-r312-city-buttons">{quickCities.map(city=><button type="button" key={city.timeZone}
+      className="np-cc-button" aria-pressed={selected?.timeZone===city.timeZone&&selected?.name===city.name}
+      onClick={()=>select(city)}>{city.name}<small dir="ltr">{city.timeZone}</small></button>)}</div>
+   </section>
    <div className="np-r232-setting-grid">
     <label>المنطقة الزمنية المعتمدة للحسابات
      <input className="np-input" value={serverZone} readOnly aria-readonly="true"/>
@@ -179,13 +191,11 @@ export function NoorR232ControlLocation({serverZone,preferences,onChange,onCommi
       <button className="np-cc-button" type="button"
         onClick={()=>commitZone("")}>استعادة توقيت الحساب</button>
     </div>
-    <div className="np-r233-clock-preview" role="status"
-      aria-label="معاينة الساعة في المنطقة الزمنية المختارة">
-      <strong>{previewClock}</strong>
-      <span dir="ltr">{previewZone}</span>
-      <span>{previewDate}</span>
-      <small>هذه معاينة لساعة العرض فقط؛ مواقيت الصلاة واليوم الشخصي لا يتغيران. اختيار المدينة لا يغير سجل العادات أو تاريخ المهام.</small>
+    <div className="np-r312-dual-clock" aria-label="مقارنة التوقيت">
+     <div className="np-r312-clock-tile"><small>توقيت الحساب · محفوظ</small><strong>{new Intl.DateTimeFormat("ar-SA-u-nu-latn",{timeZone:serverZone,hour:"numeric",minute:"2-digit",hour12:true}).format(new Date(previewNow))}</strong><span dir="ltr">{serverZone}</span></div>
+     <div className="np-r312-clock-tile" role="status"><small>توقيت المنطقة المختارة · معاينة</small><strong>{previewClock}</strong><span dir="ltr">{previewZone}</span><span>{previewDate}</span></div>
     </div>
+    <p className="np-r232-note" role="note">الساعة الثانية للعرض فقط. يُحفظ تغيير توقيت الحساب ويُعاد حساب مواقيت الصلاة واليوم بعد اعتماد المدينة بنجاح على الخادم؛ لا يُعاد تأريخ الإنجازات المغلقة.</p>
     <label>بداية الضحى بعد الشروق
      <select className="np-select" value={preferences.afterSunrise}
       onChange={e=>onChange({...preferences,afterSunrise:Number(e.target.value)})}>
