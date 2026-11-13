@@ -1,0 +1,20 @@
+.noor-auth-switch-r312{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 17px;padding:5px;border-radius:15px;background:rgba(229,232,228,.56)}
+.noor-auth-switch-r312 button{flex:1 1 auto;min-width:80px;border:0;border-radius:11px;background:transparent;padding:10px 6px;font:inherit;font-size:11px;font-weight:690;color:#667879;cursor:pointer;transition:background .2s ease}
+.noor-auth-switch-r312 button[aria-pressed=true]{background:#fff;box-shadow:0 2px 10px rgba(55,71,64,.09);color:#2b4849}
+.noor-auth-switch-r312 button:focus-visible,.noor-auth-return-r312:focus-visible{outline:2px solid #ad955f;outline-offset:2px}
+.noor-auth-title-r312{color:#314c4c;font-size:17px;margin:8px 0 15px}
+.noor-auth-hint-r312{font-size:11px;line-height:1.75;color:#6b7f80;margin:0;padding:11px 12px;border:1px solid #e4e9e2;border-radius:12px;background:#f5f8f5}
+.noor-auth-success-r312{font-size:12px;line-height:1.8;color:#385e4f;background:#eef7ef;padding:12px 14px;border:1px solid #d6ebda;border-radius:12px;margin:0}
+.noor-auth-return-r312{margin:12px auto 0;background:none;border:0;color:#3d635e;font:inherit;font-weight:700;cursor:pointer}
+.np-r312-account{padding:22px;border:1px solid #e0e5e2;border-radius:21px;background:linear-gradient(140deg,#fff,#f5f7f5)}
+.np-r312-account h2{margin:0 0 5px;font-size:19px}.np-r312-account p{font-size:12px;color:#667777;line-height:1.8}
+.np-r312-account form{display:grid;gap:15px;max-width:540px}
+.np-r312-account label{display:grid;gap:6px;font-weight:690;color:#384e51;font-size:12px}
+.np-r312-account :is(input,button){min-height:46px;border-radius:12px;font:inherit}
+.np-r312-account input{width:100%;border:1px solid #d7dfda;background:#fff;padding:11px 12px;direction:ltr;text-align:left}
+.np-r312-account button{background:#304d49;color:white;border:0;padding:12px 20px;font-weight:690;cursor:pointer}
+.np-r312-account button:disabled{opacity:.6;cursor:wait}
+.np-r312-account .np-r312-account-notice{padding:12px 14px;border-radius:12px;background:#eaf4ef;color:#285943}
+.np-r312-account .np-r312-account-error{padding:12px 14px;border-radius:12px;background:#fff0ec;color:#a03f36}
+.np-page[data-appearance=dark] .np-r312-account{background:#263438;border-color:#435556}.np-page[data-appearance=dark] .np-r312-account label{color:#eef2ef}
+@media(max-width:380px){.noor-auth-switch-r312 button{min-width:100%;}}
