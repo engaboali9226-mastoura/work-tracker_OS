@@ -93,8 +93,12 @@ export interface NoorPersonalFoundationDatabase {
     };
     readonly Views:
       Record<string, never>;
-    readonly Functions:
-      Record<string, never>;
+    readonly Functions:{
+      readonly noor_initialize_personal_profile_r321:{
+        readonly Args:{readonly p_user_id:string;readonly p_city:string;readonly p_method:string};
+        readonly Returns:boolean;
+      };
+    };
   };
 }
 
@@ -963,6 +967,24 @@ implements
 
     this.lifecycle =
       "ready";
+  }
+
+  /** First-login, owner-scoped operation. Caller must first authenticate the
+   * NOOR session and authorize noor-personal. The SQL RPC itself is restricted
+   * to service_role and never overwrites configured owner data. */
+  public async initializePersonalProfile(
+    userId:string, city:"riyadh"|"cairo"|"dubai"|"london",
+    calculationMethod:"UmmAlQura"|"Egyptian"|"MuslimWorldLeague"|"Karachi"|"NorthAmerica",
+  ):Promise<boolean>{
+    this.assertReady();
+    assertUserId(userId);
+    const response=await this.client.rpc("noor_initialize_personal_profile_r321",{
+      p_user_id:userId,p_city:city,p_method:calculationMethod,
+    });
+    if(response.error)throw new ProductionAdapterError(
+      "PersistenceUnavailable","Failed to initialize first-login Personal configuration.",{cause:response.error});
+    this.forgetCommandCache(userId);
+    return response.data===true;
   }
 
   public async listKnownUserIds():
