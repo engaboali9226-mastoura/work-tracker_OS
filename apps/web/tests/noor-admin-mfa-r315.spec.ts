@@ -10,6 +10,7 @@ const fixture=(hasVerifiedFactor:boolean)=>{
   auth:{
    async signInWithPassword(){methods.push("signIn");signed=true;return {data:{user:{id:"owner"},session:{access_token:"token"}},error:null};},
    async signOut(){methods.push("signOut");signed=false;return {error:null};},
+   async getSession(){methods.push("getSession");return {data:{session:{access_token:"token"}},error:null};},
    mfa:{
     async listFactors(){methods.push("listFactors");return {data:{totp:hasVerifiedFactor?[{id:"factor",status:"verified"}]:[],phone:[]},error:null};},
     async enroll(){methods.push("enroll");return {data:{id:"newfactor",totp:{qr_code:"<svg><text>secret</text></svg>"}},error:null};},
@@ -30,7 +31,8 @@ test("R315 TOTP enrollment requires login then six-digit verification and return
  assert.equal(enrolled?.factorId,"newfactor");
  assert.equal(await f.service.verify("123"),"invalid");
  assert.equal(await f.service.verify("123456"),"aal2");
- assert.deepEqual(Object.keys(f.service).sort(),["enroll","signIn","signOut","verify"]);
+ assert.deepEqual(Object.keys(f.service).sort(),["accessToken","enroll","signIn","signOut","verify"]);
+ assert.equal(await f.service.accessToken(),"token");
  await f.service.signOut();
  assert.equal(f.isSigned(),false);
 });

@@ -52,6 +52,15 @@ export function createNoorAdminMfaSetupR315(
        return !assurance.error&&assurance.data.currentLevel==="aal2"?"aal2":"unavailable";
      }catch{return "unavailable";}
    },
+   async accessToken():Promise<string|null>{
+     if(!signedIn)return null;
+     try{
+       const assurance=await client.auth.mfa.getAuthenticatorAssuranceLevel();
+       if(assurance.error||assurance.data.currentLevel!=="aal2")return null;
+       const result=await client.auth.getSession();
+       return result.error?null:result.data.session?.access_token??null;
+     }catch{return null;}
+   },
    async signOut():Promise<void>{
      factorId=null;signedIn=false;
      await client.auth.signOut().catch(()=>{});

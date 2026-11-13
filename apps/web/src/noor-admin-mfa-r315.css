@@ -18,3 +18,24 @@
 .na315-notice{background:#eff7ef;color:#406849}.na315-error{background:#fff1ee;color:#af4f42}
 .na315-complete{border:1px solid #dcebdc;border-radius:16px;padding:18px;background:#f6faf5}
 @media(max-width:460px){.na315-panel>header h1{font-size:20px}.na315-panel{border-radius:18px;padding:18px}}
+
+.na315-panel:has(.na316-area){width:min(100%,920px)}
+.na316-area{padding-top:14px}
+.na316-area h2{font-size:20px;margin:18px 0 8px}
+.na316-area h3{font-size:16px;margin:20px 0 12px}
+.na316-area>p{font-size:13px;line-height:1.8}
+.na316-list{display:grid;gap:10px}
+.na316-user{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:13px;border-radius:14px;border:1px solid #e1e8e3;background:white}
+.na316-user>div{display:grid;gap:4px;min-width:0}
+.na316-user strong{font-size:14px}
+.na316-user small{direction:ltr;text-align:right;overflow-wrap:anywhere}
+.na316-user span{font-size:12px;color:#637c71}
+.na315-panel .na316-danger{background:#9d453d!important;color:#fff}
+.na316-pagination,.na316-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:14px 0}
+.na316-add fieldset{border:1px solid #d8e2dd;border-radius:12px;display:flex;flex-wrap:wrap;gap:20px}
+.na316-add fieldset label{display:flex;align-items:center;gap:8px}
+.na316-add input[type="checkbox"]{width:20px;min-height:20px}
+.na316-confirm{border:1px solid #ecc6bf;background:#fff7f5;padding:17px;border-radius:16px;margin-top:20px}
+.na316-confirm p{font-size:13px;line-height:1.7}
+.na316-confirm label{display:grid;gap:8px;font-weight:600}
+@media(max-width:560px){.na316-user{align-items:stretch;flex-direction:column}}
