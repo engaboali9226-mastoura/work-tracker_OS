@@ -3,6 +3,7 @@ import {r232Countdown,r232DailyWindows,r283FridayHoursAtDhuhr,r283CarriedNightWi
  type R232Window,type R283PrecedingNight} from "./noor-islamic-daylight-r232.js";
 import type {NoorR232Preferences} from "./noor-time-display-preferences-r232.js";
 import {fridayVirtueR284,NOOR_FRIDAY_VIRTUES_SOURCE_R284} from "./noor-friday-virtues-r284.js";
+import {noorFridayPresentationR310} from "./noor-friday-visibility-r310.js";
 
 type Prayer=Readonly<{key:string;at:string}>;
 function clock(ms:number,zone:string):string{
@@ -73,7 +74,9 @@ export function NoorR232TimeWindows({prayers,nowMs,timeZone,preferences,nextFajr
    fastingStartMs:windows.fastingDay?.startMs??NaN,timeZone,
    outsideRamadanEnabled:preferences.fastingTimerOutsideRamadan,
  });
- const friday=r232LocalWeekday(nowMs,timeZone)===5;
+ const fridayMode=noorFridayPresentationR310(nowMs,timeZone,prayers);
+ const friday=fridayMode==="friday";
+ const thursdayReminder=fridayMode==="thursday-reminder";
  const fridayHours=friday?r283FridayHoursAtDhuhr({
    nowMs,timeZone,prayers,sunriseOffsetMinutes:preferences.afterSunrise,
   }):null;
@@ -109,10 +112,34 @@ export function NoorR232TimeWindows({prayers,nowMs,timeZone,preferences,nextFajr
       nowMs={nowMs} timeZone={timeZone}
       unavailable="لم تتوفر مواقيت الغد من مصدر نور المعتمد."/>
    <p className="np-r232-note np-r237-detail-note">بداية الضحى تقديرية بعد الشروق بـ{preferences.afterSunrise} دقيقة، والنهاية قبل الظهر بـ{preferences.beforeDhuhr} دقائق. يمكن تغيير الهامش من مركز التحكم.</p>
-   {friday?<div className="np-r232-friday np-r235-friday-inline np-r237-friday-inline" data-testid="friday-five-hours-r232">
+   {friday||thursdayReminder?<div className="np-r232-friday np-r235-friday-inline np-r237-friday-inline" data-friday-mode={fridayMode} data-testid="friday-five-hours-r232">
     <h3>ساعات الجمعة الخمس</h3>
     <p className="np-r232-note">من ارتفاع الشمس إلى موعد الظهر المعتمد يوم الجمعة، موزعة على خمس فترات متساوية. فضائل التبكير بالترتيب الوارد في الحديث، وليست حسابًا رقميًا للأجر.</p>
-    {fridayHours?<>
+    {thursdayReminder?<p className="np-r310-friday-caption" role="status">تذكير: غدًا الجمعة · استعد للتبكير</p>:null}
+    {thursdayReminder?<>
+      <div className="np-r232-five-grid np-r235-five-rows np-r237-friday-hours" role="group" aria-label="تذكير بساعات الجمعة الخمس">
+        {([1,2,3,4,5] as const).map(number=>{
+          const virtue=fridayVirtueR284(number);
+          const hourLabel=["الأولى","الثانية","الثالثة","الرابعة","الخامسة"][number-1]!;
+          return <article key={number} className="np-r232-window np-r234-window tone-friday" data-phase="upcoming">
+            <div className="np-r234-card-title">
+              <h3 aria-label={`الساعة ${hourLabel}`}>{hourLabel}</h3>
+              <p className="np-r284-friday-virtue" data-testid={`friday-virtue-${number}`}><span aria-hidden="true">{virtue.icon}</span><span>{virtue.description}</span></p>
+            </div>
+            <div className="np-r234-card-bottom"><div className="np-r247-timer" role="status" aria-label="تذكير ليوم الجمعة"><span className="np-r247-inactive">غدًا</span></div></div>
+          </article>;
+        })}
+      </div>
+      <details className="np-r308-friday-details" data-testid="r308-friday-details">
+        <summary>فضائل ساعات الجمعة</summary>
+        <ol>
+          {([1,2,3,4,5] as const).map(number=>{
+            const virtue=fridayVirtueR284(number);
+            return <li key={number}><strong>الساعة {["الأولى","الثانية","الثالثة","الرابعة","الخامسة"][number-1]}</strong><span>{virtue.icon} {virtue.description}</span></li>;
+          })}
+        </ol>
+      </details>
+    </>:fridayHours?<>
     <div className="np-r232-five-grid np-r235-five-rows np-r237-friday-hours" role="group" aria-label="الساعات الخمس مرتبة، جميعها ظاهرة">
      {fridayHours.map(hour=><WindowCard key={hour.number}
        title={`الساعة ${["الأولى","الثانية","الثالثة","الرابعة","الخامسة"][hour.number-1]}`}
