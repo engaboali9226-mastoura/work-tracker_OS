@@ -4,6 +4,7 @@ import "./noor-time-windows-r232.css";
 import "./noor-work-teacher-r264.css";
 import "./noor-linked-activity-insights-r312.css";
 import "./noor-reminder-settings-r314.css";
+import "./noor-admin-mfa-r315.css";
 import "./noor-account-self-service-r312.css";
 
 import {
@@ -28,6 +29,7 @@ import {
   NoorPersonalApplicationView,
 } from "./noor-personal-application-view.js";
 import {NoorWorkTeacherViewR264} from "./noor-work-teacher-view-r264.js";
+import {NoorAdminMfaPageR315} from "./noor-admin-mfa-r315.js";
 import {
   createAuthenticationSessionController,
 } from "./authentication-session-controller.js";
@@ -207,6 +209,11 @@ function ShellFoundation() {
         authentication.kind,
     });
 
+  if (pathname==="/admin/security") {
+    // This is an identity-factor setup screen, not an administration route.
+    // It exposes NO role grants, account data, or privileged APIs.
+    return <NoorAdminMfaPageR315 />;
+  }
   return (
     <PlatformShell
       state={state}
