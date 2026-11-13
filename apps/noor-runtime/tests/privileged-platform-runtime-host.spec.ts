@@ -227,7 +227,7 @@ test(
         )
         ?? []
       ).length,
-      7,
+      8,
     );
 
     for (
@@ -239,6 +239,7 @@ test(
         "NoorAuthenticationAccountUserDatabase",
         "NoorPersonalFoundationDatabase",
         "NoorWorkTeacherDatabaseR264",
+        "NoorAdminDatabaseR316",
         "NoorPrivateJournalDatabaseR221",
       ]
     ) {
