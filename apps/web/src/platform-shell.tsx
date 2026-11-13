@@ -143,7 +143,8 @@ function SmartGateway({
   const [notice,setNotice]=useState("");
   const [error,setError]=useState("");
   const [busy,setBusy]=useState(false);
-  const isAuth = authenticationState === "authenticated";
+  // Recovery links take precedence over an unrelated old NOOR app cookie.
+  const isAuth = authenticationState === "authenticated" && mode !== "recovery";
   const submitting = authenticationState === "submitting" || busy;
   const changeMode=(next:typeof mode)=>{if(submitting)return;setMode(next);setNotice("");setError("");};
   const submit = async (event: FormEvent<HTMLFormElement>) => {
@@ -152,6 +153,7 @@ function SmartGateway({
     const form = new FormData(event.currentTarget);
     const email = String(form.get("email")??"").trim();
     const password = String(form.get("password")??"");
+    const name = String(form.get("name")??"").trim();
     const confirmation = String(form.get("passwordConfirm")??"");
     setError("");setNotice("");
     if(mode==="login"){if(signIn)await signIn({email,password});return;}
@@ -159,8 +161,11 @@ function SmartGateway({
     if((mode==="recovery"||mode==="register")&&password!==confirmation){
       setError("كلمتا المرور غير متطابقتين.");return;
     }
-    if((mode==="recovery"||mode==="register")&&password.length<8){
-      setError("استخدم كلمة مرور من ٨ أحرف على الأقل.");return;
+    if(mode==="register"&&(name.length<2||name.length>120)){
+      setError("أدخل اسمًا من حرفين إلى ١٢٠ حرفًا.");return;
+    }
+    if((mode==="recovery"&&password.length<8)||(mode==="register"&&password.length<12)){
+      setError("استخدم كلمة مرور من ١٢ حرفًا على الأقل للتسجيل، أو ٨ أحرف على الأقل للاستعادة.");return;
     }
     setBusy(true);
     try{
@@ -168,7 +173,7 @@ function SmartGateway({
       const result=mode==="reset"
         ? await accountService.requestPasswordReset(email,noorRecoveryRedirectR312(origin))
         : mode==="register"
-          ? await accountService.registerPendingAccount(email,password,new URL("/",origin).toString())
+          ? await accountService.registerPendingAccount(email,password,new URL("/",origin).toString(),name)
           : await accountService.completePasswordRecovery(password);
       if(result==="invalid"){setError(mode==="recovery"?"رابط الاستعادة غير صالح أو انتهت صلاحيته. أعد طلب رسالة جديدة.":"تحقق من صحة البيانات المدخلة.");return;}
       if(result==="unavailable"){setError("تعذّر إتمام الطلب. تحقق من الاتصال وإعدادات البريد ثم حاول مرة أخرى.");return;}
@@ -179,7 +184,7 @@ function SmartGateway({
       }else if(mode==="reset"){
         setNotice("إذا كان البريد مرتبطًا بحساب، ستصلك رسالة استعادة. افحص البريد والرسائل غير المرغوبة.");
       }else if(mode==="register"){
-        setNotice("تم إرسال طلب التسجيل. تحقّق من بريدك؛ يلزم اعتماد وربط الحساب بمساحة نور قبل تمكين الدخول.");
+        setNotice("تم استلام طلب التسجيل إن كان البريد صالحًا وغير مستخدم. أكّد بريدك الإلكتروني، ثم تعتمد الإدارة الحساب وتحدد التطبيقات المسموح بها قبل الدخول.");
       }
     }catch{setError("تعذّر إتمام الطلب حاليًا.");}
     finally{setBusy(false);}
@@ -204,6 +209,11 @@ function SmartGateway({
           </nav>
           {mode==="recovery"?<h2 className="noor-auth-title-r312">تعيين كلمة مرور جديدة</h2>:null}
           <form className="noor-welcome-form" onSubmit={event=>{void submit(event);}}>
+            {mode==="register"?<label className="noor-welcome-field">
+              <span>اسم المستخدم</span>
+              <input name="name" type="text" minLength={2} maxLength={120} autoComplete="name"
+                required disabled={submitting} placeholder="اسمك"/>
+            </label>:null}
             {mode!=="recovery"?<label className="noor-welcome-field">
               <span>البريد الإلكتروني</span>
               <input name="email" type="email" dir="ltr" inputMode="email"
@@ -211,15 +221,15 @@ function SmartGateway({
             </label>:null}
             {mode==="login"||mode==="register"||mode==="recovery"?<label className="noor-welcome-field">
               <span>{mode==="recovery"?"كلمة المرور الجديدة":"كلمة المرور"}</span>
-              <input name="password" type="password" dir="ltr" minLength={mode==="login"?undefined:8}
+              <input name="password" type="password" dir="ltr" minLength={mode==="login"?undefined:mode==="register"?12:8}
                 autoComplete={mode==="login"?"current-password":"new-password"} required disabled={submitting} placeholder="••••••••" />
             </label>:null}
             {mode==="register"||mode==="recovery"?<label className="noor-welcome-field">
               <span>تأكيد كلمة المرور</span>
               <input name="passwordConfirm" type="password" dir="ltr" autoComplete="new-password"
-                minLength={8} required disabled={submitting} placeholder="••••••••" />
+                minLength={mode==="register"?12:8} required disabled={submitting} placeholder="••••••••" />
             </label>:null}
-            {mode==="register"?<p className="noor-auth-hint-r312">إنشاء الهوية لا يمنح صلاحية الدخول تلقائيًا؛ يلزم تأكيد البريد وربط الحساب بمساحة نور من الإدارة.</p>:null}
+            {mode==="register"?<p className="noor-auth-hint-r312">بعد تأكيد بريدك، يراجع المدير طلب التسجيل ويحدد التطبيقات التي يمكنك دخولها. لا يُنشأ أي وصول تلقائي.</p>:null}
             <button className="noor-welcome-submit" type="submit" disabled={submitting || (mode==="login"?!signIn:!accountService)}>
               {submitting?(mode==="login"?"جارٍ تسجيل الدخول…":"جارٍ التنفيذ…"):mode==="login"?"الدخول إلى نور":mode==="register"?"إرسال طلب التسجيل":mode==="reset"?"إرسال رابط الاستعادة":"حفظ كلمة المرور الجديدة"}
               {!submitting?<span aria-hidden="true">←</span>:null}

@@ -14,6 +14,8 @@ function dependencies() {
     definitions: [] as any[],
     execution: [] as any[],
     outbox: [] as any[],
+    initialized: [] as Array<{userId:string;city:string;method:string}>,
+    allowInitialization: true,
   };
 
   const personalDay = {
@@ -177,6 +179,10 @@ function dependencies() {
       foundation: {
         async openOperation() {
           return scope as never;
+        },
+        async initializePersonalProfile(userId:string,city:string,method:string){
+          state.initialized.push({userId,city,method});
+          return state.allowInitialization;
         },
       },
       clock: {
@@ -358,3 +364,21 @@ test(
     );
   },
 );
+
+test("R321 first login requires an authorized NOOR session and strictly chosen city and prayer policy",async()=>{
+ const f=dependencies();
+ const s=new PersonalControlOperation(f.value);
+ const make=(city:unknown,calculationMethod:unknown,extra:Record<string,unknown>={})=>({
+  type:"initialize-personal-profile-r321",city,calculationMethod,...extra,
+ });
+ assert.equal((await s.executeCommand({sessionId:null,command:make("riyadh","UmmAlQura")})).status,401);
+ assert.equal((await s.executeCommand({sessionId:"session-1",command:make("riyadh","UmmAlQura",{userId:"other-user"})})).status,400);
+ assert.equal((await s.executeCommand({sessionId:"session-1",command:make("unknown","UmmAlQura")})).status,400);
+ assert.equal((await s.executeCommand({sessionId:"session-1",command:make("riyadh","invalid-method")})).status,400);
+ assert.deepEqual(f.state.initialized,[]);
+ const result=await s.executeCommand({sessionId:"session-1",command:make("cairo","Egyptian")});
+ assert.equal(result.status,204);
+ assert.deepEqual(f.state.initialized,[{userId:"user-1",city:"cairo",method:"Egyptian"}]);
+ f.state.allowInitialization=false;
+ assert.equal((await s.executeCommand({sessionId:"session-1",command:make("cairo","Egyptian")})).status,409);
+});

@@ -1,3 +1,4 @@
+import "./noor-personal-initial-setup-r321.css";
 import "./noor-ios-viewport-r230.css";
 import "./noor-welcome-gateway-r231.css";
 import "./noor-time-windows-r232.css";
@@ -209,13 +210,10 @@ function ShellFoundation() {
         authentication.kind,
     });
 
-  // R317: Supabase may fall back to the configured Site URL when a custom
-  // recovery redirect is not allowlisted. Route ONLY a verified recovery
-  // callback shape to credential setup; it still requires Supabase Auth proof.
-  const recoveryHash = typeof window!=="undefined"
-    && new URLSearchParams(window.location.hash.replace(/^#/u,"")).get("type")==="recovery";
-  const rootRecoveryCallback = pathname==="/" && recoveryHash;
-  if (pathname==="/admin/security" || rootRecoveryCallback) {
+  // Only the dedicated /admin/security route hosts administrator MFA.
+  // The root recovery callback belongs to the *ordinary* NOOR gateway, not
+  // to an administrator page. Supabase Auth still verifies any recovery proof.
+  if (pathname==="/admin/security") {
     // This is an identity-factor setup screen, not an administration route.
     // It exposes NO role grants, account data, or privileged APIs.
     return <NoorAdminMfaPageR315 />;

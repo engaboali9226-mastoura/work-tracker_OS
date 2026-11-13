@@ -12,13 +12,14 @@ test("public account flows carry only one-time provider auth and do not persist 
   let detectionFlags:boolean[]=[];
   let resetTo="";
   let signupTo="";
+  let signupData:unknown=null;
   let recoveryUser=true;
   const factory=(detectSessionInUrl:boolean)=>{
     detectionFlags.push(detectSessionInUrl);
     return {
       auth:{
         async resetPasswordForEmail(_email:string,opts:{redirectTo:string}){resetTo=opts.redirectTo;return {error:null};},
-        async signUp(_values:{email:string;password:string;options:{emailRedirectTo:string}}){signupTo=_values.options.emailRedirectTo;return {error:null};},
+        async signUp(_values:{email:string;password:string;options:{emailRedirectTo:string;data?:unknown}}){signupTo=_values.options.emailRedirectTo;signupData=_values.options.data;return {error:null};},
         async signInWithPassword(_input:{email:string;password:string}){return {data:{user:{id:"verified"}},error:null};},
         async updateUser(_input:{email?:string;password?:string}){return {error:null};},
         async signOut(){return {error:null};},
@@ -29,8 +30,9 @@ test("public account flows carry only one-time provider auth and do not persist 
   const service=createNoorAccountSelfServiceR312({supabaseUrl:"https://example.supabase.co",supabasePublishableKey:"public"},factory);
   assert.equal(await service.requestPasswordReset("test@example.com","https://noor-personal.onrender.com/?auth=recovery"),"sent");
   assert.equal(resetTo,"https://noor-personal.onrender.com/?auth=recovery");
-  assert.equal(await service.registerPendingAccount("new@example.com","secure-password","https://noor-personal.onrender.com/"),"sent");
+  assert.equal(await service.registerPendingAccount("new@example.com","secure-password","https://noor-personal.onrender.com/","نور تجريبي"),"sent");
   assert.equal(signupTo,"https://noor-personal.onrender.com/");
+  assert.deepEqual(signupData,{noor_registration_request:true,name:"نور تجريبي"});
   assert.equal(await service.requestEmailChange("old@example.com","password","new@example.com"),"sent");
   assert.equal(await service.completePasswordRecovery("new-secure-password"),"updated");
   recoveryUser=false;

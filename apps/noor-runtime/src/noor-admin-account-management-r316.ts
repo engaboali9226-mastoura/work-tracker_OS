@@ -30,7 +30,7 @@ export interface NoorAdminDatabaseR316 {
 }
 export type NoorAdminResultR316=Readonly<{status:200|201|400|401|403|404|409|429|503;body?:unknown}>;
 export interface NoorAdminAccountManagementR316 {
- execute(operation:"list"|"create"|"delete"|"rename"|"access", token:string|null, payload:unknown):Promise<NoorAdminResultR316>;
+ execute(operation:"list"|"create"|"delete"|"rename"|"access"|"pending"|"approve", token:string|null, payload:unknown):Promise<NoorAdminResultR316>;
 }
 export interface NoorAdminDepsR316 {
  client:SupabaseClient<NoorAdminDatabaseR316>;
@@ -269,14 +269,87 @@ export function createNoorAdminAccountManagementR316(d:NoorAdminDepsR316):NoorAd
    return {status:503};
   }
  }
+ /** Self-registered accounts are NOT eligible for access until a verified
+  * independent administrator approves them. User-controlled metadata is
+  * merely a discovery marker, never proof of administrative authority.
+  */
+ async function pending(page:number):Promise<NoorAdminResultR316>{
+  try{
+   const users=await d.client.auth.admin.listUsers({page,perPage:100});
+   if(users.error||!users.data?.users)return {status:503};
+   const ids=users.data.users.filter(u=>u.user_metadata?.noor_registration_request===true
+    &&u.email_confirmed_at&&!u.deleted_at&&uuid(u.id)).map(u=>u.id);
+   if(!ids.length)return {status:200,body:{page,accounts:[],hasMore:users.data.users.length===100}};
+   const [linked,protectedRoles]=await Promise.all([
+    d.client.from("noor_authentication_account_linkages")
+     .select("subject").in("subject",ids),
+    d.client.from("noor_admin_accounts_r271").select("auth_user_id").in("auth_user_id",ids),
+   ]);
+   if(linked.error||!linked.data||protectedRoles.error||!protectedRoles.data)return {status:503};
+   const blocked=new Set([...linked.data.map(x=>x.subject),...protectedRoles.data.map(x=>x.auth_user_id)]);
+   const accounts=users.data.users.filter(u=>ids.includes(u.id)&&!blocked.has(u.id))
+    .map(u=>({id:u.id,email:u.email??"",createdAt:u.created_at,
+     name:typeof u.user_metadata?.name==="string"?u.user_metadata.name.slice(0,120):""}));
+   return {status:200,body:{page,accounts,hasMore:users.data.users.length===100}};
+  }catch{return {status:503};}
+ }
+ async function approve(actorId:string,p:Record<string,unknown>):Promise<NoorAdminResultR316>{
+  if(!exact(p,["requestId","userId","confirmEmail","applications"])||
+    !uuid(p.requestId)||!uuid(p.userId)||!okEmail(p.confirmEmail)||
+    !apps(p.applications))return {status:400};
+  if(actorId===p.userId)return {status:403};
+  try{
+   const [identity,prior,role]=await Promise.all([
+    d.client.auth.admin.getUserById(p.userId),
+    d.client.from("noor_authentication_account_linkages")
+      .select("account_id").eq("issuer",d.expectedIssuer).eq("subject",p.userId).limit(2),
+    d.client.from("noor_admin_accounts_r271")
+      .select("auth_user_id").eq("auth_user_id",p.userId).limit(1),
+   ]);
+   if(identity.error||!identity.data.user||prior.error||!prior.data||
+      role.error||!role.data)return {status:503};
+   if(role.data.length||identity.data.user.deleted_at)return {status:403};
+   if(prior.data.length)return {status:409};
+   const user=identity.data.user;
+   if(!user.email_confirmed_at||user.user_metadata?.noor_registration_request!==true)return {status:403};
+   if(user.email?.toLowerCase()!==p.confirmEmail.toLowerCase())return {status:409};
+   const accountId="noor-account-"+randomUUID();
+   if(!await initiated(p.requestId,actorId,"registration_approval",accountId))return {status:409};
+   let linked=false;
+   try{
+    const insertion=await d.client.from("noor_authentication_account_linkages").insert({
+      issuer:d.expectedIssuer,subject:p.userId,account_id:accountId,user_id:p.userId,
+    });
+    if(insertion.error)throw Error("R321_LINK_FAILED");
+    linked=true;
+    const now=Date.now();
+    const grants=p.applications.map(app=>({
+      id:"grant-"+randomUUID(),account_id:accountId,action:"access",resource_type:"application",
+      resource_id:app,granted_at_epoch_ms:now,revoked_at_epoch_ms:null,
+    }));
+    const entitled=await d.client.from("noor_entitlement_grants").insert(grants);
+    if(entitled.error)throw Error("R321_ENTITLE_FAILED");
+    if(!await audit(p.requestId,actorId,"registration_approval",accountId,"success"))
+      throw Error("R321_AUDIT_FAILED");
+    return {status:201,body:{approved:true,email:user.email,applications:p.applications}};
+   }catch{
+    await d.client.from("noor_entitlement_grants").update({revoked_at_epoch_ms:Date.now()})
+     .eq("account_id",accountId).is("revoked_at_epoch_ms",null);
+    if(linked)await d.client.from("noor_authentication_account_linkages").delete()
+     .eq("issuer",d.expectedIssuer).eq("account_id",accountId);
+    await audit(p.requestId,actorId,"registration_approval",accountId,"failure").catch(()=>{});
+    return {status:503};
+   }
+  }catch{return {status:503};}
+ }
  return Object.freeze({
-  async execute(operation:"list"|"create"|"delete"|"rename"|"access",token:string|null,payload:unknown):Promise<NoorAdminResultR316>{
+  async execute(operation:"list"|"create"|"delete"|"rename"|"access"|"pending"|"approve",token:string|null,payload:unknown):Promise<NoorAdminResultR316>{
    const identity=await actor(token);if("status" in identity)return identity;
    if(!obj(payload))return {status:400};
-   if(operation==="list"){
+   if(operation==="list"||operation==="pending"){
     if(!exact(payload,["page"])||!Number.isInteger(payload.page)||
        (payload.page as number)<1||(payload.page as number)>1000)return {status:400};
-    return list(payload.page as number);
+    return operation==="list"?list(payload.page as number):pending(payload.page as number);
    }
    const minute=Math.floor(Date.now()/60000),prior=throttles.get(identity.id);
    const count=prior?.minute===minute?prior.count+1:1;
@@ -286,6 +359,7 @@ export function createNoorAdminAccountManagementR316(d:NoorAdminDepsR316):NoorAd
    if(operation==="delete")return remove(identity.id,payload);
    if(operation==="rename")return rename(identity.id,payload);
    if(operation==="access")return access(identity.id,payload);
+   if(operation==="approve")return approve(identity.id,payload);
    return {status:404};
   },
  });

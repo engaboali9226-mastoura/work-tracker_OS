@@ -6,7 +6,7 @@
  */
 export async function requestNoorAdminAccountR316(
   token:()=>Promise<string|null>,
-  operation:"list"|"create"|"delete"|"rename"|"access",
+  operation:"list"|"create"|"delete"|"rename"|"access"|"pending"|"approve",
   data:unknown,
 ):Promise<unknown>{
  const proof=await token();

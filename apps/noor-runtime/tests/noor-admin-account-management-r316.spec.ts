@@ -11,13 +11,13 @@ function fakeToken(aal="aal2"){const body={iss:issuer,aud:"authenticated",sub:ac
  session_id:sessionId,exp:Math.floor(Date.now()/1000)+600};
  return "e30."+Buffer.from(JSON.stringify(body)).toString("base64url")+".signature";
 }
-function fakeClient(opts:{role?:boolean;io?:boolean;session?:boolean;sessionError?:boolean;protectedTarget?:boolean;profileEmail?:string;editError?:boolean}={}){
+function fakeClient(opts:{role?:boolean;io?:boolean;session?:boolean;sessionError?:boolean;protectedTarget?:boolean;profileEmail?:string;editError?:boolean;pendingSignup?:boolean;emailConfirmed?:boolean}={}){
  const calls:string[]=[];
  const link={account_id:"noor-account-test",subject:userId,user_id:userId};
  const builder=(table:string)=>{
   let kind="select";let targetRoleLookup=false;
   const b={
-   select(_fields:string){kind="select";return b;},
+   select(_fields:string){kind="select";return b;}, in(_field:string,_values:unknown[]){return b;},
    eq(key:string,val:unknown){if(table==="noor_admin_accounts_r271"&&key==="auth_user_id"&&val===userId)targetRoleLookup=true;return b;},is(_key:string,_val:unknown){return b;},
    limit(_n:number){return b;},range(_a:number,_b:number){return b;},
    order(_x:string,_v:unknown){return b;},
@@ -40,7 +40,15 @@ function fakeClient(opts:{role?:boolean;io?:boolean;session?:boolean;sessionErro
    admin:{
     createUser:async(_opts:unknown)=>{calls.push("auth:create");return {error:null,data:{user:{id:userId}}};},
     deleteUser:async(_id:string,_soft?:boolean)=>{calls.push("auth:delete");return {error:null,data:{}};},
-    getUserById:async(_id:string)=>({error:null,data:{user:{id:userId,email:opts.profileEmail??"guest@example.com",created_at:"2026-11-13T00:00:00Z",user_metadata:{name:"Test",tag:"retained"}}}}),
+    getUserById:async(_id:string)=>({error:null,data:{user:{id:userId,email:opts.profileEmail??"guest@example.com",
+      email_confirmed_at:opts.emailConfirmed===false?null:"2026-11-13T00:00:00Z",
+      created_at:"2026-11-13T00:00:00Z",
+      user_metadata:{name:"Test",tag:"retained",noor_registration_request:opts.pendingSignup??false}}}}),
+    listUsers:async()=>({error:null,data:{users:opts.pendingSignup?[{
+      id:userId,email:"guest@example.com",created_at:"2026-11-13T00:00:00Z",
+      email_confirmed_at:opts.emailConfirmed===false?null:"2026-11-13T00:00:00Z",
+      user_metadata:{name:"Test",noor_registration_request:true},
+    }]:[]}}),
     updateUserById:async(_id:string,_changes:unknown)=>{calls.push("auth:update");return {error:opts.editError?{message:"failed"}:null,data:{user:{id:userId}}};},
    },
   },
@@ -185,4 +193,43 @@ test("R320 marks provider-side rename failure and RPC access failure unavailable
   requestId,userId,accountId:"noor-account-test",confirmEmail:"guest@example.com",applications:["noor-work"],
  });
  assert.equal(access.status,503);
+});
+
+test("R321 admin sees only self-registered confirmed candidates and can approve explicitly",async()=>{
+ const {client,calls}=fakeClient({role:true,pendingSignup:true});
+ const s=service(client);
+ const pending=await s.execute("pending",fakeToken(),{page:1});
+ assert.equal(pending.status,200);
+ assert.equal((pending.body as {accounts:unknown[]}).accounts.length,1);
+ const approved=await s.execute("approve",fakeToken(),{
+  requestId,userId,confirmEmail:"guest@example.com",applications:["noor-personal"],
+ });
+ assert.equal(approved.status,201);
+ assert.ok(calls.includes("noor_authentication_account_linkages:insert"));
+ assert.ok(calls.includes("noor_entitlement_grants:insert"));
+ assert.ok(calls.includes("noor_admin_audit_r271:insert"));
+ assert.equal(calls.includes("auth:create"),false);
+ assert.equal(calls.includes("auth:delete"),false);
+});
+test("R321 unconfirmed and unrequested identities never receive app approvals",async()=>{
+ for(const opts of [
+  {role:true,pendingSignup:false,emailConfirmed:true},
+  {role:true,pendingSignup:true,emailConfirmed:false},
+ ]){
+  const {client,calls}=fakeClient(opts);
+  const result=await service(client).execute("approve",fakeToken(),{
+   requestId,userId,confirmEmail:"guest@example.com",applications:["noor-personal"],
+  });
+  assert.equal(result.status,403);
+  assert.equal(calls.includes("noor_authentication_account_linkages:insert"),false);
+ }
+});
+test("R321 pending approval requires AAL2, exact email, and supported app scopes",async()=>{
+ const {client,calls}=fakeClient({role:true,pendingSignup:true});
+ const s=service(client);
+ const payload={requestId,userId,confirmEmail:"guest@example.com",applications:["noor-personal"]};
+ assert.equal((await s.execute("approve",fakeToken("aal1"),payload)).status,403);
+ assert.equal((await s.execute("approve",fakeToken(),{...payload,confirmEmail:"other@example.com"})).status,409);
+ assert.equal((await s.execute("approve",fakeToken(),{...payload,applications:["other"]})).status,400);
+ assert.ok(!calls.includes("noor_authentication_account_linkages:insert"));
 });
