@@ -181,7 +181,7 @@ export function createNoorAdminAccountManagementR316(d:NoorAdminDepsR316):NoorAd
   }catch{return {status:503};}
  }
  return Object.freeze({
-  async execute(operation,token,payload):Promise<NoorAdminResultR316>{
+  async execute(operation:"list"|"create"|"delete",token:string|null,payload:unknown):Promise<NoorAdminResultR316>{
    const identity=await actor(token);if("status" in identity)return identity;
    if(!obj(payload))return {status:400};
    if(operation==="list"){
