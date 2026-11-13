@@ -231,7 +231,7 @@ export function createNoorAdminAccountManagementR316(d:NoorAdminDepsR316):NoorAd
      !uuid(p.requestId)||!uuid(p.userId)||
      typeof p.accountId!=="string"||p.accountId.length>256||p.accountId.length<1||
      !okEmail(p.confirmEmail)||typeof p.name!=="string"||p.name!==p.name.trim()||
-     p.name.length<2||p.name.length>120||/[\\u0000-\\u001f]/.test(p.name))return {status:400};
+     p.name.length<2||p.name.length>120||/[\u0000-\u001f]/.test(p.name))return {status:400};
   const target=await editableTarget(actorId,p.userId,p.accountId,p.confirmEmail);
   if("status" in target)return target;
   if(!await initiated(p.requestId,actorId,"account_rename",p.accountId))return {status:409};
