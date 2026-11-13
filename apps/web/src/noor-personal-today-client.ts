@@ -26,6 +26,7 @@ export type NoorPersonalWorkspaceResult =
     };
 
 export type NoorPersonalCommandInput =
+  | Readonly<{type:"set-friday-mosque-hour";hour:1|2|3|4|5|null;expectedHour:1|2|3|4|5|null}>
   | Readonly<{type:"configure-task-sessions";definitionId:string;expectedRevisionId:string;plan:NoorTaskSessionPlanDraft|null}>
   | Readonly<{type:"edit-task-general-note";definitionId:string;expectedRevisionId:string;note:string}>
   | Readonly<{type:"edit-task-session-note";definitionId:string;taskSessionId:string;expectedRevision:number;note:string}>
