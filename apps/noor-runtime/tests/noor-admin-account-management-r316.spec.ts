@@ -11,7 +11,7 @@ function fakeToken(aal="aal2"){const body={iss:issuer,aud:"authenticated",sub:ac
  session_id:sessionId,exp:Math.floor(Date.now()/1000)+600};
  return "e30."+Buffer.from(JSON.stringify(body)).toString("base64url")+".signature";
 }
-function fakeClient(opts:{role?:boolean;io?:boolean;session?:boolean;sessionError?:boolean}={}){
+function fakeClient(opts:{role?:boolean;io?:boolean;session?:boolean;sessionError?:boolean;protectedTarget?:boolean;profileEmail?:string;editError?:boolean}={}){
  const calls:string[]=[];
  const link={account_id:"noor-account-test",subject:userId,user_id:userId};
  const builder=(table:string)=>{
@@ -26,7 +26,8 @@ function fakeClient(opts:{role?:boolean;io?:boolean;session?:boolean;sessionErro
    delete(){kind="delete";calls.push(table+":delete");return b;},
    then(ok:(v:unknown)=>unknown,bad?:(e:unknown)=>unknown){
     const data=kind!=="select"?null:table==="noor_admin_accounts_r271"?
-      (opts.role&&!targetRoleLookup?[{auth_user_id:actorId,enabled:true,role:"super_admin"}]:[]):
+      (targetRoleLookup&&opts.protectedTarget?[{auth_user_id:userId,enabled:true,role:"admin"}]:
+       opts.role&&!targetRoleLookup?[{auth_user_id:actorId,enabled:true,role:"super_admin"}]:[]):
       table==="noor_authentication_account_linkages"?(opts.io?[link]:[]):
       table==="noor_entitlement_grants"?[]:null;
     return Promise.resolve({error:null,data}).then(ok,bad);
@@ -39,12 +40,20 @@ function fakeClient(opts:{role?:boolean;io?:boolean;session?:boolean;sessionErro
    admin:{
     createUser:async(_opts:unknown)=>{calls.push("auth:create");return {error:null,data:{user:{id:userId}}};},
     deleteUser:async(_id:string,_soft?:boolean)=>{calls.push("auth:delete");return {error:null,data:{}};},
-    getUserById:async(_id:string)=>({error:null,data:{user:{id:userId,email:"guest@example.com",created_at:"2026-11-13T00:00:00Z",user_metadata:{name:"Test"}}}}),
+    getUserById:async(_id:string)=>({error:null,data:{user:{id:userId,email:opts.profileEmail??"guest@example.com",created_at:"2026-11-13T00:00:00Z",user_metadata:{name:"Test",tag:"retained"}}}}),
+    updateUserById:async(_id:string,_changes:unknown)=>{calls.push("auth:update");return {error:opts.editError?{message:"failed"}:null,data:{user:{id:userId}}};},
    },
   },
   from:(name:string)=>{calls.push(name+":read");return builder(name);},
   rpc:async(name:string,params:unknown)=>{
    calls.push("rpc:"+name);
+   if(name==="noor_admin_set_application_access_r320"){
+    assert.deepEqual(params,{
+     p_actor_user_id:actorId,p_target_user_id:userId,p_account_id:"noor-account-test",
+     p_expected_issuer:issuer,p_request_id:requestId,p_personal:false,p_work:true,
+    });
+    return {data:opts.editError?null:{updated:true},error:opts.editError?{message:"failed"}:null};
+   }
    assert.equal(name,"noor_admin_session_guard_r319");
    assert.deepEqual(params,{p_user_id:actorId,p_session_id:sessionId});
    return {data:opts.session!==false,error:opts.sessionError?{message:"database unavailable"}:null};
@@ -122,4 +131,58 @@ test("R319 fails closed on temporary database errors verifying an active AAL2 se
  const {client,calls}=fakeClient({role:true,sessionError:true,io:true});
  assert.equal((await service(client).execute("list",fakeToken(),{page:1})).status,503);
  assert.ok(!calls.includes("noor_authentication_account_linkages:read"));
+});
+
+test("R320 rename updates metadata without creating/deleting accounts",async()=>{
+ const {client,calls}=fakeClient({role:true,io:true});
+ const result=await service(client).execute("rename",fakeToken(),{
+  requestId,userId,accountId:"noor-account-test",confirmEmail:"guest@example.com",name:"New full name",
+ });
+ assert.equal(result.status,200);
+ assert.equal((result.body as {name:string}).name,"New full name");
+ assert.ok(calls.includes("auth:update"));
+ assert.equal(calls.includes("auth:delete"),false);
+ assert.equal(calls.includes("auth:create"),false);
+});
+test("R320 access enables exactly the requested app through audited atomic RPC",async()=>{
+ const {client,calls}=fakeClient({role:true,io:true});
+ const result=await service(client).execute("access",fakeToken(),{
+  requestId,userId,accountId:"noor-account-test",confirmEmail:"guest@example.com",
+  applications:["noor-work"],
+ });
+ assert.equal(result.status,200);
+ assert.ok(calls.includes("rpc:noor_admin_set_application_access_r320"));
+ assert.equal(calls.includes("auth:update"),false);
+});
+test("R320 rejects editing protected administrators and mismatched accounts",async()=>{
+ const protectedClient=fakeClient({role:true,io:true,protectedTarget:true});
+ const p={requestId,userId,accountId:"noor-account-test",confirmEmail:"guest@example.com",name:"Test updated"};
+ assert.equal((await service(protectedClient.client).execute("rename",fakeToken(),p)).status,403);
+ assert.equal(protectedClient.calls.includes("auth:update"),false);
+ const {client}=fakeClient({role:true,io:true});
+ assert.equal((await service(client).execute("rename",fakeToken(),{...p,accountId:"wrong"})).status,404);
+ assert.equal((await service(client).execute("rename",fakeToken(),{...p,confirmEmail:"other@example.com"})).status,409);
+});
+test("R320 fails closed on malformed application lists, duplicate scope or stale tokens",async()=>{
+ const {client,calls}=fakeClient({role:true,io:true});
+ for(const applications of [["noor-work","noor-work"],["unknown"],[1],null]){
+  assert.equal((await service(client).execute("access",fakeToken(),{
+   requestId,userId,accountId:"noor-account-test",confirmEmail:"guest@example.com",applications,
+  })).status,400);
+ }
+ assert.ok(!calls.includes("rpc:noor_admin_set_application_access_r320"));
+ assert.equal((await service(client).execute("rename",fakeToken("aal1"),{
+  requestId,userId,accountId:"noor-account-test",confirmEmail:"guest@example.com",name:"Safe name",
+ })).status,403);
+});
+test("R320 marks provider-side rename failure and RPC access failure unavailable without changing admin status",async()=>{
+ const {client}=fakeClient({role:true,io:true,editError:true});
+ const rename=await service(client).execute("rename",fakeToken(),{
+  requestId,userId,accountId:"noor-account-test",confirmEmail:"guest@example.com",name:"New name",
+ });
+ assert.equal(rename.status,503);
+ const access=await service(client).execute("access",fakeToken(),{
+  requestId,userId,accountId:"noor-account-test",confirmEmail:"guest@example.com",applications:["noor-work"],
+ });
+ assert.equal(access.status,503);
 });

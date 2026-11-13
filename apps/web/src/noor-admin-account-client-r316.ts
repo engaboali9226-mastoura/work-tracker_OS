@@ -6,7 +6,7 @@
  */
 export async function requestNoorAdminAccountR316(
   token:()=>Promise<string|null>,
-  operation:"list"|"create"|"delete",
+  operation:"list"|"create"|"delete"|"rename"|"access",
   data:unknown,
 ):Promise<unknown>{
  const proof=await token();
@@ -20,6 +20,7 @@ export async function requestNoorAdminAccountR316(
   if(response.status===403||response.status===404)
    throw Error("لا توجد صلاحية إدارة مفعّلة لهذا الحساب، أو الخدمة غير مفعّلة على الخادم.");
   if(response.status===401)throw Error("انتهت صلاحية الدخول؛ أعد المصادقة الثنائية.");
+  if(response.status===400)throw Error("بيانات التعديل غير صالحة؛ راجع الحقول ثم أعد المحاولة.");
   if(response.status===409)throw Error("تعارض في بيانات الحساب أو الطلب. راجع القائمة قبل إعادة المحاولة.");
   if(response.status===429)throw Error("تجاوزت الحد المسموح من العمليات. حاول لاحقًا.");
   throw Error("تعذّر إكمال العملية، وقد تكون هناك خطوة لم تكتمل. راجع الحالة قبل إعادة المحاولة.");

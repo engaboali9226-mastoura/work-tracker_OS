@@ -44,3 +44,17 @@
 .na315-manual{padding:12px 14px;margin:12px 0;border:1px solid #e0e8e1;background:#f8faf8;border-radius:14px}
 .na315-manual .na315-secondary{margin:8px 0}
 .na315-secret{display:block;direction:ltr;text-align:center;overflow-wrap:anywhere;word-break:break-all;user-select:text;-webkit-user-select:text;font:600 15px/1.9 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;letter-spacing:1px;background:#fff;border:1px solid #d2dfd9;border-radius:10px;padding:12px;margin:8px 0}
+
+/* R320 account-edit controls: readable and usable on narrow iPhone screens. */
+.na316-edit{margin:20px 0 22px;padding:18px;border:1px solid #d7e5d8;background:#fafcf9;border-radius:17px;display:grid;gap:12px}
+.na316-edit-title{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.na316-edit-title h3{margin:0}
+.na316-edit p{font-size:13px;line-height:1.75;margin:0;color:#556e62}
+.na316-edit label{display:grid;gap:8px;font-size:13px;font-weight:600}
+.na316-edit fieldset{border:1px solid #d8e2dd;border-radius:12px;display:flex;flex-wrap:wrap;gap:20px;padding:13px}
+.na316-edit fieldset label,.na316-edit .na316-suspend{display:flex;align-items:center;gap:8px}
+.na316-edit input[type="checkbox"]{width:20px;min-height:20px;flex-shrink:0}
+.na316-edit input:not([type="checkbox"]){width:100%;box-sizing:border-box}
+.na316-user-actions{margin:0;gap:8px;justify-content:flex-end}
+.na316-user-actions button{font-size:12px;padding:9px 12px;min-height:38px}
+@media(max-width:560px){.na316-user-actions{justify-content:flex-start}.na316-user-actions button{flex-grow:1}.na316-edit{padding:13px}}
