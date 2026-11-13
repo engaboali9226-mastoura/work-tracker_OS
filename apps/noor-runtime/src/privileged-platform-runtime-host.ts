@@ -118,7 +118,7 @@ implements PrivilegedPlatformRuntimeOperations {
 
     public readonly teacherWork: NoorWorkTeacherOperationR264,
 
-    public readonly trustedPrivateJournalR221?: NoorPrivateJournalOperationR185,
+    public readonly trustedPrivateJournalR221: NoorPrivateJournalOperationR185|undefined,
     public readonly adminAccounts:NoorAdminAccountManagementR316,
   ) {}
 
