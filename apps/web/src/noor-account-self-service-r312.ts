@@ -1,5 +1,5 @@
-import { createClient } from "@supabase/supabase-js";
-import type { SupabaseClient } from "@supabase/supabase-js";
+import { createBrowserPublicSupabaseAccountClient } from "./public-supabase-authentication-client.js";
+import type { PublicSupabaseAccountClient } from "./public-supabase-authentication-client.js";
 import type { PublicAuthenticationConfiguration } from "./public-authentication-environment.js";
 
 /** Only publishable Supabase keys; never persist provider tokens in browser storage. */
@@ -25,10 +25,8 @@ export function noorRecoveryRedirectR312(origin:string):string {
 }
 export function createNoorAccountSelfServiceR312(
   config:PublicAuthenticationConfiguration,
-  factory:(detectSessionInUrl:boolean)=>SupabaseClient=(detectSessionInUrl)=>
-    createClient(config.supabaseUrl,config.supabasePublishableKey,{
-      auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl},
-    }),
+  factory:(detectSessionInUrl:boolean)=>PublicSupabaseAccountClient=(detectSessionInUrl)=>
+    createBrowserPublicSupabaseAccountClient(config,detectSessionInUrl),
 ):NoorAccountSelfServiceR312 {
   const client=factory(false);
   return {
