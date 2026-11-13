@@ -26,6 +26,8 @@ export type NoorPersonalWorkspaceResult =
     };
 
 export type NoorPersonalCommandInput =
+  | Readonly<{type:"configure-reminder";definitionId:string;expectedRevisionId:string;
+      plan:import("../../noor-personal/src/domain/reminder-plan-r314.js").NoorReminderPlanR314|null}>
   | Readonly<{type:"set-friday-mosque-hour";hour:1|2|3|4|5|null;expectedHour:1|2|3|4|5|null}>
   | Readonly<{type:"configure-task-sessions";definitionId:string;expectedRevisionId:string;plan:NoorTaskSessionPlanDraft|null}>
   | Readonly<{type:"edit-task-general-note";definitionId:string;expectedRevisionId:string;note:string}>
