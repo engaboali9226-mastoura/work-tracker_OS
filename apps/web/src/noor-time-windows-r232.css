@@ -1652,3 +1652,19 @@
     font-size:clamp(15px,4.05vw,18px);
   }
 }
+
+/* R310 — Show Friday's compact pictogram reminder on Thursday after Asr only.
+ * The three always-visible rhythm cards remain unchanged.
+ */
+.np-r232-section .np-r248-reference-strip .np-r310-friday-caption {
+  display:block;
+  margin:0 0 5px;
+  color:#66537d;
+  font-size:11px;
+  font-weight:700;
+  line-height:1.45;
+  text-align:right;
+}
+.np-page[data-appearance="dark"] .np-r248-reference-strip .np-r310-friday-caption {
+  color:#d6c6ed;
+}
