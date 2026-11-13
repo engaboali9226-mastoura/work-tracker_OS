@@ -85,7 +85,7 @@ export interface PrivilegedPlatformRuntimeOperations {
     PersonalControlOperation;
 
   readonly teacherWork: NoorWorkTeacherOperationR264;
-  readonly adminAccounts?:NoorAdminAccountManagementR316;
+  readonly adminAccounts?:NoorAdminAccountManagementR316|undefined;
 
   readonly trustedPrivateJournalR221?: NoorPrivateJournalOperationR185 | undefined;
 
