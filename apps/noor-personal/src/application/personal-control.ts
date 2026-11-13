@@ -23,6 +23,8 @@ import type {
     IdGeneratorPort,
     LocalTransactionPort,
     PersonalFoundationSnapshotPort,
+    FridayMosqueHour,
+    FridayMosqueVisit,
 } from "../ports.js";
 
 function orderedDefinitions(definitions:readonly ExecutionDefinition[]):ExecutionDefinition[]{
@@ -31,6 +33,7 @@ function orderedDefinitions(definitions:readonly ExecutionDefinition[]):Executio
 function categoryNames(snapshot:Pick<PersonalFoundationSnapshotPort,"getCategories"|"listDefinitions">,userId:string):string[]{return [...new Set([...(snapshot.getCategories?.(userId)??DEFAULT_PERSONAL_CATEGORIES),...snapshot.listDefinitions(userId).map(d=>d.category??"عام")])];}
 
 export type PersonalCommand =
+    | Readonly<{type:"set-friday-mosque-hour";hour:FridayMosqueHour|null;expectedHour:FridayMosqueHour|null}>
     | Readonly<{type:"configure-task-sessions";definitionId:string;expectedRevisionId:string;plan:TaskSessionPlanDraft|null}>
     | Readonly<{type:"edit-task-general-note";definitionId:string;expectedRevisionId:string;note:string}>
     | Readonly<{type:"edit-task-session-note";definitionId:string;taskSessionId:string;expectedRevision:number;note:string}>
@@ -105,6 +108,7 @@ export interface PersonalInsights {
 
 export interface PersonalStatisticRow {readonly id:string;readonly definitionId:string;readonly title:string;readonly kind:DefinitionKind;readonly date:string;readonly weight:number;readonly status:ExecutionStatus;readonly amount:number;readonly unit:string;readonly credit?:number;readonly nonAchievement?:boolean;}
 export interface PersonalWorkspace {
+    readonly fridayMosqueVisits:readonly FridayMosqueVisit[];
     readonly statistics:Readonly<{currentDate:string|null;rows:readonly PersonalStatisticRow[]}>;
     readonly categories: readonly string[];
     readonly finance: FinanceLedger;
@@ -118,7 +122,9 @@ export type PersonalControlErrorCode =
     | "DEFINITION_STATE_CONFLICT"
     | "EXECUTION_NOT_FOUND"
     | "EXECUTION_NOT_CURRENT"
-    | "EXECUTION_SUPPRESSED";
+    | "EXECUTION_SUPPRESSED"
+    | "FRIDAY_VISIT_CONFLICT"
+    | "FRIDAY_VISIT_NOT_AVAILABLE";
 
 export class PersonalControlError extends Error {
     public readonly code: PersonalControlErrorCode;
@@ -285,6 +291,12 @@ export function parsePersonalCommand(
         return null;
     }
 
+    if(value.type==="set-friday-mosque-hour"){
+        if(!exactKeys(value,["type","hour","expectedHour"]))return null;
+        const isHour=(v:unknown)=>v===null||v===1||v===2||v===3||v===4||v===5;
+        if(!isHour(value.hour)||!isHour(value.expectedHour))return null;
+        return {type:"set-friday-mosque-hour",hour:value.hour as FridayMosqueHour|null,expectedHour:value.expectedHour as FridayMosqueHour|null};
+    }
     if(value.type==="set-account-location"){
         if(!exactKeys(value,["type","requestId","expectedRevisionId","city"])
           ||typeof value.requestId!=="string"
@@ -766,6 +778,28 @@ export class PersonalCommandService {
         await this.dependencies.transaction.runInTransaction(
             transaction => {
 
+                if(command.type==="set-friday-mosque-hour"){
+                    if(!transaction.getFridayMosqueVisit||!transaction.saveFridayMosqueVisit)
+                      throw new Error("FRIDAY_MOSQUE_STORAGE_UNAVAILABLE");
+                    // Authenticated server time and effective account zone, not a client date.
+                    const day=transaction.findOpenPersonalDayContaining(userId,now);
+                    const zone=day?.boundary.timeZone??this.dependencies.accountTimeZone;
+                    if(!zone)throw new PersonalControlError("FRIDAY_VISIT_NOT_AVAILABLE");
+                    let date:string,weekday:string;
+                    try{
+                        const instant=new Date(now);
+                        weekday=new Intl.DateTimeFormat("en-US",{weekday:"short",timeZone:zone}).format(instant);
+                        const parts=new Intl.DateTimeFormat("en-US",{year:"numeric",month:"2-digit",day:"2-digit",timeZone:zone}).formatToParts(instant);
+                        const field=(name:string)=>parts.find(p=>p.type===name)?.value??"";
+                        date=`${field("year")}-${field("month")}-${field("day")}`;
+                    }catch{throw new PersonalControlError("FRIDAY_VISIT_NOT_AVAILABLE");}
+                    if(weekday!=="Fri"||!/^\d{4}-\d{2}-\d{2}$/.test(date))
+                      throw new PersonalControlError("FRIDAY_VISIT_NOT_AVAILABLE");
+                    const current=transaction.getFridayMosqueVisit(userId,date)?.hour??null;
+                    if(current!==command.expectedHour)throw new PersonalControlError("FRIDAY_VISIT_CONFLICT");
+                    if(current!==command.hour)transaction.saveFridayMosqueVisit(userId,date,command.hour);
+                    return;
+                }
                 if(command.type==="edit-task-general-note"){
                     const parsed=parsePersonalCommand(command);
                     if(!parsed||parsed.type!=="edit-task-general-note")throw new Error("TASK_NOTE_INVALID");
@@ -1516,6 +1550,7 @@ export function buildPersonalWorkspace(
         ?sessionDayCredit(d.activityLog??[],date)
         :(e.status==="Completed"?1:0)}];});
     return Object.freeze({
+        fridayMosqueVisits:snapshot.listFridayMosqueVisits?.(userId)??[],
         statistics:{currentDate:currentLocalDate,rows:rows.sort((a,b)=>a.date.localeCompare(b.date)||a.id.localeCompare(b.id))},
         categories:[...new Set([...(snapshot.getCategories?.(userId)??DEFAULT_PERSONAL_CATEGORIES),...snapshot.listDefinitions(userId).map(d=>d.category??"عام")])],
         finance: snapshot.getFinance?.(userId) ?? emptyFinanceLedger(userId),

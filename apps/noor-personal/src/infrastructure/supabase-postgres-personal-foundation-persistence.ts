@@ -19,6 +19,8 @@ import type {
   LocalTransactionPort,
   LocationProfileRepository,
   PersonalFoundationSnapshotPort,
+  FridayMosqueVisit,
+  FridayMosqueHour,
   PrayerTimePolicyRepository,
 } from "../ports.js";
 
@@ -97,6 +99,7 @@ export interface NoorPersonalFoundationDatabase {
 }
 
 interface FoundationState {
+  fridayMosqueVisits?: FridayMosqueVisit[];
   categories?: string[];
   finance?: FinanceLedger;
   readonly locations:
@@ -137,6 +140,7 @@ T {
 function emptyState():
 FoundationState {
   return {
+    fridayMosqueVisits:[],
     locations:
       [],
     prayerPolicies:
@@ -195,7 +199,7 @@ FoundationState {
   const actualKeys =
     Object.keys(
       value,
-    ).filter(key=>key!=="finance" && key!=="categories").sort();
+    ).filter(key=>key!=="finance" && key!=="categories" && key!=="fridayMosqueVisits").sort();
 
   if (
     actualKeys.length
@@ -231,6 +235,19 @@ FoundationState {
     }
   }
 
+
+  // Optional, backwards-compatible field within the existing owner-scoped JSONB row.
+  // Never accept fabricated hours, duplicate dates or unrelated free-form data.
+  if(value.fridayMosqueVisits!==undefined){
+    const visits=value.fridayMosqueVisits;
+    if(!Array.isArray(visits)||visits.length>1000||
+       visits.some((entry:unknown)=>!isRecord(entry)||
+         Object.keys(entry).sort().join(",")!=="hour,localDate"||
+         typeof entry.localDate!=="string"||!/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(entry.localDate)||
+         ![1,2,3,4,5].includes(entry.hour as number))||
+       new Set(visits.map((entry:FridayMosqueVisit)=>entry.localDate)).size!==visits.length)
+      throw new ProductionAdapterError("PersistenceCorruptRecord","Invalid Friday mosque visit history.");
+  }
   if(value.categories!==undefined && (!Array.isArray(value.categories)||value.categories.length>100||value.categories.some((c:unknown)=>typeof c!=="string"||!c.trim()||c.length>60)||new Set(value.categories).size!==value.categories.length))throw new ProductionAdapterError("PersistenceCorruptRecord","Invalid categories.");
   if(value.finance!==undefined){
     const f=value.finance;
@@ -384,6 +401,26 @@ FoundationTransaction {
         throw new ProductionAdapterError("PersistenceConflict","Location revision boundaries conflict.");
       state.locations[index]={...active,effectiveUntil:instant};
       state.locations.push(clone(revision));
+    },
+    getFridayMosqueVisit:(userId,localDate)=>{
+      if(userId!==owner)throw new Error("FRIDAY_OWNER_MISMATCH");
+      return clone(state.fridayMosqueVisits?.find(v=>v.localDate===localDate)??null);
+    },
+    saveFridayMosqueVisit:(userId,localDate,hour)=>{
+      if(userId!==owner)throw new Error("FRIDAY_OWNER_MISMATCH");
+      if(!/^\d{4}-\d{2}-\d{2}$/.test(localDate)||(hour!==null&&![1,2,3,4,5].includes(hour)))throw new Error("FRIDAY_VISIT_INVALID");
+      const visits=state.fridayMosqueVisits??[];
+      if(hour===null)state.fridayMosqueVisits=visits.filter(v=>v.localDate!==localDate);
+      else{
+        const entry={localDate,hour:hour as FridayMosqueHour};
+        const prior=visits.findIndex(v=>v.localDate===localDate);
+        if(prior>=0)visits[prior]=entry;
+        else{
+          if(visits.length>=1000)throw new Error("FRIDAY_VISIT_HISTORY_LIMIT");
+          visits.push(entry);
+        }
+        state.fridayMosqueVisits=visits;
+      }
     },
     getCategories:(userId)=>{if(userId!==owner)throw new Error("CATEGORY_OWNER_MISMATCH");return state.categories?clone(state.categories):undefined;},
     saveCategories:(userId,categories)=>{if(userId!==owner)throw new Error("CATEGORY_OWNER_MISMATCH");state.categories=[...categories];},
@@ -720,6 +757,7 @@ implements PersonalFoundationOperation {
 
     this.snapshot =
       Object.freeze({
+        listFridayMosqueVisits:(userId:string)=>{this.assertUser(userId);return clone(this.loaded.state.fridayMosqueVisits??[]);},
         getCategories:(userId:string)=>{this.assertUser(userId);return this.loaded.state.categories?clone(this.loaded.state.categories):undefined;},
         getFinance:(userId:string)=>{this.assertUser(userId);const f=this.loaded.state.finance;if(f && f.userId!==userId)throw new Error("FINANCE_OWNER_MISMATCH");return clone(f ?? emptyFinanceLedger(userId));},
         listDefinitions:

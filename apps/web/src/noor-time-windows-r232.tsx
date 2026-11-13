@@ -19,9 +19,10 @@ function remaining(ms:number):string{
  const hour=Math.floor(seconds/3600),min=Math.floor(seconds%3600/60),sec=seconds%60;
  return [hour,min,sec].map(n=>String(n).padStart(2,"0")).join(":");
 }
-function WindowCard({title,window:interval,nowMs,timeZone,unavailable,showTimer=true,tone="day",nightCarry=false,fridayHour}:{
+function WindowCard({title,window:interval,nowMs,timeZone,unavailable,showTimer=true,tone="day",nightCarry=false,fridayHour,fridaySelected=false,fridaySelectionBusy=false,onSelectFridayHour}:{
  title:string;window:R232Window|null;nowMs:number;timeZone:string;unavailable:string;
  showTimer?:boolean;tone?:"day"|"night"|"duha"|"friday";nightCarry?:boolean;fridayHour?:1|2|3|4|5;
+ fridaySelected?:boolean;fridaySelectionBusy?:boolean;onSelectFridayHour?:(hour:1|2|3|4|5)=>void;
 }):ReactElement{
  const icon=tone==="day"?"☀":tone==="night"?"☾":tone==="duha"?"☀":"◷";
  const subtitle=tone==="day"?"من الفجر للمغرب":tone==="duha"?"بعد الشروق":tone==="night"?(nightCarry?"حتى فجر اليوم":"حتى فجر الغد"):"حتى أذان الجمعة";
@@ -32,7 +33,7 @@ function WindowCard({title,window:interval,nowMs,timeZone,unavailable,showTimer=
   <p className="np-r232-help">{unavailable}</p>
  </article>;
  const state=r232Countdown(interval,nowMs);
- return <article className={`np-r232-window np-r234-window tone-${tone}`} data-phase={state.phase}>
+ return <article className={`np-r232-window np-r234-window tone-${tone}${fridaySelected?" np-r311-visited":""}`} data-phase={state.phase} data-friday-selected={fridayHour===undefined?undefined:fridaySelected}>
   <div className="np-r234-card-title">
     <span className="np-r234-symbol" aria-hidden="true">{icon}</span>
     <h3 aria-label={title}>{shortTitle}</h3>
@@ -58,14 +59,23 @@ function WindowCard({title,window:interval,nowMs,timeZone,unavailable,showTimer=
     aria-label={title} aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(state.progress)}>
     <span style={{width:`${state.progress}%`}}/>
   </div>:null}
+  {fridayHour!==undefined&&onSelectFridayHour?
+    <button type="button" className="np-r311-friday-select" data-testid={`r311-select-friday-${fridayHour}`}
+      aria-label={fridaySelected?`إلغاء تسجيل الوصول إلى المسجد خلال ${title}`:`تسجيل الوصول إلى المسجد خلال ${title}`}
+      aria-pressed={fridaySelected} disabled={fridaySelectionBusy}
+      onClick={()=>onSelectFridayHour(fridayHour)}/>:null}
+  {fridaySelected?<span aria-hidden="true" className="np-r311-selected-mark">✓</span>:null}
  </article>;
 }
 
-export function NoorR232TimeWindows({prayers,nowMs,timeZone,preferences,nextFajrAt,precedingNight,onPreferencesChange}:{
+export function NoorR232TimeWindows({prayers,nowMs,timeZone,preferences,nextFajrAt,precedingNight,onPreferencesChange,selectedFridayHour=null,onSelectFridayHour,fridaySelectionBusy=false}:{
  prayers:readonly Prayer[];nowMs:number;timeZone:string;
  preferences:NoorR232Preferences;nextFajrAt?:string|undefined;
  precedingNight?:R283PrecedingNight|null;
  onPreferencesChange?:(value:NoorR232Preferences)=>void;
+ selectedFridayHour?:1|2|3|4|5|null;
+ onSelectFridayHour?:(hour:1|2|3|4|5)=>void;
+ fridaySelectionBusy?:boolean;
 }):ReactElement {
  const windows=r232DailyWindows(prayers,nextFajrAt,
    preferences.afterSunrise,preferences.beforeDhuhr);
@@ -144,8 +154,13 @@ export function NoorR232TimeWindows({prayers,nowMs,timeZone,preferences,nextFajr
      {fridayHours.map(hour=><WindowCard key={hour.number}
        title={`الساعة ${["الأولى","الثانية","الثالثة","الرابعة","الخامسة"][hour.number-1]}`}
        tone="friday" fridayHour={hour.number}
-       window={hour} nowMs={nowMs} timeZone={timeZone} unavailable="—"/>)}
+       window={hour} nowMs={nowMs} timeZone={timeZone} unavailable="—"
+       fridaySelected={selectedFridayHour===hour.number} fridaySelectionBusy={fridaySelectionBusy}
+       onSelectFridayHour={onSelectFridayHour}/>)}
     </div>
+    {onSelectFridayHour?<p className="np-r311-friday-hint" data-testid="r311-friday-hint" role="status">
+      {selectedFridayHour?"تم تسجيل الساعة التي وصلت خلالها إلى المسجد. اضغط عليها مرة أخرى للإلغاء.":"اضغط على الساعة التي وصلت خلالها إلى المسجد لتسجيلها."}
+    </p>:null}
     <details className="np-r308-friday-details" data-testid="r308-friday-details">
       <summary>تفاصيل ساعات الجمعة وفضائل التبكير</summary>
       <ol>

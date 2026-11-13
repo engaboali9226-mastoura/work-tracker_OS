@@ -13,6 +13,10 @@ import type {
     PrayerTimePolicyRevision,
 } from "./domain/model.js";
 
+/** Owner-scoped, date-keyed personal Friday mosque arrival note. */
+export type FridayMosqueHour = 1 | 2 | 3 | 4 | 5;
+export type FridayMosqueVisit = Readonly<{localDate:string;hour:FridayMosqueHour}>;
+
 export interface ClockPort {
     now(): IsoInstant;
 }
@@ -81,6 +85,8 @@ export interface IslamicHistoryCatalogPort {
 }
 
 export interface FoundationTransaction {
+    getFridayMosqueVisit?(userId:string,localDate:string):FridayMosqueVisit|null;
+    saveFridayMosqueVisit?(userId:string,localDate:string,hour:FridayMosqueHour|null):void;
     /** R241: exclusively owner-scoped CAS. The request never supplies the user id. */
     replaceLocationRevision?(
         userId:string,
@@ -164,6 +170,7 @@ export interface LocalTransactionPort {
 }
 
 export interface PersonalFoundationSnapshotPort {
+    listFridayMosqueVisits?(userId:string):readonly FridayMosqueVisit[];
     getCategories?(userId:string): readonly string[] | undefined;
     getFinance?(userId:string): FinanceLedger;
     listDefinitions(

@@ -409,6 +409,7 @@ implements PersonalControlExecutor {
       // implicit Riyadh zone. No browser-provided timezone is accepted.
       let accountTimeZone:string|undefined;
       if(command.type==="finance"
+        ||command.type==="set-friday-mosque-hour"
         ||command.type==="correct-historical-execution"
         ||command.type==="record-historical-progress"){
         const active=await scope.locations?.getEffective(resolved.userId,this.dependencies.clock.now());
