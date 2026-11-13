@@ -31,7 +31,7 @@ extends RouteAccessEvidenceExecutor {
   readonly personalToday?: import("./personal-today-operation.js").PersonalTodayExecutor;
   readonly personalControl?: import("./personal-control-operation.js").PersonalControlExecutor;
   readonly teacherWork?: import("./noor-work-teacher-operation-r264.js").NoorWorkTeacherOperationR264;
-  readonly adminAccounts?: import("./noor-admin-account-management-r316.js").NoorAdminAccountManagementR316;
+  readonly adminAccounts?: import("./noor-admin-account-management-r316.js").NoorAdminAccountManagementR316|undefined;
   readonly trustedPrivateJournalR221?: import("./noor-private-journal-r185.js").NoorPrivateJournalOperationR185 | undefined;
 }
 
