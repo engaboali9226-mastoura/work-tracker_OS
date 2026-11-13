@@ -1,4 +1,5 @@
 import "./noor-personal-initial-setup-r321.css";
+import "./noor-premium-r322.css";
 import "./noor-ios-viewport-r230.css";
 import "./noor-welcome-gateway-r231.css";
 import "./noor-time-windows-r232.css";
