@@ -6,7 +6,7 @@ export interface NoorAdminHttpR316 {
  operation:NoorAdminAccountManagementR316;
  expectedOrigin:string;
 }
-const methods=new Set(["list","create","delete"]);
+const methods=new Set(["list","create","delete","rename","access"]);
 function empty(res:ServerResponse,status:number):void{
  res.writeHead(status,{"Cache-Control":"no-store","X-Content-Type-Options":"nosniff","Content-Length":"0"});res.end();
 }
@@ -45,7 +45,7 @@ export function makeNoorAdminAccountsHttpHandlerR316(opt:NoorAdminHttpR316){
    if(bytes!==len){empty(res,400);return;}
    let data:unknown;try{data=JSON.parse(Buffer.concat(parts).toString("utf8"));}
    catch{empty(res,400);return;}
-   json(res,await opt.operation.execute(action as "list"|"create"|"delete",token,data));
+   json(res,await opt.operation.execute(action as "list"|"create"|"delete"|"rename"|"access",token,data));
   }catch{empty(res,503);}
  };
 }
