@@ -1,3 +1,4 @@
+import {noorTotpQrImageSourceR318} from "./noor-admin-totp-qr-r318.js";
 import {createNoorAdminRecoveryR317} from "./noor-admin-recovery-r317.js";
 import {NoorAdminAccountsPanelR316} from "./noor-admin-accounts-panel-r316.js";
 import {useRef,useState,type FormEvent,type ReactElement} from "react";
@@ -20,6 +21,8 @@ export function NoorAdminMfaPageR315():ReactElement{
    ?"recover-finish":"login"
  );
  const [qr,setQr]=useState("");
+ const [secret,setSecret]=useState("");
+ const [revealSecret,setRevealSecret]=useState(false);
  const [code,setCode]=useState("");
  const [loading,setLoading]=useState(false);
  const [error,setError]=useState("");
@@ -40,8 +43,13 @@ export function NoorAdminMfaPageR315():ReactElement{
   try{
    const result=await service.current!.enroll();
    if(!result){setError("تعذر بدء المصادقة الثنائية. جرّب تسجيل الدخول مجددًا.");return;}
-   // SVG is treated only as an inert image, never inserted into HTML.
-   setQr("data:image/svg+xml;charset=utf-8,"+encodeURIComponent(result.qrSvg));
+   // Supabase auth-js has ALREADY prepended the SVG data-URI prefix.
+   // Normalize once, never nest data: URIs or inject SVG as markup.
+   const image=noorTotpQrImageSourceR318(result.qrSvg);
+   setQr(image??"");
+   setSecret(result.secret);
+   setRevealSecret(false);
+   if(!image)setError("تعذر عرض صورة QR. استخدم مفتاح الإعداد اليدوي أدناه.");
    setStep("verify");
    setNotice("امسح رمز QR بتطبيق المصادقة ثم أدخل رمز التحقق المكوّن من ستة أرقام.");
   }finally{setLoading(false);}
@@ -50,7 +58,7 @@ export function NoorAdminMfaPageR315():ReactElement{
   e.preventDefault();if(loading)return;setLoading(true);setError("");
   try{
    const result=await service.current!.verify(code.trim());
-   if(result==="aal2"){setStep("complete");setQr("");setCode("");setNotice("تم التحقق من العامل الثاني. ستظهر الحسابات إذا كانت الصلاحية معتمدة على الخادم.");}
+   if(result==="aal2"){setStep("complete");setQr("");setSecret("");setRevealSecret(false);setCode("");setNotice("تم التحقق من العامل الثاني. ستظهر الحسابات إذا كانت الصلاحية معتمدة على الخادم.");}
    else setError(result==="invalid"?"رمز التحقق غير صحيح أو منتهي الصلاحية.":"تعذر تأكيد مستوى الحماية. أعد المحاولة.");
   }finally{setLoading(false);}
  };
@@ -80,7 +88,7 @@ export function NoorAdminMfaPageR315():ReactElement{
    }else setError(result==="invalid"?"الرابط منتهي الصلاحية أو كلمة المرور غير مستوفية للشروط. أعد طلب الرابط.":"تعذر تغيير كلمة المرور. أعد فتح رابط الاستعادة أو اطلب رابطًا جديدًا.");
   }finally{setLoading(false);}
  };
- const logout=async()=>{await service.current?.signOut();setStep("login");setQr("");setCode("");setError("");setNotice("");};
+ const logout=async()=>{await service.current?.signOut();setStep("login");setQr("");setSecret("");setRevealSecret(false);setCode("");setError("");setNotice("");};
  return <main className="na315-page" dir="rtl" id="main-content"><section className="na315-panel">
   <header><img src="/noor-platform-logo.jpeg" alt="شعار نور" width="64" height="64"/><div><p lang="en">NOOR SECURITY</p><h1>تأمين حساب الإدارة</h1><span>إعداد المصادقة الثنائية TOTP</span></div></header>
   <p className="na315-caution">هذه الصفحة مخصصة لحساب المدير المستقل. لا تظهر إدارة الحسابات إلا بعد المصادقة الثنائية واعتماد دور المدير على الخادم.</p>
@@ -110,7 +118,15 @@ export function NoorAdminMfaPageR315():ReactElement{
   </div>:null}
   {step==="enroll"?<div className="na315-stage"><h2>إضافة تطبيق المصادقة</h2><p>استخدم تطبيقًا مثل Microsoft Authenticator أو Google Authenticator لإنشاء رمز دوري مرتبط بهذا الحساب.</p><button type="button" disabled={loading} onClick={()=>{void enroll();}}>إنشاء رمز QR</button></div>:null}
   {step==="verify"?<div className="na315-stage">
-   {qr?<><h2>امسح رمز QR</h2><img className="na315-qr" src={qr} alt="رمز QR سري لإعداد المصادقة الثنائية على جهازك" /><p>لا تشارك هذا الرمز مع أحد. لن يُحفظ في نور.</p></>:<h2>التحقق من تطبيق المصادقة</h2>}
+   {qr?<><h2>امسح رمز QR</h2>
+    <img className="na315-qr" src={qr} alt="رمز QR خاص بإعداد المصادقة الثنائية" onError={()=>{setQr("");setError("تعذر عرض صورة QR على هذا المتصفح. استخدم مفتاح الإعداد اليدوي أدناه.");}}/>
+    <p>لا تشارك هذا الرمز مع أحد. لن يُحفظ في نور.</p>
+   </>:<h2>التحقق من تطبيق المصادقة</h2>}
+   {secret?<div className="na315-manual">
+    <p>لو بتستخدم نفس الآيفون أو تعذر مسح رمز QR، افتح تطبيق المصادقة واختر إضافة حساب بمفتاح إعداد يدوي (Time-based / TOTP).</p>
+    <button type="button" className="na315-secondary" onClick={()=>setRevealSecret(value=>!value)}>{revealSecret?"إخفاء مفتاح الإعداد":"عرض مفتاح الإعداد اليدوي"}</button>
+    {revealSecret?<div><p>مفتاح سري خاص بحسابك؛ لا تشاركه أو تلتقط له صورة.</p><code className="na315-secret" dir="ltr">{secret}</code></div>:null}
+   </div>:null}
    <form onSubmit={e=>{void verify(e);}}><label>رمز التحقق<input type="text" value={code} onChange={e=>setCode(e.target.value.replace(/\D/g,"").slice(0,6))}
      inputMode="numeric" autoComplete="one-time-code" pattern="\d{6}" maxLength={6} required dir="ltr" disabled={loading}/></label>
     <button type="submit" disabled={loading||code.length!==6}>{loading?"جارٍ التحقق…":"تحقق من الرمز"}</button></form>
