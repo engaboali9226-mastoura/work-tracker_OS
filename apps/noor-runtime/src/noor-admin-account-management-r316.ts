@@ -20,7 +20,9 @@ export interface NoorAdminDatabaseR316 {
   noor_authentication_account_linkages:Table<Link,Link,Partial<Link>>;
   noor_entitlement_grants:Table<Grant,Grant,Partial<Grant>>;
   noor_sessions:Table<Session,Session,Partial<Session>>;
- };Views:Record<string,never>;Functions:Record<string,never>};
+ };Views:Record<string,never>;Functions:{
+  noor_admin_session_guard_r319:{Args:{p_user_id:string;p_session_id:string};Returns:boolean}
+ }};
 }
 export type NoorAdminResultR316=Readonly<{status:200|201|400|401|403|404|409|429|503;body?:unknown}>;
 export interface NoorAdminAccountManagementR316 {
@@ -56,6 +58,15 @@ export function createNoorAdminAccountManagementR316(d:NoorAdminDepsR316):NoorAd
   try{
    const verified=await d.client.auth.getUser(token);
    if(verified.error||!verified.data.user||verified.data.user.id!==claims.sub)return {status:401};
+   // Supabase Auth getUser verifies the JWT, but does not guarantee the
+   // underlying session wasn't revoked after issuance. Require a live AAL2
+   // session with the exact *verified* TOTP factor on every privileged request.
+   // Server-only RPC has EXECUTE granted exclusively to service_role.
+   const active=await d.client.rpc("noor_admin_session_guard_r319",{
+     p_user_id:verified.data.user.id,p_session_id:claims.session_id,
+   });
+   if(active.error)return {status:503};
+   if(active.data!==true)return {status:403};
    const role=await d.client.from("noor_admin_accounts_r271").select("role,enabled")
      .eq("auth_user_id",verified.data.user.id).limit(2);
    if(role.error||!role.data||role.data.length>1)return {status:503};
