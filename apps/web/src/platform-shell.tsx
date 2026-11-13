@@ -221,7 +221,7 @@ function SmartGateway({
             </label>:null}
             {mode==="register"?<p className="noor-auth-hint-r312">إنشاء الهوية لا يمنح صلاحية الدخول تلقائيًا؛ يلزم تأكيد البريد وربط الحساب بمساحة نور من الإدارة.</p>:null}
             <button className="noor-welcome-submit" type="submit" disabled={submitting || (mode==="login"?!signIn:!accountService)}>
-              {submitting?"جارٍ التنفيذ…":mode==="login"?"الدخول إلى نور":mode==="register"?"إرسال طلب التسجيل":mode==="reset"?"إرسال رابط الاستعادة":"حفظ كلمة المرور الجديدة"}
+              {submitting?(mode==="login"?"جارٍ تسجيل الدخول…":"جارٍ التنفيذ…"):mode==="login"?"الدخول إلى نور":mode==="register"?"إرسال طلب التسجيل":mode==="reset"?"إرسال رابط الاستعادة":"حفظ كلمة المرور الجديدة"}
               {!submitting?<span aria-hidden="true">←</span>:null}
             </button>
             {authenticationState==="invalid-credentials"&&mode==="login"?
