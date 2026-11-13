@@ -60,7 +60,7 @@ export function NoorPersonalInitialSetupR321({onConfigured}:{
   <header className="np-r321-header">
    <img src="/noor-platform-logo.jpeg" alt="شعار منصة نور" width="68" height="68"/>
    <div><small lang="en">WELCOME TO NOOR</small><h1>أهلًا بك في نور</h1>
-    <p>خطوتان بسيطتان قبل بدء مساحتك الشخصية.</p></div>
+    <p>الإعداد مطلوب: يلزم استكمال إعداد الموقع وسياسة الصلاة قبل بدء يوم نور. خطوتان بسيطتان فقط.</p></div>
   </header>
   <form onSubmit={e=>{void submit(e);}}>
    <fieldset><legend><span className="np-r321-step">١</span> اختر مدينتك</legend>
