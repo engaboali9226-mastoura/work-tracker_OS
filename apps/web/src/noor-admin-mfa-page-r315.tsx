@@ -14,7 +14,9 @@ export function NoorAdminMfaPageR315():ReactElement{
  const recovery=useRef<ReturnType<typeof createNoorAdminRecoveryR317>|null>(null);
  if(!recovery.current)recovery.current=createNoorAdminRecoveryR317(readBrowserPublicAuthenticationConfiguration());
  const [step,setStep]=useState<"login"|"enroll"|"verify"|"complete"|"recover-request"|"recover-finish">(
-  ()=>typeof window!=="undefined"&&new URLSearchParams(window.location.search).get("auth")==="recovery"
+  ()=>typeof window!=="undefined"
+   &&(new URLSearchParams(window.location.search).get("auth")==="recovery"
+    ||new URLSearchParams(window.location.hash.replace(/^#/u,"")).get("type")==="recovery")
    ?"recover-finish":"login"
  );
  const [qr,setQr]=useState("");
