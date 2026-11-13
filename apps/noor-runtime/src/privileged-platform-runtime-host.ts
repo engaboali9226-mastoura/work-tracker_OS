@@ -119,7 +119,7 @@ implements PrivilegedPlatformRuntimeOperations {
     public readonly teacherWork: NoorWorkTeacherOperationR264,
 
     public readonly trustedPrivateJournalR221: NoorPrivateJournalOperationR185|undefined,
-    public readonly adminAccounts:NoorAdminAccountManagementR316,
+    public readonly adminAccounts:NoorAdminAccountManagementR316|undefined,
   ) {}
 
   public execute(
@@ -433,11 +433,14 @@ implements PrivilegedPlatformRuntimeHost {
           personalControl,
           teacherWork,
           privateJournal,
-          createNoorAdminAccountManagementR316({
-            client:this.adminClient,expectedIssuer:this.adminExpectedIssuer,
-            expectedAudience:this.adminExpectedAudience,isRuntimeRunning,
-            enabled:process.env.NOOR_ADMIN_ACCOUNT_MANAGEMENT_R316==="enabled",
-          }),
+          // R316 MUST NOT register a production-only HTTPS admin route when
+          // disabled; otherwise local HTTP development could fail to start.
+          process.env.NOOR_ADMIN_ACCOUNT_MANAGEMENT_R316==="enabled"
+            ? createNoorAdminAccountManagementR316({
+                client:this.adminClient,expectedIssuer:this.adminExpectedIssuer,
+                expectedAudience:this.adminExpectedAudience,isRuntimeRunning,enabled:true,
+              })
+            : undefined,
         );
 
       this.activeOperation =
