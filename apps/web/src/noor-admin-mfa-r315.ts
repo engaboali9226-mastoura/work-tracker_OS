@@ -9,7 +9,7 @@ import type {PublicAuthenticationConfiguration} from "./public-authentication-en
  */
 export type NoorMfaSignInR315="enroll-needed"|"challenge-needed"|"invalid"|"unavailable";
 export type NoorMfaVerificationR315="aal2"|"invalid"|"unavailable";
-export type NoorMfaEnrollmentR315=Readonly<{qrSvg:string;factorId:string}>;
+export type NoorMfaEnrollmentR315=Readonly<{qrSvg:string;factorId:string;secret:string}>;
 
 export function createNoorAdminMfaSetupR315(
   config:PublicAuthenticationConfiguration,
@@ -38,9 +38,13 @@ export function createNoorAdminMfaSetupR315(
      if(!signedIn||factorId!==null)return null;
      try{
        const {data,error}=await client.auth.mfa.enroll({factorType:"totp",friendlyName:"NOOR Administrator"});
-       if(error||!data?.id||!data.totp?.qr_code)return null;
+       if(error||!data?.id||!data.totp||(!data.totp.qr_code&&!data.totp.secret))return null;
        factorId=data.id;
-       return Object.freeze({factorId,qrSvg:data.totp.qr_code});
+       return Object.freeze({
+         factorId,qrSvg:data.totp.qr_code??"",
+         // TOTP enrollment secret is kept only in transient browser component state.
+         secret:data.totp.secret??"",
+       });
      }catch{return null;}
    },
    async verify(code:string):Promise<NoorMfaVerificationR315>{

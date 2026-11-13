@@ -13,7 +13,7 @@ const fixture=(hasVerifiedFactor:boolean)=>{
    async getSession(){methods.push("getSession");return {data:{session:{access_token:"token"}},error:null};},
    mfa:{
     async listFactors(){methods.push("listFactors");return {data:{totp:hasVerifiedFactor?[{id:"factor",status:"verified"}]:[],phone:[]},error:null};},
-    async enroll(){methods.push("enroll");return {data:{id:"newfactor",totp:{qr_code:"<svg><text>secret</text></svg>"}},error:null};},
+    async enroll(){methods.push("enroll");return {data:{id:"newfactor",totp:{qr_code:"data:image/svg+xml;utf-8,<svg xmlns=\"http://www.w3.org/2000/svg\"><rect width=\"100\" height=\"100\"/></svg>",secret:"MFRGGZDFMZTWQ2LK"}},error:null};},
     async challengeAndVerify({factorId,code}:{factorId:string;code:string}){methods.push("verify:"+factorId);if(code==="123456")assured=true;return {error:assured?null:{message:"invalid"}};},
     async getAuthenticatorAssuranceLevel(){methods.push("getAal");return {data:{currentLevel:assured?"aal2":"aal1"},error:null};},
    },
@@ -29,6 +29,8 @@ test("R315 TOTP enrollment requires login then six-digit verification and return
  assert.equal(await f.service.signIn("admin@example.com","password"),"enroll-needed");
  const enrolled=await f.service.enroll();
  assert.equal(enrolled?.factorId,"newfactor");
+ assert.equal(enrolled?.secret,"MFRGGZDFMZTWQ2LK");
+ assert.ok(enrolled?.qrSvg.startsWith("data:image/svg+xml;utf-8,"));
  assert.equal(await f.service.verify("123"),"invalid");
  assert.equal(await f.service.verify("123456"),"aal2");
  assert.deepEqual(Object.keys(f.service).sort(),["accessToken","enroll","signIn","signOut","verify"]);
