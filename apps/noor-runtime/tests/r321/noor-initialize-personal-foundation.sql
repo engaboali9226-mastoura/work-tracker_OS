@@ -6,7 +6,7 @@ create or replace function public.noor_initialize_personal_profile_r321(
  p_user_id uuid, p_city text, p_method text
 ) returns boolean
 language plpgsql
-security invoker
+security definer
 set search_path=''
 as $noor$
 declare
