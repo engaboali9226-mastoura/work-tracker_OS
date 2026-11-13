@@ -3,6 +3,7 @@ import "./noor-welcome-gateway-r231.css";
 import "./noor-time-windows-r232.css";
 import "./noor-work-teacher-r264.css";
 import "./noor-linked-activity-insights-r312.css";
+import "./noor-account-self-service-r312.css";
 
 import {
   applicationCatalog,
@@ -47,6 +48,7 @@ import {
 import {
   createBrowserPublicSupabaseAuthenticationClient,
 } from "./public-supabase-authentication-client.js";
+import { createNoorAccountSelfServiceR312 } from "./noor-account-self-service-r312.js";
 import {
   createBrowserRouteAccessEvidenceClient,
 } from "./route-access-evidence-client.js";
@@ -91,6 +93,8 @@ const publicAuthenticationClient =
   createBrowserPublicSupabaseAuthenticationClient(
     readBrowserPublicAuthenticationConfiguration(),
   );
+
+const noorAccountServiceR312 = createNoorAccountSelfServiceR312(readBrowserPublicAuthenticationConfiguration());
 
 const sessionEstablishmentClient =
   createBrowserSessionEstablishmentClient();
@@ -204,6 +208,7 @@ function ShellFoundation() {
       navigate={history.push}
       signIn={authenticationController.signIn}
       authenticationState={authentication.kind}
+      accountService={noorAccountServiceR312}
     />
   );
 }
