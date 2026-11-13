@@ -218,3 +218,15 @@ export function createBrowserPublicSupabaseAuthenticationClient(
     },
   });
 }
+
+/** R312: all public Supabase Auth methods continue through this one sanctioned
+ * boundary. No web view may directly import a provider client or own authority. */
+export type PublicSupabaseAccountClient = ReturnType<typeof createClient>;
+export function createBrowserPublicSupabaseAccountClient(
+  configuration: PublicAuthenticationConfiguration,
+  detectSessionInUrl = false,
+): PublicSupabaseAccountClient {
+  return createClient(configuration.supabaseUrl,configuration.supabasePublishableKey,{
+    auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl},
+  });
+}
