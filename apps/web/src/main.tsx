@@ -96,7 +96,7 @@ const publicAuthenticationClient =
 
 // Email flows require independently verified Supabase redirects/SMTP and owner
 // provisioning before any guest access. Disabled by default in production.
-const noorAccountServiceR312 = import.meta.env.VITE_NOOR_ACCOUNT_SELF_SERVICE_ENABLED === "true"
+const noorAccountServiceR312 = import.meta.env?.VITE_NOOR_ACCOUNT_SELF_SERVICE_ENABLED === "true"
   ? createNoorAccountSelfServiceR312(readBrowserPublicAuthenticationConfiguration())
   : undefined;
 
