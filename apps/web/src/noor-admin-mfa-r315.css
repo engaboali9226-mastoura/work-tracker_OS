@@ -1,0 +1,20 @@
+.na315-page{min-height:100dvh;background:radial-gradient(circle at 85% 15%,#eaf3e8,#f8f6ef 44%,#f4f7f3);display:grid;place-items:center;padding:25px 15px;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",system-ui,sans-serif;color:#2f4947}
+.na315-panel{width:min(100%,510px);box-sizing:border-box;border:1px solid #e1e9e2;background:rgba(255,255,255,.95);padding:clamp(20px,5vw,34px);border-radius:26px;box-shadow:0 24px 65px rgba(35,66,49,.09)}
+.na315-panel>header{display:flex;align-items:center;gap:16px;margin-bottom:22px}
+.na315-panel>header img{border-radius:17px;object-fit:cover;box-shadow:0 5px 15px rgba(42,62,52,.1)}
+.na315-panel>header p{color:#81948a;font-size:11px;letter-spacing:.14em;margin:0 0 4px}
+.na315-panel>header h1{font-size:24px;margin:0 0 3px}.na315-panel>header span{color:#7c8e83;font-size:12px}
+.na315-caution{background:#f7f7f0;border:1px solid #e8e8d9;border-radius:14px;padding:13px 15px;font-size:12px;line-height:1.9;color:#6b7360;margin:0 0 20px}
+.na315-panel form{display:grid;gap:16px;margin:0 0 15px}
+.na315-panel form label{display:grid;gap:6px;font-size:13px;font-weight:700}
+.na315-panel input{width:100%;box-sizing:border-box;min-height:47px;background:#fff;border:1px solid #d8e2dd;border-radius:12px;font:inherit;padding:11px 13px;color:#2f4b45}
+.na315-panel button:not(.na315-secondary){background:#314f48;color:#fff;font:inherit;border:0;border-radius:12px;min-height:45px;padding:10px 16px;font-weight:700;cursor:pointer}
+.na315-panel button:disabled{opacity:.6;cursor:wait}
+.na315-panel .na315-secondary{display:block;background:#f0f4f0;border:0;border-radius:11px;padding:11px 15px;color:#49665a;cursor:pointer;font:inherit;margin:12px 0}
+.na315-panel>a{display:block;color:#426c5d;font-size:12px;margin-top:15px}
+.na315-stage h2{font-size:18px;margin:5px 0 8px}.na315-stage p{font-size:13px;color:#5b7367;line-height:1.8}
+.na315-qr{display:block;max-width:240px;width:100%;aspect-ratio:1;margin:17px auto;border:1px solid #e1e8e2;padding:9px;border-radius:16px;background:white}
+.na315-notice,.na315-error{padding:12px;border-radius:12px;font-size:12px;line-height:1.7}
+.na315-notice{background:#eff7ef;color:#406849}.na315-error{background:#fff1ee;color:#af4f42}
+.na315-complete{border:1px solid #dcebdc;border-radius:16px;padding:18px;background:#f6faf5}
+@media(max-width:460px){.na315-panel>header h1{font-size:20px}.na315-panel{border-radius:18px;padding:18px}}
