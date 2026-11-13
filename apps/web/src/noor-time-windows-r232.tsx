@@ -35,10 +35,10 @@ function WindowCard({title,window:interval,nowMs,timeZone,unavailable,showTimer=
   <div className="np-r234-card-title">
     <span className="np-r234-symbol" aria-hidden="true">{icon}</span>
     <h3 aria-label={title}>{shortTitle}</h3>
+    {fridayVirtue?<p className="np-r284-friday-virtue" data-testid={`friday-virtue-${fridayHour}`}><span aria-hidden="true">{fridayVirtue.icon}</span><span>{fridayVirtue.description}</span></p>:null}
     <span className="np-r234-state">{state.phase==="active"?"جارٍ الآن":state.phase==="finished"?"انتهت":"لم تبدأ بعد"}</span>
   </div>
   <p className="np-r248-subtitle">{subtitle}</p>
-  {fridayVirtue?<p className="np-r284-friday-virtue" data-testid={`friday-virtue-${fridayHour}`}><span aria-hidden="true">{fridayVirtue.icon}</span><span>{fridayVirtue.description}</span></p>:null}
   <div className="np-r234-times" dir="rtl">
     <span className="np-r234-time-point"><small>من</small><strong>{clock(interval.startMs,timeZone)}</strong></span>
     <span className="np-r234-time-line" aria-hidden="true"/>
