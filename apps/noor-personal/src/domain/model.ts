@@ -1,4 +1,5 @@
 import type { TaskSessionPlan } from "./task-sessions.js";
+import type { NoorReminderPlanR314 } from "./reminder-plan-r314.js";
 
 export type IsoInstant = string;
 export type LocalDate = string;
@@ -196,6 +197,8 @@ export interface CountdownPlan {
     readonly time: string; // HH:MM in the owner's IANA account timezone
 }
 export interface ExecutionDefinition {
+    /** Owner-configured reminder; separate from achievement and frozen execution events. */
+    readonly reminderPlan?: NoorReminderPlanR314;
     readonly displayOrder?: number;
     readonly timeOfDay?: string;
     readonly quranPlan?: QuranHabitPlan;
