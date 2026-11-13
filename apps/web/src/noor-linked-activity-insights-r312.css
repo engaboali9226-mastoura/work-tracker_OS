@@ -20,3 +20,18 @@
 .np-page[data-appearance="dark"] .ns-linked-r312 :is(.ns-linked-head h3,.ns-linked-count) { color: #edf4f4; }
 @media(max-width:460px){.ns-linked-r312{padding:13px}.ns-linked-r312 .ns-linked-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.ns-linked-r312 .ns-linked-card{padding:12px}.ns-linked-r312 .ns-linked-foot{flex-wrap:wrap}}
 @media(prefers-reduced-motion:reduce){.ns-linked-r312 .ns-linked-card{transition:none}}
+
+.np-r312-time-quick {border:1px solid #dce7e2;border-radius:19px;padding:18px;margin:15px 0;background:linear-gradient(135deg,#f5f8f4,#f9f5ed)}
+.np-r312-time-quick h3 {font-size:16px;color:#2b4849;margin:0 0 5px}
+.np-r312-time-quick p {font-size:12px;line-height:1.6;color:#637571;margin:0 0 13px}
+.np-r312-city-buttons {display:flex;gap:8px;flex-wrap:wrap}
+.np-r312-city-buttons button {min-width:110px;display:flex;flex-direction:column;gap:5px;align-items:center;justify-content:center;background:#fff;border-radius:13px}
+.np-r312-city-buttons button[aria-pressed=true] {border-color:#8fac97;background:#edf4ec}
+.np-r312-city-buttons small {font-size:10px;color:#758581}
+.np-r312-dual-clock {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;grid-column:1/-1}
+.np-r312-clock-tile {min-width:0;display:grid;gap:6px;padding:18px;border-radius:18px;border:1px solid #e0e8e4;background:#fff}
+.np-r312-clock-tile strong {font-size:clamp(20px,4vw,29px);font-variant-numeric:tabular-nums;color:#2f4a48}
+.np-r312-clock-tile small {font-size:11px;color:#637971}
+.np-r312-clock-tile span {font-size:11px;color:#6c7b7c;overflow-wrap:anywhere}
+.np-page[data-appearance=dark] :is(.np-r312-time-quick,.np-r312-clock-tile){background:#243238;border-color:#475954;color:#e9f3ec}
+@media(max-width:460px){.np-r312-dual-clock{grid-template-columns:1fr}.np-r312-city-buttons button{flex:1 1 40%}}
