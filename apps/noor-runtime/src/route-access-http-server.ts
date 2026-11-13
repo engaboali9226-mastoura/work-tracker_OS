@@ -1,3 +1,4 @@
+import {NOOR_ADMIN_ACCOUNTS_PREFIX_R316,makeNoorAdminAccountsHttpHandlerR316} from "./noor-admin-account-http-r316.js";
 import {
   createServer,
 } from "node:http";
@@ -119,6 +120,10 @@ export interface RouteAccessHttpServerOptions {
   readonly personalToday?: import("./personal-today-operation.js").PersonalTodayExecutor;
   readonly personalControl?: import("./personal-control-operation.js").PersonalControlExecutor;
   readonly sessionLogoutR269?: NoorLogoutOptionsR269;
+  readonly adminAccountsR316?:Readonly<{
+    operation:import("./noor-admin-account-management-r316.js").NoorAdminAccountManagementR316;
+    expectedOrigin:string;
+  }>;
   readonly teacherWorkR264?: Readonly<{
     operation:NoorWorkTeacherOperationR264;
     expectedOrigin:string;
@@ -862,12 +867,17 @@ async function handleRequest(
     import("./personal-control-operation.js").PersonalControlExecutor | undefined,
   teacherWorkR264: RouteAccessHttpServerOptions["teacherWorkR264"],
   sessionLogoutR269: RouteAccessHttpServerOptions["sessionLogoutR269"],
+  adminAccountsHandler: ((request:IncomingMessage,response:ServerResponse)=>Promise<void>)|undefined,
   labJournalHandler: ((request:IncomingMessage,response:ServerResponse)=>Promise<void>) | undefined,
   request:
     IncomingMessage,
   response:
     ServerResponse,
 ): Promise<void> {
+  if(typeof request.url==="string"&&request.url.startsWith(NOOR_ADMIN_ACCOUNTS_PREFIX_R316)){
+    if(!adminAccountsHandler){writeEmpty(response,404);return;}
+    await adminAccountsHandler(request,response);return;
+  }
   if(request.url===NOOR_LOGOUT_PATH_R269){
     if(!sessionLogoutR269){writeEmpty(response,404);return;}
     await handleNoorLogoutR269(request,response,sessionIdFromCookieHeader(request.headers.cookie),sessionLogoutR269);
@@ -1135,6 +1145,9 @@ export function createRouteAccessHttpServer(
         )
       : undefined;
 
+  const adminAccountsHandler=options.adminAccountsR316
+    ? makeNoorAdminAccountsHttpHandlerR316(options.adminAccountsR316)
+    : undefined;
   const server =
     createServer(
       (
@@ -1148,6 +1161,7 @@ export function createRouteAccessHttpServer(
           options.personalControl,
           options.teacherWorkR264,
           options.sessionLogoutR269,
+          adminAccountsHandler,
           labJournalHandler,
           request,
           response,
