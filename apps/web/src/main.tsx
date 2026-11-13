@@ -3,6 +3,7 @@ import "./noor-welcome-gateway-r231.css";
 import "./noor-time-windows-r232.css";
 import "./noor-work-teacher-r264.css";
 import "./noor-linked-activity-insights-r312.css";
+import "./noor-reminder-settings-r314.css";
 import "./noor-account-self-service-r312.css";
 
 import {
