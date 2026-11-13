@@ -15,10 +15,10 @@ function fakeClient(opts:{role?:boolean;io?:boolean}={}){
  const calls:string[]=[];
  const link={account_id:"noor-account-test",subject:userId,user_id:userId};
  const builder=(table:string)=>{
-  let kind="select";
+  let kind="select";let targetRoleLookup=false;
   const b={
    select(_fields:string){kind="select";return b;},
-   eq(_key:string,_val:unknown){return b;},is(_key:string,_val:unknown){return b;},
+   eq(key:string,val:unknown){if(table==="noor_admin_accounts_r271"&&key==="auth_user_id"&&val===userId)targetRoleLookup=true;return b;},is(_key:string,_val:unknown){return b;},
    limit(_n:number){return b;},range(_a:number,_b:number){return b;},
    order(_x:string,_v:unknown){return b;},
    update(_v:unknown){kind="update";calls.push(table+":update");return b;},
@@ -26,7 +26,7 @@ function fakeClient(opts:{role?:boolean;io?:boolean}={}){
    delete(){kind="delete";calls.push(table+":delete");return b;},
    then(ok:(v:unknown)=>unknown,bad?:(e:unknown)=>unknown){
     const data=kind!=="select"?null:table==="noor_admin_accounts_r271"?
-      (opts.role?[{auth_user_id:actorId,enabled:true,role:"super_admin"}]:[]):
+      (opts.role&&!targetRoleLookup?[{auth_user_id:actorId,enabled:true,role:"super_admin"}]:[]):
       table==="noor_authentication_account_linkages"?(opts.io?[link]:[]):
       table==="noor_entitlement_grants"?[]:null;
     return Promise.resolve({error:null,data}).then(ok,bad);
