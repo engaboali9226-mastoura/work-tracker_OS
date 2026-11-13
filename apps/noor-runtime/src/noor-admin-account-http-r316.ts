@@ -1,5 +1,5 @@
 /** R316 trusted account-management API: bearer-only, exact origin, no cookies. */
-import type {IncomingMessage,ServerResponse} from "node:http";
+import type {IncomingMessage,ServerResponse} from "./route-access-http-server.js";
 import type {NoorAdminAccountManagementR316,NoorAdminResultR316} from "./noor-admin-account-management-r316.js";
 export const NOOR_ADMIN_ACCOUNTS_PREFIX_R316="/api/noor/admin/accounts/";
 export interface NoorAdminHttpR316 {
