@@ -87,6 +87,10 @@ export interface PersonalControlOperationDependencies {
   readonly foundation: PersonalFoundationOperationScopeProvider & {
     openCommandOperation?: PersonalFoundationOperationScopeProvider["openOperation"];
     forgetCommandCache?: (userId:string)=>void;
+    initializePersonalProfile?:(
+      userId:string,city:"riyadh"|"cairo"|"dubai"|"london",
+      calculationMethod:"UmmAlQura"|"Egyptian"|"MuslimWorldLeague"|"Karachi"|"NorthAmerica",
+    )=>Promise<boolean>;
   };
   readonly clock: ClockPort;
   readonly idGenerator: IdGeneratorPort;
@@ -358,6 +362,30 @@ implements PersonalControlExecutor {
     status: 200 | 204 | 400 | 401 | 403 | 409 | 503;
     body?: unknown;
   }>> {
+    // R321 first-login setup is a one-shot authenticated Personal operation,
+    // deliberately separate from the existing location *change* operation.
+    // No request may choose an owner identity, coordinates or an arbitrary zone.
+    if(input.command!==null&&typeof input.command==="object"&&
+       !Array.isArray(input.command)&&
+       (input.command as {type?:unknown}).type==="initialize-personal-profile-r321"){
+      const request=input.command as Record<string,unknown>;
+      const selected=Object.keys(request).sort().join("|")===
+        "calculationMethod|city|type";
+      const city=request.city;
+      const method=request.calculationMethod;
+      if(!selected || (city!=="riyadh"&&city!=="cairo"&&city!=="dubai"&&city!=="london")
+        ||(method!=="UmmAlQura"&&method!=="Egyptian"&&method!=="MuslimWorldLeague"
+          &&method!=="Karachi"&&method!=="NorthAmerica"))return empty(400);
+      const resolved=await this.resolveUser(input.sessionId);
+      if(resolved.kind==="error")return empty(resolved.status);
+      const initialize=this.dependencies.foundation.initializePersonalProfile;
+      if(!initialize)return empty(503);
+      try{
+        const created=await initialize.call(this.dependencies.foundation,resolved.userId,city,method);
+        return empty(created?204:409);
+      }catch{return empty(503);}
+    }
+
     const command:
       PersonalCommand | null =
         parsePersonalCommand(
