@@ -1,5 +1,5 @@
 import type {ReactElement} from "react";
-import {r232Countdown,r232DailyWindows,r283FridayHoursAtDhuhr,r283CarriedNightWindow,r232LocalWeekday,r232FastingCountdownEnabled,
+import {r232Countdown,r232DailyWindows,r283FridayHoursAtDhuhr,r283CarriedNightWindow,r232FastingCountdownEnabled,
  type R232Window,type R283PrecedingNight} from "./noor-islamic-daylight-r232.js";
 import type {NoorR232Preferences} from "./noor-time-display-preferences-r232.js";
 import {fridayVirtueR284,NOOR_FRIDAY_VIRTUES_SOURCE_R284} from "./noor-friday-virtues-r284.js";
