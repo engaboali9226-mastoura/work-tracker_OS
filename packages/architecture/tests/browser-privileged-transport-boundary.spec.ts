@@ -227,6 +227,11 @@ test(
             source,
           )
           && !(signal.name === "browser-session-storage" && relativeFile === "appearance-preference-store.ts")
+          // R316 deliberately carries a transient verified Supabase AAL2 JWT
+          // to ONLY the same-origin NOOR admin API. This does not grant rights:
+          // server verifies Auth identity, MFA level and super_admin DB role.
+          && !((signal.name === "authorization-header" || signal.name === "bearer-transport")
+            && relativeFile === "noor-admin-account-client-r316.ts")
         ) {
           findings.push(
             [
