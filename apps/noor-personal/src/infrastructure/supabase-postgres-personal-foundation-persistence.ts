@@ -19,8 +19,8 @@ import type {
   LocalTransactionPort,
   LocationProfileRepository,
   PersonalFoundationSnapshotPort,
-  type FridayMosqueVisit,
-  type FridayMosqueHour,
+  FridayMosqueVisit,
+  FridayMosqueHour,
   PrayerTimePolicyRepository,
 } from "../ports.js";
 
