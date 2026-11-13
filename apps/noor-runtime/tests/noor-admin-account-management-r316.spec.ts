@@ -11,7 +11,7 @@ function fakeToken(aal="aal2"){const body={iss:issuer,aud:"authenticated",sub:ac
  session_id:sessionId,exp:Math.floor(Date.now()/1000)+600};
  return "e30."+Buffer.from(JSON.stringify(body)).toString("base64url")+".signature";
 }
-function fakeClient(opts:{role?:boolean;io?:boolean}={}){
+function fakeClient(opts:{role?:boolean;io?:boolean;session?:boolean;sessionError?:boolean}={}){
  const calls:string[]=[];
  const link={account_id:"noor-account-test",subject:userId,user_id:userId};
  const builder=(table:string)=>{
@@ -43,6 +43,12 @@ function fakeClient(opts:{role?:boolean;io?:boolean}={}){
    },
   },
   from:(name:string)=>{calls.push(name+":read");return builder(name);},
+  rpc:async(name:string,params:unknown)=>{
+   calls.push("rpc:"+name);
+   assert.equal(name,"noor_admin_session_guard_r319");
+   assert.deepEqual(params,{p_user_id:actorId,p_session_id:sessionId});
+   return {data:opts.session!==false,error:opts.sessionError?{message:"database unavailable"}:null};
+  },
  };
  return {client,calls};
 }
@@ -103,4 +109,17 @@ test("confirmed delete revokes sessions and grants, then soft-deletes Auth",asyn
  const iGrants=calls.indexOf("noor_entitlement_grants:update");
  const iAuth=calls.indexOf("auth:delete");
  assert.ok(iSession>=0&&iSession<iGrants&&iGrants<iAuth);
+});
+
+test("R319 rejects a revoked Supabase Auth session even if JWT and role otherwise verify",async()=>{
+ const {client,calls}=fakeClient({role:true,session:false,io:true});
+ const result=await service(client).execute("list",fakeToken(),{page:1});
+ assert.equal(result.status,403);
+ assert.ok(calls.includes("rpc:noor_admin_session_guard_r319"));
+ assert.ok(!calls.includes("noor_authentication_account_linkages:read"));
+});
+test("R319 fails closed on temporary database errors verifying an active AAL2 session",async()=>{
+ const {client,calls}=fakeClient({role:true,sessionError:true,io:true});
+ assert.equal((await service(client).execute("list",fakeToken(),{page:1})).status,503);
+ assert.ok(!calls.includes("noor_authentication_account_linkages:read"));
 });
