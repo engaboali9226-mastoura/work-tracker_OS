@@ -1,5 +1,6 @@
 import {
   Component,
+  useState,
 } from "react";
 import type {
   FormEvent,
@@ -11,6 +12,8 @@ import type {
 import type {
   PlatformShellState,
 } from "./platform-shell-model.js";
+import type { NoorAccountSelfServiceR312 } from "./noor-account-self-service-r312.js";
+import { noorRecoveryRedirectR312 } from "./noor-account-self-service-r312.js";
 
 export type PlatformShellProps =
 Readonly<{
@@ -30,6 +33,7 @@ Readonly<{
     ) => void | Promise<void>;
   authenticationState?:
     string;
+  accountService?: NoorAccountSelfServiceR312;
 }>;
 
 type ViewBoundaryProps =
@@ -122,25 +126,63 @@ function HomeLink(
 
 
 function SmartGateway({
-  navigate,
-  signIn,
-  authenticationState,
+  navigate, signIn, authenticationState, accountService,
 }: {
   navigate: (pathname: string) => void;
   signIn?: PlatformShellProps["signIn"];
   authenticationState?: string;
+  accountService?: NoorAccountSelfServiceR312;
 }) {
+  const recoveryCallback = typeof window !== "undefined" && (
+    new URLSearchParams(window.location.search).get("auth") === "recovery"
+    || new URLSearchParams(window.location.hash.slice(1)).get("type") === "recovery"
+  );
+  const [mode,setMode]=useState<"login"|"register"|"reset"|"recovery">(
+    recoveryCallback ? "recovery" : "login",
+  );
+  const [notice,setNotice]=useState("");
+  const [error,setError]=useState("");
+  const [busy,setBusy]=useState(false);
   const isAuth = authenticationState === "authenticated";
-  const submitting = authenticationState === "submitting";
-
-  const submit = (event: FormEvent<HTMLFormElement>) => {
+  const submitting = authenticationState === "submitting" || busy;
+  const changeMode=(next:typeof mode)=>{if(submitting)return;setMode(next);setNotice("");setError("");};
+  const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!signIn || submitting) return;
+    if(submitting)return;
     const form = new FormData(event.currentTarget);
-    const email = form.get("email");
-    const password = form.get("password");
-    if (typeof email !== "string" || typeof password !== "string") return;
-    void signIn({ email, password });
+    const email = String(form.get("email")??"").trim();
+    const password = String(form.get("password")??"");
+    const confirmation = String(form.get("passwordConfirm")??"");
+    setError("");setNotice("");
+    if(mode==="login"){if(signIn)await signIn({email,password});return;}
+    if(!accountService){setError("هذه الخدمة غير متاحة حاليًا.");return;}
+    if((mode==="recovery"||mode==="register")&&password!==confirmation){
+      setError("كلمتا المرور غير متطابقتين.");return;
+    }
+    if((mode==="recovery"||mode==="register")&&password.length<8){
+      setError("استخدم كلمة مرور من ٨ أحرف على الأقل.");return;
+    }
+    setBusy(true);
+    try{
+      const origin=window.location.origin;
+      const result=mode==="reset"
+        ? await accountService.requestPasswordReset(email,noorRecoveryRedirectR312(origin))
+        : mode==="register"
+          ? await accountService.registerPendingAccount(email,password,new URL("/",origin).toString())
+          : await accountService.completePasswordRecovery(password);
+      if(result==="invalid"){setError(mode==="recovery"?"رابط الاستعادة غير صالح أو انتهت صلاحيته. أعد طلب رسالة جديدة.":"تحقق من صحة البيانات المدخلة.");return;}
+      if(result==="unavailable"){setError("تعذّر إتمام الطلب. تحقق من الاتصال وإعدادات البريد ثم حاول مرة أخرى.");return;}
+      if(mode==="recovery"&&result==="updated"){
+        window.history.replaceState(null,"","/");
+        setMode("login");
+        setNotice("تم تغيير كلمة المرور. يمكنك تسجيل الدخول الآن.");
+      }else if(mode==="reset"){
+        setNotice("إذا كان البريد مرتبطًا بحساب، ستصلك رسالة استعادة. افحص البريد والرسائل غير المرغوبة.");
+      }else if(mode==="register"){
+        setNotice("تم إرسال طلب التسجيل. تحقّق من بريدك؛ يلزم اعتماد وربط الحساب بمساحة نور قبل تمكين الدخول.");
+      }
+    }catch{setError("تعذّر إتمام الطلب حاليًا.");}
+    finally{setBusy(false);}
   };
 
   return (
@@ -148,99 +190,68 @@ function SmartGateway({
       <div className="noor-welcome-ambient" aria-hidden="true" />
       <section className="noor-welcome-panel" aria-labelledby="noor-welcome-title">
         <div className="noor-welcome-logo-frame">
-          <img
-            className="noor-welcome-logo"
-            src="/noor-platform-logo.jpeg"
-            alt="شعار منصة نور"
-            width="104"
-            height="104"
-            fetchPriority="high"
-            decoding="async"
-          />
+          <img className="noor-welcome-logo" src="/noor-platform-logo.jpeg"
+            alt="شعار منصة نور" width="104" height="104" fetchPriority="high" decoding="async" />
         </div>
         <p className="noor-welcome-eyebrow" lang="en">NOOR PLATFORM</p>
         <h1 id="noor-welcome-title" className="glass-title">مرحبا بك في منصة نور</h1>
-        <p className="noor-welcome-description">
-          مساحة هادئة لتنظيم يومك، ومتابعة ما يهمك.
-        </p>
-        {!isAuth ? (
-          <form className="noor-welcome-form" onSubmit={submit}>
-            <label className="noor-welcome-field">
+        <p className="noor-welcome-description">مساحة هادئة لتنظيم يومك، ومتابعة ما يهمك.</p>
+        {!isAuth ? <>
+          <nav className="noor-auth-switch-r312" aria-label="خيارات الحساب">
+            {([["login","تسجيل الدخول"],["register","إنشاء حساب"],["reset","نسيت كلمة المرور؟"]] as const).map(([key,title])=>
+              <button type="button" key={key} aria-pressed={mode===key} disabled={submitting}
+                onClick={()=>changeMode(key)}>{title}</button>)}
+          </nav>
+          {mode==="recovery"?<h2 className="noor-auth-title-r312">تعيين كلمة مرور جديدة</h2>:null}
+          <form className="noor-welcome-form" onSubmit={event=>{void submit(event);}}>
+            {mode!=="recovery"?<label className="noor-welcome-field">
               <span>البريد الإلكتروني</span>
-              <input
-                name="email"
-                type="email"
-                dir="ltr"
-                inputMode="email"
-                autoComplete="username"
-                required
-                disabled={submitting}
-                placeholder="name@example.com"
-              />
-            </label>
-            <label className="noor-welcome-field">
-              <span>كلمة المرور</span>
-              <input
-                name="password"
-                type="password"
-                dir="ltr"
-                autoComplete="current-password"
-                required
-                disabled={submitting}
-                placeholder="••••••••"
-              />
-            </label>
-            <button
-              className="noor-welcome-submit"
-              type="submit"
-              disabled={submitting || !signIn}
-            >
-              {submitting ? "جارٍ تسجيل الدخول…" : "الدخول إلى نور"}
-              {!submitting ? <span aria-hidden="true">←</span> : null}
+              <input name="email" type="email" dir="ltr" inputMode="email"
+                autoComplete="username" required disabled={submitting} placeholder="name@example.com" />
+            </label>:null}
+            {mode==="login"||mode==="register"||mode==="recovery"?<label className="noor-welcome-field">
+              <span>{mode==="recovery"?"كلمة المرور الجديدة":"كلمة المرور"}</span>
+              <input name="password" type="password" dir="ltr" minLength={mode==="login"?undefined:8}
+                autoComplete={mode==="login"?"current-password":"new-password"} required disabled={submitting} placeholder="••••••••" />
+            </label>:null}
+            {mode==="register"||mode==="recovery"?<label className="noor-welcome-field">
+              <span>تأكيد كلمة المرور</span>
+              <input name="passwordConfirm" type="password" dir="ltr" autoComplete="new-password"
+                minLength={8} required disabled={submitting} placeholder="••••••••" />
+            </label>:null}
+            {mode==="register"?<p className="noor-auth-hint-r312">إنشاء الهوية لا يمنح صلاحية الدخول تلقائيًا؛ يلزم تأكيد البريد وربط الحساب بمساحة نور من الإدارة.</p>:null}
+            <button className="noor-welcome-submit" type="submit" disabled={submitting || (mode==="login"?!signIn:!accountService)}>
+              {submitting?"جارٍ التنفيذ…":mode==="login"?"الدخول إلى نور":mode==="register"?"إرسال طلب التسجيل":mode==="reset"?"إرسال رابط الاستعادة":"حفظ كلمة المرور الجديدة"}
+              {!submitting?<span aria-hidden="true">←</span>:null}
             </button>
-            {authenticationState === "invalid-credentials" ? (
-              <p className="noor-welcome-error" role="alert">البريد الإلكتروني أو كلمة المرور غير صحيحة.</p>
-            ) : null}
-            {authenticationState === "unavailable" ? (
-              <p className="noor-welcome-error" role="alert">تعذر الاتصال بخدمة الدخول حاليًا. حاول مرة أخرى.</p>
-            ) : null}
+            {authenticationState==="invalid-credentials"&&mode==="login"?
+              <p className="noor-welcome-error" role="alert">البريد الإلكتروني أو كلمة المرور غير صحيحة، أو الحساب غير معتمد بعد.</p>:null}
+            {authenticationState==="unavailable"&&mode==="login"?
+              <p className="noor-welcome-error" role="alert">تعذر الاتصال بخدمة الدخول حاليًا. حاول مرة أخرى.</p>:null}
+            {error?<p className="noor-welcome-error" role="alert">{error}</p>:null}
+            {notice?<p className="noor-auth-success-r312" role="status">{notice}</p>:null}
           </form>
-        ) : (
+          {mode==="recovery"?<button type="button" className="noor-auth-return-r312" onClick={()=>changeMode("reset")}>طلب رابط استعادة جديد</button>:null}
+        </> : (
           <div className="noor-welcome-apps" aria-label="تطبيقات نور">
             <p className="noor-welcome-apps-title">اختر مساحتك</p>
-            <a
-              href="/personal"
-              className="noor-welcome-app-card"
-              onClick={event => {
-                if (event.defaultPrevented || event.button !== 0 ||
-                    event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
-                event.preventDefault();
-                navigate("/personal");
-              }}
-            >
+            <a href="/personal" className="noor-welcome-app-card" onClick={event=>{
+              if(event.defaultPrevented||event.button!==0||event.metaKey||event.ctrlKey||event.shiftKey||event.altKey)return;
+              event.preventDefault();navigate("/personal");}}>
               <span className="noor-welcome-app-mark" aria-hidden="true">✦</span>
               <span className="noor-welcome-app-copy"><strong>نور الشخصي</strong><small>يومك، عاداتك، وتقدمك</small></span>
               <span className="noor-welcome-app-arrow" aria-hidden="true">←</span>
             </a>
-            <a
-              href="/work"
-              className="noor-welcome-app-card"
-              onClick={event => {
-                if (event.defaultPrevented || event.button !== 0 ||
-                    event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
-                event.preventDefault();
-                navigate("/work");
-              }}
-            >
+            <a href="/work" className="noor-welcome-app-card" onClick={event=>{
+              if(event.defaultPrevented||event.button!==0||event.metaKey||event.ctrlKey||event.shiftKey||event.altKey)return;
+              event.preventDefault();navigate("/work");}}>
               <span className="noor-welcome-app-mark" aria-hidden="true">◈</span>
               <span className="noor-welcome-app-copy"><strong>نور ورك</strong><small>الجدول والتحضير والطلاب والدرجات</small></span>
               <span className="noor-welcome-app-arrow" aria-hidden="true">←</span>
             </a>
           </div>
         )}
-        <p className="noor-welcome-privacy">
-          <span aria-hidden="true">✧</span> مساحتك الخاصة، بتجربة بسيطة وآمنة
-        </p>
+        <p className="noor-welcome-privacy"><span aria-hidden="true">✧</span> مساحتك الخاصة، بتجربة بسيطة وآمنة</p>
       </section>
       <p className="noor-welcome-footer" lang="en">NOOR · DESIGNED FOR CLARITY</p>
     </main>
@@ -254,6 +265,7 @@ export function PlatformShell(
     navigate,
     signIn,
     authenticationState,
+    accountService,
   }: PlatformShellProps,
 ) {
   switch (state.kind) {
@@ -263,6 +275,7 @@ export function PlatformShell(
           navigate={navigate}
           signIn={signIn}
           authenticationState={authenticationState}
+          accountService={accountService}
         />
       );
 
@@ -317,6 +330,7 @@ export function PlatformShell(
               ? "idle"
               : state.authenticationState ?? authenticationState
           }
+          accountService={accountService}
         />
       );
 
