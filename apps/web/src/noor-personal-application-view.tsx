@@ -102,6 +102,7 @@ type PeriodInsight = Readonly<{
 }>;
 
 type WorkspaceViewModel = Readonly<{
+  fridayMosqueVisits:readonly Readonly<{localDate:string;hour:1|2|3|4|5}>[];
   statistics:Readonly<{currentDate:string|null;rows:readonly StatisticRow[]}>;
   categories:readonly string[];
   finance: FinanceLedger | null;
@@ -1893,7 +1894,12 @@ function buildWorkspaceViewModel(workspace: unknown): WorkspaceViewModel | null 
     try{financeSummary(workspace.finance as unknown as FinanceLedger);finance=workspace.finance as unknown as FinanceLedger;}catch{finance=null;}
   }
   const stats=isRecord(workspace.statistics)?workspace.statistics:null;
-  return { statistics:{currentDate:stats?stringValue(stats.currentDate):null,rows:parseStatisticRows(stats?.rows)},categories:Array.isArray(workspace.categories)?workspace.categories.filter((c):c is string=>typeof c==="string"): [...new Set([...COMMON_CATEGORIES,...definitions.map(d=>d.category)])], definitions, finance, currentStreakDays, bestStreakDays, periods: { week, month, quarter, year } };
+  const fridayMosqueVisits=Array.isArray(workspace.fridayMosqueVisits)
+    ?workspace.fridayMosqueVisits.filter((row):row is {localDate:string;hour:1|2|3|4|5}=>isRecord(row)
+      &&typeof row.localDate==="string"&&/^\d{4}-\d{2}-\d{2}$/.test(row.localDate)
+      &&(row.hour===1||row.hour===2||row.hour===3||row.hour===4||row.hour===5))
+    :[];
+  return { fridayMosqueVisits, statistics:{currentDate:stats?stringValue(stats.currentDate):null,rows:parseStatisticRows(stats?.rows)},categories:Array.isArray(workspace.categories)?workspace.categories.filter((c):c is string=>typeof c==="string"): [...new Set([...COMMON_CATEGORIES,...definitions.map(d=>d.category)])], definitions, finance, currentStreakDays, bestStreakDays, periods: { week, month, quarter, year } };
 }
 
 function buildViewModel(today: unknown): TodayViewModel | null {
@@ -2963,7 +2969,14 @@ function Dashboard({ view:providedView, workspace, busy, actionError, onCommand,
       </div>
     </section>
 
-    <NoorR232TimeWindows prayers={view.prayerTimes} nowMs={nowMs} timeZone={view.timeZone} preferences={timePreferences} onPreferencesChange={onTimePreferencesChange} nextFajrAt={view.nextFajrAt??undefined} precedingNight={view.precedingNight}/>
+    <NoorR232TimeWindows prayers={view.prayerTimes} nowMs={nowMs} timeZone={view.timeZone} preferences={timePreferences} onPreferencesChange={onTimePreferencesChange} nextFajrAt={view.nextFajrAt??undefined} precedingNight={view.precedingNight}
+      selectedFridayHour={workspace?.fridayMosqueVisits.find(v=>v.localDate===civilLocalDate(nowMs,view.timeZone))?.hour??null}
+      fridaySelectionBusy={busy}
+      onSelectFridayHour={(hour)=>{
+        const selected=workspace?.fridayMosqueVisits.find(v=>v.localDate===civilLocalDate(nowMs,view.timeZone))?.hour??null;
+        if(busy)return;
+        void onCommand({type:"set-friday-mosque-hour",hour:selected===hour?null:hour,expectedHour:selected});
+      }}/> 
     {!historyDate?<UpcomingCountdownR301 definitions={workspace?.definitions??[]} nowMs={nowMs} timeZone={view.timeZone} onAdd={onAddCountdown}/>:null}
 
     {actionError ? <p className="np-action-error" role="alert">{actionError}</p> : null}
