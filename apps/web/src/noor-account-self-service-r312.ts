@@ -8,7 +8,7 @@ export type NoorAccountResultR312 =
 
 export type NoorAccountSelfServiceR312 = Readonly<{
   requestPasswordReset(email:string,redirectTo:string):Promise<NoorAccountResultR312>;
-  registerPendingAccount(email:string,password:string,redirectTo:string):Promise<NoorAccountResultR312>;
+  registerPendingAccount(email:string,password:string,redirectTo:string,name?:string):Promise<NoorAccountResultR312>;
   completePasswordRecovery(password:string):Promise<NoorAccountResultR312>;
   requestEmailChange(currentEmail:string,currentPassword:string,newEmail:string):Promise<NoorAccountResultR312>;
 }>;
@@ -37,10 +37,18 @@ export function createNoorAccountSelfServiceR312(
         return error?"unavailable":"sent";
       }catch{return "unavailable";}
     },
-    async registerPendingAccount(email,password,redirectTo){
-      if(!validEmail(email)||!validPassword(password)||!redirectTo.startsWith("https://")&&!redirectTo.startsWith("http://localhost"))return "invalid";
+    async registerPendingAccount(email,password,redirectTo,name){
+      if(!validEmail(email)||!validPassword(password)||!redirectTo.startsWith("https://")&&!redirectTo.startsWith("http://localhost")||
+        name!==undefined&&(!name.trim()||name.trim().length<2||name.length>120))return "invalid";
       try{
-        const {error}=await client.auth.signUp({email:email.trim(),password,options:{emailRedirectTo:redirectTo}});
+        const {error}=await client.auth.signUp({
+          email:email.trim(),password,
+          options:{emailRedirectTo:redirectTo,
+            // Marker is user-editable and never authorizes access. Only the
+            // independent super_admin may approve a verified email.
+            data:{noor_registration_request:true,...(name?{name:name.trim()}:{})},
+          },
+        });
         // Signup does not grant a Noor account linkage or any permissions.
         await client.auth.signOut().catch(()=>{});
         return error?"unavailable":"sent";
