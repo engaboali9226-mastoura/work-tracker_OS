@@ -26,8 +26,8 @@ export function parseNoorReminderPlanR314(value:unknown):NoorReminderPlanR314|nu
   const keys=Object.keys(value).sort();
   if(JSON.stringify(keys)!==JSON.stringify(["enabled","time","leadMinutes","graceMinutes","minStreak","quietStart","quietEnd"].sort()))return null;
   if(typeof value.enabled!=="boolean"||!hhmm(value.time)
-    ||![0,5,15,30,60,120].includes(Number(value.leadMinutes))
-    ||![0,15,30,60,120].includes(Number(value.graceMinutes))
+    ||typeof value.leadMinutes!=="number"||![0,5,15,30,60,120].includes(value.leadMinutes)
+    ||typeof value.graceMinutes!=="number"||![0,15,30,60,120].includes(value.graceMinutes)
     ||!Number.isInteger(value.minStreak)||Number(value.minStreak)<0||Number(value.minStreak)>365
     ||!((value.quietStart===null&&value.quietEnd===null)
        ||(hhmm(value.quietStart)&&hhmm(value.quietEnd))))return null;
