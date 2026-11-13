@@ -1,3 +1,4 @@
+import {NoorPersonalInitialSetupR321} from "./noor-personal-initial-setup-r321.js";
 import {quranQuarterR289,quranQuarterForDateR289,validQuranPlanR289,type QuranHabitPlanR289} from "./noor-quran-quarters-r289.js";
 import {TaskSessionPlannerR254,TaskSessionListR254,sessionFinishedR254,TASK_SESSION_STYLES_R254,type StoredTaskSessionPlanR254,type StoredTaskSessionR254} from "./noor-task-sessions-r254.js";
 import {NoorBeverageTrackerR294,type BeverageRowR294} from "./noor-beverage-tracker-r294.js";
@@ -3406,7 +3407,7 @@ export function NoorPersonalApplicationView({ initialResult, initialWorkspace }:
   if (!result) {
     content = <PersonalEntryLoading />;
   } else if (result.kind === "setup-required") {
-    content = <StatePage copy="يلزم استكمال إعداد الموقع وسياسة الصلاة قبل بدء يوم نور." title="الإعداد مطلوب" />;
+    content = <NoorPersonalInitialSetupR321 onConfigured={()=>{void reconnect();}} />;
   } else if (result.kind === "unavailable" || !view) {
     content = <StatePage copy="تعذر الاتصال بالخدمة." title="نور غير متصل" onRetry={()=>{void reconnect();}} retrying={reconnecting} />;
   } else {
