@@ -1,3 +1,4 @@
+import {requestNoorAdminAccountR316} from "./noor-admin-account-client-r316.js";
 import {useCallback,useEffect,useState,type FormEvent,type ReactElement} from "react";
 type Account={id:string;accountId:string;email:string;name:string;createdAt:string;applications:string[]};
 type Reply={page:number;accounts:Account[];hasMore:boolean};
@@ -7,22 +8,8 @@ export function NoorAdminAccountsPanelR316({token}:{token:()=>Promise<string|nul
  const [ready,setReady]=useState(false);
  const [target,setTarget]=useState<Account|null>(null),[confirm,setConfirm]=useState("");
  const [personal,setPersonal]=useState(true),[work,setWork]=useState(false);
- const api=useCallback(async(kind:"list"|"create"|"delete",data:unknown)=>{
-  const proof=await token();if(!proof)throw Error("انتهت جلسة المصادقة الثنائية. سجّل الدخول مجددًا.");
-  const response=await fetch("/api/noor/admin/accounts/"+kind,{
-   method:"POST",credentials:"omit",cache:"no-store",headers:{
-    "Content-Type":"application/json","Authorization":"Bearer "+proof,
-   },body:JSON.stringify(data),
-  });
-  if(!response.ok){
-   if(response.status===403||response.status===404)throw Error("لا توجد صلاحية إدارة مفعّلة لهذا الحساب، أو الخدمة غير مفعّلة على الخادم.");
-   if(response.status===401)throw Error("انتهت صلاحية الدخول؛ أعد المصادقة الثنائية.");
-   if(response.status===409)throw Error("تعارض في بيانات الحساب أو الطلب. راجع القائمة قبل إعادة المحاولة.");
-   if(response.status===429)throw Error("تجاوزت الحد المسموح من العمليات. حاول لاحقًا.");
-   throw Error("تعذّر إكمال العملية، وقد تكون هناك خطوة لم تكتمل. راجع حالة الحساب قبل إعادة المحاولة.");
-  }
-  return await response.json() as unknown;
- },[token]);
+ const api=useCallback((kind:"list"|"create"|"delete",data:unknown)=>
+  requestNoorAdminAccountR316(token,kind,data),[token]);
  const load=useCallback(async(current=1)=>{
   try{const data=await api("list",{page:current}) as Reply;
    setRows(data.accounts);setPage(current);setMore(data.hasMore);setReady(true);setError("");
