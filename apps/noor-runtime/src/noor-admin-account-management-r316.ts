@@ -63,8 +63,12 @@ export function createNoorAdminAccountManagementR316(d:NoorAdminDepsR316):NoorAd
    return {id:verified.data.user.id};
   }catch{return {status:503};}
  }
- const audit=async(id:string,outcome:"success"|"failure")=>{
-  const r=await d.client.from("noor_admin_audit_r271").update({outcome}).eq("id",id);
+ const audit=async(id:string,actorId:string,action:string,accountId:string,outcome:"success"|"failure")=>{
+  // Audit is INSERT-only: never modify historical events.
+  const r=await d.client.from("noor_admin_audit_r271").insert({
+   id:randomUUID(),actor_auth_user_id:actorId,target_auth_user_id:null,
+   action,outcome,request_id:id,details:{accountId},
+  });
   return !r.error;
  };
  async function initiated(requestId:string,actorId:string,action:string,accountId:string):Promise<boolean>{
@@ -116,7 +120,7 @@ export function createNoorAdminAccountManagementR316(d:NoorAdminDepsR316):NoorAd
     app_metadata:{noor_managed_account:true},
    });
    if(created.error||!created.data.user||!uuid(created.data.user.id)){
-    await audit(p.requestId,"failure");return {status:409};
+    await audit(p.requestId,actorId,"account_create",accountId,"failure");return {status:409};
    }
    userId=created.data.user.id;
    const linkage=await d.client.from("noor_authentication_account_linkages").insert({
@@ -131,16 +135,17 @@ export function createNoorAdminAccountManagementR316(d:NoorAdminDepsR316):NoorAd
    }));
    const entitled=await d.client.from("noor_entitlement_grants").insert(grants);
    if(entitled.error)throw Error("R316_ENTITLE_FAILED");
-   if(!await audit(p.requestId,"success"))throw Error("R316_AUDIT_FAILED");
+   if(!await audit(p.requestId,actorId,"account_create",accountId,"success"))throw Error("R316_AUDIT_FAILED");
    return {status:201,body:{accountId,userId,email:p.email,applications:p.applications}};
   }catch{
    // Compensating rollback: this UUID was freshly created by THIS request.
    // Any compensation failure is signalled as 503, NEVER claimed successful.
-   await d.client.from("noor_entitlement_grants").delete().eq("account_id",accountId);
+   await d.client.from("noor_entitlement_grants").update({revoked_at_epoch_ms:Date.now()})
+    .eq("account_id",accountId).is("revoked_at_epoch_ms",null);
    if(linked)await d.client.from("noor_authentication_account_linkages").delete()
     .eq("issuer",d.expectedIssuer).eq("account_id",accountId);
    if(userId)await d.client.auth.admin.deleteUser(userId).catch(()=>{});
-   await audit(p.requestId,"failure").catch(()=>{});
+   await audit(p.requestId,actorId,"account_create",accountId,"failure").catch(()=>{});
    return {status:503};
   }
  }
@@ -166,17 +171,17 @@ export function createNoorAdminAccountManagementR316(d:NoorAdminDepsR316):NoorAd
    // All live NOOR cookies for this owner fail immediately after revocation.
    const sessions=await d.client.from("noor_sessions").update({revoked_at_epoch_ms:now})
      .eq("account_id",accountId).is("revoked_at_epoch_ms",null);
-   if(sessions.error){await audit(p.requestId,"failure");return {status:503};}
+   if(sessions.error){await audit(p.requestId,actorId,"account_delete",accountId,"failure");return {status:503};}
    const grants=await d.client.from("noor_entitlement_grants").update({revoked_at_epoch_ms:now})
      .eq("account_id",accountId).is("revoked_at_epoch_ms",null);
-   if(grants.error){await audit(p.requestId,"failure");return {status:503};}
+   if(grants.error){await audit(p.requestId,actorId,"account_delete",accountId,"failure");return {status:503};}
    // Soft delete preserves owner data, but removes login ability and credentials.
    const deleted=await d.client.auth.admin.deleteUser(p.userId,true);
-   if(deleted.error){await audit(p.requestId,"failure");return {status:503};}
+   if(deleted.error){await audit(p.requestId,actorId,"account_delete",accountId,"failure");return {status:503};}
    const unlinked=await d.client.from("noor_authentication_account_linkages").delete()
      .eq("issuer",d.expectedIssuer).eq("subject",p.userId).eq("account_id",accountId);
-   if(unlinked.error){await audit(p.requestId,"failure");return {status:503};}
-   if(!await audit(p.requestId,"success"))return {status:503};
+   if(unlinked.error){await audit(p.requestId,actorId,"account_delete",accountId,"failure");return {status:503};}
+   if(!await audit(p.requestId,actorId,"account_delete",accountId,"success"))return {status:503};
    return {status:200,body:{deleted:true,personalDataRetained:true}};
   }catch{return {status:503};}
  }
