@@ -4,10 +4,16 @@ import {requestNoorAdminAccountR316} from "./noor-admin-account-client-r316.js";
 import {useCallback,useEffect,useRef,useState,type FormEvent,type ReactElement} from "react";
 type Account={id:string;accountId:string;email:string;name:string;createdAt:string;applications:string[]};
 type Reply={page:number;accounts:Account[];hasMore:boolean};
+type PendingAccount={id:string;email:string;name:string;createdAt:string};
+type PendingReply={page:number;accounts:PendingAccount[];hasMore:boolean};
 export function NoorAdminAccountsPanelR316({token}:{token:()=>Promise<string|null>}):ReactElement{
  const [rows,setRows]=useState<Account[]>([]),[page,setPage]=useState(1),[more,setMore]=useState(false);
  const [error,setError]=useState(""),[notice,setNotice]=useState(""),[busy,setBusy]=useState(false);
  const [ready,setReady]=useState(false);
+ const [pendingAccounts,setPendingAccounts]=useState<PendingAccount[]>([]);
+ const [pendingTarget,setPendingTarget]=useState<PendingAccount|null>(null);
+ const [approvePersonal,setApprovePersonal]=useState(true);
+ const [approveWork,setApproveWork]=useState(false);
  const passwordRecovery=useRef<ReturnType<typeof createNoorAccountSelfServiceR312>|null>(null);
  if(!passwordRecovery.current)passwordRecovery.current=createNoorAccountSelfServiceR312(readBrowserPublicAuthenticationConfiguration());
  const [editing,setEditing]=useState<Account|null>(null);
@@ -17,14 +23,34 @@ export function NoorAdminAccountsPanelR316({token}:{token:()=>Promise<string|nul
  const [suspendConfirmed,setSuspendConfirmed]=useState(false);
  const [target,setTarget]=useState<Account|null>(null),[confirm,setConfirm]=useState("");
  const [personal,setPersonal]=useState(true),[work,setWork]=useState(false);
- const api=useCallback((kind:"list"|"create"|"delete"|"rename"|"access",data:unknown)=>
+ const api=useCallback((kind:"list"|"create"|"delete"|"rename"|"access"|"pending"|"approve",data:unknown)=>
   requestNoorAdminAccountR316(token,kind,data),[token]);
  const load=useCallback(async(current=1)=>{
   try{const data=await api("list",{page:current}) as Reply;
    setRows(data.accounts);setPage(current);setMore(data.hasMore);setReady(true);setError("");
   }catch(e){setError(e instanceof Error?e.message:"تعذّر عرض الحسابات.");setReady(false);}
  },[api]);
- useEffect(()=>{void load(1);},[load]);
+ const loadPending=useCallback(async()=>{
+  try{const data=await api("pending",{page:1}) as PendingReply;
+   setPendingAccounts(data.accounts??[]);
+  }catch{setError("تعذر تحميل طلبات التسجيل حاليًا. حاول تحديثها لاحقًا.");}
+ },[api]);
+ useEffect(()=>{void load(1);void loadPending();},[load,loadPending]);
+ async function approveRegistration(){
+  if(!pendingTarget||busy||(!approvePersonal&&!approveWork))return;
+  setBusy(true);setError("");setNotice("");
+  try{
+   const applications=[...(approvePersonal?["noor-personal"]:[]),...(approveWork?["noor-work"]:[])];
+   await api("approve",{
+    requestId:crypto.randomUUID(),userId:pendingTarget.id,
+    confirmEmail:pendingTarget.email,applications,
+   });
+   setPendingTarget(null);setApprovePersonal(true);setApproveWork(false);
+   await Promise.all([load(1),loadPending()]);
+   setNotice("تم اعتماد طلب التسجيل وربط الحساب بالتطبيقات المختارة. يمكن للمستخدم الآن تسجيل الدخول ثم إكمال الإعداد الأولي لنور بيرسونال.");
+  }catch(e){setError(e instanceof Error?e.message:"تعذّر اعتماد الطلب. راجع الحسابات قبل إعادة المحاولة.");}
+  finally{setBusy(false);}
+ }
  async function add(e:FormEvent<HTMLFormElement>){
   e.preventDefault();if(busy)return;
   const f=e.currentTarget;const input=new FormData(f);
@@ -137,6 +163,30 @@ export function NoorAdminAccountsPanelR316({token}:{token:()=>Promise<string|nul
       (editPersonal===editing.applications.includes("noor-personal")&&editWork===editing.applications.includes("noor-work"))}
       onClick={()=>void saveAccess()}>حفظ صلاحيات التطبيقات</button>
    </div>:null}
+   <div className="na321-pending">
+    <div className="na321-title"><h3>طلبات التسجيل الجديدة</h3>
+     <button type="button" disabled={busy} onClick={()=>{void loadPending();}}>تحديث الطلبات</button></div>
+    <p>لا يكتسب المُسجِّل أي صلاحية تلقائيًا. لا تظهر هنا إلا طلبات التسجيل التي أكدت البريد ولم تُربط بحساب نور.</p>
+    {pendingAccounts.length===0?<p className="na321-no-pending">لا توجد طلبات تسجيل مؤكدة تنتظر الاعتماد.</p>:
+     pendingAccounts.map(candidate=><article className="na321-pending-row" key={candidate.id}>
+      <div><strong>{candidate.name||"مستخدم جديد"}</strong><small dir="ltr">{candidate.email}</small></div>
+      <button type="button" disabled={busy} onClick={()=>{
+       setPendingTarget(candidate);setApprovePersonal(true);setApproveWork(false);setTarget(null);setEditing(null);
+      }}>مراجعة واعتماد</button>
+     </article>)}
+   </div>
+   {pendingTarget?<section className="na321-approve" aria-label="اعتماد تسجيل جديد">
+    <h3>اعتماد حساب {pendingTarget.name||pendingTarget.email}</h3>
+    <p>تأكد من البريد <strong dir="ltr">{pendingTarget.email}</strong>. اعتماد التسجيل يربط هذه الهوية بتطبيقات نور المختارة، ولا يغير كلمة المرور.</p>
+    <fieldset><legend>التطبيقات المسموح بها بعد الاعتماد</legend>
+     <label><input type="checkbox" checked={approvePersonal} onChange={e=>setApprovePersonal(e.target.checked)} disabled={busy}/> نور بيرسونال</label>
+     <label><input type="checkbox" checked={approveWork} onChange={e=>setApproveWork(e.target.checked)} disabled={busy}/> نور ورك</label>
+    </fieldset>
+    <div className="na316-actions">
+     <button type="button" disabled={busy||(!approvePersonal&&!approveWork)} onClick={()=>{void approveRegistration();}}>تأكيد اعتماد التسجيل</button>
+     <button className="na315-secondary" type="button" disabled={busy} onClick={()=>setPendingTarget(null)}>إلغاء</button>
+    </div>
+   </section>:null}
    <h3>إضافة حساب جديد</h3>
    <form className="na316-add" onSubmit={e=>void add(e)}>
     <label>اسم المستخدم<input name="name" required minLength={2} maxLength={120} disabled={busy}/></label>
