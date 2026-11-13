@@ -1668,3 +1668,76 @@
 .np-page[data-appearance="dark"] .np-r248-reference-strip .np-r310-friday-caption {
   color:#d6c6ed;
 }
+
+
+/* R311: compact accessible Friday mosque arrival selection.
+ * Entire mini-card is the tap target. No extra checkbox row or card height.
+ * Selection only appears with a verified Friday window and a caller handler.
+ */
+.np-r232-section .np-r248-reference-strip .np-r237-friday-hours > .np-r232-window.np-r234-window {
+  position:relative;
+}
+.np-r232-section .np-r248-reference-strip .np-r237-friday-hours > .np-r232-window.np-r311-visited {
+  background:#eaf4ed !important;
+  border-color:#368574 !important;
+  box-shadow:inset 0 0 0 1px #368574 !important;
+}
+.np-r232-section .np-r248-reference-strip .np-r237-friday-hours .np-r311-friday-select {
+  position:absolute;
+  inset:0;
+  z-index:2;
+  display:block;
+  width:100%;
+  height:100%;
+  min-width:0;
+  min-height:0;
+  margin:0;
+  padding:0;
+  opacity:0;
+  cursor:pointer;
+  border:0;
+  border-radius:inherit;
+  background:transparent;
+}
+.np-r232-section .np-r248-reference-strip .np-r237-friday-hours .np-r311-friday-select:disabled {
+  cursor:progress;
+}
+.np-r232-section .np-r248-reference-strip .np-r237-friday-hours .np-r311-friday-select:focus-visible {
+  outline:3px solid #208d7d;
+  outline-offset:2px;
+  opacity:1;
+  background:rgba(33,125,100,.06);
+}
+.np-r232-section .np-r248-reference-strip .np-r237-friday-hours .np-r311-selected-mark {
+  position:absolute;
+  top:1px;
+  inset-inline-end:2px;
+  z-index:1;
+  display:grid;
+  place-items:center;
+  font-size:10px;
+  line-height:1;
+  border-radius:50%;
+  width:14px;
+  height:14px;
+  color:#fff;
+  background:#28866e;
+  pointer-events:none;
+}
+.np-r232-section .np-r248-reference-strip .np-r311-friday-hint {
+  display:block;
+  margin:4px 0 0;
+  padding:0;
+  font-size:10px;
+  line-height:1.4;
+  font-weight:650;
+  color:#386a5a;
+  text-align:right;
+}
+.np-page[data-appearance="dark"] .np-r248-reference-strip .np-r237-friday-hours > .np-r311-visited {
+  background:#224f48 !important;
+  border-color:#70c2a8 !important;
+}
+.np-page[data-appearance="dark"] .np-r248-reference-strip .np-r311-friday-hint {
+  color:#b0ddcc;
+}
