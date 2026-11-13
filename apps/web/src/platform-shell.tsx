@@ -198,7 +198,7 @@ function SmartGateway({
         <p className="noor-welcome-description">مساحة هادئة لتنظيم يومك، ومتابعة ما يهمك.</p>
         {!isAuth ? <>
           <nav className="noor-auth-switch-r312" aria-label="خيارات الحساب">
-            {([["login","تسجيل الدخول"],["register","إنشاء حساب"],["reset","نسيت كلمة المرور؟"]] as const).map(([key,title])=>
+            {([["login","تسجيل الدخول"],["register","إنشاء حساب"],["reset","نسيت كلمة المرور؟"]] as const).filter(([key])=>key==="login"||!!accountService).map(([key,title])=>
               <button type="button" key={key} aria-pressed={mode===key} disabled={submitting}
                 onClick={()=>changeMode(key)}>{title}</button>)}
           </nav>
