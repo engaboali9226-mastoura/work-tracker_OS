@@ -193,9 +193,9 @@ export function NoorR232ControlLocation({serverZone,preferences,onChange,onCommi
     </div>
     <div className="np-r312-dual-clock" aria-label="مقارنة التوقيت">
      <div className="np-r312-clock-tile"><small>توقيت الحساب · محفوظ</small><strong>{new Intl.DateTimeFormat("ar-SA-u-nu-latn",{timeZone:serverZone,hour:"numeric",minute:"2-digit",hour12:true}).format(new Date(previewNow))}</strong><span dir="ltr">{serverZone}</span></div>
-     <div className="np-r312-clock-tile" role="status"><small>توقيت المنطقة المختارة · معاينة</small><strong>{previewClock}</strong><span dir="ltr">{previewZone}</span><span>{previewDate}</span></div>
+     <div className="np-r312-clock-tile" role="status" aria-label="معاينة الساعة في المنطقة الزمنية المختارة"><small>توقيت المنطقة المختارة · معاينة</small><strong>{previewClock}</strong><span dir="ltr">{previewZone}</span><span>{previewDate}</span></div>
     </div>
-    <p className="np-r232-note" role="note">الساعة الثانية للعرض فقط. يُحفظ تغيير توقيت الحساب ويُعاد حساب مواقيت الصلاة واليوم بعد اعتماد المدينة بنجاح على الخادم؛ لا يُعاد تأريخ الإنجازات المغلقة.</p>
+    <p className="np-r232-note" role="note">الساعة الثانية للعرض فقط؛ مواقيت الصلاة واليوم الشخصي لا يتغيران. يُحفظ تغيير توقيت الحساب ويُعاد حساب مواقيت الصلاة واليوم بعد اعتماد المدينة بنجاح على الخادم؛ لا يُعاد تأريخ الإنجازات المغلقة.</p>
     <label>بداية الضحى بعد الشروق
      <select className="np-select" value={preferences.afterSunrise}
       onChange={e=>onChange({...preferences,afterSunrise:Number(e.target.value)})}>
