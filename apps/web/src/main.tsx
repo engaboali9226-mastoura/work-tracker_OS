@@ -29,7 +29,7 @@ import {
   NoorPersonalApplicationView,
 } from "./noor-personal-application-view.js";
 import {NoorWorkTeacherViewR264} from "./noor-work-teacher-view-r264.js";
-import {NoorAdminMfaPageR315} from "./noor-admin-mfa-r315.js";
+import {NoorAdminMfaPageR315} from "./noor-admin-mfa-page-r315.js";
 import {
   createAuthenticationSessionController,
 } from "./authentication-session-controller.js";
