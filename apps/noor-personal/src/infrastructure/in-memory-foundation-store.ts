@@ -10,6 +10,8 @@ import type {
 } from "../domain/model.js";
 import type {
     FoundationTransaction,
+    FridayMosqueVisit,
+    FridayMosqueHour,
     IdGeneratorPort,
     LocalTransactionPort,
     LocationProfileRepository,
@@ -17,6 +19,7 @@ import type {
 } from "../ports.js";
 
 interface FoundationState {
+    fridayMosqueVisits?: {userId:string;localDate:string;hour:FridayMosqueHour}[];
     categories?: {userId:string;names:string[]}[];
     locations:
         LocationProfileRevision[];
@@ -107,6 +110,7 @@ export interface FoundationStoreSeed {
         readonly PersonalDay[];
     readonly dailyExecution?:
         readonly DailyExecutionInstance[];
+    readonly fridayMosqueVisits?: readonly ({userId:string}&FridayMosqueVisit)[];
 }
 
 export class SequenceIdGenerator
@@ -137,6 +141,7 @@ implements
         seed: FoundationStoreSeed = {},
     ) {
         this.#state = {
+            fridayMosqueVisits:clone([...(seed.fridayMosqueVisits??[])]),
             locations:
                 clone(
                     [
@@ -432,6 +437,12 @@ implements
         state: FoundationState,
     ): FoundationTransaction {
         return {
+            getFridayMosqueVisit:(userId,localDate)=>{const x=state.fridayMosqueVisits?.find(v=>v.userId===userId&&v.localDate===localDate);return x?{localDate:x.localDate,hour:x.hour}:null;},
+            saveFridayMosqueVisit:(userId,localDate,hour)=>{
+                const entries=state.fridayMosqueVisits??[];
+                state.fridayMosqueVisits=entries.filter(v=>v.userId!==userId||v.localDate!==localDate);
+                if(hour!==null)state.fridayMosqueVisits.push({userId,localDate,hour});
+            },
             findOpenPersonalDayContaining: (
                 userId,
                 instant,
