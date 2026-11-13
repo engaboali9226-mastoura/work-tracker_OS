@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import type { SupabaseClient } from "@supabase/supabase-js";
+import type { PublicSupabaseAccountClient } from "../src/public-supabase-authentication-client.js";
 import { createNoorAccountSelfServiceR312, noorRecoveryRedirectR312 } from "../src/noor-account-self-service-r312.js";
 
 test("password recovery redirect stays on the site's own origin", () => {
@@ -24,7 +24,7 @@ test("public account flows carry only one-time provider auth and do not persist 
         async signOut(){return {error:null};},
         async getUser(){return {data:{user:recoveryUser?{id:"verified"}:null},error:null};},
       },
-    } as unknown as SupabaseClient;
+    } as unknown as PublicSupabaseAccountClient;
   };
   const service=createNoorAccountSelfServiceR312({supabaseUrl:"https://example.supabase.co",supabasePublishableKey:"public"},factory);
   assert.equal(await service.requestPasswordReset("test@example.com","https://noor-personal.onrender.com/?auth=recovery"),"sent");
@@ -46,7 +46,7 @@ test("rejects invalid form values before calling provider",async()=>{
       async resetPasswordForEmail(){providerRequests++;return {error:null};},
       async signUp(){providerRequests++;return {error:null};},
     },
-  } as unknown as SupabaseClient));
+  } as unknown as PublicSupabaseAccountClient));
   assert.equal(await service.requestPasswordReset("bad", "https://example.com"),"invalid");
   assert.equal(await service.registerPendingAccount("a@example.com","short","https://example.com"),"invalid");
   assert.equal(await service.requestEmailChange("same@example.com","pass","same@example.com"),"invalid");
