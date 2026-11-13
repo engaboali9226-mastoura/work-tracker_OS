@@ -1,5 +1,6 @@
 const DEFAULT_PERSONAL_CATEGORIES=["الصحة والرياضة","العبادات","العمل","التعلم","الأسرة","الشؤون الشخصية","الأدوية والمكملات الغذائية"] as const;
 import { IntlTimeZoneAdapter } from "../domain/time.js";
+import {parseNoorReminderPlanR314,type NoorReminderPlanR314} from "../domain/reminder-plan-r314.js";
 import { prepareTaskSessionPlan, sessionProgress, sessionStatus, sessionQuantity, sessionDayCredit, sessionEventCredit, isPageUnit, validSessionDateR286, assertTaskSessionDatesMatchParentR286, sessionScheduledOnDateR286, type TaskSessionPlanDraft } from "../domain/task-sessions.js";
 import { applyFinanceOperation, emptyFinanceLedger, parseFinanceOperation, type FinanceOperation, type FinanceLedger } from "../domain/model.js";
 import type {
@@ -33,6 +34,7 @@ function orderedDefinitions(definitions:readonly ExecutionDefinition[]):Executio
 function categoryNames(snapshot:Pick<PersonalFoundationSnapshotPort,"getCategories"|"listDefinitions">,userId:string):string[]{return [...new Set([...(snapshot.getCategories?.(userId)??DEFAULT_PERSONAL_CATEGORIES),...snapshot.listDefinitions(userId).map(d=>d.category??"عام")])];}
 
 export type PersonalCommand =
+    | Readonly<{type:"configure-reminder";definitionId:string;expectedRevisionId:string;plan:NoorReminderPlanR314|null}>
     | Readonly<{type:"set-friday-mosque-hour";hour:FridayMosqueHour|null;expectedHour:FridayMosqueHour|null}>
     | Readonly<{type:"configure-task-sessions";definitionId:string;expectedRevisionId:string;plan:TaskSessionPlanDraft|null}>
     | Readonly<{type:"edit-task-general-note";definitionId:string;expectedRevisionId:string;note:string}>
@@ -291,6 +293,13 @@ export function parsePersonalCommand(
         return null;
     }
 
+    if(value.type==="configure-reminder"){
+        if(!exactKeys(value,["type","definitionId","expectedRevisionId","plan"])
+          ||!boundedIdentifier(value.definitionId)||!boundedIdentifier(value.expectedRevisionId))return null;
+        const plan=value.plan===null?null:parseNoorReminderPlanR314(value.plan);
+        if(value.plan!==null&&!plan)return null;
+        return {type:"configure-reminder",definitionId:value.definitionId,expectedRevisionId:value.expectedRevisionId,plan};
+    }
     if(value.type==="set-friday-mosque-hour"){
         if(!exactKeys(value,["type","hour","expectedHour"]))return null;
         const isHour=(v:unknown)=>v===null||v===1||v===2||v===3||v===4||v===5;
@@ -778,6 +787,20 @@ export class PersonalCommandService {
         await this.dependencies.transaction.runInTransaction(
             transaction => {
 
+                if(command.type==="configure-reminder"){
+                    const parsed=parsePersonalCommand(command);
+                    if(!parsed||parsed.type!=="configure-reminder")throw new Error("REMINDER_COMMAND_INVALID");
+                    const definition=transaction.findDefinitionById(userId,parsed.definitionId);
+                    if(!definition)throw new PersonalControlError("DEFINITION_NOT_FOUND");
+                    if(definition.revisionId!==parsed.expectedRevisionId)throw new PersonalControlError("DEFINITION_STATE_CONFLICT");
+                    if(definition.state==="Archived"||definition.state==="Stopped")throw new PersonalControlError("DEFINITION_STATE_CONFLICT");
+                    const original=JSON.stringify(definition.reminderPlan??null),next=JSON.stringify(parsed.plan);
+                    if(original===next)return;
+                    const {reminderPlan:_previous,...preserved}=definition;
+                    transaction.saveDefinition({...preserved,...(parsed.plan?{reminderPlan:parsed.plan}:{}),
+                        revisionId:this.dependencies.idGenerator.next("definition-revision")});
+                    return;
+                }
                 if(command.type==="set-friday-mosque-hour"){
                     if(!transaction.getFridayMosqueVisit||!transaction.saveFridayMosqueVisit)
                       throw new Error("FRIDAY_MOSQUE_STORAGE_UNAVAILABLE");
