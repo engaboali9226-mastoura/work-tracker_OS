@@ -1,4 +1,5 @@
-import {useEffect,useRef,useState,type FormEvent,type ReactElement} from "react";
+import {NoorAdminAccountsPanelR316} from "./noor-admin-accounts-panel-r316.js";
+import {useRef,useState,type FormEvent,type ReactElement} from "react";
 import {readBrowserPublicAuthenticationConfiguration} from "./public-authentication-environment.js";
 import {createNoorAdminMfaSetupR315} from "./noor-admin-mfa-r315.js";
 
@@ -15,7 +16,6 @@ export function NoorAdminMfaPageR315():ReactElement{
  const [loading,setLoading]=useState(false);
  const [error,setError]=useState("");
  const [notice,setNotice]=useState("");
- useEffect(()=>()=>{void service.current?.signOut();},[]);
  const login=async(e:FormEvent<HTMLFormElement>)=>{
   e.preventDefault();if(loading)return;
   const form=new FormData(e.currentTarget);
@@ -42,14 +42,14 @@ export function NoorAdminMfaPageR315():ReactElement{
   e.preventDefault();if(loading)return;setLoading(true);setError("");
   try{
    const result=await service.current!.verify(code.trim());
-   if(result==="aal2"){setStep("complete");setQr("");setCode("");setNotice("تم التحقق من العامل الثاني. لا تزال صلاحيات إدارة الحسابات غير مفعّلة حتى يعتمدها الخادم.");}
+   if(result==="aal2"){setStep("complete");setQr("");setCode("");setNotice("تم التحقق من العامل الثاني. ستظهر الحسابات إذا كانت الصلاحية معتمدة على الخادم.");}
    else setError(result==="invalid"?"رمز التحقق غير صحيح أو منتهي الصلاحية.":"تعذر تأكيد مستوى الحماية. أعد المحاولة.");
   }finally{setLoading(false);}
  };
  const logout=async()=>{await service.current?.signOut();setStep("login");setQr("");setCode("");setError("");setNotice("");};
  return <main className="na315-page" dir="rtl" id="main-content"><section className="na315-panel">
   <header><img src="/noor-platform-logo.jpeg" alt="شعار نور" width="64" height="64"/><div><p lang="en">NOOR SECURITY</p><h1>تأمين حساب الإدارة</h1><span>إعداد المصادقة الثنائية TOTP</span></div></header>
-  <p className="na315-caution">هذه صفحة حماية الهوية فقط. إتمام الخطوات لا يمنح أي صلاحيات لإدارة المستخدمين؛ يتطلب ذلك اعتماد الحساب والتحقق من الصلاحية على خادم نور.</p>
+  <p className="na315-caution">هذه الصفحة مخصصة لحساب المدير المستقل. لا تظهر إدارة الحسابات إلا بعد المصادقة الثنائية واعتماد دور المدير على الخادم.</p>
   {step==="login"?<form onSubmit={e=>{void login(e);}}>
    <label>البريد الإلكتروني لحساب الإدارة<input name="email" type="email" autoComplete="username" required dir="ltr" disabled={loading}/></label>
    <label>كلمة المرور<input name="password" type="password" autoComplete="current-password" required dir="ltr" disabled={loading}/></label>
@@ -62,7 +62,7 @@ export function NoorAdminMfaPageR315():ReactElement{
      inputMode="numeric" autoComplete="one-time-code" pattern="\d{6}" maxLength={6} required dir="ltr" disabled={loading}/></label>
     <button type="submit" disabled={loading||code.length!==6}>{loading?"جارٍ التحقق…":"تحقق من الرمز"}</button></form>
   </div>:null}
-  {step==="complete"?<div className="na315-stage na315-complete" role="status"><h2>اكتملت المصادقة الثنائية ✓</h2><p>تأكدنا من مستوى الحماية لهذا التسجيل. يتبقى اعتماد حساب المدير على الخادم لتفعيل إدارة الحسابات.</p></div>:null}
+  {step==="complete"?<div className="na315-stage na315-complete" role="status"><h2>اكتملت المصادقة الثنائية ✓</h2><p>تم تأكيد المصادقة الثنائية. لا يسمح الخادم بالإدارة إلا لحساب المدير المعتمد.</p><NoorAdminAccountsPanelR316 token={()=>service.current?.accessToken()??Promise.resolve(null)}/></div>:null}
   {notice?<p role="status" className="na315-notice">{notice}</p>:null}
   {error?<p role="alert" className="na315-error">{error}</p>:null}
   {step!=="login"?<button className="na315-secondary" type="button" onClick={()=>{void logout();}}>إنهاء جلسة الإعداد</button>:null}
