@@ -21,12 +21,16 @@ export interface NoorAdminDatabaseR316 {
   noor_entitlement_grants:Table<Grant,Grant,Partial<Grant>>;
   noor_sessions:Table<Session,Session,Partial<Session>>;
  };Views:Record<string,never>;Functions:{
-  noor_admin_session_guard_r319:{Args:{p_user_id:string;p_session_id:string};Returns:boolean}
+  noor_admin_session_guard_r319:{Args:{p_user_id:string;p_session_id:string};Returns:boolean};
+  noor_admin_set_application_access_r320:{Args:{
+    p_actor_user_id:string;p_target_user_id:string;p_account_id:string;
+    p_expected_issuer:string;p_request_id:string;p_personal:boolean;p_work:boolean
+  };Returns:Json}
  }};
 }
 export type NoorAdminResultR316=Readonly<{status:200|201|400|401|403|404|409|429|503;body?:unknown}>;
 export interface NoorAdminAccountManagementR316 {
- execute(operation:"list"|"create"|"delete", token:string|null, payload:unknown):Promise<NoorAdminResultR316>;
+ execute(operation:"list"|"create"|"delete"|"rename"|"access", token:string|null, payload:unknown):Promise<NoorAdminResultR316>;
 }
 export interface NoorAdminDepsR316 {
  client:SupabaseClient<NoorAdminDatabaseR316>;
@@ -39,6 +43,7 @@ const uuid=(s:unknown):s is string=>typeof s==="string"&&/^[a-f0-9]{8}-[a-f0-9]{
 const obj=(v:unknown):v is Record<string,unknown>=>!!v&&typeof v==="object"&&!Array.isArray(v);
 const exact=(o:Record<string,unknown>,keys:string[])=>Object.keys(o).sort().join("|")===keys.sort().join("|");
 const apps=(a:unknown):a is Array<"noor-personal"|"noor-work">=>Array.isArray(a)&&a.length>0&&a.length<=2&&new Set(a).size===a.length&&a.every(x=>x==="noor-personal"||x==="noor-work");
+const appSelection=(v:unknown):v is Array<"noor-personal"|"noor-work">=>Array.isArray(v)&&v.length<=2&&new Set(v).size===v.length&&v.every(x=>x==="noor-personal"||x==="noor-work");
 const okEmail=(v:unknown):v is string=>typeof v==="string"&&v.length<=254&&/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)&&v===v.trim();
 function jwtClaims(token:string):Record<string,unknown>|null{
  try{const pieces=token.split(".");if(pieces.length!==3)return null;
@@ -196,8 +201,76 @@ export function createNoorAdminAccountManagementR316(d:NoorAdminDepsR316):NoorAd
    return {status:200,body:{deleted:true,personalDataRetained:true}};
   }catch{return {status:503};}
  }
+ /**
+  * R320 preflight checks the exact identity, existing NOOR linkage and email
+  * on the server before any user profile or entitlement mutation.
+  */
+ async function editableTarget(actorId:string,userId:string,accountId:string,confirmEmail:string):
+  Promise<{user:import("@supabase/supabase-js").User}|{status:403|404|409|503}>{
+  if(actorId===userId)return {status:403};
+  try{
+   const [protectedRole,linked,profile]=await Promise.all([
+    d.client.from("noor_admin_accounts_r271").select("auth_user_id")
+      .eq("auth_user_id",userId).limit(1),
+    d.client.from("noor_authentication_account_linkages").select("account_id,subject")
+      .eq("issuer",d.expectedIssuer).eq("subject",userId).limit(2),
+    d.client.auth.admin.getUserById(userId),
+   ]);
+   if(protectedRole.error||!protectedRole.data||
+     linked.error||!linked.data||linked.data.length>1)return {status:503};
+   if(protectedRole.data.length>0)return {status:403};
+   if(linked.data.length!==1||linked.data[0]?.account_id!==accountId)return {status:404};
+   if(profile.error||!profile.data.user)return {status:503};
+   if(profile.data.user.email?.toLowerCase()!==confirmEmail.toLowerCase())return {status:409};
+   if(profile.data.user.deleted_at)return {status:403};
+   return {user:profile.data.user};
+  }catch{return {status:503};}
+ }
+ async function rename(actorId:string,p:Record<string,unknown>):Promise<NoorAdminResultR316>{
+  if(!exact(p,["requestId","userId","accountId","confirmEmail","name"])||
+     !uuid(p.requestId)||!uuid(p.userId)||
+     typeof p.accountId!=="string"||p.accountId.length>256||p.accountId.length<1||
+     !okEmail(p.confirmEmail)||typeof p.name!=="string"||p.name!==p.name.trim()||
+     p.name.length<2||p.name.length>120||/[\\u0000-\\u001f]/.test(p.name))return {status:400};
+  const target=await editableTarget(actorId,p.userId,p.accountId,p.confirmEmail);
+  if("status" in target)return target;
+  if(!await initiated(p.requestId,actorId,"account_rename",p.accountId))return {status:409};
+  try{
+   const updated=await d.client.auth.admin.updateUserById(p.userId,{
+    user_metadata:{...(target.user.user_metadata??{}),name:p.name},
+   });
+   if(updated.error||!updated.data.user)throw Error("R320_PROFILE_UPDATE_FAILED");
+   if(!await audit(p.requestId,actorId,"account_rename",p.accountId,"success"))return {status:503};
+   return {status:200,body:{updated:true,name:p.name}};
+  }catch{
+   await audit(p.requestId,actorId,"account_rename",p.accountId,"failure").catch(()=>{});
+   return {status:503};
+  }
+ }
+ async function access(actorId:string,p:Record<string,unknown>):Promise<NoorAdminResultR316>{
+  if(!exact(p,["requestId","userId","accountId","confirmEmail","applications"])||
+     !uuid(p.requestId)||!uuid(p.userId)||
+     typeof p.accountId!=="string"||p.accountId.length>256||p.accountId.length<1||
+     !okEmail(p.confirmEmail)||!appSelection(p.applications))return {status:400};
+  const target=await editableTarget(actorId,p.userId,p.accountId,p.confirmEmail);
+  if("status" in target)return target;
+  if(!await initiated(p.requestId,actorId,"account_access_change",p.accountId))return {status:409};
+  try{
+   const result=await d.client.rpc("noor_admin_set_application_access_r320",{
+    p_actor_user_id:actorId,p_target_user_id:p.userId,p_account_id:p.accountId,
+    p_expected_issuer:d.expectedIssuer,p_request_id:p.requestId,
+    p_personal:p.applications.includes("noor-personal"),
+    p_work:p.applications.includes("noor-work"),
+   });
+   if(result.error||!result.data)throw Error("R320_ACCESS_TRANSACTION_FAILED");
+   return {status:200,body:{updated:true,applications:p.applications,sessionsRevoked:true}};
+  }catch{
+   await audit(p.requestId,actorId,"account_access_change",p.accountId,"failure").catch(()=>{});
+   return {status:503};
+  }
+ }
  return Object.freeze({
-  async execute(operation:"list"|"create"|"delete",token:string|null,payload:unknown):Promise<NoorAdminResultR316>{
+  async execute(operation:"list"|"create"|"delete"|"rename"|"access",token:string|null,payload:unknown):Promise<NoorAdminResultR316>{
    const identity=await actor(token);if("status" in identity)return identity;
    if(!obj(payload))return {status:400};
    if(operation==="list"){
@@ -211,6 +284,8 @@ export function createNoorAdminAccountManagementR316(d:NoorAdminDepsR316):NoorAd
    if(count>12)return {status:429};
    if(operation==="create")return create(identity.id,payload);
    if(operation==="delete")return remove(identity.id,payload);
+   if(operation==="rename")return rename(identity.id,payload);
+   if(operation==="access")return access(identity.id,payload);
    return {status:404};
   },
  });
