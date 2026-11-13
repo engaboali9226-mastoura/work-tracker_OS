@@ -3001,7 +3001,7 @@ function Dashboard({ view:providedView, workspace, busy, actionError, onCommand,
     {actionError ? <p className="np-action-error" role="alert">{actionError}</p> : null}
     {connectionWarning ? <p className="np-reconnect-notice-r296" role="status">تعذر تحديث البيانات. <button type="button" disabled={reconnecting||busy} onClick={onReconnect}>{reconnecting?"جارٍ الاتصال…":"إعادة الاتصال ↻"}</button></p> : null}
 
-    {!historyDate?<NoorReminderRibbonR314 rows={todayRows}
+    {!historyDate?<NoorReminderRibbonR314 rows={[...(workspace?.statistics.rows??[]).filter(r=>r.date<achievementDate),...todayRows]}
       definitions={workspace?.definitions??[]} todayDate={achievementDate} nowMs={nowMs} timeZone={providedView.timeZone}/>:null}
     <section className={`np-card np-day-achievement${totalToday>0&&completedToday===totalToday?" is-complete":""}`} data-testid="today-summary" data-today-design="whole-day-r93" data-week-achievement="r94" data-achievement-style="classic-r95" data-weighted-progress="r91" aria-label="إنجاز اليوم كاملًا">
       <div className="np-day-ring" role="progressbar" aria-label="الإنجاز الموزون لليوم كاملًا" aria-valuemin={0} aria-valuemax={100} aria-valuenow={completionRate} aria-valuetext={totalToday?`${completionRate}%، ${completedToday} من ${totalToday} عناصر`:"لا توجد عناصر مستحقة اليوم"}>
