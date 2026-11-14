@@ -143,10 +143,11 @@ function SmartGateway({
   const [notice,setNotice]=useState("");
   const [error,setError]=useState("");
   const [busy,setBusy]=useState(false);
+  const [showPassword,setShowPassword]=useState(false);
   // Recovery links take precedence over an unrelated old NOOR app cookie.
   const isAuth = authenticationState === "authenticated" && mode !== "recovery";
   const submitting = authenticationState === "submitting" || busy;
-  const changeMode=(next:typeof mode)=>{if(submitting)return;setMode(next);setNotice("");setError("");};
+  const changeMode=(next:typeof mode)=>{if(submitting)return;setMode(next);setShowPassword(false);setNotice("");setError("");};
   const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if(submitting)return;
@@ -200,7 +201,7 @@ function SmartGateway({
         </div>
         <p className="noor-welcome-eyebrow" lang="en">NOOR PLATFORM</p>
         <h1 id="noor-welcome-title" className="glass-title">مرحبا بك في منصة نور</h1>
-        <p className="noor-welcome-description">مساحة هادئة لتنظيم يومك، ومتابعة ما يهمك.</p>
+        <p className="noor-welcome-description">بوابتك الآمنة إلى مساحتك الشخصية والعمل.</p>
         {!isAuth ? <>
           <nav className="noor-auth-switch-r312" aria-label="خيارات الحساب">
             {([["login","تسجيل الدخول"],["register","إنشاء حساب"],["reset","نسيت كلمة المرور؟"]] as const).filter(([key])=>key==="login"||!!accountService).map(([key,title])=>
@@ -221,9 +222,10 @@ function SmartGateway({
             </label>:null}
             {mode==="login"||mode==="register"||mode==="recovery"?<label className="noor-welcome-field">
               <span>{mode==="recovery"?"كلمة المرور الجديدة":"كلمة المرور"}</span>
-              <input name="password" type="password" dir="ltr" minLength={mode==="login"?undefined:mode==="register"?12:8}
+              <input name="password" type={showPassword?"text":"password"} dir="ltr" minLength={mode==="login"?undefined:mode==="register"?12:8}
                 autoComplete={mode==="login"?"current-password":"new-password"} required disabled={submitting} placeholder="••••••••" />
             </label>:null}
+            {mode==="login"||mode==="register"||mode==="recovery"?<button type="button" className="noor-r322-visibility" onClick={()=>setShowPassword(x=>!x)} aria-pressed={showPassword}>{showPassword?"إخفاء كلمة المرور":"إظهار كلمة المرور"}</button>:null}
             {mode==="register"||mode==="recovery"?<label className="noor-welcome-field">
               <span>تأكيد كلمة المرور</span>
               <input name="passwordConfirm" type="password" dir="ltr" autoComplete="new-password"
@@ -241,6 +243,10 @@ function SmartGateway({
             {error?<p className="noor-welcome-error" role="alert">{error}</p>:null}
             {notice?<p className="noor-auth-success-r312" role="status">{notice}</p>:null}
           </form>
+          {mode==="login"?<div className="noor-r322-secondary-actions">
+            <button type="button" onClick={()=>changeMode("register")}>إنشاء حساب جديد</button>
+            <button type="button" onClick={()=>changeMode("reset")}>نسيت كلمة المرور؟</button>
+          </div>:null}
           {mode==="recovery"?<button type="button" className="noor-auth-return-r312" onClick={()=>changeMode("reset")}>طلب رابط استعادة جديد</button>:null}
         </> : (
           <div className="noor-welcome-apps" aria-label="تطبيقات نور">
@@ -261,7 +267,8 @@ function SmartGateway({
             </a>
           </div>
         )}
-        <p className="noor-welcome-privacy"><span aria-hidden="true">✧</span> مساحتك الخاصة، بتجربة بسيطة وآمنة</p>
+        <p className="noor-welcome-privacy"><span aria-hidden="true">✧</span> بيانات كل مستخدم مستقلة ومحمية. حسابات التسجيل الجديدة تحتاج موافقة الإدارة.</p>
+        <a className="noor-r322-admin-entry" href="/admin/security" aria-label="دخول مدير منصة نور">إدارة المنصة · دخول المدير الآمن ←</a>
       </section>
       <p className="noor-welcome-footer" lang="en">NOOR · DESIGNED FOR CLARITY</p>
     </main>

@@ -1,0 +1,97 @@
+/* R322 premium visual layer; existing domain models, summaries and actions unchanged. */
+.noor-welcome-gateway-r231{background:#f7f2e9;color:#173f36}
+.noor-welcome-ambient{background:
+ radial-gradient(ellipse 45% 32% at 7% 14%,#b1c9b544,transparent),
+ radial-gradient(ellipse 33% 35% at 90% 20%,#dabd8452,transparent),
+ repeating-linear-gradient(135deg,#beaa7c07 0 1px,transparent 1px 27px),
+ linear-gradient(165deg,#fffaf1,#f2eee6)}
+.noor-welcome-panel{width:min(100%,485px);padding:30px clamp(20px,5vw,39px);background:#fffdf9e8;
+ border:1px solid #e8decf;border-radius:28px;box-shadow:0 22px 60px #2749391b,0 2px 9px #59472e0c}
+.noor-welcome-gateway-r231 .glass-title{color:#184439;font-weight:800}
+.noor-welcome-description{color:#657a6d}
+.noor-welcome-logo-frame{border:1px solid #dbc8a4;box-shadow:0 9px 27px #927a4f29}
+.noor-welcome-field{color:#25463e;font-weight:740}
+.noor-welcome-field input{min-height:54px;border:1px solid #d8dfd6;border-radius:16px;background:#fcfcfa}
+.noor-welcome-field input:focus-visible{outline:2px solid #aa8e5b;outline-offset:2px}
+.noor-welcome-submit{min-height:53px;border-radius:17px;border:0;background:linear-gradient(115deg,#41705e,#1d493d);
+ box-shadow:0 10px 22px #28564827;font-size:16px}
+.noor-welcome-submit:not(:disabled):hover{background:linear-gradient(115deg,#4f806c,#1d493d)}
+.noor-auth-switch-r312{border-radius:18px;background:#f1f0e9;padding:5px;gap:3px}
+.noor-auth-switch-r312 button{border-radius:13px;min-height:43px}
+.noor-auth-switch-r312 button[aria-pressed="true"]{background:#235243;color:#fff;border-radius:13px}
+.noor-r322-secondary-actions{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;padding:14px 0 0}
+.noor-r322-secondary-actions button,.noor-r322-visibility{font:inherit;font-size:12px;background:none;color:#23684b;
+ border:0;text-decoration:underline;text-underline-offset:4px;cursor:pointer;padding:9px}
+.noor-r322-visibility{justify-self:start;padding:0 5px 0}
+.noor-r322-admin-entry{display:inline-block;margin:16px auto 0;padding:10px 14px;border:1px solid #dccda8;
+ border-radius:100px;color:#2b6450;text-decoration:none;font-size:12px;font-weight:700}
+.noor-r322-admin-entry:hover{background:#f0f8f2}
+.noor-welcome-privacy{color:#607568}
+.noor-r322-timer-hub{max-width:100%;border:1px solid #dfd9c9;border-radius:23px;
+ background:linear-gradient(145deg,#fffefb,#f9f6f0);box-shadow:0 12px 33px #2b4c4012;
+ display:grid;gap:13px;padding:clamp(15px,3vw,22px)}
+.noor-r322-timer-hub,.noor-r322-timer-hub *{box-sizing:border-box}
+.np-r322-timer-head{display:flex;align-items:center;gap:11px;color:#1f493d;text-align:right}
+.np-r322-timer-head h2{margin:0;font-size:clamp(19px,3vw,24px);line-height:1.45}
+.np-r322-timer-head p{margin:3px 0 0;color:#6b8074;font-size:12px}
+.np-r322-timer-icon{display:grid;place-items:center;width:43px;height:43px;border-radius:14px;
+ border:1px solid #d1daba;background:#f5f8ed;color:#7d8e55;font-size:25px}
+.np-r322-timer-feature{font:inherit;display:grid;justify-items:center;gap:7px;min-width:0;width:100%;padding:23px 14px;
+ border:1px solid #f9fbf0;border-radius:22px;background:linear-gradient(135deg,#1c4238,#356b60 70%,#55776a);
+ color:#fffef7;cursor:pointer;box-shadow:0 12px 24px #244c3931;transition:transform .18s,box-shadow .18s}
+.np-r322-timer-feature.is-night{background:
+ radial-gradient(circle at 14% 17%,#d8e2a519 0 8%,transparent 9%),
+ linear-gradient(135deg,#152c33,#255e58 67%,#3e7268)}
+.np-r322-timer-feature:hover{transform:translateY(-2px);box-shadow:0 16px 30px #244c3939}
+.np-r322-active-title{font-size:clamp(17px,3.5vw,23px);font-weight:800}
+.np-r322-main-countdown{font-size:clamp(29px,6.5vw,53px);letter-spacing:.1em;line-height:1.25;
+ font-variant-numeric:tabular-nums;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;color:#fffdf6}
+.np-r322-feature-subtitle{font-size:12px;color:#e2eee6}
+.np-r322-range{font-size:11px;max-width:100%;text-wrap:balance;line-height:1.6;color:#e4efdf}
+.np-r322-time-unavailable{font-size:15px;font-weight:600}
+.np-r322-expand{margin-top:7px;font-size:12px;color:#fae4af;border-top:1px solid #e3e7ce35;padding-top:9px;width:100%;text-align:center}
+.np-r322-friday-preview{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:8px;
+ font:inherit;font-size:12px;padding:13px 15px;color:#604b23;background:#fff9e9;border:1px solid #e8d8b6;
+ border-radius:15px;cursor:pointer;text-align:right}
+.np-r322-friday-preview strong{font-size:13px;color:#6a4b1d}
+.np-r322-modal,.np-r322-appointments-overlay{position:fixed;inset:0;z-index:99999;background:#101f1ab3;
+ display:flex;align-items:flex-end;justify-content:center;padding:0;overflow:hidden;overscroll-behavior:contain}
+.np-r322-modal[data-open="false"],.np-r322-appointments-overlay[data-open="false"]{display:none}
+.np-r322-sheet,.np-r322-appointments-sheet{box-sizing:border-box;width:min(100%,820px);max-height:min(90dvh,940px);
+ overflow-y:auto;overscroll-behavior:contain;padding:20px clamp(14px,3vw,26px) max(24px,env(safe-area-inset-bottom));
+ border-radius:27px 27px 0 0;border:1px solid #e7deca;background:#faf7f0;
+ box-shadow:0 -20px 60px #001f193d;color:#24483e}
+.np-r322-sheet-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:18px}
+.np-r322-sheet-head h2{margin:0 0 5px;font-size:clamp(19px,4vw,25px)}
+.np-r322-sheet-head p{margin:0;font-size:12px;color:#6c7e70;line-height:1.7}
+.np-r322-sheet-head button{width:42px;height:42px;flex:none;border:1px solid #dfd6c5;border-radius:50%;
+ background:#fffdf7;color:#465c53;font-size:20px;cursor:pointer}
+.np-r322-sheet .np-r232-section{width:100%;margin:0;box-shadow:none;border:0;background:transparent}
+.np-r322-sheet .np-r232-grid{overflow:visible}
+.np-r322-appointments-more{border:1px solid #d6dfcc;background:#f7fbf5;color:#27644d;border-radius:13px;
+ min-height:43px;width:100%;font:inherit;font-size:13px;font-weight:700;cursor:pointer;margin-top:10px}
+.np-r322-appointments-sheet .np-upcoming-following-r303{display:grid;gap:8px;margin:12px 0}
+.np-r322-appointments-sheet .np-upcoming-following-item-r303{padding:12px}
+.np-r322-featured-modal{background:#eaf4ec;border:1px solid #d2e4d6;color:#285440;border-radius:12px;
+ padding:12px;font-size:13px;line-height:1.8}
+.np-r322-appointments-sheet .np-upcoming-more-r303{display:block}
+.np-r322-appointments-sheet .np-upcoming-more-r303>summary{margin-bottom:10px}
+.np-page .np-beverages-r294.np-caffeine-card-r299{border-radius:23px;border-color:#dedbcb;
+ box-shadow:0 11px 30px #18453215;background:
+ radial-gradient(circle at 95% 100%,#bfcfab25,transparent 50%),
+ color-mix(in srgb,var(--panel) 84%,var(--np-drink-accent) 16%)}
+.np-page .np-beverages-r294 .np-beverages-head-r294 h2{color:#19483b;font-size:clamp(18px,3vw,23px)}
+.np-page .np-beverages-r294 .np-caffeine-tally-r295{gap:clamp(8px,2vw,15px)}
+@media(max-width:600px){
+ .noor-welcome-gateway-r231{justify-content:flex-start;padding-top:max(22px,env(safe-area-inset-top))}
+ .noor-welcome-panel{width:min(100%,400px);border-radius:23px}
+ .np-r322-timer-hub{padding:14px;border-radius:20px}
+ .np-r322-timer-feature{min-height:172px;padding:18px 10px}
+ .np-r322-main-countdown{letter-spacing:.055em}
+ .np-r322-sheet,.np-r322-appointments-sheet{max-height:92dvh;border-radius:24px 24px 0 0;padding-inline:13px}
+ .np-r322-sheet .np-r232-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:12px}
+ .np-r322-sheet .np-r232-window{width:100%;min-width:0}
+ .np-r322-sheet .np-r232-friday{width:100%;max-width:100%}
+ .np-r322-sheet .np-r232-five-grid{grid-template-columns:minmax(0,1fr)}
+}
+@media(prefers-reduced-motion:reduce){.np-r322-timer-feature{transition:none}}

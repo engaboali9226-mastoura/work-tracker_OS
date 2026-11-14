@@ -1,4 +1,4 @@
-import type {ReactElement} from "react";
+import {useEffect,useState,type ReactElement} from "react";
 import type {NoorCountdownPlanR301} from "./noor-personal-today-client.js";
 
 /** Pure civil-time countdown. Clock comes from the existing app heartbeat.
@@ -53,12 +53,14 @@ const shortDateR303=(date:string)=>{
 };
 const paddedR303=(value:number)=>String(value).padStart(2,"0");
 export function UpcomingCountdownR301({definitions,nowMs,timeZone,onAdd}:{definitions:readonly UpcomingDefinitionR301[];nowMs:number;timeZone:string;onAdd?:()=>void}):ReactElement{
+ const [detailOpen,setDetailOpen]=useState(false);
+ useEffect(()=>{if(!detailOpen)return;const onKey=(e:KeyboardEvent)=>{if(e.key==="Escape")setDetailOpen(false);};document.addEventListener("keydown",onKey);return ()=>document.removeEventListener("keydown",onKey);},[detailOpen]);
  const upcoming=definitions.flatMap(definition=>{
   if(!definition.countdownPlan||definition.state!=="Active")return [];
   const countdown=countdownStateR301(definition.countdownPlan.date,definition.countdownPlan.time,nowMs,timeZone);
   if(!countdown||countdown.phase==="past")return [];
   return [{id:definition.id,title:definition.title,plan:definition.countdownPlan,countdown}];
- }).sort((a,b)=>a.plan.date.localeCompare(b.plan.date)||a.plan.time.localeCompare(b.plan.time)).slice(0,5);
+ }).sort((a,b)=>a.plan.date.localeCompare(b.plan.date)||a.plan.time.localeCompare(b.plan.time));
  const featured=upcoming[0];
  const additional=upcoming.slice(1,3);
  const hidden=upcoming.slice(3);
@@ -109,6 +111,15 @@ export function UpcomingCountdownR301({definitions,nowMs,timeZone,onAdd}:{defini
          </div>}
       </div>
     </article>
+    {upcoming.length>1?<button type="button" className="np-r322-appointments-more" onClick={()=>setDetailOpen(true)} aria-haspopup="dialog" aria-expanded={detailOpen} data-testid="r322-open-appointments">
+      عرض جميع المواعيد ({number(upcoming.length)}) ←
+     </button>:null}
+    <div className="np-r322-appointments-overlay" data-open={detailOpen} role="presentation" aria-hidden={!detailOpen}
+      onMouseDown={e=>{if(e.target===e.currentTarget)setDetailOpen(false);}}>
+     <div className="np-r322-appointments-sheet" role="dialog" aria-modal={detailOpen} aria-label="جميع المواعيد القادمة" dir="rtl">
+       <header className="np-r322-sheet-head"><div><h2>جميع المواعيد القادمة</h2><p>المواعيد المسجلة لحسابك، مرتبة حسب التاريخ والوقت</p></div>
+       <button type="button" onClick={()=>setDetailOpen(false)} aria-label="إغلاق المواعيد">✕</button></header>
+       <p className="np-r322-featured-modal">الموعد الأقرب: <strong>{featured.title}</strong> · {shortDateR303(featured.plan.date)} · {featured.plan.time}</p>
     {additional.length?<div className="np-upcoming-following-r303">
       {additional.map(item=><div key={item.id} className="np-upcoming-following-item-r303"
         data-countdown-phase={item.countdown.phase} data-testid={"r301-countdown-"+item.id}>
@@ -119,10 +130,11 @@ export function UpcomingCountdownR301({definitions,nowMs,timeZone,onAdd}:{defini
           item.countdown.phase==="begun"?"حان الآن":"اليوم"}</span>
        </div>)}
     </div>:null}
-    {hidden.length?<details className="np-upcoming-more-r303"><summary>عرض {number(hidden.length)} مواعيد أخرى</summary>
+    {hidden.length?<details className="np-upcoming-more-r303" open={detailOpen}><summary>عرض {number(hidden.length)} مواعيد أخرى</summary>
       {hidden.map(item=><div key={item.id} data-testid={"r301-countdown-"+item.id}>
        <strong>{item.title}</strong><small>{shortDateR303(item.plan.date)} · {item.plan.time}</small></div>)}
     </details>:null}
+    </div></div>
    </div>}
   </section>;
 }

@@ -1,4 +1,4 @@
-import type {ReactElement} from "react";
+import {useEffect,useState,type ReactElement} from "react";
 import {r232Countdown,r232DailyWindows,r283FridayHoursAtDhuhr,r283CarriedNightWindow,r232FastingCountdownEnabled,
  type R232Window,type R283PrecedingNight} from "./noor-islamic-daylight-r232.js";
 import type {NoorR232Preferences} from "./noor-time-display-preferences-r232.js";
@@ -77,6 +77,8 @@ export function NoorR232TimeWindows({prayers,nowMs,timeZone,preferences,nextFajr
  onSelectFridayHour?:(hour:1|2|3|4|5)=>void;
  fridaySelectionBusy?:boolean;
 }):ReactElement {
+ const [detailsOpen,setDetailsOpen]=useState(false);
+ useEffect(()=>{if(!detailsOpen)return;const onKey=(e:KeyboardEvent)=>{if(e.key==="Escape")setDetailsOpen(false);};document.addEventListener("keydown",onKey);return ()=>document.removeEventListener("keydown",onKey);},[detailsOpen]);
  const windows=r232DailyWindows(prayers,nextFajrAt,
    preferences.afterSunrise,preferences.beforeDhuhr);
  const activeNight=r283CarriedNightWindow(nowMs,precedingNight);
@@ -90,7 +92,55 @@ export function NoorR232TimeWindows({prayers,nowMs,timeZone,preferences,nextFajr
  const fridayHours=friday?r283FridayHoursAtDhuhr({
    nowMs,timeZone,prayers,sunriseOffsetMinutes:preferences.afterSunrise,
   }):null;
- return <section className="np-card np-r232-section np-r246-rhythm-card np-r247-rhythm-card np-r248-reference-card" data-rhythm-layout="three-visible-columns-r246" data-reference-design="preview-r248" data-rhythm-visual="digital-contrast-r247" data-testid="noor-day-night-friday-r232"
+ const trustedNight=activeNight??windows.islamicNight;
+ const nightCountdown=trustedNight?r232Countdown(trustedNight,nowMs):null;
+ const nextFajrMs=nextFajrAt?Date.parse(nextFajrAt):NaN;
+ const todayFajrMs=prayers.find(p=>p.key==="fajr")?.at;
+ const todayFajr=todayFajrMs?Date.parse(todayFajrMs):NaN;
+ // For a new first-login account shortly after midnight, the previous
+ // Maghrib revision can be missing while today's authenticated Fajr is
+ // still ahead. Use the nearest verified Fajr instant, NEVER estimate an
+ // earlier Maghrib or manufacture a night duration.
+ const earlyLocalHour=Number(new Intl.DateTimeFormat("en-GB",{hour:"2-digit",hourCycle:"h23",timeZone}).format(new Date(nowMs)));
+ const nearestFajr=[todayFajr,nextFajrMs].filter(t=>Number.isFinite(t)&&t>nowMs&&t-nowMs<=12*3600000).sort((a,b)=>a-b)[0]??NaN;
+ const fallbackToFajr=nightCountdown?.phase!=="active"
+   &&Number.isFinite(nearestFajr)&&earlyLocalHour<7;
+ const nightPreview=nightCountdown?.phase==="active"||fallbackToFajr;
+ const todayDay=windows.fastingDay?r232Countdown(windows.fastingDay,nowMs):null;
+ const dayPreview=!nightPreview&&todayDay?.phase==="active";
+ const currentTitle=nightPreview?"الليل":dayPreview?"النهار":"إيقاع اليوم";
+ const currentEnd=nightPreview?(nightCountdown?.phase==="active"?trustedNight!.endMs:nearestFajr):dayPreview?windows.fastingDay!.endMs:NaN;
+ const currentTimer=Number.isFinite(currentEnd)&&currentEnd>nowMs?remaining(currentEnd-nowMs):null;
+ const currentWindow=nightPreview&&nightCountdown?.phase==="active"?trustedNight:dayPreview?windows.fastingDay:null;
+ const currentFridayHour=fridayHours?.find(h=>r232Countdown(h,nowMs).phase==="active")??null;
+ const previewLabel=(n:number)=>["الأولى","الثانية","الثالثة","الرابعة","الخامسة"][n-1]??String(n);
+ return <>
+ <section className="np-card np-r322-timer-hub" data-testid="r322-premium-timer-hub" dir="rtl" aria-label="إيقاع اليوم والمؤقت النشط">
+   <div className="np-r322-timer-head"><span className="np-r322-timer-icon" aria-hidden="true">◐</span>
+     <div><h2>إيقاع اليوم</h2><p>المؤقت النشط من مواقيت نور المعتمدة</p></div>
+   </div>
+   <button type="button" className={"np-r322-timer-feature "+(nightPreview?"is-night":"is-day")}
+     onClick={()=>setDetailsOpen(true)} aria-haspopup="dialog" aria-expanded={detailsOpen}
+     data-testid="r322-open-time-windows">
+    <span className="np-r322-active-title">{nightPreview?"☾":dayPreview?"☀":"◷"} مؤقت {currentTitle}</span>
+    {currentTimer?<strong className="np-r322-main-countdown" dir="ltr" role="timer">{currentTimer}</strong>
+     :<span className="np-r322-time-unavailable">لا توجد فترة نشطة الآن</span>}
+    <span className="np-r322-feature-subtitle">{currentTimer?"متبقٍ حتى نهاية الفترة":"اضغط لعرض مواقيت اليوم"}</span>
+    {currentWindow?<span className="np-r322-range">من {clock(currentWindow.startMs,timeZone)} إلى {clock(currentWindow.endMs,timeZone)} · المدة {duration(currentWindow.durationMs)}</span>
+     :fallbackToFajr?<span className="np-r322-range">حتى الفجر المؤكد · لم تتوفر بداية الليل لحساب مدته</span>:null}
+    <span className="np-r322-expand">عرض إيقاع اليوم كاملًا ←</span>
+   </button>
+   {friday?<button type="button" className="np-r322-friday-preview" onClick={()=>setDetailsOpen(true)} aria-haspopup="dialog">
+     <span>ساعات الجمعة الخمس</span>
+     <strong>{currentFridayHour?"الساعة "+previewLabel(currentFridayHour.number):"عرض ساعات الجمعة"}</strong>
+     <span dir="ltr">{currentFridayHour?remaining(currentFridayHour.endMs-nowMs):"التفاصيل ←"}</span>
+   </button>:thursdayReminder?<button className="np-r322-friday-preview" type="button" onClick={()=>setDetailsOpen(true)}>غدًا الجمعة · عرض ساعات التبكير ←</button>:null}
+ </section>
+ <div className="np-r322-modal" data-open={detailsOpen} role="presentation" aria-hidden={!detailsOpen} onMouseDown={event=>{if(event.target===event.currentTarget)setDetailsOpen(false);}}>
+  <div role="dialog" aria-modal={detailsOpen} aria-label="إيقاع اليوم الكامل وساعات الجمعة" className="np-r322-sheet" dir="rtl">
+   <header className="np-r322-sheet-head"><div><h2>إيقاع اليوم الكامل</h2><p>كل المواقيت والتفاصيل كما حُسبت من مصدر نور</p></div>
+   <button type="button" onClick={()=>setDetailsOpen(false)} aria-label="إغلاق مؤقتات اليوم">✕</button></header>
+ <section className="np-card np-r232-section np-r246-rhythm-card np-r247-rhythm-card np-r248-reference-card" data-rhythm-layout="three-visible-columns-r246" data-reference-design="preview-r248" data-rhythm-visual="digital-contrast-r247" data-testid="noor-day-night-friday-r232"
    aria-label="ساعات النهار والليل والضحى والجمعة">
    <div className="np-r232-heading">
     <div className="np-r234-heading-label"><span className="np-r234-orbit" aria-hidden="true">◐</span><div><h2>إيقاع اليوم</h2><p>الضحى، النهار، الليل وفق مواقيت نور المعتمدة</p></div></div>
@@ -180,5 +230,8 @@ export function NoorR232TimeWindows({prayers,nowMs,timeZone,preferences,nextFajr
     <p className="np-r284-friday-source">{NOOR_FRIDAY_VIRTUES_SOURCE_R284}. يعتمد الحساب الزمني على مواقيت نور، وقد تختلف بداية ساعات التبكير باختلاف الاجتهاد الفقهي ووقت خروج الإمام.</p>
    </div>:null}
    </div>
-  </section>;
+  </section>
+  </div>
+ </div>
+ </>;
 }
