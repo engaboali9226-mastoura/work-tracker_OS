@@ -95,16 +95,21 @@ export function NoorR232TimeWindows({prayers,nowMs,timeZone,preferences,nextFajr
  const trustedNight=activeNight??windows.islamicNight;
  const nightCountdown=trustedNight?r232Countdown(trustedNight,nowMs):null;
  const nextFajrMs=nextFajrAt?Date.parse(nextFajrAt):NaN;
- // Count to a server-authenticated Fajr only. A missing previous Maghrib
- // never becomes a fabricated "night duration" or a shifted civil date.
+ const todayFajrMs=prayers.find(p=>p.key==="fajr")?.at;
+ const todayFajr=todayFajrMs?Date.parse(todayFajrMs):NaN;
+ // For a new first-login account shortly after midnight, the previous
+ // Maghrib revision can be missing while today's authenticated Fajr is
+ // still ahead. Use the nearest verified Fajr instant, NEVER estimate an
+ // earlier Maghrib or manufacture a night duration.
  const earlyLocalHour=Number(new Intl.DateTimeFormat("en-GB",{hour:"2-digit",hourCycle:"h23",timeZone}).format(new Date(nowMs)));
+ const nearestFajr=[todayFajr,nextFajrMs].filter(t=>Number.isFinite(t)&&t>nowMs&&t-nowMs<=12*3600000).sort((a,b)=>a-b)[0]??NaN;
  const fallbackToFajr=nightCountdown?.phase!=="active"
-   &&Number.isFinite(nextFajrMs)&&nextFajrMs>nowMs&&nextFajrMs-nowMs<=12*3600000&&earlyLocalHour<7;
+   &&Number.isFinite(nearestFajr)&&earlyLocalHour<7;
  const nightPreview=nightCountdown?.phase==="active"||fallbackToFajr;
  const todayDay=windows.fastingDay?r232Countdown(windows.fastingDay,nowMs):null;
  const dayPreview=!nightPreview&&todayDay?.phase==="active";
  const currentTitle=nightPreview?"الليل":dayPreview?"النهار":"إيقاع اليوم";
- const currentEnd=nightPreview?(nightCountdown?.phase==="active"?trustedNight!.endMs:nextFajrMs):dayPreview?windows.fastingDay!.endMs:NaN;
+ const currentEnd=nightPreview?(nightCountdown?.phase==="active"?trustedNight!.endMs:nearestFajr):dayPreview?windows.fastingDay!.endMs:NaN;
  const currentTimer=Number.isFinite(currentEnd)&&currentEnd>nowMs?remaining(currentEnd-nowMs):null;
  const currentWindow=nightPreview&&nightCountdown?.phase==="active"?trustedNight:dayPreview?windows.fastingDay:null;
  const currentFridayHour=fridayHours?.find(h=>r232Countdown(h,nowMs).phase==="active")??null;
