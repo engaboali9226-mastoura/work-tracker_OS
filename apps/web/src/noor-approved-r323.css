@@ -150,3 +150,85 @@
 .np-page[data-appearance="dark"] .np-r323-brand-label,.np-page[data-appearance="dark"] .np-r323-greeting{color:#e2eaf2}
 .np-r323-home-shortcuts a:focus-visible,.np-r323-expand:focus-visible{outline:3px solid #b1833c;outline-offset:2px}
 .np-page:not([data-appearance="dark"]) .np-r323-home-grid>.np-caffeine-card-r299:before{background-position:right -7px;background-size:auto 110px}
+
+/* R323 actual-browser corrections: the source mockup has a compact brand/date header,
+   two cards on SAME row, an illuminated active timer and a viewport-level sheet. */
+.noor-r323-line-icon{width:1.25em;height:1.25em;display:inline-block;vertical-align:middle;flex:none}
+.noor-r323-gateway .noor-welcome-panel:before,.noor-r323-gateway .noor-welcome-panel:after{height:170px;top:0;mask-image:linear-gradient(to bottom,#000 0%,#000 56%,transparent 100%)}
+.noor-r323-gateway .noor-welcome-panel:before{width:45%;background-size:cover;border-radius:0 75% 55% 0;mask-image:radial-gradient(ellipse at 0 30%,#000 5%,#000 35%,transparent 78%)}
+.noor-r323-gateway .noor-welcome-panel:after{mask-image:radial-gradient(ellipse at 100% 25%,#000 5%,#000 36%,transparent 78%)}
+.noor-r323-gateway .noor-welcome-logo-frame{width:108px;height:76px;margin:0 auto 1px;overflow:visible}
+.noor-r323-gateway .noor-r323-brand-label{font-size:18px;font-weight:650;margin-top:0}
+.noor-r323-gateway .noor-welcome-eyebrow{margin-bottom:14px;letter-spacing:1px}
+.noor-r323-gateway .noor-welcome-field:before{content:"";width:18px;height:18px;right:10px;background:currentColor;color:#a27830;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.6'%3E%3Crect x='3' y='5' width='18' height='14' rx='2'/%3E%3Cpath d='m3 6 9 7 9-7'/%3E%3C/svg%3E") center/contain no-repeat}
+.noor-r323-gateway .noor-welcome-field:has(input[name="password"]):before,.noor-r323-gateway .noor-welcome-field:has(input[name="passwordConfirm"]):before{content:"";mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.6'%3E%3Crect x='5' y='10' width='14' height='11' rx='2'/%3E%3Cpath d='M8 10V7a4 4 0 0 1 8 0v3'/%3E%3C/svg%3E")}
+.np-page:has(.np-r323-home-grid)>.np-wrap{width:min(1120px,calc(100% - 24px))!important;padding-top:10px!important;padding-bottom:100px!important}
+.np-page .np-r323-header.np-topbar{min-height:0!important;margin-bottom:12px!important}
+.np-page .np-r323-header .np-brand{position:relative!important;inset:auto!important;transform:none!important;align-self:start!important;justify-self:center!important;width:114px!important;display:grid!important;gap:1px!important}
+.np-page .np-r323-header .np-logo-frame{height:54px!important;width:85px!important;border-radius:0!important;overflow:visible!important}
+.np-r323-brand-label{font-size:14px;line-height:1.2;white-space:nowrap}
+.np-r323-brand-label small{font-size:10px;white-space:nowrap}
+.np-page .np-r323-header .np-top-actions,.np-page .np-r323-header .np-header-status{position:static!important;transform:none!important}
+.np-page .np-r323-header .np-header-status{font-size:10px;gap:2px!important}
+.np-page .np-r323-header .np-header-clock,.np-page .np-r323-header .np-header-temperature{font-size:12px!important}
+.np-page .np-r323-header .np-header-weather{gap:3px!important;min-height:0!important}
+.np-page .np-r323-header .np-weather-icon{width:19px!important;height:19px!important}
+.np-page .np-r323-header .np-header-calendar{min-height:0!important;gap:6px!important;flex-direction:row!important;flex-wrap:wrap!important;justify-content:center!important}
+.np-page .np-r323-header .np-header-day{margin:0!important;white-space:nowrap}
+.np-page .np-r323-header .np-header-day:after{display:none!important}
+.np-page .np-r323-header .np-header-date-pair{width:auto!important;gap:6px!important}
+.np-page .np-r323-header .np-date-full{display:inline!important;white-space:nowrap}
+.np-page .np-r323-header .np-date-year,.np-page .np-r323-header .np-date-month{display:inline!important}
+.np-page .np-r323-header .np-date-compact,.np-page .np-r323-header .np-header-date-caption{display:none!important}
+.np-page .np-r323-header .np-header-date-divider{height:20px!important;width:1px!important}
+.np-r323-greeting{font-size:clamp(23px,5vw,34px);padding:0 2px;line-height:1.2}
+.np-r323-greeting>span{font-size:23px;margin-inline-start:5px}
+.np-page .np-r323-home-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;grid-auto-flow:row;align-items:stretch!important}
+.np-page .np-r323-home-grid>.np-r323-rhythm{grid-column:1/-1!important;grid-row:1!important;min-height:0!important;padding:12px!important;gap:6px!important}
+.np-page .np-r323-home-grid>.np-r322-friday-preview{grid-column:1!important;grid-row:2!important;min-height:0!important}
+.np-page .np-r323-home-grid>.np-upcoming-r303{grid-column:2!important;grid-row:2!important;min-height:0!important;align-content:start!important}
+.np-page .np-r323-home-grid:not(:has(>.np-r322-friday-preview))>.np-upcoming-r303{grid-column:1/-1!important}
+.np-page .np-r323-home-grid>.np-caffeine-card-r299{grid-column:1/-1!important;grid-row:3!important}
+.np-page .np-r323-home-grid>.np-r323-home-shortcuts{grid-column:1/-1!important;grid-row:4!important}
+.np-page:not([data-appearance="dark"]) .np-r323-rhythm .np-r322-timer-feature{padding:10px 7px!important;border-radius:26px!important;gap:3px!important}
+.np-page .np-r323-rhythm .np-r322-timer-head{min-height:0!important;align-items:center!important}
+.np-page .np-r323-rhythm .np-r322-timer-head h2{font-size:18px!important}
+.np-page .np-r323-rhythm .np-r322-timer-icon{height:26px!important;width:26px!important;font-size:22px!important}
+.np-page .np-r323-rhythm .np-r322-main-countdown{font-size:clamp(25px,7vw,44px)!important;line-height:1.02!important;letter-spacing:.02em!important}
+.np-page .np-r323-rhythm .np-r322-range{font-size:9px!important}
+.np-page .np-r323-home-grid .np-upcoming-head-r301{display:grid!important;grid-template-columns:24px minmax(0,1fr) auto;gap:4px!important;min-height:0!important;align-items:start!important}
+.np-page .np-r323-home-grid .np-upcoming-head-r301>div{min-width:0!important}
+.np-page .np-r323-home-grid .np-upcoming-head-r301 h2{font-size:15px!important;line-height:1.3!important;white-space:nowrap!important}
+.np-page .np-r323-home-grid .np-upcoming-head-r301 small{font-size:10px!important;line-height:1.3!important}
+.np-page .np-r323-home-grid .np-upcoming-add-r302{min-width:0!important;min-height:27px!important;padding:3px 7px!important;font-size:10px!important}
+.np-page .np-r323-home-grid .np-upcoming-feature-r303{min-height:0!important;padding:7px!important;gap:4px!important}
+.np-page .np-r323-home-grid .np-upcoming-feature-main-r303{min-height:0!important;gap:4px!important}
+.np-page .np-r323-home-grid .np-upcoming-feature-icon-r303{width:22px!important;height:22px!important;flex:0 0 22px!important}
+.np-page .np-r323-home-grid .np-upcoming-feature-copy-r303{gap:3px!important}
+.np-page .np-r323-home-grid .np-upcoming-countdown-strip-r303{min-height:0!important;display:flex!important;justify-content:center!important;gap:4px!important;flex-wrap:wrap!important}
+.np-page .np-r323-home-grid .np-upcoming-counter-days-r303{min-height:0!important;padding:3px 6px!important;height:auto!important}
+.np-page .np-r323-home-grid .np-upcoming-countdown-lead-r303{font-size:9px!important}
+.np-page .np-r323-home-grid .np-upcoming-list-r303{gap:4px!important}
+.np-page .np-r323-home-grid .np-r322-appointments-more{min-height:27px!important;margin:0!important;font-size:10px!important}
+.np-page .np-r323-home-grid>.np-r322-friday-preview{padding:10px!important;gap:6px!important;align-content:center!important}
+.np-r323-friday-current{padding:8px!important;border-radius:12px}
+.np-page .np-r323-home-grid>.np-caffeine-card-r299{padding:10px!important}
+.np-page .np-r323-home-grid .np-caffeine-tally-r295{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+.np-page .np-r323-home-grid .np-caffeine-signal-r295{min-width:76px!important;min-height:76px!important;max-width:110px!important;width:28%!important}
+.np-page .np-r323-home-grid .np-caffeine-quick-r295{gap:5px!important}
+.np-page .np-r323-home-grid .np-caffeine-quick-r295 button{min-height:34px!important;padding:4px 10px!important}
+.np-r323-bottom-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(1120px,100%);box-sizing:border-box;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:3px;padding:7px 7px max(7px,env(safe-area-inset-bottom));border:1px solid #e1d9cb;border-radius:22px 22px 0 0;background:#fcf8f0f5;box-shadow:0 -6px 24px #80705318;z-index:90;backdrop-filter:blur(16px)}
+.np-r323-bottom-nav button{min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;border:0;border-radius:16px;background:transparent;padding:5px 2px;color:#555b51;font:inherit;font-size:10px;line-height:1.1;cursor:pointer}
+.np-r323-bottom-nav button svg{width:23px;height:23px}
+.np-r323-bottom-nav button[aria-current="page"]{background:#e8ebd9;color:#244b3c;font-weight:750}
+.np-r323-bottom-nav .np-r323-nav-add svg{box-sizing:content-box;padding:7px;border:1px solid #e6e9d4;border-radius:50%;background:linear-gradient(150deg,#79978b,#244b40);color:white;margin-top:-12px}
+.np-page[data-appearance="dark"] .np-r323-bottom-nav{background:#202b36;border-color:#3a4959}.np-page[data-appearance="dark"] .np-r323-bottom-nav button{color:#e2eaf2}.np-page[data-appearance="dark"] .np-r323-bottom-nav button[aria-current="page"]{background:#304759}
+.np-page:has(.np-r323-home-grid)>.np-wrap{animation:none!important;transform:none!important}
+/* Avoid an ancestor animation making fixed sheets relative to the full scrolling document. */
+.np-page:has(.np-r322-modal[data-open="true"],.np-r322-appointments-overlay[data-open="true"])>.np-wrap{animation:none!important;transform:none!important}
+.np-page .np-r322-modal[data-open="true"],.np-page .np-r322-appointments-overlay[data-open="true"]{position:fixed!important;inset:0!important;width:100vw!important;height:100dvh!important;max-width:none!important;display:flex!important;align-items:flex-end!important;justify-content:center!important;z-index:100000!important}
+.np-page .np-r322-sheet,.np-page .np-r322-appointments-sheet{width:min(760px,100%)!important;max-height:88dvh!important;min-height:0!important;overflow:auto!important;overscroll-behavior:contain;box-sizing:border-box!important}
+.np-page .np-r322-sheet-head{position:sticky;top:-1px;z-index:2;background:#faf5edf5;padding:8px;border-radius:12px}
+.np-page[data-appearance="dark"] .np-r322-sheet-head{background:#202b36}
+body:has(.np-r322-modal[data-open="true"],.np-r322-appointments-overlay[data-open="true"]){overflow:hidden}
+@media(max-width:440px){.np-page .np-r323-header .np-header-status{max-width:100px}.np-page .np-r323-header .np-header-date-main{font-size:10px!important}.np-page .np-r323-header .np-header-day{font-size:11px!important}.np-page .np-r323-home-grid .np-upcoming-head-r301{grid-template-columns:20px minmax(0,1fr);column-gap:3px!important}.np-page .np-r323-home-grid .np-upcoming-add-r302{grid-column:1/-1;justify-self:end;min-height:23px!important}.np-page .np-r323-home-grid .np-upcoming-icon-r301{width:20px!important;height:20px!important}}

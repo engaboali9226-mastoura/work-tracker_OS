@@ -70,7 +70,7 @@ export function UpcomingCountdownR301({definitions,nowMs,timeZone,onAdd}:{defini
     <span className="np-upcoming-icon-r301" aria-hidden="true">
      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" focusable="false"><rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M7.5 3v5M16.5 3v5M3.5 10h17M8 14h3M8 17h6"/></svg>
     </span>
-    <div><h2>المواعيد المرتقبة</h2><small>تنبيهاتك القادمة في مكان واحد · العد التنازلي</small></div>
+    <div><h2>المواعيد</h2><small>أقرب موعد</small></div>
     {onAdd?<button type="button" className="np-upcoming-add-r302" data-testid="r302-add-countdown"
        aria-label="إضافة موعد للعد التنازلي" onClick={onAdd}>+ إضافة</button>:null}
    </header>

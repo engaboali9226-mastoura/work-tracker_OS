@@ -74,14 +74,16 @@ try{
   await expect(visible("[data-testid=today-summary]"),"Existing progress retained");
   await expect("document.documentElement.scrollWidth<=innerWidth+2","Dashboard horizontal overflow");
   await expect("document.querySelector('.np-r323-home-grid').querySelectorAll('.np-r323-rhythm').length===1","No duplicate timer");
+  await expect("(()=>{const a=document.querySelector('.np-r323-friday'),b=document.querySelector('.np-upcoming-r303');return a&&b&&Math.abs(a.getBoundingClientRect().top-b.getBoundingClientRect().top)<3&&a.getBoundingClientRect().left>b.getBoundingClientRect().left})()","Friday and appointments must share the same row in reference order");
+  await expect(visible(".np-r323-bottom-nav"),"Real bottom navigation exists");
   await snap(screen.name+"-personal");
   await run("document.querySelector('[data-testid=r322-open-time-windows]').click()");
-  await expect(visible(".np-r322-sheet"),"Timer sheet opens");
+  await expect("(()=>{const r=document.querySelector('.np-r322-sheet')?.getBoundingClientRect();return r&&r.height>100&&r.top<innerHeight-100&&r.bottom<=innerHeight+3})()","Timer sheet must actually be inside the viewport");
   await snap(screen.name+"-timer-details");
   await run("document.querySelector('[aria-label=\"إغلاق مؤقتات اليوم\"]').click()");
   await expect("document.querySelector('.np-r322-modal').dataset.open==='false'","Timer sheet closes");
   const more=await run("!!document.querySelector('[data-testid=r322-open-appointments]')");
-  if(more){await run("document.querySelector('[data-testid=r322-open-appointments]').click()");await expect(visible(".np-r322-appointments-sheet"),"Appointment sheet opens");await snap(screen.name+"-appointments");await run("document.querySelector('[aria-label=\"إغلاق المواعيد\"]').click()");}
+  if(more){await run("document.querySelector('[data-testid=r322-open-appointments]').click()");await expect("(()=>{const r=document.querySelector('.np-r322-appointments-sheet')?.getBoundingClientRect();return r&&r.height>50&&r.top<innerHeight-50&&r.bottom<=innerHeight+3})()","Appointment sheet must actually be visible in the viewport");await snap(screen.name+"-appointments");await run("document.querySelector('[aria-label=\"إغلاق المواعيد\"]').click()");}
   report.push({viewport:screen.name,width:screen.width,height:screen.height,appointmentFixtureVisible:more,layout:await run("Array.from(document.querySelectorAll('.np-r323-home-grid>.np-card')).filter(x=>x.getBoundingClientRect().height>0).map(x=>({className:x.className,width:Math.round(x.getBoundingClientRect().width),height:Math.round(x.getBoundingClientRect().height),top:Math.round(x.getBoundingClientRect().top)}))")});
  }
  await writeFile(resolve(output,"report.json"),JSON.stringify(report,null,2));
