@@ -253,3 +253,68 @@ body:has(.np-r322-modal[data-open="true"],.np-r322-appointments-overlay[data-ope
 .np-page .np-r323-home-grid .np-upcoming-feature-r303{margin:0!important}
 .np-page .np-r323-home-grid .np-upcoming-countdown-strip-r303{padding:0!important}
 @media(max-width:440px){.np-page .np-r323-header[data-testid="platform-topbar"] .np-header-calendar{flex-wrap:nowrap!important}.np-page .np-r323-header[data-testid="platform-topbar"] .np-header-date-main,.np-page .np-r323-header[data-testid="platform-topbar"] .np-date-month,.np-page .np-r323-header[data-testid="platform-topbar"] .np-date-year{font-size:10px!important}.np-page .np-r323-home-grid .np-upcoming-head-r301{grid-template-columns:20px minmax(0,1fr) auto!important;align-items:center!important}.np-page .np-r323-home-grid .np-upcoming-add-r302{grid-column:auto!important;padding:3px 4px!important;font-size:9px!important}.np-page .np-r323-home-grid .np-upcoming-head-r301 h2{font-size:13px!important}.np-page .np-r323-home-grid .np-upcoming-head-r301 small{font-size:9px!important}.np-page .np-r323-home-grid .np-upcoming-feature-copy-r303 strong{font-size:12px!important}.np-page .np-r323-home-grid>.np-r323-friday{align-content:start!important}.np-page .np-r323-home-grid .np-caffeine-card-content-r299{gap:5px!important}.np-page .np-r323-home-grid .np-caffeine-quick-r295 button{min-height:44px!important}}
+
+.noor-r323-gateway[data-auth-mode] {
+  justify-content: safe center;
+  padding: max(12px, env(safe-area-inset-top)) 13px max(12px, env(safe-area-inset-bottom));
+}
+.noor-r323-gateway[data-auth-mode] .noor-welcome-panel {
+  width: min(100%, 460px);
+  padding-top: 0;
+}
+.noor-auth-smile {
+  display: inline-block;
+  position: relative;
+}
+.noor-auth-smile::after {
+  position: absolute;
+  inset-inline: 1px;
+  top: 90%;
+  height: 5px;
+  border-bottom: 2px solid #e6ab20;
+  border-radius: 0 0 50% 50%;
+  content: "";
+}
+.noor-r323-gateway[data-auth-mode] .noor-welcome-logo-frame { height: 62px; }
+.noor-r323-gateway[data-auth-mode] .glass-title { font-size: clamp(20px, 5vw, 27px); }
+.noor-r323-gateway[data-auth-mode] .noor-welcome-description { display: none; }
+.noor-r323-gateway[data-auth-mode] .noor-r323-auth-card { margin-top: 10px; }
+.noor-r323-gateway[data-auth-mode] .noor-welcome-form { gap: 8px; }
+.noor-r323-gateway .noor-auth-forgot {
+  justify-self: start;
+  min-height: 36px;
+  padding: 0 3px;
+  border: 0;
+  background: transparent;
+  color: #275b4c;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.noor-r323-gateway .noor-auth-forgot:focus-visible {
+  outline: 2px solid #ad955f;
+  outline-offset: 2px;
+}
+.noor-r323-gateway[data-auth-mode] .noor-welcome-field input {
+  font-size: 16px;
+  scroll-margin-block: 12px;
+}
+@media (max-height: 630px) {
+  .noor-r323-gateway[data-auth-mode] .noor-welcome-logo-frame,
+  .noor-r323-gateway[data-auth-mode] .noor-r323-brand-label { display: none; }
+  .noor-r323-gateway[data-auth-mode] .noor-welcome-eyebrow { margin-bottom: 8px; }
+}
+.noor-r323-gateway[data-auth-mode] .noor-welcome-logo {
+  width: 62px;
+  height: 62px;
+}
+@media (max-height: 500px) {
+  .noor-r323-gateway[data-auth-mode="login"] .noor-r323-auth-card {
+    padding-block: 10px;
+  }
+  .noor-r323-gateway[data-auth-mode="login"] .noor-r322-secondary-actions {
+    padding-block: 7px;
+    gap: 5px;
+  }
+}

@@ -60,13 +60,25 @@ try{
   await cdp("Page.navigate",{url:url+"?screen=login"});
   await find(".noor-r323-auth-card");
   await expect("document.documentElement.scrollWidth<=innerWidth+1","Login horizontal overflow");
-  await expect("document.querySelectorAll('.noor-auth-switch-r312 button').length===3","All three account modes available");
+  await expect("!document.querySelector('.noor-auth-switch-r312')","Account tabs are absent");
+  await expect("document.querySelector('.noor-welcome-eyebrow').textContent==='NOOR Platform'","Platform branding");
+  await expect("document.querySelector('.noor-r322-admin-entry').getBoundingClientRect().bottom<=innerHeight","Login controls fit without scrolling");
   await snap(screen.name+"-login");
-  await run("document.querySelectorAll('.noor-auth-switch-r312 button')[1].click()");
+  await run("document.querySelector('.noor-r322-secondary-actions button').click()");
   await find("input[name=name]");
-  await run("document.querySelectorAll('.noor-auth-switch-r312 button')[2].click()");
+  await run("document.querySelector('.noor-auth-return-r312').click()");
+  await run("document.querySelector('.noor-auth-forgot').click()");
   await wait(()=>run("!document.querySelector('input[name=password]')"));
   await snap(screen.name+"-recovery");
+  if(screen.mobile){
+   await cdp("Emulation.setDeviceMetricsOverride",{width:390,height:480,deviceScaleFactor:1,mobile:true});
+   await run("document.querySelector('.noor-auth-return-r312').click()");
+   await run("document.querySelector('input[name=email]').focus()");
+   await expect("document.activeElement.getBoundingClientRect().bottom<=visualViewport.height&&visualViewport.scale===1","Focused field fits the reduced mobile viewport");
+   await expect("document.querySelector('.noor-r322-admin-entry').getBoundingClientRect().bottom<=visualViewport.height","Login controls fit the reduced mobile viewport");
+   await snap(screen.name+"-focused");
+   await cdp("Emulation.setDeviceMetricsOverride",{width:screen.width,height:screen.height,deviceScaleFactor:1,mobile:true});
+  }
   await cdp("Page.navigate",{url:url+"?screen=personal"});
   await find("[data-testid=r323-approved-dashboard]");
   await expect(visible(".np-r323-rhythm"),"Active timer visible");
