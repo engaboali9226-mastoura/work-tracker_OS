@@ -29,3 +29,13 @@ jobs:
         run: bash tools/ci/run-architecture-validation.sh
       - name: Build workspace
         run: npm run build
+
+      - name: R323 browser visibility and interaction checks
+        run: node tools/ci/noor-r323-visual-smoke.mjs
+      - name: Upload R323 actual browser screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: noor-r323-browser-evidence
+          path: r323-visual-evidence/
+          if-no-files-found: warn

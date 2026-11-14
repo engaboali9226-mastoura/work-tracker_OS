@@ -75,7 +75,9 @@ test("R302: Dashboard action opens Control Center directly on the appointment cr
  const source=readFileSync(new URL("../src/noor-personal-application-view.tsx",import.meta.url),"utf8");
  assert.match(source,/onAddCountdown=\{\(\) => \{setControlCountdownCreate\(true\);setControlOpen\(true\);\}\}/);
  assert.match(source,/initialCountdownCreate=\{controlCountdownCreate\}/);
- assert.match(source,/const \[section,setSection\].*initialCountdownCreate\?"Task":"Habit"/);
+ assert.match(source,/const \[section,setSection\].*initialCountdownCreate\?"Task":initialSection/);
+ assert.match(source,/initialSection="Habit"/);
+ assert.match(source,/initialSection=\{controlInitialSection\}/);
  assert.match(source,/const \[creating,setCreating\] = useState\(initialCountdownCreate\)/);
  assert.match(source,/defaultCountdownKind=\{quickCountdown&&!editing\?"appointment":"none"\}/);
  assert.match(source,/onAdd=\{onAddCountdown\}/);

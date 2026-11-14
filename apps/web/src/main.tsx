@@ -8,6 +8,7 @@ import "./noor-reminder-settings-r314.css";
 import "./noor-admin-mfa-r315.css";
 import "./noor-account-self-service-r312.css";
 import "./noor-premium-r322.css";
+import "./noor-approved-r323.css";
 
 import {
   applicationCatalog,

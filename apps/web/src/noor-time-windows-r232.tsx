@@ -1,3 +1,4 @@
+import {NoorR323Icon} from "./noor-r323-icons.js";
 import {useEffect,useState,type ReactElement} from "react";
 import {r232Countdown,r232DailyWindows,r283FridayHoursAtDhuhr,r283CarriedNightWindow,r232FastingCountdownEnabled,
  type R232Window,type R283PrecedingNight} from "./noor-islamic-daylight-r232.js";
@@ -115,30 +116,29 @@ export function NoorR232TimeWindows({prayers,nowMs,timeZone,preferences,nextFajr
  const currentFridayHour=fridayHours?.find(h=>r232Countdown(h,nowMs).phase==="active")??null;
  const previewLabel=(n:number)=>["الأولى","الثانية","الثالثة","الرابعة","الخامسة"][n-1]??String(n);
  return <>
- <section className="np-card np-r322-timer-hub" data-testid="r322-premium-timer-hub" dir="rtl" aria-label="إيقاع اليوم والمؤقت النشط">
-   <div className="np-r322-timer-head"><span className="np-r322-timer-icon" aria-hidden="true">◐</span>
-     <div><h2>إيقاع اليوم</h2><p>المؤقت النشط من مواقيت نور المعتمدة</p></div>
+ <section className="np-card np-r322-timer-hub np-r323-rhythm" data-testid="r322-premium-timer-hub" dir="rtl" aria-label="إيقاع اليوم والمؤقت النشط">
+   <div className="np-r322-timer-head"><span className="np-r322-timer-icon" aria-hidden="true"><NoorR323Icon name="layers"/></span>
+     <div><h2>إيقاع اليوم</h2><p>المؤقت النشط الآن</p></div>
    </div>
    <button type="button" className={"np-r322-timer-feature "+(nightPreview?"is-night":"is-day")}
      onClick={()=>setDetailsOpen(true)} aria-haspopup="dialog" aria-expanded={detailsOpen}
      data-testid="r322-open-time-windows">
-    <span className="np-r322-active-title">{nightPreview?"☾":dayPreview?"☀":"◷"} مؤقت {currentTitle}</span>
-    {currentTimer?<strong className="np-r322-main-countdown" dir="ltr" role="timer">{currentTimer}</strong>
+    <span className="np-r323-timer-moon" aria-hidden="true">{nightPreview?"☾":"☀"}</span><span className="np-r322-active-title">مؤقت {currentTitle}</span>
+    {currentTimer?<><strong className="np-r322-main-countdown" dir="ltr" role="timer">{currentTimer}</strong><span className="np-r323-time-units" dir="ltr"><span>ساعة</span><span>دقيقة</span><span>ثانية</span></span></>
      :<span className="np-r322-time-unavailable">لا توجد فترة نشطة الآن</span>}
     <span className="np-r322-feature-subtitle">{currentTimer?"متبقٍ حتى نهاية الفترة":"اضغط لعرض مواقيت اليوم"}</span>
     {currentWindow?<span className="np-r322-range">من {clock(currentWindow.startMs,timeZone)} إلى {clock(currentWindow.endMs,timeZone)} · المدة {duration(currentWindow.durationMs)}</span>
      :fallbackToFajr?<span className="np-r322-range">حتى الفجر المؤكد · لم تتوفر بداية الليل لحساب مدته</span>:null}
-    <span className="np-r322-expand">عرض إيقاع اليوم كاملًا ←</span>
-   </button>
-   {friday?<button type="button" className="np-r322-friday-preview" onClick={()=>setDetailsOpen(true)} aria-haspopup="dialog">
-     <span>ساعات الجمعة الخمس</span>
-     <strong>{currentFridayHour?"الساعة "+previewLabel(currentFridayHour.number):"عرض ساعات الجمعة"}</strong>
-     <span dir="ltr">{currentFridayHour?remaining(currentFridayHour.endMs-nowMs):"التفاصيل ←"}</span>
-   </button>:thursdayReminder?<button className="np-r322-friday-preview" type="button" onClick={()=>setDetailsOpen(true)}>غدًا الجمعة · عرض ساعات التبكير ←</button>:null}
+    </button><button type="button" className="np-r322-expand np-r323-expand" onClick={()=>setDetailsOpen(true)}>اضغط لعرض جميع المؤقتات ‹</button>
  </section>
+   {friday?<button type="button" className="np-card np-r322-friday-preview np-r323-friday" onClick={()=>setDetailsOpen(true)} aria-haspopup="dialog">
+     <span className="np-r323-mini-head"><span aria-hidden="true"><NoorR323Icon name="mosque"/></span><span>ساعات الجمعة الخمس<small>الساعة الحالية</small></span></span><span className="np-r323-friday-current">
+     <strong>{currentFridayHour?"الساعة "+previewLabel(currentFridayHour.number):fridayHours&&fridayHours.every(h=>h.endMs<=nowMs)?"انتهت ساعات الجمعة":"عرض ساعات الجمعة"}</strong>
+     <span dir="ltr">{currentFridayHour?remaining(currentFridayHour.endMs-nowMs):"التفاصيل"}</span></span><span className="np-r323-mini-link">اضغط لعرض بقية المؤقتات ‹</span>
+   </button>:thursdayReminder?<button className="np-r322-friday-preview" type="button" onClick={()=>setDetailsOpen(true)}>غدًا الجمعة · عرض ساعات التبكير ←</button>:null}
  <div className="np-r322-modal" data-open={detailsOpen} role="presentation" aria-hidden={!detailsOpen} onMouseDown={event=>{if(event.target===event.currentTarget)setDetailsOpen(false);}}>
   <div role="dialog" aria-modal={detailsOpen} aria-label="إيقاع اليوم الكامل وساعات الجمعة" className="np-r322-sheet" dir="rtl">
-   <header className="np-r322-sheet-head"><div><h2>إيقاع اليوم الكامل</h2><p>كل المواقيت والتفاصيل كما حُسبت من مصدر نور</p></div>
+   <span className="np-r323-sheet-handle" aria-hidden="true"/><header className="np-r322-sheet-head"><div><h2>إيقاع اليوم الكامل</h2><p>كل المواقيت والتفاصيل كما حُسبت من مصدر نور</p></div>
    <button type="button" onClick={()=>setDetailsOpen(false)} aria-label="إغلاق مؤقتات اليوم">✕</button></header>
  <section className="np-card np-r232-section np-r246-rhythm-card np-r247-rhythm-card np-r248-reference-card" data-rhythm-layout="three-visible-columns-r246" data-reference-design="preview-r248" data-rhythm-visual="digital-contrast-r247" data-testid="noor-day-night-friday-r232"
    aria-label="ساعات النهار والليل والضحى والجمعة">
