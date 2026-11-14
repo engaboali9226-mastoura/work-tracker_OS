@@ -94,6 +94,14 @@ try{
   await run("document.querySelector('[data-testid=r324-nav-home]').click()");
   await find("[data-testid=r323-approved-dashboard]");
   await expect("document.querySelector('[data-testid=r324-nav-home]').getAttribute('aria-current')==='page'","Home navigation active");
+  await run("document.querySelector('[data-testid=r324-nav-plus]').click()");
+  await find(".np-r324-quick-sheet");
+  await expect("document.querySelectorAll('.np-r324-quick-sheet > button').length===3","Quick add exposes task habit and appointment");
+  await snap(screen.name+"-quick-add");
+  await run("document.querySelector('.np-r324-quick-sheet > button').click()");
+  await find("#definition-title");
+  await expect("document.querySelector('[data-testid=r324-nav-plus]').getAttribute('aria-current')==='page'","Quick task navigation active");
+  await snap(screen.name+"-quick-task");
   report.push({viewport:screen.name,width:screen.width,height:screen.height,appointmentFixtureVisible:more,layout:await run("Array.from(document.querySelectorAll('.np-r323-home-grid>.np-card')).filter(x=>x.getBoundingClientRect().height>0).map(x=>({className:x.className,width:Math.round(x.getBoundingClientRect().width),height:Math.round(x.getBoundingClientRect().height),top:Math.round(x.getBoundingClientRect().top)}))")});
  }
  await writeFile(resolve(output,"report.json"),JSON.stringify(report,null,2));
