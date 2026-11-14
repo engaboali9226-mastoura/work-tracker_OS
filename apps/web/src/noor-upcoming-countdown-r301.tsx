@@ -1,4 +1,5 @@
 import {useEffect,useState,type ReactElement} from "react";
+import {UnifiedUpcomingR324,type ReligiousEventR324} from "./noor-upcoming-events-r324.js";
 import type {NoorCountdownPlanR301} from "./noor-personal-today-client.js";
 
 /** Pure civil-time countdown. Clock comes from the existing app heartbeat.
@@ -52,7 +53,11 @@ const shortDateR303=(date:string)=>{
  catch{return date;}
 };
 const paddedR303=(value:number)=>String(value).padStart(2,"0");
-export function UpcomingCountdownR301({definitions,nowMs,timeZone,onAdd}:{definitions:readonly UpcomingDefinitionR301[];nowMs:number;timeZone:string;onAdd?:()=>void}):ReactElement{
+export function UpcomingCountdownR301({definitions,nowMs,timeZone,onAdd,religiousEvents}:{definitions:readonly UpcomingDefinitionR301[];nowMs:number;timeZone:string;onAdd?:()=>void;religiousEvents?:readonly ReligiousEventR324[]}):ReactElement{
+ if(religiousEvents)return <UnifiedUpcomingR324 definitions={definitions} nowMs={nowMs} timeZone={timeZone} religiousEvents={religiousEvents} {...(onAdd?{onAdd}:{})}/>;
+ return <PersonalUpcomingR301 definitions={definitions} nowMs={nowMs} timeZone={timeZone} {...(onAdd?{onAdd}:{})}/>;
+}
+function PersonalUpcomingR301({definitions,nowMs,timeZone,onAdd}:{definitions:readonly UpcomingDefinitionR301[];nowMs:number;timeZone:string;onAdd?:()=>void}):ReactElement{
  const [detailOpen,setDetailOpen]=useState(false);
  useEffect(()=>{if(!detailOpen)return;const onKey=(e:KeyboardEvent)=>{if(e.key==="Escape")setDetailOpen(false);};document.addEventListener("keydown",onKey);return ()=>document.removeEventListener("keydown",onKey);},[detailOpen]);
  const upcoming=definitions.flatMap(definition=>{

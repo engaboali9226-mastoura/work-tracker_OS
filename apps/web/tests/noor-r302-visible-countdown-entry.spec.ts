@@ -73,12 +73,14 @@ test("R302: direct creation form preselects appointment but ordinary task creati
 });
 test("R302: Dashboard action opens Control Center directly on the appointment creation modal",()=>{
  const source=readFileSync(new URL("../src/noor-personal-application-view.tsx",import.meta.url),"utf8");
- assert.match(source,/onAddCountdown=\{\(\) => \{setControlCountdownCreate\(true\);setControlOpen\(true\);\}\}/);
+ assert.match(source,/onAddCountdown=\{\(\) => \{setControlCountdownCreate\(true\);setControlOpen\(true\);[^}]*\}\}/);
  assert.match(source,/initialCountdownCreate=\{controlCountdownCreate\}/);
- assert.match(source,/const \[section,setSection\].*initialCountdownCreate\?"Task":initialSection/);
+ assert.match(source,/const \[section,setSection\].*initialCountdownCreate\?"Task":initialQuickCreateKind\?\?initialSection/);
  assert.match(source,/initialSection="Habit"/);
+ assert.match(source,/initialQuickCreateKind=\{quickCreateKind\}/);
+ assert.match(source,/setQuickCreateKind\(kind==="appointment"\?null:kind\)/);
  assert.match(source,/initialSection=\{controlInitialSection\}/);
- assert.match(source,/const \[creating,setCreating\] = useState\(initialCountdownCreate\)/);
+ assert.match(source,/const \[creating,setCreating\] = useState\(initialCountdownCreate\|\|initialQuickCreateKind!==null\)/);
  assert.match(source,/defaultCountdownKind=\{quickCountdown&&!editing\?"appointment":"none"\}/);
  assert.match(source,/onAdd=\{onAddCountdown\}/);
  assert.match(source,/R302: countdown discovery and direct add on mobile/);
