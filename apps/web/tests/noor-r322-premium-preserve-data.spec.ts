@@ -42,6 +42,13 @@ test("R322 pre-dawn countdown falls back only to verified Fajr; never invents pr
  assert.match(html,/02:35:00/);
  assert.match(html,/لم تتوفر بداية الليل لحساب مدته/);
 });
+test("R322: brand-new pre-dawn account can count to CURRENT verified Fajr even when nextFajrAt is missing",()=>{
+ const html=renderWindows(Date.parse("2026-11-06T00:10:00Z"));
+ assert.match(html,/مؤقت الليل/);
+ assert.match(html,/02:35:00/);
+ assert.match(html,/لم تتوفر بداية الليل لحساب مدته/);
+ assert.match(html,/لم تتوفر مواقيت الغد من مصدر نور المعتمد/);
+});
 test("R322 appointments show nearest on card and retain all others for closeable sheet",()=>{
  const definitions=Array.from({length:7},(_,i)=>({
   id:"test-"+i,title:"الموعد "+i,state:"Active",
