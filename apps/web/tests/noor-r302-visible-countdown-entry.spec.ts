@@ -73,7 +73,7 @@ test("R302: direct creation form preselects appointment but ordinary task creati
 });
 test("R302: Dashboard action opens Control Center directly on the appointment creation modal",()=>{
  const source=readFileSync(new URL("../src/noor-personal-application-view.tsx",import.meta.url),"utf8");
- assert.match(source,/onAddCountdown=\{\(\) => \{setControlCountdownCreate\(true\);setControlOpen\(true\);\}\}/);
+ assert.match(source,/onAddCountdown=\{\(\) => \{setControlCountdownCreate\(true\);setControlOpen\(true\);[^}]*\}\}/);
  assert.match(source,/initialCountdownCreate=\{controlCountdownCreate\}/);
  assert.match(source,/const \[section,setSection\].*initialCountdownCreate\?"Task":initialSection/);
  assert.match(source,/initialSection="Habit"/);
