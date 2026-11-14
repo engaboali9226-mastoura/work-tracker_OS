@@ -2967,7 +2967,7 @@ function Dashboard({ view:providedView, workspace, busy, actionError, onCommand,
 
     <NoorBeverageTrackerR294 rows={beverageRows} allNames={(workspace?.definitions??[]).filter(d=>d.kind==="Habit"&&!!d.beveragePlan&&d.state!=="Archived").map(d=>d.title)}
       localDate={view.localDate??""} timeZone={view.timeZone} busy={busy} onCommand={onCommand} historical={historyDate!==null}/>
-      {!historyDate?<nav className="np-r323-home-shortcuts" aria-label="اختصارات لوحة نور"><a href="#noor-r323-habits"><span aria-hidden="true">♡</span><strong>العادات</strong><small>{view.habits.length} عادات اليوم</small></a><a href="#noor-r323-tasks"><span aria-hidden="true">☑</span><strong>المهام</strong><small>{view.tasks.length} مهام اليوم</small></a><a href="#noor-r323-progress"><span aria-hidden="true">▥</span><strong>التقدم</strong><small>{completionRate}% إنجاز اليوم</small></a></nav>:null}
+      {!historyDate?<nav className="np-r323-home-shortcuts" aria-label="اختصارات لوحة نور"><a href="#noor-r323-habits"><span aria-hidden="true">♡</span><strong>العادات</strong><small>{view.habits.length} عادات اليوم</small></a><a href={view.tasks.length?"#noor-r323-tasks":"#noor-r323-progress"}><span aria-hidden="true">☑</span><strong>المهام</strong><small>{view.tasks.length} مهام اليوم</small></a><a href="#noor-r323-progress"><span aria-hidden="true">▥</span><strong>التقدم</strong><small>{completionRate}% إنجاز اليوم</small></a></nav>:null}
     </div>
     <section aria-label="الصلوات" className="np-card np-prayer-card" data-header-layout="padding-only-132" data-prayer-layout="compact-1x8-until-600-92" data-testid="prayer-card">
       <div className="np-prayer-card-head">
@@ -3041,7 +3041,7 @@ function Dashboard({ view:providedView, workspace, busy, actionError, onCommand,
 
 
     <div className="np-main-grid np-daily-only" data-history-page={historyDate?"historical":"current"}>
-      <div className="np-execution-stack" id="noor-r323-tasks">
+      <div className="np-execution-stack">
         <section id="noor-r323-habits" aria-label="عادات اليوم" className="np-habits-section np-history-page">
           <div className="np-section-heading"><h2>{historyDate?`عادات يوم ${weekDateLabel(historyDate)}`:"عادات اليوم"}</h2></div>
           
@@ -3068,7 +3068,7 @@ function Dashboard({ view:providedView, workspace, busy, actionError, onCommand,
               })}
           </div>
         </section>
-        {view.tasks.length > 0 ? <section aria-label="مهام اليوم" className="np-card np-category np-tasks-card"><div className="np-category-head"><h2 className="np-category-title">{historyDate?`مهام يوم ${weekDateLabel(historyDate)}`:"مهام اليوم"}</h2><span className="np-category-count">{arabicNumber(view.tasks.length)} مهام</span></div><div className="np-list">{[...view.tasks].sort((a,b)=>(definitionsById.get(a.definitionId)?.displayOrder??Number.MAX_SAFE_INTEGER)-(definitionsById.get(b.definitionId)?.displayOrder??Number.MAX_SAFE_INTEGER)).map(item => { return <ActivityCard key={item.id} item={item} definition={definitionsById.get(item.definitionId)} busy={busy||lockedIds.includes(item.id)} pending={pendingIds.includes(item.id)} onCommand={historyDate?historicalCommand:onCommand} historicalDate={historyDate} todayDate={view.localDate??undefined}/>; })}</div></section> : null}
+        {view.tasks.length > 0 ? <section id="noor-r323-tasks" aria-label="مهام اليوم" className="np-card np-category np-tasks-card"><div className="np-category-head"><h2 className="np-category-title">{historyDate?`مهام يوم ${weekDateLabel(historyDate)}`:"مهام اليوم"}</h2><span className="np-category-count">{arabicNumber(view.tasks.length)} مهام</span></div><div className="np-list">{[...view.tasks].sort((a,b)=>(definitionsById.get(a.definitionId)?.displayOrder??Number.MAX_SAFE_INTEGER)-(definitionsById.get(b.definitionId)?.displayOrder??Number.MAX_SAFE_INTEGER)).map(item => { return <ActivityCard key={item.id} item={item} definition={definitionsById.get(item.definitionId)} busy={busy||lockedIds.includes(item.id)} pending={pendingIds.includes(item.id)} onCommand={historyDate?historicalCommand:onCommand} historicalDate={historyDate} todayDate={view.localDate??undefined}/>; })}</div></section> : null}
       </div>
 
 
