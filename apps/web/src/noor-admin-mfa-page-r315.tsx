@@ -1,7 +1,8 @@
+import { NoorWordmark } from "./noor-wordmark.js";
 import {noorTotpQrImageSourceR318} from "./noor-admin-totp-qr-r318.js";
 import {createNoorAdminRecoveryR317} from "./noor-admin-recovery-r317.js";
 import {NoorAdminAccountsPanelR316} from "./noor-admin-accounts-panel-r316.js";
-import {useRef,useState,type FormEvent,type ReactElement} from "react";
+import {useEffect,useRef,useState,type FormEvent,type ReactElement} from "react";
 import {readBrowserPublicAuthenticationConfiguration} from "./public-authentication-environment.js";
 import {createNoorAdminMfaSetupR315} from "./noor-admin-mfa-r315.js";
 
@@ -9,9 +10,11 @@ import {createNoorAdminMfaSetupR315} from "./noor-admin-mfa-r315.js";
  * Public identity security setup, NOT an admin dashboard.
  * No account data, role provisioning, account deletion or privileged calls.
  */
-export function NoorAdminMfaPageR315():ReactElement{
+export function NoorAdminMfaPageR315({
+ createMfa = createNoorAdminMfaSetupR315,
+}: {createMfa?: typeof createNoorAdminMfaSetupR315} = {}):ReactElement{
  const service=useRef<ReturnType<typeof createNoorAdminMfaSetupR315>|null>(null);
- if(!service.current)service.current=createNoorAdminMfaSetupR315(readBrowserPublicAuthenticationConfiguration());
+ if(!service.current)service.current=createMfa(readBrowserPublicAuthenticationConfiguration());
  const recovery=useRef<ReturnType<typeof createNoorAdminRecoveryR317>|null>(null);
  if(!recovery.current)recovery.current=createNoorAdminRecoveryR317(readBrowserPublicAuthenticationConfiguration());
  const [step,setStep]=useState<"login"|"enroll"|"verify"|"complete"|"recover-request"|"recover-finish">(
@@ -20,6 +23,23 @@ export function NoorAdminMfaPageR315():ReactElement{
     ||new URLSearchParams(window.location.hash.replace(/^#/u,"")).get("type")==="recovery")
    ?"recover-finish":"login"
  );
+ const panel = useRef<HTMLElement>(null);
+ useEffect(()=>{
+  const viewport = window.visualViewport;
+  if(!viewport)return;
+  const update = ()=>{
+   const element = panel.current;
+   if(!element)return;
+   element.style.setProperty("--noor-admin-viewport",`${viewport.height}px`);
+   const focused = document.activeElement;
+   if(element.contains(focused)&&focused instanceof HTMLInputElement){
+    focused.scrollIntoView({block:"nearest",inline:"nearest"});
+   }
+  };
+  update();
+  viewport.addEventListener("resize",update);
+  return ()=>viewport.removeEventListener("resize",update);
+ },[]);
  const [qr,setQr]=useState("");
  const [secret,setSecret]=useState("");
  const [revealSecret,setRevealSecret]=useState(false);
@@ -89,8 +109,8 @@ export function NoorAdminMfaPageR315():ReactElement{
   }finally{setLoading(false);}
  };
  const logout=async()=>{await service.current?.signOut();setStep("login");setQr("");setSecret("");setRevealSecret(false);setCode("");setError("");setNotice("");};
- return <main className="na315-page" dir="rtl" id="main-content"><section className="na315-panel">
-  <header><img src="/noor-platform-logo.jpeg" alt="شعار نور" width="64" height="64"/><div><p lang="en">NOOR SECURITY</p><h1>تأمين حساب الإدارة</h1><span>إعداد المصادقة الثنائية TOTP</span></div></header>
+ return <main className="na315-page" dir="rtl" id="main-content"><section className="na315-panel" ref={panel} data-step={step}>
+  <header><img src="/noor-platform-logo.jpeg" alt="شعار نور" width="64" height="64"/><div><p lang="en" dir="ltr"><NoorWordmark /> SECURITY</p><h1>تأمين حساب الإدارة</h1><span>إعداد المصادقة الثنائية TOTP</span></div></header>
   <p className="na315-caution">هذه الصفحة مخصصة لحساب المدير المستقل. لا تظهر إدارة الحسابات إلا بعد المصادقة الثنائية واعتماد دور المدير على الخادم.</p>
   {step==="login"?<form onSubmit={e=>{void login(e);}}>
    <label>البريد الإلكتروني لحساب الإدارة<input name="email" type="email" autoComplete="username" required dir="ltr" disabled={loading}/></label>
@@ -128,7 +148,7 @@ export function NoorAdminMfaPageR315():ReactElement{
     {revealSecret?<div><p>مفتاح سري خاص بحسابك؛ لا تشاركه أو تلتقط له صورة.</p><code className="na315-secret" dir="ltr">{secret}</code></div>:null}
    </div>:null}
    <form onSubmit={e=>{void verify(e);}}><label>رمز التحقق<input type="text" value={code} onChange={e=>setCode(e.target.value.replace(/\D/g,"").slice(0,6))}
-     inputMode="numeric" autoComplete="one-time-code" pattern="\d{6}" maxLength={6} required dir="ltr" disabled={loading}/></label>
+     className="na315-code" inputMode="numeric" autoComplete="one-time-code" pattern="\d{6}" maxLength={6} required dir="ltr" disabled={loading}/></label>
     <button type="submit" disabled={loading||code.length!==6}>{loading?"جارٍ التحقق…":"تحقق من الرمز"}</button></form>
   </div>:null}
   {step==="complete"?<div className="na315-stage na315-complete" role="status"><h2>اكتملت المصادقة الثنائية ✓</h2><p>تم تأكيد المصادقة الثنائية. لا يسمح الخادم بالإدارة إلا لحساب المدير المعتمد.</p><NoorAdminAccountsPanelR316 token={()=>service.current?.accessToken()??Promise.resolve(null)}/></div>:null}

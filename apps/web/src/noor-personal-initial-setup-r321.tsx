@@ -1,3 +1,4 @@
+import { NoorWordmark } from "./noor-wordmark.js";
 import {useState,type FormEvent,type ReactElement} from "react";
 import {revokeNoorBrowserSessionR269} from "./noor-session-logout-client-r269.js";
 
@@ -59,7 +60,7 @@ export function NoorPersonalInitialSetupR321({onConfigured}:{
  return <section className="np-r321-onboarding" data-testid="noor-first-login-r321" dir="rtl">
   <header className="np-r321-header">
    <img src="/noor-platform-logo.jpeg" alt="شعار منصة نور" width="68" height="68"/>
-   <div><small lang="en">WELCOME TO NOOR</small><h1>أهلًا بك في نور</h1>
+   <div><small lang="en">WELCOME TO <NoorWordmark /></small><h1>أهلًا بك في نور</h1>
     <p>الإعداد مطلوب: يلزم استكمال إعداد الموقع وسياسة الصلاة قبل بدء يوم نور. خطوتان بسيطتان فقط.</p></div>
   </header>
   <form onSubmit={e=>{void submit(e);}}>

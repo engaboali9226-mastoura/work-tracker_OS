@@ -1,3 +1,4 @@
+import { NoorWordmark } from "./noor-wordmark.js";
 import {
   Component,
   useState,
@@ -199,7 +200,7 @@ function SmartGateway({
           <img className="noor-welcome-logo" src="/noor-platform-logo.jpeg" srcSet="/noor-r323-brand.webp"
             alt="شعار منصة نور" width="104" height="104" fetchPriority="high" decoding="async" />
         </div>
-        <div className="noor-r323-brand-label">منصة نور</div><p className="noor-welcome-eyebrow" lang="en" dir="ltr">N<span className="noor-auth-smile">OO</span>R Platform</p>
+        <div className="noor-r323-brand-label">منصة نور</div><p className="noor-welcome-eyebrow" lang="en" dir="ltr"><NoorWordmark /> Platform</p>
         <h1 id="noor-welcome-title" className="glass-title">مرحبا بك في منصة نور</h1>
         <p className="noor-welcome-description">بوابتك الآمنة لإدارة حسابك وخدماتك الشخصية</p>
         {!isAuth ? <>
@@ -271,7 +272,7 @@ function SmartGateway({
         {isAuth && <p className="noor-welcome-privacy"><span aria-hidden="true">✧</span> بيانات كل مستخدم مستقلة ومحمية. حسابات التسجيل الجديدة تحتاج موافقة الإدارة.</p>}
         <a className="noor-r322-admin-entry" href="/admin/security" aria-label="دخول مدير منصة نور">إدارة المنصة · دخول المدير الآمن ←</a>
       </section>
-      {isAuth && <p className="noor-welcome-footer" lang="en">NOOR · DESIGNED FOR CLARITY</p>}
+      {isAuth && <p className="noor-welcome-footer" lang="en"><NoorWordmark /> · DESIGNED FOR CLARITY</p>}
     </main>
   );
 }

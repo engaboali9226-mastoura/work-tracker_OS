@@ -1,3 +1,4 @@
+import { NoorWordmark } from "./noor-wordmark.js";
 import {useEffect,useRef,useState} from "react";
 import type {FormEvent,ReactNode} from "react";
 import {
@@ -252,7 +253,7 @@ export function NoorWorkTeacherViewR264(){
  };
  if(loading)return <main dir="rtl" className="nw-root nw-r267"><Panel title="نور ورك">جارٍ تحميل مساحة المعلم الآمنة…</Panel></main>;
  if(status!==200)return <main dir="rtl" className="nw-root nw-r267">
-  <header className="nw-hero nw-hero-error"><div><span className="nw-kicker">NOOR WORK / EDUCATION</span><h1>مساحة المعلم</h1><p>تنظيم التزاماتك الدراسية ومتابعتها.</p></div>
+  <header className="nw-hero nw-hero-error"><div><span className="nw-kicker"><NoorWordmark /> WORK / EDUCATION</span><h1>مساحة المعلم</h1><p>تنظيم التزاماتك الدراسية ومتابعتها.</p></div>
    <a href="/" className="nw-light-button">العودة لاختيار التطبيقات</a></header>
   <Panel title={status===403?"صلاحية نور ورك غير مفعّلة":status===401?"تسجيل الدخول مطلوب":"تعذر تحميل مساحة المعلم"}>
    <p role="alert">{message}</p><div className="nw-actions"><button className="nw-primary" onClick={()=>void reload()}>إعادة المحاولة</button><a href="/" className="nw-light-button">العودة للبوابة</a></div>
@@ -260,7 +261,7 @@ export function NoorWorkTeacherViewR264(){
  return <main dir="rtl" className="nw-root nw-r267">
   <header className="nw-hero">
    <div className="nw-hero-main">
-    <span className="nw-kicker"><span className="nw-kicker-mark">✦</span> NOOR WORK / EDUCATION</span>
+    <span className="nw-kicker"><span className="nw-kicker-mark">✦</span> <NoorWordmark /> WORK / EDUCATION</span>
     <h1>مساحة المعلم</h1>
     <p>لوحة هادئة لمتابعة إنجازك على منصة المدرسة، دون تكرار تسجيل بيانات الطلاب.</p>
     <div className="nw-hero-links"><a href="/" className="nw-return">← العودة لمنصة نور</a><span className="nw-privacy">متابعتك خاصة بحسابك</span></div>
