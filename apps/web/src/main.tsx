@@ -1,5 +1,4 @@
 import "./noor-personal-initial-setup-r321.css";
-import "./noor-premium-r322.css";
 import "./noor-ios-viewport-r230.css";
 import "./noor-welcome-gateway-r231.css";
 import "./noor-time-windows-r232.css";
@@ -8,6 +7,7 @@ import "./noor-linked-activity-insights-r312.css";
 import "./noor-reminder-settings-r314.css";
 import "./noor-admin-mfa-r315.css";
 import "./noor-account-self-service-r312.css";
+import "./noor-premium-r322.css";
 
 import {
   applicationCatalog,
