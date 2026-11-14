@@ -232,3 +232,24 @@
 .np-page[data-appearance="dark"] .np-r322-sheet-head{background:#202b36}
 body:has(.np-r322-modal[data-open="true"],.np-r322-appointments-overlay[data-open="true"]){overflow:hidden}
 @media(max-width:440px){.np-page .np-r323-header .np-header-status{max-width:100px}.np-page .np-r323-header .np-header-date-main{font-size:10px!important}.np-page .np-r323-header .np-header-day{font-size:11px!important}.np-page .np-r323-home-grid .np-upcoming-head-r301{grid-template-columns:20px minmax(0,1fr);column-gap:3px!important}.np-page .np-r323-home-grid .np-upcoming-add-r302{grid-column:1/-1;justify-self:end;min-height:23px!important}.np-page .np-r323-home-grid .np-upcoming-icon-r301{width:20px!important;height:20px!important}}
+
+/* R323 visual-review polish: override legacy header dimensions on the home screen only. */
+.np-page .np-r323-header[data-testid="platform-topbar"]{grid-template-columns:minmax(0,1fr) 92px minmax(0,1fr)!important;grid-template-rows:auto auto auto!important;gap:4px!important;padding:2px 3px!important;margin-bottom:8px!important;min-height:0!important}
+.np-page .np-r323-header[data-testid="platform-topbar"] .np-brand{width:92px!important;align-self:center!important}
+.np-page .np-r323-header[data-testid="platform-topbar"] .np-logo-frame{width:92px!important;height:54px!important;background:transparent!important;border:0!important;box-shadow:none!important}
+.np-page .np-r323-header[data-testid="platform-topbar"] .np-platform-logo{object-fit:contain!important;mix-blend-mode:multiply;border-radius:0!important}
+.np-page[data-appearance="dark"] .np-r323-header[data-testid="platform-topbar"] .np-platform-logo{mix-blend-mode:normal}
+.np-page .np-r323-header[data-testid="platform-topbar"] .np-header-status{padding:0!important;border:0!important;gap:0!important}
+.np-page .np-r323-header[data-testid="platform-topbar"] .np-header-location{margin-top:2px!important}
+.np-page .np-r323-header[data-testid="platform-topbar"] .np-header-calendar{margin:0!important;padding:2px 0!important;min-height:0!important;align-self:start!important}
+.np-page .np-r323-header[data-testid="platform-topbar"] .np-header-date-pair{width:auto!important;padding:0!important;gap:6px!important;direction:rtl!important}
+.np-page .np-r323-header[data-testid="platform-topbar"] .np-header-date-block{width:auto!important;min-width:0!important;white-space:nowrap!important}
+.np-page .np-r323-header[data-testid="platform-topbar"] .np-header-date-main,.np-page .np-r323-header[data-testid="platform-topbar"] .np-date-month,.np-page .np-r323-header[data-testid="platform-topbar"] .np-date-year{white-space:nowrap!important;display:inline!important;font-size:11px!important;line-height:1.3!important}
+.np-page .np-r323-header[data-testid="platform-topbar"] .np-header-day{margin:0!important;line-height:1.3!important}
+.np-page .np-r323-header[data-testid="platform-topbar"] .np-header-day:after{content:none!important}
+.np-page .np-r323-header .np-r323-greeting{margin:0!important;padding:0 2px!important;line-height:1.1!important}
+.np-page .np-r323-home-grid{gap:8px!important}
+.np-page:not([data-appearance="dark"]) .np-r323-rhythm .np-r322-timer-feature{padding:8px!important}
+.np-page .np-r323-home-grid .np-upcoming-feature-r303{margin:0!important}
+.np-page .np-r323-home-grid .np-upcoming-countdown-strip-r303{padding:0!important}
+@media(max-width:440px){.np-page .np-r323-header[data-testid="platform-topbar"] .np-header-calendar{flex-wrap:nowrap!important}.np-page .np-r323-header[data-testid="platform-topbar"] .np-header-date-main,.np-page .np-r323-header[data-testid="platform-topbar"] .np-date-month,.np-page .np-r323-header[data-testid="platform-topbar"] .np-date-year{font-size:10px!important}.np-page .np-r323-home-grid .np-upcoming-head-r301{grid-template-columns:20px minmax(0,1fr) auto!important;align-items:center!important}.np-page .np-r323-home-grid .np-upcoming-add-r302{grid-column:auto!important;padding:3px 4px!important;font-size:9px!important}.np-page .np-r323-home-grid .np-upcoming-head-r301 h2{font-size:13px!important}.np-page .np-r323-home-grid .np-upcoming-head-r301 small{font-size:9px!important}.np-page .np-r323-home-grid .np-upcoming-feature-copy-r303 strong{font-size:12px!important}.np-page .np-r323-home-grid>.np-r323-friday{align-content:start!important}.np-page .np-r323-home-grid .np-caffeine-card-content-r299{gap:5px!important}.np-page .np-r323-home-grid .np-caffeine-quick-r295 button{min-height:44px!important}}

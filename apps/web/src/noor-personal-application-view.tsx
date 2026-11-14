@@ -2951,7 +2951,7 @@ function Dashboard({ view:providedView, workspace, busy, actionError, onCommand,
       </div>
 
       <div className="np-brand">
-        <div className="np-logo-frame"><img alt="شعار نور" className="np-platform-logo" src="/noor-platform-logo.jpeg" /></div><div className="np-r323-brand-label">منصة نور<small lang="en">NOOR Personal</small></div>
+        <div className="np-logo-frame"><img alt="شعار نور" className="np-platform-logo" src="/noor-platform-logo.jpeg" srcSet="/noor-r323-brand.webp" /></div><div className="np-r323-brand-label">منصة نور<small lang="en">NOOR Personal</small></div>
       </div>
     </div>
 
