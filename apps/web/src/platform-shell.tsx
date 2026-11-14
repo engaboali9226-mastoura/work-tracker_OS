@@ -192,24 +192,24 @@ function SmartGateway({
   };
 
   return (
-    <main id="main-content" className="noor-welcome-gateway-r231">
+    <main id="main-content" className="noor-welcome-gateway-r231 noor-r323-gateway" dir="rtl">
       <div className="noor-welcome-ambient" aria-hidden="true" />
       <section className="noor-welcome-panel" aria-labelledby="noor-welcome-title">
         <div className="noor-welcome-logo-frame">
           <img className="noor-welcome-logo" src="/noor-platform-logo.jpeg"
             alt="شعار منصة نور" width="104" height="104" fetchPriority="high" decoding="async" />
         </div>
-        <p className="noor-welcome-eyebrow" lang="en">NOOR PLATFORM</p>
+        <p className="noor-welcome-eyebrow" lang="en">NOOR Personal</p>
         <h1 id="noor-welcome-title" className="glass-title">مرحبا بك في منصة نور</h1>
-        <p className="noor-welcome-description">بوابتك الآمنة إلى مساحتك الشخصية والعمل.</p>
+        <p className="noor-welcome-description">بوابتك الآمنة لإدارة حسابك وخدماتك الشخصية</p>
         {!isAuth ? <>
           <nav className="noor-auth-switch-r312" aria-label="خيارات الحساب">
             {([["login","تسجيل الدخول"],["register","إنشاء حساب"],["reset","نسيت كلمة المرور؟"]] as const).filter(([key])=>key==="login"||!!accountService).map(([key,title])=>
               <button type="button" key={key} aria-pressed={mode===key} disabled={submitting}
-                onClick={()=>changeMode(key)}>{title}</button>)}
+                onClick={()=>changeMode(key)}><span className="noor-r323-auth-icon" aria-hidden="true">{key==="login"?"♙":key==="register"?"＋":"♧"}</span>{title}</button>)}
           </nav>
           {mode==="recovery"?<h2 className="noor-auth-title-r312">تعيين كلمة مرور جديدة</h2>:null}
-          <form className="noor-welcome-form" onSubmit={event=>{void submit(event);}}>
+          <div className="noor-r323-auth-card"><form className="noor-welcome-form" onSubmit={event=>{void submit(event);}}>
             {mode==="register"?<label className="noor-welcome-field">
               <span>اسم المستخدم</span>
               <input name="name" type="text" minLength={2} maxLength={120} autoComplete="name"
@@ -218,12 +218,12 @@ function SmartGateway({
             {mode!=="recovery"?<label className="noor-welcome-field">
               <span>البريد الإلكتروني</span>
               <input name="email" type="email" dir="ltr" inputMode="email"
-                autoComplete="username" required disabled={submitting} placeholder="name@example.com" />
+                autoComplete="username" required disabled={submitting} placeholder="أدخل بريدك الإلكتروني" />
             </label>:null}
             {mode==="login"||mode==="register"||mode==="recovery"?<label className="noor-welcome-field">
               <span>{mode==="recovery"?"كلمة المرور الجديدة":"كلمة المرور"}</span>
               <input name="password" type={showPassword?"text":"password"} dir="ltr" minLength={mode==="login"?undefined:mode==="register"?12:8}
-                autoComplete={mode==="login"?"current-password":"new-password"} required disabled={submitting} placeholder="••••••••" />
+                autoComplete={mode==="login"?"current-password":"new-password"} required disabled={submitting} placeholder="أدخل كلمة المرور" />
             </label>:null}
             {mode==="login"||mode==="register"||mode==="recovery"?<button type="button" className="noor-r322-visibility" onClick={()=>setShowPassword(x=>!x)} aria-pressed={showPassword}>{showPassword?"إخفاء كلمة المرور":"إظهار كلمة المرور"}</button>:null}
             {mode==="register"||mode==="recovery"?<label className="noor-welcome-field">
@@ -243,11 +243,12 @@ function SmartGateway({
             {error?<p className="noor-welcome-error" role="alert">{error}</p>:null}
             {notice?<p className="noor-auth-success-r312" role="status">{notice}</p>:null}
           </form>
-          {mode==="login"?<div className="noor-r322-secondary-actions">
+          {mode==="login"&&accountService?<div className="noor-r322-secondary-actions"><p className="noor-r323-auth-divider">ليس لديك حساب حتى الآن؟</p>
             <button type="button" onClick={()=>changeMode("register")}>إنشاء حساب جديد</button>
             <button type="button" onClick={()=>changeMode("reset")}>نسيت كلمة المرور؟</button>
           </div>:null}
           {mode==="recovery"?<button type="button" className="noor-auth-return-r312" onClick={()=>changeMode("reset")}>طلب رابط استعادة جديد</button>:null}
+        <div className="noor-r323-security"><span aria-hidden="true">♧</span><div><strong>أمان وخصوصية</strong><p>بيانات حسابك مستقلة عن المستخدمين الآخرين.</p></div></div></div>
         </> : (
           <div className="noor-welcome-apps" aria-label="تطبيقات نور">
             <p className="noor-welcome-apps-title">اختر مساحتك</p>
