@@ -158,6 +158,19 @@ export function createBrowserPublicSupabaseAuthenticationClient(
       }
 
       try {
+        if (!credentials.email.includes("@")) {
+          const response = await fetch("/api/noor/username-login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ username: credentials.email, password: credentials.password }),
+          });
+          if (response.status === 401) return { kind: "invalid-credentials" };
+          if (!response.ok) return { kind: "unavailable" };
+          const { proof } = await response.json();
+          return typeof proof === "string" && proof
+            ? { kind: "authenticated", proof }
+            : { kind: "unavailable" };
+        }
         const result =
           await client
             .auth

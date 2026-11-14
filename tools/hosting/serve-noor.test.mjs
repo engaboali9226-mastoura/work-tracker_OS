@@ -79,3 +79,36 @@ test('rejects service credentials in public build configuration',()=>{
  assert.doesNotThrow(()=>validatePublicBuildEnvironment(env));assert.throws(()=>validatePublicBuildEnvironment({...env,VITE_NOOR_SUPABASE_PUBLISHABLE_KEY:'sb_secret_fixture'}),/PUBLIC_CONFIGURATION/);
  const token='e30.'+Buffer.from('{"role":"service_role"}').toString('base64url')+'.fixture';assert.throws(()=>validatePublicBuildEnvironment({...env,VITE_NOOR_SUPABASE_PUBLISHABLE_KEY:token}),/PUBLIC_CONFIGURATION/);assert.throws(()=>validatePublicBuildEnvironment({...env,SUPABASE_URL:'https://other.supabase.co'}),/AUTH_PROJECT_MISMATCH/);
 });
+
+test('username authentication keeps the resolved email and server key behind the hosting boundary', async () => {
+ const {createUsernameLogin} = await import('./noor-username-login.mjs');
+ const calls = [];
+ const authenticate = createUsernameLogin({
+  url:'https://auth.example', serverKey:'fixture-server', publishableKey:'fixture-public',
+  request:async (url,init)=>{
+   calls.push({url,init});
+   return url.pathname.endsWith('/noor_username_login_email_r327')
+    ? Response.json('signed-in@example.test')
+    : Response.json({access_token:'fixture-proof',refresh_token:'never-returned'});
+  },
+ });
+ assert.deepEqual(await authenticate('signed-in','fixture-password'),{status:200,proof:'fixture-proof'});
+ assert.equal(calls[0].init.headers.apikey,'fixture-server');
+ assert.equal(calls[1].init.headers.apikey,'fixture-public');
+ assert.equal(JSON.parse(calls[1].init.body).email,'signed-in@example.test');
+});
+
+test('unknown username receives the same invalid result and still goes through password authentication', async () => {
+ const {createUsernameLogin} = await import('./noor-username-login.mjs');
+ let attemptedEmail;
+ const authenticate = createUsernameLogin({
+  url:'https://auth.example',serverKey:'fixture-server',publishableKey:'fixture-public',
+  request:async (url,init)=>{
+   if(url.pathname.startsWith('/rest/')) return Response.json(null);
+   attemptedEmail=JSON.parse(init.body).email;
+   return new Response(null,{status:400});
+  },
+ });
+ assert.deepEqual(await authenticate('missing','fixture-password'),{status:401});
+ assert.match(attemptedEmail,/@invalid\.example$/u);
+});
