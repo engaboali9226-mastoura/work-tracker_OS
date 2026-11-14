@@ -76,7 +76,7 @@ try{
   await expect("document.querySelector('.np-r323-home-grid').querySelectorAll('.np-r323-rhythm').length===1","No duplicate timer");
   await expect("(()=>{const a=document.querySelector('.np-r323-friday'),b=document.querySelector('.np-upcoming-r303');return a&&b&&Math.abs(a.getBoundingClientRect().top-b.getBoundingClientRect().top)<3&&a.getBoundingClientRect().left>b.getBoundingClientRect().left})()","Friday and appointments must share the same row in reference order");
   await expect(visible(".np-r323-bottom-nav"),"Real bottom navigation exists");
-  await expect("!document.querySelector(\'[aria-label=\\\"فتح مركز التحكم\\\"]\')","No top control shortcut");
+  await expect("!document.querySelector(\'.np-r323-header [aria-label=\\\"فتح مركز التحكم\\\"]\')","No top control shortcut");
   await snap(screen.name+"-personal");
   await run("document.querySelector('[data-testid=r322-open-time-windows]').click()");
   await expect("(()=>{const r=document.querySelector('.np-r322-sheet')?.getBoundingClientRect();return r&&r.height>100&&r.top<innerHeight-100&&r.bottom<=innerHeight+3})()","Timer sheet must actually be inside the viewport");

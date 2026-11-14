@@ -6,7 +6,7 @@ export type ReligiousEventR324=Readonly<{id:string;title:string;atMs:number;kind
 export function religiousEventsR324(input:{prayers:readonly {key:string;label:string;at:string}[];nowMs:number;timeZone:string;nextFajrAt?:string|null;precedingNight?:R283PrecedingNight|null|undefined;preferences:NoorR232Preferences;night?:{midnight:string;lastThird:string}|null}):ReligiousEventR324[]{
  const {prayers,nowMs,timeZone,preferences}=input;
  const out:ReligiousEventR324[]=[];
- const add=(id:string,title:string,atMs:number,kind:ReligiousEventR324["kind"])=>{if(Number.isFinite(atMs)&&atMs>nowMs&&!out.some(e=>e.id===id&&e.atMs===atMs))out.push({id,title,atMs,kind});};
+ const add=(id:string,title:string,atMs:number,kind:ReligiousEventR324["kind"])=>{if(!Number.isFinite(atMs))return;atMs=Math.trunc(atMs);if(atMs>nowMs&&!out.some(e=>e.id===id&&Math.abs(e.atMs-atMs)<1))out.push({id,title,atMs,kind});};
  for(const p of prayers)add(p.key,p.key==="dhuhr"&&Number.isFinite(Date.parse(p.at))&&r232LocalWeekday(Date.parse(p.at),timeZone)===5?"صلاة الجمعة":p.label,Date.parse(p.at),p.key==="sunrise"?"day":"prayer");
  add("fajr","الفجر",Date.parse(input.nextFajrAt??""),"prayer");
  if(input.night){add("midnight","منتصف الليل",Date.parse(input.night.midnight),"night");add("last-third","بداية الثلث الأخير",Date.parse(input.night.lastThird),"night");}
