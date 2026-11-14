@@ -130,7 +130,7 @@ export function UpcomingCountdownR301({definitions,nowMs,timeZone,onAdd}:{defini
           item.countdown.phase==="begun"?"حان الآن":"اليوم"}</span>
        </div>)}
     </div>:null}
-    {hidden.length?<details className="np-upcoming-more-r303"><summary>عرض {number(hidden.length)} مواعيد أخرى</summary>
+    {hidden.length?<details className="np-upcoming-more-r303" open={detailOpen}><summary>عرض {number(hidden.length)} مواعيد أخرى</summary>
       {hidden.map(item=><div key={item.id} data-testid={"r301-countdown-"+item.id}>
        <strong>{item.title}</strong><small>{shortDateR303(item.plan.date)} · {item.plan.time}</small></div>)}
     </details>:null}
