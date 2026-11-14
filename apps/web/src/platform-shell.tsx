@@ -200,7 +200,7 @@ function SmartGateway({
             alt="شعار منصة نور" width="104" height="104" fetchPriority="high" decoding="async" />
         </div>
         <p className="noor-welcome-eyebrow" lang="en">NOOR PLATFORM</p>
-        <h1 id="noor-welcome-title" className="glass-title">أهلًا بك في منصة نور</h1>
+        <h1 id="noor-welcome-title" className="glass-title">مرحبا بك في منصة نور</h1>
         <p className="noor-welcome-description">بوابتك الآمنة إلى مساحتك الشخصية والعمل.</p>
         {!isAuth ? <>
           <nav className="noor-auth-switch-r312" aria-label="خيارات الحساب">
