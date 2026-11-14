@@ -2912,7 +2912,7 @@ function Dashboard({ view:providedView, workspace, busy, actionError, onCommand,
   };
 
   return <>
-    <div className="np-topbar" data-testid="platform-topbar">
+    <div className="np-topbar np-r323-header" data-testid="platform-topbar">
       <div className="np-top-actions">
         <button aria-label="فتح مركز التحكم" className="np-icon-btn np-control-icon" onClick={onOpenControl} title="مركز التحكم" type="button">
           <svg aria-hidden="true" fill="none" viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="5" rx="2.5" stroke="currentColor" strokeWidth="1.6"/><circle cx="7" cy="7" r="1.35" fill="currentColor"/><rect x="3" y="14.5" width="18" height="5" rx="2.5" stroke="currentColor" strokeWidth="1.6"/><circle cx="17" cy="17" r="1.35" fill="currentColor"/></svg>
@@ -2921,7 +2921,7 @@ function Dashboard({ view:providedView, workspace, busy, actionError, onCommand,
         </button>
       </div>
 
-      <div className="np-header-calendar" data-testid="header-information">
+      <div className="np-r323-greeting">أهلًا بك <span aria-hidden="true">❧</span></div><div className="np-header-calendar" data-testid="header-information">
         <div className="np-header-day">{weekday}</div>
         <div className="np-header-date-pair">
           <div className="np-header-date-block">
@@ -2950,10 +2950,25 @@ function Dashboard({ view:providedView, workspace, busy, actionError, onCommand,
       </div>
 
       <div className="np-brand">
-        <div className="np-logo-frame"><img alt="شعار نور" className="np-platform-logo" src="/noor-platform-logo.jpeg" /></div>
+        <div className="np-logo-frame"><img alt="شعار نور" className="np-platform-logo" src="/noor-platform-logo.jpeg" /></div><div className="np-r323-brand-label">منصة نور<small lang="en">NOOR Personal</small></div>
       </div>
     </div>
 
+    <div className="np-r323-home-grid" data-testid="r323-approved-dashboard">
+    <NoorR232TimeWindows prayers={view.prayerTimes} nowMs={nowMs} timeZone={view.timeZone} preferences={timePreferences} onPreferencesChange={onTimePreferencesChange} nextFajrAt={view.nextFajrAt??undefined} precedingNight={view.precedingNight}
+      selectedFridayHour={workspace?.fridayMosqueVisits.find(v=>v.localDate===civilLocalDate(nowMs,view.timeZone))?.hour??null}
+      fridaySelectionBusy={busy}
+      onSelectFridayHour={(hour)=>{
+        const selected=workspace?.fridayMosqueVisits.find(v=>v.localDate===civilLocalDate(nowMs,view.timeZone))?.hour??null;
+        if(busy)return;
+        void onCommand({type:"set-friday-mosque-hour",hour:selected===hour?null:hour,expectedHour:selected});
+      }}/> 
+    {!historyDate?<UpcomingCountdownR301 definitions={workspace?.definitions??[]} nowMs={nowMs} timeZone={view.timeZone} onAdd={onAddCountdown}/>:null}
+
+    <NoorBeverageTrackerR294 rows={beverageRows} allNames={(workspace?.definitions??[]).filter(d=>d.kind==="Habit"&&!!d.beveragePlan&&d.state!=="Archived").map(d=>d.title)}
+      localDate={view.localDate??""} timeZone={view.timeZone} busy={busy} onCommand={onCommand} historical={historyDate!==null}/>
+      {!historyDate?<nav className="np-r323-home-shortcuts" aria-label="اختصارات لوحة نور"><a href="#noor-r323-habits"><span aria-hidden="true">♡</span><strong>العادات</strong><small>{view.habits.length} عادات اليوم</small></a><a href="#noor-r323-tasks"><span aria-hidden="true">☑</span><strong>المهام</strong><small>{view.tasks.length} مهام اليوم</small></a><a href="#noor-r323-progress"><span aria-hidden="true">▥</span><strong>التقدم</strong><small>{completionRate}% إنجاز اليوم</small></a></nav>:null}
+    </div>
     <section aria-label="الصلوات" className="np-card np-prayer-card" data-header-layout="padding-only-132" data-prayer-layout="compact-1x8-until-600-92" data-testid="prayer-card">
       <div className="np-prayer-card-head">
         <span className="np-prayer-card-icon" aria-hidden="true">
@@ -2989,22 +3004,12 @@ function Dashboard({ view:providedView, workspace, busy, actionError, onCommand,
       </div>
     </section>
 
-    <NoorR232TimeWindows prayers={view.prayerTimes} nowMs={nowMs} timeZone={view.timeZone} preferences={timePreferences} onPreferencesChange={onTimePreferencesChange} nextFajrAt={view.nextFajrAt??undefined} precedingNight={view.precedingNight}
-      selectedFridayHour={workspace?.fridayMosqueVisits.find(v=>v.localDate===civilLocalDate(nowMs,view.timeZone))?.hour??null}
-      fridaySelectionBusy={busy}
-      onSelectFridayHour={(hour)=>{
-        const selected=workspace?.fridayMosqueVisits.find(v=>v.localDate===civilLocalDate(nowMs,view.timeZone))?.hour??null;
-        if(busy)return;
-        void onCommand({type:"set-friday-mosque-hour",hour:selected===hour?null:hour,expectedHour:selected});
-      }}/> 
-    {!historyDate?<UpcomingCountdownR301 definitions={workspace?.definitions??[]} nowMs={nowMs} timeZone={view.timeZone} onAdd={onAddCountdown}/>:null}
-
     {actionError ? <p className="np-action-error" role="alert">{actionError}</p> : null}
     {connectionWarning ? <p className="np-reconnect-notice-r296" role="status">تعذر تحديث البيانات. <button type="button" disabled={reconnecting||busy} onClick={onReconnect}>{reconnecting?"جارٍ الاتصال…":"إعادة الاتصال ↻"}</button></p> : null}
 
     {!historyDate?<NoorReminderRibbonR314 rows={[...(workspace?.statistics.rows??[]).filter(r=>r.date<achievementDate),...todayRows]}
       definitions={workspace?.definitions??[]} todayDate={achievementDate} nowMs={nowMs} timeZone={providedView.timeZone}/>:null}
-    <section className={`np-card np-day-achievement${totalToday>0&&completedToday===totalToday?" is-complete":""}`} data-testid="today-summary" data-today-design="whole-day-r93" data-week-achievement="r94" data-achievement-style="classic-r95" data-weighted-progress="r91" aria-label="إنجاز اليوم كاملًا">
+    <section className={`np-card np-day-achievement${totalToday>0&&completedToday===totalToday?" is-complete":""}`} id="noor-r323-progress" data-testid="today-summary" data-today-design="whole-day-r93" data-week-achievement="r94" data-achievement-style="classic-r95" data-weighted-progress="r91" aria-label="إنجاز اليوم كاملًا">
       <div className="np-day-ring" role="progressbar" aria-label="الإنجاز الموزون لليوم كاملًا" aria-valuemin={0} aria-valuemax={100} aria-valuenow={completionRate} aria-valuetext={totalToday?`${completionRate}%، ${completedToday} من ${totalToday} عناصر`:"لا توجد عناصر مستحقة اليوم"}>
         <svg viewBox="0 0 100 100" aria-hidden="true"><circle className="np-day-ring-track" cx="50" cy="50" r="42"/><circle className="np-day-ring-fill" cx="50" cy="50" r="42" strokeDasharray={263.894} strokeDashoffset={263.894*(1-completionRate/100)}/></svg><strong data-testid="today-completion-rate">{arabicNumber(completionRate)}%</strong>
       </div>
@@ -3033,12 +3038,11 @@ function Dashboard({ view:providedView, workspace, busy, actionError, onCommand,
     </section>
     {/* NOOR_MINIMAL_DAY_STRIP_R111: date only; navigation stays in the weekly strip. */}
     
-    <NoorBeverageTrackerR294 rows={beverageRows} allNames={(workspace?.definitions??[]).filter(d=>d.kind==="Habit"&&!!d.beveragePlan&&d.state!=="Archived").map(d=>d.title)}
-      localDate={view.localDate??""} timeZone={view.timeZone} busy={busy} onCommand={onCommand} historical={historyDate!==null}/>
+
 
     <div className="np-main-grid np-daily-only" data-history-page={historyDate?"historical":"current"}>
-      <div className="np-execution-stack">
-        <section aria-label="عادات اليوم" className="np-habits-section np-history-page">
+      <div className="np-execution-stack" id="noor-r323-tasks">
+        <section id="noor-r323-habits" aria-label="عادات اليوم" className="np-habits-section np-history-page">
           <div className="np-section-heading"><h2>{historyDate?`عادات يوم ${weekDateLabel(historyDate)}`:"عادات اليوم"}</h2></div>
           
           <div className="np-category-grid" data-testid="habit-category-grid">
