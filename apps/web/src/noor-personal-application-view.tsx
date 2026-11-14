@@ -1,3 +1,4 @@
+import { NoorWordmark } from "./noor-wordmark.js";
 import {NoorR323Icon} from "./noor-r323-icons.js";
 import {NoorPersonalInitialSetupR321} from "./noor-personal-initial-setup-r321.js";
 import {quranQuarterR289,quranQuarterForDateR289,validQuranPlanR289,type QuranHabitPlanR289} from "./noor-quran-quarters-r289.js";
@@ -2951,7 +2952,7 @@ function Dashboard({ view:providedView, workspace, busy, actionError, onCommand,
       </div>
 
       <div className="np-brand">
-        <div className="np-logo-frame"><img alt="شعار نور" className="np-platform-logo" src="/noor-platform-logo.jpeg" srcSet="/noor-r323-brand.webp" /></div><div className="np-r323-brand-label">منصة نور<small lang="en">NOOR Personal</small></div>
+        <div className="np-logo-frame"><img alt="شعار نور" className="np-platform-logo" src="/noor-platform-logo.jpeg" srcSet="/noor-r323-brand.webp" /></div><div className="np-r323-brand-label">منصة نور<small lang="en"><NoorWordmark /> Personal</small></div>
       </div>
     </div>
 

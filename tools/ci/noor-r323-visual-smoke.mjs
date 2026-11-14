@@ -26,6 +26,7 @@ try{
  const setup=[
  'import React from "react";',
  'import {createRoot} from "react-dom/client";',
+ 'import {NoorAdminMfaPageR315} from "./src/noor-admin-mfa-page-r315";',
  'import {PlatformShell} from "./src/platform-shell";',
  'import {NoorPersonalApplicationView} from "./src/noor-personal-application-view";',
  'Date.now=()=>Date.parse("2026-11-06T18:02:00Z");',
@@ -36,10 +37,10 @@ try{
  'const isLogin=new URLSearchParams(location.search).get("screen")==="login";',
  'const accountService={requestPasswordReset:async()=>"sent" as const,registerPendingAccount:async()=>"sent" as const,completePasswordRecovery:async()=>"updated" as const,requestEmailChange:async()=>"sent" as const};',
  'const appointments=[{id:"visual-appointment-1",kind:"Task",title:"اجتماع فريق العمل",state:"Active",category:"العمل",schedule:{kind:"Daily"},effectiveFromDate:"2026-11-06",importance:"Important",countdownPlan:{kind:"appointment",date:"2026-11-07",time:"15:00"}},{id:"visual-appointment-2",kind:"Task",title:"موعد طبي",state:"Active",category:"الصحة",schedule:{kind:"Daily"},effectiveFromDate:"2026-11-06",importance:"Important",countdownPlan:{kind:"appointment",date:"2026-11-08",time:"10:00"}}];',
- 'root.render(isLogin?<PlatformShell state={{kind:"no-application-selected"}} navigate={()=>{}} signIn={async()=>{}} authenticationState="idle" accountService={accountService}/>:<NoorPersonalApplicationView initialResult={today as any} initialWorkspace={{...workspace,workspace:{...workspace.workspace,definitions:[...workspace.workspace.definitions,...appointments]}} as any}/>);'
+ 'root.render(new URLSearchParams(location.search).get("screen")==="admin"?<NoorAdminMfaPageR315 createMfa={()=>({signIn:async()=>"challenge-needed",enroll:async()=>null,verify:async()=>"invalid",accessToken:async()=>null,signOut:async()=>{}})}/>:isLogin?<PlatformShell state={{kind:"no-application-selected"}} navigate={()=>{}} signIn={async()=>{}} authenticationState="idle" accountService={accountService}/>:<NoorPersonalApplicationView initialResult={today as any} initialWorkspace={{...workspace,workspace:{...workspace.workspace,definitions:[...workspace.workspace.definitions,...appointments]}} as any}/>);'
  ].join("\n");
  await writeFile(scriptFile,[styles,setup,fixture,render].join("\n"));
- vite=spawn("npm",["--workspace","apps/web","run","dev","--","--host","127.0.0.1","--port","5179","--strictPort"],{stdio:"inherit"});
+ vite=spawn("npm",["--workspace","apps/web","run","dev","--","--host","127.0.0.1","--port","5179","--strictPort"],{stdio:"inherit",env:{...process.env,VITE_NOOR_SUPABASE_URL:"http://127.0.0.1:54321",VITE_NOOR_SUPABASE_PUBLISHABLE_KEY:"sb_publishable_noor_browser_fixture"}});
  const url="http://127.0.0.1:5179/__r323_visual_fixture.html";
  await wait(async()=> (await fetch(url)).ok);
  chrome=spawn(process.env.CHROME_BIN||"google-chrome",["--headless","--no-sandbox","--disable-dev-shm-usage","--disable-gpu","--no-first-run","--remote-debugging-port=9222","--user-data-dir="+profile,"about:blank"],{stdio:["ignore","ignore","ignore"]});
@@ -63,6 +64,8 @@ try{
   await expect("!document.querySelector('.noor-auth-switch-r312')","Account tabs are absent");
   await expect("document.querySelector('.noor-welcome-eyebrow').textContent==='NOOR Platform'","Platform branding");
   await expect("document.querySelector('.noor-r322-admin-entry').getBoundingClientRect().bottom<=innerHeight","Login controls fit without scrolling");
+  await expect("document.querySelector('.noor-welcome-logo').getBoundingClientRect().top<80","Brand begins near the top of the screen");
+  await expect("document.querySelector('.noor-welcome-field input') && parseFloat(getComputedStyle(document.querySelector('.noor-welcome-field input')).fontSize)>=16","Login input does not trigger iOS auto zoom");
   await snap(screen.name+"-login");
   await run("document.querySelector('.noor-r322-secondary-actions button').click()");
   await find("input[name=name]");
@@ -77,6 +80,13 @@ try{
    await expect("document.activeElement.getBoundingClientRect().bottom<=visualViewport.height&&visualViewport.scale===1","Focused field fits the reduced mobile viewport");
    await expect("document.querySelector('.noor-r322-admin-entry').getBoundingClientRect().bottom<=visualViewport.height","Login controls fit the reduced mobile viewport");
    await snap(screen.name+"-focused");
+   await cdp("Page.navigate",{url:url+"?screen=admin"});
+   await find(".na315-panel input[name=email]");
+   await run("(()=>{const f=document.querySelector('.na315-panel form');f.elements.email.value='fixture@example.test';f.elements.password.value='fixture';f.requestSubmit()})()");
+   await find(".na315-code");
+   await run("document.querySelector('.na315-code').focus()");
+   await expect("(()=>{const input=document.querySelector('.na315-code'),panel=document.querySelector('.na315-panel'),r=panel.getBoundingClientRect();return document.activeElement===input&&parseFloat(getComputedStyle(input).fontSize)>=16&&r.bottom<=visualViewport.height&&r.right<=innerWidth&&input.getBoundingClientRect().bottom<=r.bottom})()","MFA code and panel fit reduced viewport without zoom");
+   await snap(screen.name+"-admin-code");
    await cdp("Emulation.setDeviceMetricsOverride",{width:screen.width,height:screen.height,deviceScaleFactor:1,mobile:true});
   }
   await cdp("Page.navigate",{url:url+"?screen=personal"});

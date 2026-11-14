@@ -72,3 +72,56 @@
 .na321-approve fieldset label{display:flex;align-items:center;gap:8px}
 .na321-approve input[type=checkbox]{width:20px;min-height:20px}
 @media(max-width:560px){.na321-pending{padding:12px}.na321-pending-row{align-items:stretch;flex-direction:column}}
+
+.na315-page {
+  box-sizing: border-box;
+  min-height: 100svh;
+  place-items: start center;
+  padding-block: max(12px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-bottom));
+}
+.na315-panel {
+  min-width: 0;
+  max-width: 100%;
+}
+.na315-panel > header p {
+  width: fit-content;
+  color: #31574c;
+  font-size: clamp(14px, 3.8vw, 18px);
+  font-weight: 750;
+  letter-spacing: .04em;
+}
+.na315-panel > header p .noor-wordmark { color: inherit; }
+.na315-panel input:not([type="checkbox"]),
+.na315-panel select,
+.na315-panel textarea {
+  min-width: 0;
+  font-size: 16px;
+  scroll-margin-block: 12px;
+}
+.na315-panel input:focus-visible {
+  border-color: #4a7769;
+  outline: 2px solid #4a7769;
+  outline-offset: 1px;
+}
+.na315-panel .na315-code {
+  text-align: center;
+  font-size: 20px;
+  letter-spacing: .35em;
+  font-variant-numeric: tabular-nums;
+}
+.na315-qr {
+  box-sizing: border-box;
+  max-width: min(200px, 42svh);
+}
+@media (max-height: 560px) {
+  .na315-panel { padding: 14px; }
+  .na315-panel > header { margin-bottom: 10px; }
+  .na315-panel > header img { width: 40px; height: 40px; }
+  .na315-caution { padding: 7px 10px; margin-bottom: 12px; }
+  .na315-panel form { gap: 10px; margin-bottom: 8px; }
+}
+.na315-panel:not([data-step="complete"]) {
+  max-height: calc(var(--noor-admin-viewport, 100dvh) - max(12px, env(safe-area-inset-top)) - max(12px, env(safe-area-inset-bottom)));
+  overflow-y: auto;
+  scroll-padding-block: 12px;
+}
