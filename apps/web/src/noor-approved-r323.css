@@ -305,3 +305,16 @@ body:has(.np-r322-modal[data-open="true"],.np-r322-appointments-overlay[data-ope
   .noor-r323-gateway[data-auth-mode] .noor-r323-brand-label { display: none; }
   .noor-r323-gateway[data-auth-mode] .noor-welcome-eyebrow { margin-bottom: 8px; }
 }
+.noor-r323-gateway[data-auth-mode] .noor-welcome-logo {
+  width: 62px;
+  height: 62px;
+}
+@media (max-height: 500px) {
+  .noor-r323-gateway[data-auth-mode="login"] .noor-r323-auth-card {
+    padding-block: 10px;
+  }
+  .noor-r323-gateway[data-auth-mode="login"] .noor-r322-secondary-actions {
+    padding-block: 7px;
+    gap: 5px;
+  }
+}

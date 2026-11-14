@@ -75,6 +75,7 @@ try{
    await run("document.querySelector('.noor-auth-return-r312').click()");
    await run("document.querySelector('input[name=email]').focus()");
    await expect("document.activeElement.getBoundingClientRect().bottom<=visualViewport.height&&visualViewport.scale===1","Focused field fits the reduced mobile viewport");
+   await expect("document.querySelector('.noor-r322-admin-entry').getBoundingClientRect().bottom<=visualViewport.height","Login controls fit the reduced mobile viewport");
    await snap(screen.name+"-focused");
    await cdp("Emulation.setDeviceMetricsOverride",{width:screen.width,height:screen.height,deviceScaleFactor:1,mobile:true});
   }
