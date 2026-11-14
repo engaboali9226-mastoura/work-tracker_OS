@@ -216,9 +216,9 @@ function SmartGateway({
                 required disabled={submitting} placeholder="اسمك"/>
             </label>:null}
             {mode!=="recovery"?<label className="noor-welcome-field">
-              <span>البريد الإلكتروني</span>
-              <input name="email" type="email" dir="ltr" inputMode="email"
-                autoComplete="username" required disabled={submitting} placeholder="أدخل بريدك الإلكتروني" />
+              <span>{mode==="login"?"البريد الإلكتروني أو اسم المستخدم":"البريد الإلكتروني"}</span>
+              <input name="email" type={mode==="login"?"text":"email"} dir="ltr" inputMode="email" autoCapitalize="none" spellCheck={false}
+                autoComplete="username" required disabled={submitting} placeholder={mode==="login"?"البريد أو الاسم قبل @":"أدخل بريدك الإلكتروني"} />
             </label>:null}
             {mode==="login"||mode==="register"||mode==="recovery"?<label className="noor-welcome-field">
               <span>{mode==="recovery"?"كلمة المرور الجديدة":"كلمة المرور"}</span>
@@ -238,7 +238,7 @@ function SmartGateway({
               {!submitting?<span aria-hidden="true">←</span>:null}
             </button>
             {authenticationState==="invalid-credentials"&&mode==="login"?
-              <p className="noor-welcome-error" role="alert">البريد الإلكتروني أو كلمة المرور غير صحيحة، أو الحساب غير معتمد بعد.</p>:null}
+              <p className="noor-welcome-error" role="alert">بيانات تسجيل الدخول غير صحيحة، أو الحساب غير معتمد بعد.</p>:null}
             {authenticationState==="unavailable"&&mode==="login"?
               <p className="noor-welcome-error" role="alert">تعذر الاتصال بخدمة الدخول حاليًا. حاول مرة أخرى.</p>:null}
             {error?<p className="noor-welcome-error" role="alert">{error}</p>:null}

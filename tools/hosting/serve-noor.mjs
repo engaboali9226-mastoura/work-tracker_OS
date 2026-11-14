@@ -1,4 +1,5 @@
 import http from 'node:http';
+import {createUsernameLogin,createUsernameLoginHandler} from './noor-username-login.mjs';
 import {readFile,realpath,stat} from 'node:fs/promises';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
@@ -29,17 +30,22 @@ export function validatePublicBuildEnvironment(env){
 
 // Authentication, authorization, commands and persistence remain owned by the
 // existing runtime. This transport serves build files and streams API traffic.
-export async function createHostedWebServer({staticDirectory,apiOrigin,publicOrigin,releaseCommit=null}){
+export async function createHostedWebServer({staticDirectory,apiOrigin,publicOrigin,releaseCommit=null,usernameLogin}){
  const api=new URL(apiOrigin),origin=new URL(publicOrigin);
  if(!['http:','https:'].includes(origin.protocol)||origin.username||origin.password||origin.pathname!=='/'||origin.search||origin.hash)throw Error('PUBLIC_ORIGIN_INVALID');
  if(api.protocol!=='http:'||api.hostname!=='127.0.0.1'||api.username||api.password||api.pathname!=='/'||api.search||api.hash)throw Error('INTERNAL_API_ORIGIN_INVALID');
  const root=await realpath(staticDirectory),agent=new http.Agent({keepAlive:true,maxSockets:16});
+ const usernameHandler=usernameLogin&&createUsernameLoginHandler({authenticate:usernameLogin,origin:origin.origin});
  const releaseSha=publicReleaseCommit(releaseCommit);
  const server=http.createServer(async(req,res)=>{
   try{
    if(!req.url?.startsWith('/')||req.url.startsWith('//'))return reply(res,400,'Invalid request.',req.method);
    const url=new URL(req.url,origin);
    if(url.pathname==='/healthz')return reply(res,['GET','HEAD'].includes(req.method)?200:405,'ok',req.method,releaseSha?{'X-Noor-Release-Sha':releaseSha}:{});
+   if(url.pathname==='/api/noor/username-login'&&usernameHandler){
+    const {status,proof}=await usernameHandler(req);
+    return reply(res,status,JSON.stringify(proof?{proof}:{}),req.method,{'Content-Type':'application/json'});
+   }
    if(url.pathname==='/api/noor'||url.pathname.startsWith('/api/noor/')){
     const upstream=http.request({hostname:api.hostname,port:api.port,method:req.method,path:req.url,headers:{...forwarded(req.headers),host:origin.host},agent},incoming=>{
      res.writeHead(incoming.statusCode??502,forwarded(incoming.headers));incoming.on('error',()=>res.destroy());incoming.pipe(res);
@@ -82,7 +88,11 @@ async function main(){
  const runtime=createPrivilegedTransportRuntime({host,httpConfiguration});let server;
  try{
   await runtime.start();
-  server=await createHostedWebServer({staticDirectory:path.join(ROOT,'apps/web/dist'),apiOrigin:'http://127.0.0.1:8787',publicOrigin:httpConfiguration.publicOrigin,releaseCommit:process.env.RENDER_GIT_COMMIT});
+  server=await createHostedWebServer({staticDirectory:path.join(ROOT,'apps/web/dist'),apiOrigin:'http://127.0.0.1:8787',publicOrigin:httpConfiguration.publicOrigin,usernameLogin:createUsernameLogin({
+   url:process.env.SUPABASE_URL,
+   serverKey:process.env.SUPABASE_SERVICE_ROLE_KEY,
+   publishableKey:process.env.VITE_NOOR_SUPABASE_PUBLISHABLE_KEY,
+  }),releaseCommit:process.env.RENDER_GIT_COMMIT});
   await new Promise((resolve,reject)=>{server.once('error',reject);server.listen(port,'0.0.0.0',resolve);});
  }catch(error){await runtime.shutdown().catch(()=>{});throw error;}
  let stopping;const stop=()=>{stopping??=(async()=>{await new Promise(resolve=>server.close(resolve));await runtime.shutdown();})().catch(()=>{process.exitCode=1;});return stopping;};
