@@ -25,7 +25,7 @@ test("R231 root and /personal auth-required share identical premium Noor login s
  const root=markup({kind:"no-application-selected"});
  const personalEntry=markup({kind:"authentication-required",application:personal,authenticationState:"idle"});
  for(const view of [root,personalEntry]){
-  assert.match(view,/class="noor-welcome-gateway-r231"/u);
+  assert.match(view,/class="[^"]*\bnoor-welcome-gateway-r231\b[^"]*"/u);
   assert.match(view,/class="noor-welcome-panel"/u);
   assert.match(view,/src="\/noor-platform-logo\.jpeg"/u);
   assert.match(view,/مرحبا بك في منصة نور/u);
