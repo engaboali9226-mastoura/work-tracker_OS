@@ -120,6 +120,12 @@ run_step \
     "Run tests" \
     npm test
 
+# Candidate-only real application proof, using compiled workspace and an
+# isolated disposable database. No additional legacy tests repeated here.
+if [ "${GITHUB_ACTIONS:-}" = true ] && [[ "${GITHUB_HEAD_REF:-}" == foundation/r386-* ]]; then
+    run_step "R386 isolated real application save integration" bash tools/data-foundation/r386/run-s3-application-ci.sh
+fi
+
 echo
 echo "============================================================"
 echo " CANONICAL ARCHITECTURE VALIDATION PASS"

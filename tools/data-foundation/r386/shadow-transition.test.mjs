@@ -1,0 +1,24 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import {canonicalJson,logicalRequestDigest,planOwnerShadow} from "./shadow-transition.mjs";
+const owner="synthetic-owner";
+const evt=(i,def="d1",deliveryState="Pending")=>({id:"e"+i,idempotencyKey:"k"+i,eventType:"ExecutionCompleted",eventVersion:1,aggregateType:"DailyExecutionInstance",aggregateId:"x"+i,aggregateVersion:2,userId:owner,personalDayId:"day1",occurredAt:"2026-11-01T09:00:00.000Z",correlationId:"c"+i,privacyClassification:"PersonalOperationalData",payload:{definitionId:def,executionStatus:"Completed"},deliveryState});
+const baseline=()=>({definitions:[{id:"d1",revisionId:"r1",userId:owner},{id:"d2",revisionId:"r2",userId:owner}],dailyExecution:[{id:"x1",definitionId:"d1",definitionRevisionId:"r1",userId:owner},{id:"x2",definitionId:"d2",definitionRevisionId:"r2",userId:owner}],outbox:[evt(1),evt(2,"d2")]});
+const plan=(before,after,opts={})=>planOwnerShadow({owner,oldRevision:7,newRevision:8,before,after,...opts});
+test("logical receipt hash canonicalizes key order, scopes request/owner and never stores text",()=>{const a=logicalRequestDigest(owner,"req",{type:"note",body:"synthetic",n:1});assert.equal(a.length,64);assert.equal(a,logicalRequestDigest(owner,"req",{n:1,body:"synthetic",type:"note"}));assert.notEqual(a,logicalRequestDigest(owner,"req",{n:1,body:"changed",type:"note"}));assert.notEqual(a,logicalRequestDigest(owner,"req2",{n:1,body:"synthetic",type:"note"}));assert.notEqual(a,logicalRequestDigest("other","req",{n:1,body:"synthetic",type:"note"}));for(const v of [undefined,NaN,Infinity,()=>{},[,,1]])assert.throws(()=>canonicalJson(v),/R386_NON_JSON/);const cyclic={};cyclic.self=cyclic;assert.throws(()=>canonicalJson(cyclic),/R386_CYCLE/);});
+test("record history separately from delivery; never mutate source",()=>{const a=baseline(),b=structuredClone(a);b.outbox[0].deliveryState="Delivered";b.outbox.push(evt(3,"d2"));const original=JSON.stringify(b);const p=plan(a,b);assert.equal(p.additions.length,1);assert.equal(p.additions[0].deliveryState,"Pending");assert.equal(Object.hasOwn(p.additions[0].history,"deliveryState"),false);assert.deepEqual(p.deliveryUpdates,[{eventId:"e1",from:"Pending",to:"Delivered"}]);assert.equal(JSON.stringify(b),original);assert.equal(p.removals.length,0);});
+test("authorized permanent deletion removes only matching events, unrelated retained",()=>{const a=baseline(),b=structuredClone(a);b.definitions.shift();b.dailyExecution.shift();b.outbox.shift();assert.deepEqual(plan(a,b,{deletedDefinitionId:"d1"}).removals,["e1"]);assert.throws(()=>plan(a,b),/R386_UNAUTHORIZED_DEFINITION_REMOVAL/);assert.throws(()=>plan(a,{...a,outbox:[a.outbox[1]]}),/R386_UNAUTHORIZED_EVENT_REMOVAL/);assert.throws(()=>plan(a,{...b,outbox:[]},{deletedDefinitionId:"d1"}),/R386_UNAUTHORIZED_EVENT_REMOVAL/);assert.throws(()=>plan(a,{...b,outbox:a.outbox},{deletedDefinitionId:"d1"}),/R386_INCOMPLETE_PERMANENT_DELETE/);assert.throws(()=>plan(a,{...b,dailyExecution:a.dailyExecution},{deletedDefinitionId:"d1"}),/R386_SHADOW_ORPHAN_EXECUTION|R386_DELETE_SCOPE/);});
+test("archive is not permanent deletion; no history removed",()=>{const a=baseline(),b=structuredClone(a);b.definitions[0].state="Archived";assert.deepEqual(plan(a,b).removals,[]);});
+test("reject wrong revision, ownership, immutable event mutation, key changes",()=>{const a=baseline();assert.throws(()=>plan(a,a,{newRevision:9}),/R386_SHADOW_REVISION/);assert.throws(()=>plan(a,{...a,definitions:[{...a.definitions[0],userId:"other"}]}),/R386_SHADOW_DEFINITION/);const b=structuredClone(a);b.outbox[0].occurredAt="2026-11-01T10:00:00.000Z";assert.throws(()=>plan(a,b),/R386_SHADOW_EVENT_MUTATED/);const c=structuredClone(a);c.outbox[0].idempotencyKey="new";assert.throws(()=>plan(a,c),/R386_SHADOW_EVENT_MUTATED/);});
+
+test("reject unrelated operational erasure even without events, orphan links and identity reparenting",()=>{
+ const a=baseline();a.definitions.push({id:"d3",revisionId:"r3",userId:owner});a.dailyExecution.push({id:"x3",definitionId:"d3",definitionRevisionId:"r3",userId:owner});
+ const b=structuredClone(a);b.definitions.pop();b.dailyExecution.pop();
+ assert.throws(()=>plan(a,b),/R386_UNAUTHORIZED_DEFINITION_REMOVAL/);
+ const c=structuredClone(a);c.dailyExecution.pop();assert.throws(()=>plan(a,c),/R386_UNAUTHORIZED_EXECUTION_REMOVAL/);
+ const d=structuredClone(a);d.dailyExecution[2].definitionId="d2";assert.throws(()=>plan(a,d),/R386_EXECUTION_REPARENTED/);
+ const e=structuredClone(a);e.dailyExecution[2].definitionId="missing";assert.throws(()=>plan(a,e),/R386_SHADOW_ORPHAN_EXECUTION/);
+ const f=structuredClone(b);f.definitions.shift();f.dailyExecution.shift();f.outbox.shift();
+ assert.throws(()=>plan(a,f,{deletedDefinitionId:"d1"}),/R386_UNAUTHORIZED_DEFINITION_REMOVAL/);
+ const empty={definitions:[],dailyExecution:[],outbox:[]};assert.throws(()=>plan(empty,empty,{owner:""}),/R386_SHADOW_STATE/);
+});

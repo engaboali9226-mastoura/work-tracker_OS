@@ -1,7 +1,8 @@
 import {NoorContextHelp} from "./noor-context-help-r382.js";
 import { NoorBrandHeader } from "./noor-brand-r329.js";
 import { NoorWordmark } from "./noor-wordmark.js";
-import {useState,type FormEvent,type ReactElement} from "react";
+import {useRef,useState,type FormEvent,type ReactElement} from "react";
+import {createR386CommandIntent,sendR386CommandIntentRaw,type R386CommandIntent} from "./noor-personal-today-client.js";
 import {revokeNoorBrowserSessionR269} from "./noor-session-logout-client-r269.js";
 
 type CityKey="riyadh"|"cairo"|"dubai"|"london";
@@ -28,15 +29,16 @@ export function NoorPersonalInitialSetupR321({onConfigured}:{
  const [busy,setBusy]=useState(false);
  const [error,setError]=useState("");
  const [notice,setNotice]=useState("");
+ const pendingIntent=useRef<R386CommandIntent|null>(null);
  const submit=async(e:FormEvent<HTMLFormElement>)=>{
   e.preventDefault();if(busy||!city||!method||!confirmed)return;
   setBusy(true);setError("");setNotice("");
   try{
-   const response=await fetch("/api/noor/personal/command",{
-    method:"POST",credentials:"same-origin",cache:"no-store",
-    headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({type:"initialize-personal-profile-r321",city,calculationMethod:method}),
-   });
+   const command={type:"initialize-personal-profile-r321" as const,city,calculationMethod:method};
+   const intent=pendingIntent.current??createR386CommandIntent(command);
+   pendingIntent.current=intent;
+   const response=await sendR386CommandIntentRaw(intent);
+   if(response.status===204||response.status===409||response.status===400||response.status===401||response.status===403)pendingIntent.current=null;
    if(response.status===204){
     setNotice("تم اعتماد مدينتك وطريقة حساب مواقيت الصلاة. جارٍ تجهيز يوم نور…");
     await onConfigured();return;
@@ -71,14 +73,14 @@ export function NoorPersonalInitialSetupR321({onConfigured}:{
     <div className="np-r321-city-grid">
      {cities.map(c=><label key={c.key} className={city===c.key?"np-r321-selected":""}>
       <input type="radio" name="city" value={c.key} checked={city===c.key}
-        disabled={busy} onChange={()=>{setCity(c.key);setConfirmed(false);}}/>
+        disabled={busy} onChange={()=>{pendingIntent.current=null;setCity(c.key);setConfirmed(false);}}/>
       <strong>{c.name}</strong><small dir="ltr">{c.timeZone}</small>
      </label>)}
     </div>
    </fieldset>
    <fieldset><legend><span className="np-r321-step">٢</span> طريقة حساب مواقيت الصلاة<NoorContextHelp label="مساعدة: اختر المرجع المناسب لمنطقتك">اختر المرجع المناسب لمنطقتك؛ يمكنك ضبط المدينة لاحقًا من مركز التحكم.</NoorContextHelp></legend>
     <select required aria-label="طريقة حساب الصلاة" disabled={busy} value={method}
-      onChange={e=>{setMethod(e.target.value as PrayerMethod);setConfirmed(false);}}>
+      onChange={e=>{pendingIntent.current=null;setMethod(e.target.value as PrayerMethod);setConfirmed(false);}}>
      <option value="">اختر طريقة الحساب…</option>
      {methods.map(m=><option key={m.key} value={m.key}>{m.label}</option>)}
     </select>

@@ -1002,6 +1002,49 @@ implements PersonalFoundationOperation {
   }
 }
 
+// Isolated candidate evaluation uses the actual production transaction implementation
+// against a private clone, without a database write, command cache or RPC call.
+// Only a server-authorized work callback may use this boundary.
+export async function evaluateR386PersonalFoundationCandidate(
+  userId:string,state:unknown,
+  work:(scope:PersonalFoundationOperation)=>Promise<void>,
+):Promise<unknown>{
+  assertUserId(userId);
+  const decoded=decodeState(state);
+  if(decoded.personalProfile && decoded.personalProfile.userId!==userId)
+    throw new ProductionAdapterError("PersistenceCorruptRecord","Personal Foundation profile owner mismatch.");
+  const loaded:LoadedFoundation={existed:true,revision:0,state:decoded};
+  let candidate:FoundationState|undefined;
+  const scope=new BoundFoundationOperation(userId,loaded,async next=>{candidate=clone(next);});
+  await work(scope);
+  return asJson(candidate??decoded);
+}
+
+// Pure mirror of the approved R321 initialization state transition; not an
+// alternative to its managed Auth/entitlement checks. Isolated candidate only.
+export function evaluateR386InitializationCandidate(
+  userId:string,state:unknown,city:"riyadh"|"cairo"|"dubai"|"london",
+  calculationMethod:"UmmAlQura"|"Egyptian"|"MuslimWorldLeague"|"Karachi"|"NorthAmerica",
+  instant:IsoInstant,locationId:string,policyId:string,
+):unknown|null{
+  assertUserId(userId);
+  const decoded=decodeState(state);
+  if(decoded.personalProfile && decoded.personalProfile.userId!==userId)
+    throw new ProductionAdapterError("PersistenceCorruptRecord","Personal Foundation profile owner mismatch.");
+  if(decoded.locations.length||decoded.prayerPolicies.length||decoded.personalDays.length||decoded.islamicContexts.length)return null;
+  const cities={
+    riyadh:{name:"الرياض، السعودية",latitude:24.71,longitude:46.68,timeZone:"Asia/Riyadh"},
+    cairo:{name:"القاهرة، مصر",latitude:30.04,longitude:31.24,timeZone:"Africa/Cairo"},
+    dubai:{name:"دبي، الإمارات",latitude:25.20,longitude:55.27,timeZone:"Asia/Dubai"},
+    london:{name:"لندن، بريطانيا",latitude:51.51,longitude:-0.13,timeZone:"Europe/London"},
+  } as const;
+  if(!Object.hasOwn(cities,city)||!["UmmAlQura","Egyptian","MuslimWorldLeague","Karachi","NorthAmerica"].includes(calculationMethod))
+    throw new ProductionAdapterError("PersistenceTransactionAborted","Invalid initial configuration.");
+  const location:LocationProfileRevision={id:locationId,userId,...cities[city],effectiveFrom:instant};
+  const policy:PrayerTimePolicyRevision={id:policyId,userId,calculationMethod,fajrAdjustmentMinutes:0,personalDayOffsetMinutes:0,effectiveFrom:instant};
+  return asJson({...decoded,locations:[location],prayerPolicies:[policy]});
+}
+
 export class SupabasePostgresPersonalFoundationPersistence
 implements
   NoorFoundationPersistenceAdapter,

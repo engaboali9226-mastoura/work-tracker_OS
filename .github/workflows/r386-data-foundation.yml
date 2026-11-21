@@ -1,0 +1,59 @@
+name: R386 isolated event foundation
+on:
+  pull_request:
+    paths:
+      - 'tools/data-foundation/r386/**'
+      - '.github/workflows/r386-data-foundation.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  synthetic-postgres:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: synthetic-ci-only
+          POSTGRES_DB: noor_r386_synthetic
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d noor_r386_synthetic"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      PGHOST: 127.0.0.1
+      PGPORT: '5432'
+      PGUSER: postgres
+      PGPASSWORD: synthetic-ci-only
+      PGDATABASE: noor_r386_synthetic
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up isolated role fixture
+        run: |
+          psql -X -v ON_ERROR_STOP=1 -c 'CREATE ROLE anon NOLOGIN; CREATE ROLE authenticated NOLOGIN; CREATE ROLE service_role NOLOGIN BYPASSRLS;'
+      - name: Create experiment schema
+        run: psql -X -v ON_ERROR_STOP=1 -1 -f tools/data-foundation/r386/staging-lab-schema.sql
+      - name: Upgrade synthetic lab to v2
+        run: psql -X -v ON_ERROR_STOP=1 -1 -f tools/data-foundation/r386/staging-lab-v2.sql
+      - name: Atomic CAS and request receipt proof
+        run: psql -X -v ON_ERROR_STOP=1 -f tools/data-foundation/r386/staging-lab-atomic.sql
+      - name: Bounded logical command receipt proof
+        run: psql -X -v ON_ERROR_STOP=1 -f tools/data-foundation/r386/staging-lab-logical-receipt.sql
+      - name: Split history, delivery and authorized erasure proof
+        run: psql -X -v ON_ERROR_STOP=1 -f tools/data-foundation/r386/staging-lab-split-erasure.sql
+      - name: Regression, privilege and rollback proof
+        run: psql -X -v ON_ERROR_STOP=1 -f tools/data-foundation/r386/staging-lab-regression.sql
+      - name: Representative synthetic volume
+        run: psql -X -v ON_ERROR_STOP=1 -f tools/data-foundation/r386/staging-lab-scale.sql
+      - name: Create the bounded shadow copy fixture
+        run: psql -X -v ON_ERROR_STOP=1 -1 -f tools/data-foundation/r386/staging-lab-shadow-backfill.sql
+      - name: Verify resumption and exact read-only source parity
+        run: psql -X -v ON_ERROR_STOP=1 -f tools/data-foundation/r386/staging-lab-shadow-regression.sql
+      - name: Verify no fixture data remains
+        run: |
+          psql -X -v ON_ERROR_STOP=1 -c "DO \$\$ BEGIN IF EXISTS (SELECT 1 FROM noor_r386_lab.synthetic_source) OR EXISTS (SELECT 1 FROM noor_r386_lab.event_history) OR EXISTS (SELECT 1 FROM noor_r386_lab.checkpoint) OR EXISTS (SELECT 1 FROM noor_r386_lab.command_receipt) OR EXISTS (SELECT 1 FROM noor_r386_lab.shadow_progress) OR EXISTS (SELECT 1 FROM noor_r386_lab.shadow_history) OR EXISTS (SELECT 1 FROM noor_r386_lab.shadow_delivery) THEN RAISE EXCEPTION 'residual fixture data'; END IF; END \$\$;"

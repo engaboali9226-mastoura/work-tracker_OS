@@ -25,6 +25,12 @@ jobs:
           node-version: 24.x
           cache: npm
 
+      - name: R386 isolated PostgreSQL 17 concurrency and persistence proof
+        if: startsWith(github.head_ref, 'foundation/r386-')
+        run: bash tools/data-foundation/r386/run-isolated-ci.sh
+      - name: R386 offline legacy event contract
+        if: startsWith(github.head_ref, 'foundation/r386-')
+        run: node --test tools/data-foundation/r386/*.test.mjs
       - name: Run canonical architecture validation
         run: bash tools/ci/run-architecture-validation.sh
       - name: Build workspace
@@ -39,3 +45,4 @@ jobs:
           name: noor-r323-browser-evidence
           path: r323-visual-evidence/
           if-no-files-found: warn
+

@@ -671,6 +671,7 @@ async function handlePersonalToday(
         ),
     });
 
+  if((result.status===200||result.status===409)&&executor.atomicSaveProtocol==="r386")response.setHeader("X-Noor-Atomic-Save","r386");
   if (
     result.status
     === 200
@@ -767,6 +768,7 @@ async function handlePersonalWorkspace(
   });
 
   if (result.status === 200) {
+    if(executor.atomicSaveProtocol==="r386")response.setHeader("X-Noor-Atomic-Save","r386");
     if (result.body === undefined) {
       writeEmpty(response, 500);
       return;
@@ -813,7 +815,22 @@ async function handlePersonalCommand(
     return;
   }
 
+  // A client which has observed the atomic coordinator cannot silently fall
+  // back to the legacy path on a later explicit retry or deployment rollback.
+  const requireAtomic=request.headers["x-noor-require-atomic-save"];
+  if(requireAtomic!==undefined&&requireAtomic!=="r386"){
+    writeEmpty(response,400);return;
+  }
+  if(requireAtomic==="r386"&&executor.atomicSaveProtocol!=="r386"){
+    writeEmpty(response,503);return;
+  }
+  const requestId=request.headers["x-noor-request-id"];
+  if(requestId!==undefined && typeof requestId!=="string"){
+    writeEmpty(response,400);
+    return;
+  }
   const result = await executor.executeCommand({
+    ...(requestId===undefined?{}:{requestId}),
     sessionId:
       sessionIdFromCookieHeader(
         request.headers.cookie,

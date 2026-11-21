@@ -503,3 +503,22 @@ test("R258: a rejected note edit forces a fresh workspace read instead of reusin
  assert.equal(again.kind,"success");
  if(again.kind==="success")assert.equal((again.workspace as any).definitions[0].taskGeneralNote,"REMOTE EDIT FROM PHONE");
 });
+
+
+test("R386 normal sender retains only the same ambiguous logical intent, not equal independent commands",async()=>{
+ const seen:{id:string|null;body:unknown}[]=[];
+ const fetcher:typeof fetch=async(_input,init)=>{
+  seen.push({id:new Headers(init?.headers).get("X-Noor-Request-Id"),body:init?.body});
+  if(seen.length===1)throw Error("ACK_LOST");
+  return new Response(null,{status:204});
+ };
+ const command={type:"set-execution-completed" as const,executionId:"execution-1",completed:true};
+ assert.equal((await sendNoorPersonalCommandDetailed(command,fetcher)).kind,"unavailable");
+ assert.equal((await sendNoorPersonalCommandDetailed(command,fetcher)).kind,"success");
+ assert.match(seen[0]!.id??"",/^client-[0-9a-f-]{36}$/);
+ assert.deepEqual(seen[0],seen[1]);
+ assert.equal((await sendNoorPersonalCommandDetailed({...command},fetcher)).kind,"success");
+ assert.notEqual(seen[1]!.id,seen[2]!.id);
+ assert.equal((await sendNoorPersonalCommandDetailed(command,fetcher)).kind,"success");
+ assert.notEqual(seen[0]!.id,seen[3]!.id);
+});

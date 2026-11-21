@@ -23,6 +23,7 @@ import {
 import type {
   EnsureTodayDependencies,
   PersonalFoundationOperationScopeProvider,
+  PersonalFoundationOperation,
   TodayDashboard,
 } from "@noor/personal";
 
@@ -31,6 +32,7 @@ import type {
 } from "@worktracker/infrastructure";
 
 export interface PersonalTodayExecutor {
+  readonly atomicSaveProtocol?: "r386"|undefined;
   execute(
     input:
       Readonly<{
@@ -93,7 +95,10 @@ type EnsureTodayStableDependencies =
     | "transaction"
   >;
 
+import type {R386AtomicSaveCandidate} from "./personal-control-operation.js";
+
 export interface PersonalTodayOperationDependencies {
+  readonly atomicSaveCandidate?: Pick<R386AtomicSaveCandidate,"reconcile">;
   readonly isRuntimeRunning:
     () => boolean;
 
@@ -143,6 +148,7 @@ boolean {
 
 export class PersonalTodayOperation
 implements PersonalTodayExecutor {
+  public get atomicSaveProtocol():"r386"|undefined{return this.dependencies.atomicSaveCandidate?"r386":undefined;}
   public constructor(
     private readonly dependencies:
       PersonalTodayOperationDependencies,
@@ -290,30 +296,29 @@ implements PersonalTodayExecutor {
     }
 
     try {
-      const scope =
-        await this.dependencies
-          .foundation
-          .openOperation(
-            userId.toString(),
-          );
-
-      const service =
+      const ownerId=userId.toString();
+      let scope:PersonalFoundationOperation;
+      let today:TodayDashboard;
+      const executeToday=(operation:PersonalFoundationOperation,instant?:string)=>
         new EnsureTodayService({
-          ...this.dependencies
-            .ensureToday,
-          locations:
-            scope.locations,
-          prayerPolicies:
-            scope.prayerPolicies,
-          transaction:
-            scope.transaction,
+          ...this.dependencies.ensureToday,
+          ...(instant===undefined?{}:{clock:{now:()=>instant}}),
+          locations:operation.locations,
+          prayerPolicies:operation.prayerPolicies,
+          transaction:operation.transaction,
+        }).execute(ownerId);
+      if(this.dependencies.atomicSaveCandidate){
+        const instant=this.dependencies.ensureToday.clock.now();
+        const candidate=await this.dependencies.atomicSaveCandidate.reconcile({
+          ownerId,instant,evaluate:operation=>executeToday(operation,instant),
         });
-
-      const today:
-        TodayDashboard =
-          await service.execute(
-            userId.toString(),
-          );
+        if(candidate.status!==200)return empty(candidate.status);
+        scope=candidate.scope;
+        today=candidate.value;
+      }else{
+        scope=await this.dependencies.foundation.openOperation(ownerId);
+        today=await executeToday(scope);
+      }
 
       // This is an account-owned, read-only projection. Never trust browser
       // coordinates and never expose precise location-profile coordinates.
